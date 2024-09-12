@@ -71,7 +71,7 @@ h_store_4:
 	rts
 
 ; ** SUBROUTINE: h_generate_metatiles
-; desc:    Generates a column of metatiles ahead of the visual column render logic.
+; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_generate_metatiles:
 	ldy #$00
 h_genmtloop:
@@ -87,6 +87,20 @@ h_genmtloop:
 	and #$1F
 	sta arwrhead
 	rts
+
+; ** SUBROUTINE: h_generate_if_needed
+; desc:    Generates a column of metatiles ahead of the visual column render head,
+;          if needed. Clears the gs_gentiles bit from gamectrl.
+h_generate_if_needed:
+	lda #gs_gentiles
+	bit gamectrl
+	bne h_gm_generate
+	rts
+h_gm_generate:
+	lda gamectrl
+	and #(gs_gentiles ^ %11111111)
+	sta gamectrl
+	jmp h_generate_metatiles
 
 ; ** SUBROUTINE: h_generate_column
 ; desc:    Generates a vertical column of characters corresponding to the respective
@@ -138,7 +152,8 @@ h_gen_wrloop:
 	sta ntwrhead
 	
 	; set the PPUCTRL increment back to 1
-	lda #ctl_irq_off
+	lda ctl_flags
+	ora #ctl_irq_off
 	sta ppu_ctrl
 	
 	; check if we were writing the odd column
@@ -159,36 +174,26 @@ gm_game_init:
 	sta ntwrhead
 	sta arwrhead
 	sta ppu_mask      ; disable rendering
+	sta camera_x
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
 	
-	; fill 512 bytes of areaspace with garbage
-;	ldy #$00
-;loop1:
-;	jsr rand
-;	sta areaspace, y
-;	sta areaspace+$100, y
-;	iny
-;	cpy #$00
-;	bne loop1
 	jsr h_generate_metatiles
 	
-	jsr print_logo
-	
-	; generate 48 columns
-;	ldy #$00
-;	sty ntwrhead
-;loop2:
-;	tya
-;	pha
-;	jsr h_generate_column
-;	pla
-;	tay
-;	iny
-;	cpy #$30
-;	bne loop2
+	; generate tilesahead columns
+	ldy #$00
+loop2:
+	tya
+	pha
+	jsr h_generate_if_needed
+	jsr h_generate_column
+	pla
+	tay
+	iny
+	cpy #tilesahead
+	bne loop2
 	
 	jsr ppu_rstaddr   ; reset PPUADDR
 	lda #def_ppu_msk  ; turn rendering back on
@@ -206,11 +211,30 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	;;jsr tl_update_snow
-	;;jsr tl_render_snow
-	lda #gs_gentiles
-	bit gamectrl
-	bne gm_dontgen
-	jsr h_generate_metatiles
-gm_dontgen:
+	jsr h_generate_if_needed
+	
+	; for now, check if the right key is pressed, and advance the
+	; camera and column generation logic
+	lda #cont_right
+	bit p1_cont
+	beq gm_dontright
+	
+	; add camspeed to camera_x / camera_x_hi. make sure camera_x_hi
+	; is 0 and 1 only.
+	lda #camspeed
+	clc
+	adc camera_x
+	sta camera_x
+	lda #0
+	adc camera_x_hi
+	and #1
+	sta camera_x_hi
+	lda #7
+	bit camera_x
+	bne gm_dontright
+	
+	lda gamectrl
+	ora #gs_gencols
+	sta gamectrl
+gm_dontright:
 	jmp game_update_return

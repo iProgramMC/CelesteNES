@@ -24,6 +24,8 @@ lastpage    = $FF00
 ctl_irq_off = %00110000 ; PPUCTRL with IRQs off
 ctl_irq_on  = %10110000 ; PPUCTRL with IRQs on
 ctl_irq_i32 = %00110100 ; PPUCTRL with IRQs off and 32 byte address advance when writing
+ctl_highx   = %00000001 ; +256 to screen scroll
+ctl_highy   = %00000010 ; +240 to screen scroll
 def_ppu_msk = %00011110
 gm_game     = $00   ; Game Modes
 gm_title    = $01
@@ -41,7 +43,10 @@ ts_1stfr    = $01   ; first frame of title screen
 gs_1stfr    = $01   ; first frame of game screen
 gs_vertical = $02   ; is the level vertical?
 gs_gentiles = $04   ; need to generate metatiles
+gs_gencols  = $08   ; need to generate visual columns
 lf_vertical = $01   ; level flag: is this level vertical
+tilesahead  = 36    ; tiles ahead of camera X
+camspeed    = 2     ; pixels advanced per frame by camera
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -60,9 +65,10 @@ player_sp_x = $0012 ; subpixel memory X
 player_sp_y = $0013 ; subpixel memory Y
 camera_x    = $0014
 camera_y    = $0015
-scrincoff   = $0016 ; screen increment offset - copied into ppuctrl
+ctl_flags   = $0016 ; copied into ppuctrl
 gamemode    = $0017 ; active game mode
 titlectrl   = $0018 ; title control
+camera_x_hi = $0019
 
 ; NOTE: these addresses can and should be repurposed for in-game
 tl_snow_y   = $0020 ; Y coordinates of the 16 snow particles
@@ -180,7 +186,7 @@ load_palette_loop:
 ; arguments: none
 ; clobbers: A
 ppu_nmi_off:
-	lda scrincoff
+	lda ctl_flags
 	ora #ctl_irq_off
 	sta ppu_ctrl
 	rts
@@ -189,7 +195,7 @@ ppu_nmi_off:
 ; arguments: none
 ; clobbers: A
 ppu_nmi_on:
-	lda scrincoff
+	lda ctl_flags
 	ora #ctl_irq_on
 	sta ppu_ctrl
 	rts

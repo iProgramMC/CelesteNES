@@ -15,11 +15,12 @@ nmi_titletra:
 	jmp nmi_gamemodeend
 
 nmi_game:
-	lda #cont_right
-	bit p1_cont
+	lda #gs_gencols
+	bit gamectrl
 	beq nmi_gamemodeend
-	;bit p1_conto
-	;bne nmi_gamemodeend
+	lda gamectrl
+	and #(gs_gencols ^ %11111111)
+	sta gamectrl
 	jsr h_generate_column
 	jmp nmi_gamemodeend
 
@@ -40,7 +41,20 @@ nmi:
 	beq nmi_game
 	
 nmi_gamemodeend:
-	jsr ppu_rstaddr
+	
+	ldx camera_x_hi
+	beq nmi_nocamhi
+	lda ctl_flags
+	ora #ctl_highx
+	jmp nmi_camhid
+nmi_nocamhi:
+	lda ctl_flags
+	and #(ctl_highx ^ %11111111)  ; can't do "and #~ctl_highy" for some reason!
+nmi_camhid:
+	sta ctl_flags
+	jsr ppu_nmi_on
+	
+	;jsr ppu_rstaddr
 	
 	ldx camera_x
 	stx ppu_scroll
