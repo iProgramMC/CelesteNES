@@ -1,0 +1,6 @@
+keep/*
+*.dbg
+*.deb
+*.dep
+*.o
+*.nes
