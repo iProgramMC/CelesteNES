@@ -1,0 +1,296 @@
+
+; title modes
+title_1stfr = $01  ; first frame
+
+; ** INTERRUPT HANDLER: nmi
+nmi_titletra:
+	lda tl_timer
+	and #$08
+	lsr
+	lsr
+	lsr
+	ldy #$3F
+	ldx #$01
+	jsr ppu_loadaddr
+	tay
+	lda alt_colors, y
+	sta ppu_data
+	jmp nmi_gamemodeend
+
+nmi:
+	pha
+	txa
+	pha
+	tya
+	pha
+	
+	lda #oam_buf_hi   ; load the high byte of the OAM DMA address
+	sta apu_oam_dma   ; and perform the DMA!
+	
+	ldx gamemode
+	cpx #gm_titletra
+	beq nmi_titletra
+	
+	
+nmi_gamemodeend:
+	jsr ppu_rstaddr
+	
+	pla
+	tay
+	pla
+	tax
+	pla
+	rti
+
+; ** SUBROUTINE: print_logo
+; clobbers: a, x, y
+; assumes:  video output disabled
+print_logo_pal:
+	ldx #<logo_pal
+	ldy #>logo_pal
+	lda #$4
+	jsr ppu_wrstring
+	rts
+print_logo:
+	; write the actual logo
+	ldy #$21
+	ldx #$4C
+	jsr ppu_loadaddr
+	ldx #<logo_row1
+	ldy #>logo_row1
+	lda #7
+	jsr ppu_wrstring
+	
+	ldy #$21
+	ldx #$6C
+	jsr ppu_loadaddr
+	ldx #<logo_row2
+	ldy #>logo_row2
+	lda #7
+	jsr ppu_wrstring
+	
+	ldy #$21
+	ldx #$8C
+	jsr ppu_loadaddr
+	ldx #<logo_row3
+	ldy #>logo_row3
+	lda #7
+	jsr ppu_wrstring
+	
+	ldy #$21
+	ldx #$AC
+	jsr ppu_loadaddr
+	ldx #<logo_row4
+	ldy #>logo_row4
+	lda #7
+	jsr ppu_wrstring
+	
+	; write the "PRESS START" text
+	ldy #$22
+	ldx #$8A
+	jsr ppu_loadaddr
+	ldx #<logo_pressstart
+	ldy #>logo_pressstart
+	lda #11
+	jsr ppu_wrstring
+	
+	; write the palette
+	ldy #$23
+	ldx #$D2
+	jsr ppu_loadaddr
+	jsr print_logo_pal
+	jsr print_logo_pal
+	jsr print_logo_pal
+	rts
+
+; ** SUBROUTINE: tl_adjust_y
+; arguments: a - the Y coordinate to adjust
+; returns:   a - the adjusted Y coordinate
+; clobbers:  x
+; desc:      adjusts a Y coordinate to fit in a [0, 224] range
+tl_adjust_y:
+	tax
+	cpx #$E0
+	bcc tl_adjusret
+	sbc #$E0
+	asl
+	asl
+	asl
+	asl
+	and #%11011111
+tl_adjusret:
+	rts
+
+; ** SUBROUTINE: tl_init_snow
+tl_init_snow:
+	ldy #$00           ; initialize Y coordinates
+tl_initloop1:
+	jsr rand
+	sta tl_snow_y, y
+	iny
+	cpy #$10
+	bne tl_initloop1
+	
+	ldy #$00           ; initialize X coordinates
+tl_initloop2:
+	jsr rand
+	sta tl_snow_x, y
+	iny
+	cpy #$10
+	bne tl_initloop2
+
+	rts
+
+osciltable:
+	.byte $FF,$FF,$00,$00,$00,$00,$01,$01,$01,$01,$00,$00,$00,$00,$FF,$FF
+
+; ** SUBROUTINE: tl_update_snow
+tl_update_snow:
+	ldx tl_timer
+	inx
+	stx tl_timer
+	ldy #$00
+	
+	; update Y coordinate to oscillate
+tl_updaupdloop:
+	tya
+	adc tl_timer
+	and #$07
+	bne tl_updadontosci
+	tya
+	adc tl_timer
+	lsr
+	lsr
+	lsr
+	and #$0F
+	tax
+	lda tl_snow_y, y
+	clc
+	adc osciltable, x
+	sta tl_snow_y, y
+tl_updadontosci:
+	
+	; update X coordinate to go left
+	ldx tl_snow_x, y
+	dex
+	beq tl_updatrespawn
+	tya
+	and #$01
+	bne tl_updadontdecr
+	dex
+	beq tl_updatrespawn
+tl_updadontdecr:
+	stx tl_snow_x, y
+tl_updacontinue:
+	
+	; move on to the next particle
+	iny
+	cpy #$10
+	bne tl_updaupdloop
+	rts
+tl_updatrespawn:         ; respawn this particle
+	lda #$FF
+	sta tl_snow_x, y
+	jsr rand
+	jsr tl_adjust_y
+	sta tl_snow_y, y
+	jmp tl_updacontinue
+
+snow_sprites: .byte $16, $18
+
+; ** SUBROUTINE: tl_render_snow
+tl_render_snow:
+	ldy #$00
+tl_render_loop:
+	lda tl_snow_y, y
+	sta y_crd_temp
+	lda tl_snow_x, y
+	sta x_crd_temp
+	tya
+	pha
+	and #$01
+	tay
+	lda snow_sprites, y
+	tay
+	lda #3
+	jsr oam_putsprite
+	pla
+	tay
+	iny
+	cpy #$10
+	bne tl_render_loop
+	rts
+
+; ** GAMEMODE: gamemode_title
+gamemode_title:
+	lda #title_1stfr
+	bit titlectrl    ; might need to update the screen buffer
+	bne gamemode_title_update 
+	jsr vblank_wait  ; wait for vblank
+	lda #$00
+	sta ppu_mask     ; disable rendering
+	lda #$20
+	jsr clear_nt     ; clear the screen
+	jsr print_logo   ; print the logo and the "PRESS BUTTON" text
+	jsr tl_init_snow ; initialize snow
+	jsr ppu_rstaddr
+	jsr ppu_rstaddr  ; reset PPUADDR
+	lda #def_ppu_msk ; turn rendering back on
+	sta ppu_mask
+	jsr vblank_wait
+	lda titlectrl
+	ora #title_1stfr  ; set bit 1
+	sta titlectrl
+	
+gamemode_title_update:
+	jsr tl_update_snow
+	jsr tl_render_snow
+	
+	jsr rand
+	tay
+	cpy #$F0
+	bcc dont
+	lda #gm_titletra
+	sta gamemode
+dont:
+	
+	jmp game_update_return
+
+alt_colors: .byte $20, $10
+
+gamemode_titletr:
+	jsr tl_update_snow
+	jsr tl_render_snow
+	jmp game_update_return
+
+gamemode_game:
+	; TODO
+	jmp game_update_return
+
+; ** SUBROUTINE: com_game_log
+; arguments: none
+; clobbers:  all registers
+; desc:      handles common game logic such as clearing OAM
+com_game_log:
+	lda #$00            ; clear OAM buffer and OAM write head
+	ldx #$00
+	sta oam_wrhead
+cgl_clear_loop:
+	sta oam_buf, x
+	inx
+	bne cgl_clear_loop
+	rts
+
+; ** SUBROUTINE: game_update
+; arguments: none
+; clobbers: all registers
+game_update:
+	jsr com_game_log
+	ldx gamemode
+	cpx #gm_title
+	beq gamemode_title   ; title screen
+	cpx #gm_titletra
+	beq gamemode_titletr ; title screen transition
+	jmp gamemode_game    ; default handling
+game_update_return:
+	rts
