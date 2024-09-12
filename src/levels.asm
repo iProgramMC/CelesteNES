@@ -31,9 +31,9 @@
 ;     .byte {attributes}
 ;
 ;     opCode:     bits 0:3 - type
+;                 bits 4:7 - X position
+;     attributes: bits 0:3 - Y position
 ;                 bits 4:7 - size or flags
-;     attributes: bits 0:3 - X position
-;                 bits 4:7 - Y position
 ;
 ;   - opCode == 0xFE -- screen end, stop generating objects for this screen
 ;   - opCode == 0xFF -- room end
@@ -87,10 +87,11 @@
 
 lvl_1_r1_e: .byte $FF
 lvl_1_r1_t:
-	.byte $00, $E0  ; 16X horizontal ground, at Y=14
-	.byte $00, $D0  ; 16X horizontal ground, at Y=13
-	.byte $00, $C0  ; 16X horizontal ground, at Y=12
-	.byte $80, $C4  ;  8X horizontal ground, at X=4,Y=12
+	.byte $00, $0E  ; 16X horizontal ground, at Y=14
+	.byte $00, $0D  ; 16X horizontal ground, at Y=13
+	.byte $00, $0C  ; 16X horizontal ground, at Y=12
+	.byte $40, $8B  ;  8X horizontal ground, at X=4,Y=11
+	.byte $60, $8A  ;  8X horizontal ground, at X=4,Y=10
 	.byte $FF    ; terminator
 
 lvl_1_r1:

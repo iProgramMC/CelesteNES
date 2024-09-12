@@ -79,8 +79,15 @@ tl_gametime = $0041 ; time until the transition to gm_game happens
 gamectrl    = $0020 ; game control
 ntwrhead    = $0021 ; name table write head (up to 64 columns)
 arwrhead    = $0022 ; area space write head (up to 32 columns)
-arrdheadlo  = $0023 ; area read head
-arrdheadhi  = $0024
+; $0023 spare
+lvlptrlo    = $0024 ; level pointer
+lvlptrhi    = $0025
+roomptrlo   = $0026 ; room pointer
+roomptrhi   = $0027
+arrdheadlo  = $0028 ; area read head
+arrdheadhi  = $0029
+entrdheadlo = $002A ; entity read head
+entrdheadhi = $002B
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
@@ -335,8 +342,8 @@ main_loop:
 
 .include "update.asm"
 
-;.res leveldata - *, $FF
-;.include "levels.asm"
+.res leveldata - *, $FF
+.include "levels.asm"
 
 .res lastpage - *, $FF
 init_palette:

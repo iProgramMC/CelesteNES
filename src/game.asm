@@ -167,6 +167,110 @@ h_gen_wrloop:
 h_gen_dont:
 	rts
 
+; ** SUBROUTINE: gm_increment_ptr
+; ** SUBROUTINE: gm_decrement_ptr
+; args: x - offset in zero page to (in/de)crement 16-bit address
+; clobbers: a
+gm_increment_ptr:
+	lda #00
+	sec
+	adc $0000, x
+	sta $0000, x
+	rts
+gm_decrement_ptr:
+	lda #00
+	sec
+	sbc $0000, x
+	sta $0000, x
+	rts
+; ** SUBROUTINE: gm_set_level_ptr
+; ** SUBROUTINE: gm_set_room_ptr
+; ** SUBROUTINE: gm_set_tile_head
+; ** SUBROUTINE: gm_set_ent_head
+; args:
+;     x - low byte
+;     y - high byte
+gm_set_level_ptr:
+	stx lvlptrlo
+	sty lvlptrhi
+	rts
+gm_set_room_ptr:
+	stx roomptrlo
+	sty roomptrhi
+	rts
+gm_set_tile_head:
+	stx arrdheadlo
+	sty arrdheadhi
+	rts
+gm_set_ent_head:
+	stx entrdheadlo
+	sty entrdheadhi
+	rts
+	
+; ** SUBROUTINE: gm_read_level
+; ** SUBROUTINE: gm_read_room
+; ** SUBROUTINE: gm_read_tile
+; ** SUBROUTINE: gm_read_ent
+; returns: a - the byte of data read in
+; clobbers: x
+gm_read_tile:
+	ldx #0
+	lda (arrdheadlo,x)
+	pha
+	ldx <arrdheadlo
+	jsr gm_increment_ptr
+	pla
+	rts
+gm_read_ent:
+	ldx #0
+	lda (entrdheadlo,x)
+	pha
+	ldx <entrdheadlo
+	jsr gm_increment_ptr
+	pla
+	rts
+
+; ** SUBROUTINE: gm_fetch_room
+; args: y - offset into lvl array
+; clobbers: a, x, y
+; desc: loads a room, initializes the tile and entity streams
+gm_fetch_room:
+	; load room pointer from lvl pointer
+	lda (lvlptrlo),y
+	tax
+	iny
+	lda (lvlptrlo),y
+	tay
+	jsr gm_set_room_ptr
+	
+	; load tile pointer from room pointer
+	ldy #7
+	lda (roomptrlo),y
+	tax
+	iny
+	lda (roomptrlo),y
+	tay
+	jsr gm_set_tile_head
+	
+	; load tile pointer from room pointer
+	ldy #9
+	lda (roomptrlo),y
+	tax
+	iny
+	lda (roomptrlo),y
+	tay
+	jsr gm_set_ent_head
+	rts
+
+; ** SUBROUTINE: gm_set_level_1
+gm_set_level_1:
+	ldx #<lvl_1
+	ldy #>lvl_1
+	jsr gm_set_level_ptr
+	ldy #2
+	jsr gm_fetch_room
+	rts
+	
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
 	lda #$00
@@ -179,11 +283,9 @@ gm_game_init:
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
-	
+	jsr gm_set_level_1
 	jsr h_generate_metatiles
-	
-	; generate tilesahead columns
-	ldy #$00
+	ldy #$00          ; generate tilesahead columns
 loop2:
 	tya
 	pha
@@ -238,3 +340,4 @@ gm_game_update:
 	sta gamectrl
 gm_dontright:
 	jmp game_update_return
+
