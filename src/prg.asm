@@ -19,9 +19,11 @@ apu_frctr   = $4017
 blank_tile  = $00
 apu_irq_off = $40
 oam_buf_hi  = $07   ; matches the upper bytes of the address of oam_buf
+leveldata   = $E000
 lastpage    = $FF00
-ctl_irq_off = %00110000
-ctl_irq_on  = %10110000
+ctl_irq_off = %00110000 ; PPUCTRL with IRQs off
+ctl_irq_on  = %10110000 ; PPUCTRL with IRQs on
+ctl_irq_i32 = %00110100 ; PPUCTRL with IRQs off and 32 byte address advance when writing
 def_ppu_msk = %00011110
 gm_game     = $00   ; Game Modes
 gm_title    = $01
@@ -35,16 +37,22 @@ cont_up     = $08
 cont_down   = $04
 cont_left   = $02
 cont_right  = $01
+ts_1stfr    = $01   ; first frame of title screen
+gs_1stfr    = $01   ; first frame of game screen
+gs_vertical = $02   ; is the level vertical?
+gs_gentiles = $04   ; need to generate metatiles
+lf_vertical = $01   ; level flag: is this level vertical
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
 oam_offset  = $0000
 oam_wrhead  = $0001 ; OAM buffer write head
 wr_str_temp = $0002 ; and $0003
-x_crd_temp  = $0004 ; used by oam_putsprite
+x_crd_temp  = $0004 ; used by oam_putsprite and h_get_tile, MUST be x before y!
 y_crd_temp  = $0005 ; used by oam_putsprite
 rng_state   = $0006
 p1_cont     = $0007
+p1_conto    = $0008
 
 player_x    = $0010
 player_y    = $0011
@@ -62,6 +70,17 @@ tl_snow_x   = $0030 ; X coordinates of the 16 snow particles
 tl_timer    = $0040
 tl_gametime = $0041 ; time until the transition to gm_game happens
 
+gamectrl    = $0020 ; game control
+ntwrhead    = $0021 ; name table write head (up to 64 columns)
+arwrhead    = $0022 ; area space write head (up to 32 columns)
+arrdheadlo  = $0023 ; area read head
+arrdheadhi  = $0024
+
+; large areas reserved by the game
+tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
+areaspace   = $0400 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
+sprspace    = $0600 ; 256 bytes
+
 .org $8000
 
 ; ** SUBROUTINE: vblank_wait
@@ -78,6 +97,8 @@ vblank_wait:
 ; clobbers:  A
 ; desc:      reads controller input from the player 1 port
 read_cont:
+	lda p1_cont
+	sta p1_conto
 	lda #$01
 	sta apu_joypad1
 	; while the strobe bit is set, buttons will be continuously reloaded.
@@ -96,7 +117,7 @@ read_loop:
 
 ; ** SUBROUTINE: rand
 ; arguments: none
-; clobbers:  a, x
+; clobbers:  a
 ; returns:   a - the pseudorandom number
 ; desc:      generates a pseudo random number
 rand:
@@ -306,7 +327,10 @@ main_loop:
 	jsr vblank_wait
 	jmp main_loop
 
-.include "game.inc"
+.include "update.asm"
+
+;.res leveldata - *, $FF
+;.include "levels.asm"
 
 .res lastpage - *, $FF
 init_palette:

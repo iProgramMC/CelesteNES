@@ -1,47 +1,4 @@
 
-; title modes
-title_1stfr = $01  ; first frame
-
-; ** INTERRUPT HANDLER: nmi
-nmi_titletra:
-	lda tl_timer
-	and #$08
-	lsr
-	lsr
-	lsr
-	ldy #$3F
-	ldx #$01
-	jsr ppu_loadaddr
-	tay
-	lda alt_colors, y
-	sta ppu_data
-	jmp nmi_gamemodeend
-
-nmi:
-	pha
-	txa
-	pha
-	tya
-	pha
-	
-	lda #oam_buf_hi   ; load the high byte of the OAM DMA address
-	sta apu_oam_dma   ; and perform the DMA!
-	
-	ldx gamemode
-	cpx #gm_titletra
-	beq nmi_titletra
-	
-	
-nmi_gamemodeend:
-	jsr ppu_rstaddr
-	
-	pla
-	tay
-	pla
-	tax
-	pla
-	rti
-
 ; ** SUBROUTINE: print_logo
 ; clobbers: a, x, y
 ; assumes:  video output disabled
@@ -223,23 +180,22 @@ tl_render_loop:
 
 ; ** GAMEMODE: gamemode_title
 gamemode_title:
-	lda #title_1stfr
+	lda #ts_1stfr
 	bit titlectrl    ; might need to update the screen buffer
 	bne gamemode_title_update 
-	jsr vblank_wait  ; wait for vblank
 	lda #$00
 	sta ppu_mask     ; disable rendering
+	jsr vblank_wait  ; wait for vblank
 	lda #$20
 	jsr clear_nt     ; clear the screen
 	jsr print_logo   ; print the logo and the "PRESS BUTTON" text
 	jsr tl_init_snow ; initialize snow
-	jsr ppu_rstaddr
 	jsr ppu_rstaddr  ; reset PPUADDR
 	lda #def_ppu_msk ; turn rendering back on
 	sta ppu_mask
 	jsr vblank_wait
 	lda titlectrl
-	ora #title_1stfr  ; set bit 1
+	ora #ts_1stfr    ; set bit 1
 	sta titlectrl
 	
 gamemode_title_update:
@@ -275,46 +231,6 @@ gamemode_titletr:
 tl_gameswitch:
 	lda #gm_game
 	sta gamemode
-	jmp game_update_return
-
-; ** SUBROUTINE: game_update
-; arguments: none
-; clobbers: all registers
-game_update:
-	jsr com_game_log
-	ldx gamemode
-	cpx #gm_title
-	beq gamemode_title   ; title screen
-	cpx #gm_titletra
-	beq gamemode_titletr ; title screen transition
-	jmp gamemode_game    ; default handling
-game_update_return:
-	rts
-
-; ** SUBROUTINE: com_clear_oam
-; arguments: none
-; clobbers:  A, X
-; desc:      clears CPU's copy of OAM
-com_clear_oam:
-	lda #$00
-	ldx #$00
-	sta oam_wrhead
-cgl_clear_loop:
-	sta oam_buf, x
-	inx
-	bne cgl_clear_loop
-	rts
-
-; ** SUBROUTINE: com_game_log
-; arguments: none
-; clobbers:  all registers
-; desc:      handles common game logic such as clearing OAM
-com_game_log:
-	jsr read_cont
-	jsr com_clear_oam
-	rts
-
-; ** GAMEMODE: gamemode_game
-gamemode_game:
-	; TODO
+	lda #0
+	sta gamectrl
 	jmp game_update_return
