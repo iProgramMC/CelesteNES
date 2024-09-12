@@ -11,6 +11,8 @@ ppu_data    = $2007
 palette_mem = $3F00
 apu_dmc_cfg = $4010
 apu_oam_dma = $4014
+apu_joypad1 = $4016
+apu_joypad2 = $4017
 apu_frctr   = $4017
 
 ; Constants
@@ -21,11 +23,18 @@ lastpage    = $FF00
 ctl_irq_off = %00110000
 ctl_irq_on  = %10110000
 def_ppu_msk = %00011110
-
-; Game Modes
-gm_game     = $00
+gm_game     = $00   ; Game Modes
 gm_title    = $01
 gm_titletra = $02   ; title transition
+tm_gametra  = 30    ; frames until the title->game transition ends
+cont_a      = $80
+cont_b      = $40
+cont_select = $20
+cont_start  = $10
+cont_up     = $08
+cont_down   = $04
+cont_left   = $02
+cont_right  = $01
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -35,6 +44,7 @@ wr_str_temp = $0002 ; and $0003
 x_crd_temp  = $0004 ; used by oam_putsprite
 y_crd_temp  = $0005 ; used by oam_putsprite
 rng_state   = $0006
+p1_cont     = $0007
 
 player_x    = $0010
 player_y    = $0011
@@ -50,6 +60,7 @@ titlectrl   = $0018 ; title control
 tl_snow_y   = $0020 ; Y coordinates of the 16 snow particles
 tl_snow_x   = $0030 ; X coordinates of the 16 snow particles
 tl_timer    = $0040
+tl_gametime = $0041 ; time until the transition to gm_game happens
 
 .org $8000
 
@@ -60,6 +71,27 @@ vblank_wait:
 	lda #$00
 	bit ppu_status
 	bpl vblank_wait  ; check bit 7, equal to zero means not in vblank
+	rts
+
+; ** SUBROUTINE: read_cont
+; arguments: none
+; clobbers:  A
+; desc:      reads controller input from the player 1 port
+read_cont:
+	lda #$01
+	sta apu_joypad1
+	; while the strobe bit is set, buttons will be continuously reloaded.
+	; this means that reading from joypad1 will always return the state
+	; of the A button, the first button.
+	sta p1_cont
+	lsr             ; A = 0 now
+	; stop the strobe by clearing joypad1. now we can start reading
+	sta apu_joypad1
+read_loop:
+	lda apu_joypad1
+	lsr a           ; bit 0 -> carry
+	rol p1_cont     ; carry -> bit 0, bit 7 -> carry
+	bcc read_loop
 	rts
 
 ; ** SUBROUTINE: rand
@@ -257,6 +289,7 @@ reset_clrmem:
 	sty ppu_ctrl
 	
 	ldy #gm_title
+	;ldy #gm_game
 	sty gamemode     ; set title screen mode
 	
 	ldy #$ac

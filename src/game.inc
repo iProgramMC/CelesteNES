@@ -246,13 +246,16 @@ gamemode_title_update:
 	jsr tl_update_snow
 	jsr tl_render_snow
 	
-	jsr rand
-	tay
-	cpy #$F0
-	bcc dont
+	lda #cont_start
+	bit p1_cont
+	beq tl_no_transition
 	lda #gm_titletra
 	sta gamemode
-dont:
+	lda #8
+	sta tl_timer
+	lda #tm_gametra
+	sta tl_gametime
+tl_no_transition:
 	
 	jmp game_update_return
 
@@ -261,25 +264,18 @@ alt_colors: .byte $20, $10
 gamemode_titletr:
 	jsr tl_update_snow
 	jsr tl_render_snow
+	
+	ldx tl_gametime
+	dex
+	beq tl_gameswitch
+	stx tl_gametime
+	
 	jmp game_update_return
-
-gamemode_game:
-	; TODO
+	
+tl_gameswitch:
+	lda #gm_game
+	sta gamemode
 	jmp game_update_return
-
-; ** SUBROUTINE: com_game_log
-; arguments: none
-; clobbers:  all registers
-; desc:      handles common game logic such as clearing OAM
-com_game_log:
-	lda #$00            ; clear OAM buffer and OAM write head
-	ldx #$00
-	sta oam_wrhead
-cgl_clear_loop:
-	sta oam_buf, x
-	inx
-	bne cgl_clear_loop
-	rts
 
 ; ** SUBROUTINE: game_update
 ; arguments: none
@@ -294,3 +290,31 @@ game_update:
 	jmp gamemode_game    ; default handling
 game_update_return:
 	rts
+
+; ** SUBROUTINE: com_clear_oam
+; arguments: none
+; clobbers:  A, X
+; desc:      clears CPU's copy of OAM
+com_clear_oam:
+	lda #$00
+	ldx #$00
+	sta oam_wrhead
+cgl_clear_loop:
+	sta oam_buf, x
+	inx
+	bne cgl_clear_loop
+	rts
+
+; ** SUBROUTINE: com_game_log
+; arguments: none
+; clobbers:  all registers
+; desc:      handles common game logic such as clearing OAM
+com_game_log:
+	jsr read_cont
+	jsr com_clear_oam
+	rts
+
+; ** GAMEMODE: gamemode_game
+gamemode_game:
+	; TODO
+	jmp game_update_return
