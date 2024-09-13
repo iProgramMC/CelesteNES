@@ -101,8 +101,11 @@ warp_u      = $0032 ; destination warp numbers
 warp_d      = $0033
 warp_l      = $0034
 warp_r      = $0035
-roomspare   = $0036 ; spare byte in level data
-;arwrhead2   = $0037 ; like arwrhead, but does not wrap around at 64
+warp_u_x    = $0036 ; destination X or Y coordinates depending on warp side
+warp_d_x    = $0037
+warp_l_y    = $0038
+warp_r_y    = $0039
+roomspare   = $003A
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]

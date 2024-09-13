@@ -401,12 +401,12 @@ h_tile_backgd_v:
 	jmp h_genmt_continue
 
 h_tile_opcodes:
-	.word h_tile_ground
-	.word h_tile_ground_v
-	.word h_tile_change
-	.word h_tile_backgd
-	.word h_tile_backgd_v
-	.word h_tile_backgd_c
+	.word h_tile_ground    ; 0
+	.word h_tile_ground_v  ; 1
+	.word h_tile_change    ; 2
+	.word h_tile_backgd    ; 3
+	.word h_tile_backgd_v  ; 4
+	.word h_tile_backgd_c  ; 5
 
 h_genmt_screenstop:
 	lda #$10
@@ -577,7 +577,7 @@ gm_fetch_room_loop:
 	lda (roomptrlo),y
 	sta currground-3,y
 	iny
-	cpy #10
+	cpy #14
 	bne gm_fetch_room_loop
 	
 	; load tile pointer from room pointer, Y=10
@@ -613,6 +613,13 @@ gm_game_init:
 	sta gamectrl      ; clear some game fields
 	sta ntwrhead
 	sta arwrhead
+	sta player_x
+	sta player_y
+	sta player_sp_x
+	sta player_sp_y
+	sta camera_x
+	sta camera_y
+	sta camera_x_hi
 	sta tr_scrnpos
 	sta ppu_mask      ; disable rendering
 	sta camera_x

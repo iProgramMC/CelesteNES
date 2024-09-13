@@ -56,6 +56,12 @@
 ;       - background chunk:             5
 ;            size X h - chunk of background
 ;            h is the height between this chunk's Y and the bottom of the world
+;       - player respawn:               SHOULD BE AN ENTITY
+;            attributes:
+;                bits 0:3: player Y
+;                bit 4: player facing (if set, player faces left)
+;                bit 5,6: spawn ID (when player dies, based on the origin side, they'll spawn here)
+;            ignored when using the room connection warp mechanism
 ;
 ; ROOM_LABEL:
 ;     .byte {size}
@@ -76,6 +82,10 @@
 ;     .byte {warpDownRoomNumber}
 ;     .byte {warpLeftRoomNumber}
 ;     .byte {warpRightRoomNumber}
+;     .byte {warpUpRoomX}
+;     .byte {warpDownRoomX}
+;     .byte {warpLeftRoomY}
+;     .byte {warpRightRoomY}
 ;     .byte {spare}
 ;     .byte TilesLowAddr, TilesHighAddr
 ;     .byte EntitiesLowAddr, EntitiesHighAddr
@@ -111,6 +121,7 @@ lvl_1_r1:
 	.byte 1, 0, 12
 	.byte 1, 0       ; starting ground, background
 	.byte 0, 0, 0, 0 ; warp room numbers
+	.byte 0, 0, 0, 0 ; warp room coords
 	.byte 0          ; spare
 	.word lvl_1_r1_t
 	.word lvl_1_r1_e
