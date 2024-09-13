@@ -237,16 +237,111 @@ h_gen_wrloop:
 	and #$01
 	beq h_gen_dont
 	jsr h_generate_metatiles
-h_gen_dont:
 	; check if we're writing the 3rd odd column
 	lda ntwrhead
 	and #$03
-	cmp #$0
-	bne h_gen_dont2
+	cmp #$03
+	beq h_generate_palette
+h_gen_dont:
+	rts
+
+; ** SUBROUTINE: h_gen_pal_blk
+; arguments: y - Y position of block
+; desc:      Generates a palette value in A to use as attributes.
+h_gen_pal_blk:
+	tya
+	asl
+	asl
+	clc
+	adc #3
+	tay           ; y = y << 2 + 3
+	ldx temprender, y
+	lda metatile_palette, x
+	asl
+	asl
+	dey
+	ldx temprender, y
+	ora metatile_palette, x
+	asl
+	asl
+	dey
+	ldx temprender, y
+	ora metatile_palette, x
+	asl
+	asl
+	dey
+	ldx temprender, y
+	ora metatile_palette, x
+	rts
+
+; ** SUBROUTINE: h_generate_palette
+; desc: Generates a palette for a 15X2 column of tiles.
+h_generate_palette:
+	; this loop puts the metatiles in the proper order to generate palettes
+	; for them easily
+	ldy #0
+	sty tr_bufidx
+h_genpal_loop:
+	; fetch the upper left tile
+	lda ntwrhead
+	lsr
+	clc
+	sbc #0
+	tax              ; x = ntwrhead >> 1, y is this loop's iterator
+	stx tr_regsto    ; store x in tr_regsto because it's clobbered by h_get_tile
+	jsr h_get_tile
+	ldx tr_regsto
+	sty tr_regsto    ; store y in tr_regsto to load the write offset
+	ldy tr_bufidx    ; load the write offset from tr_bufidx
+	sta temprender,y
+	iny
+	sty tr_bufidx
+	ldy tr_regsto
+	; fetch the upper right tile
+	inx
+	stx tr_regsto
+	jsr h_get_tile
+	ldx tr_regsto
+	sty tr_regsto
+	ldy tr_bufidx
+	sta temprender,y
+	iny
+	sty tr_bufidx
+	ldy tr_regsto
+	; fetch the lower left tile
+	iny
+	dex
+	stx tr_regsto
+	jsr h_get_tile
+	ldx tr_regsto
+	sty tr_regsto
+	ldy tr_bufidx
+	sta temprender,y
+	iny
+	sty tr_bufidx
+	ldy tr_regsto
+	; fetch the lower right tile
+	inx
+	stx tr_regsto
+	jsr h_get_tile
+	ldx tr_regsto
+	sty tr_regsto
+	ldy tr_bufidx
+	sta temprender,y
+	iny
+	sty tr_bufidx
+	ldy tr_regsto
+	; done, now increment Y
+	dex
+	iny
+	cpy #$10
+	bne h_genpal_loop
+	
 	ldy #0
 h_gen_paltestloop:
-	;jsr rand
-	lda stuff, y
+	sty tr_regsto
+	jsr h_gen_pal_blk
+	ldy tr_regsto
 	sta temppal, y
 	iny
 	cpy #8
@@ -254,10 +349,7 @@ h_gen_paltestloop:
 	lda #gs_flstpal
 	ora gamectrl
 	sta gamectrl
-h_gen_dont2:
 	rts
-
-stuff: .byte $00, $55, $AA, $FF, $00, $5A, $A5, $0A
 
 ; ** SUBROUTINE: gm_increment_ptr
 ; ** SUBROUTINE: gm_decrement_ptr
@@ -384,9 +476,9 @@ gm_game_init:
 loop2:
 	tya
 	pha
-	jsr h_flush_palette_init
 	jsr h_generate_column
 	jsr h_flush_column
+	jsr h_flush_palette_init
 	pla
 	tay
 	iny

@@ -60,6 +60,7 @@ y_crd_temp  = $0005 ; used by oam_putsprite
 rng_state   = $0006
 p1_cont     = $0007
 p1_conto    = $0008
+tr_bufidx   = $0005 ; alias to y_crd_temp
 
 player_x    = $0010
 player_y    = $0011
@@ -90,7 +91,9 @@ arrdheadlo  = $0028 ; area read head
 arrdheadhi  = $0029
 entrdheadlo = $002A ; entity read head
 entrdheadhi = $002B
-; spare
+tr_regsto   = $002C
+tr_mtaddrlo = $002D ; address of the metatile
+tr_mtaddrhi = $002E
 currground  = $0030 ; current ground tiles placed by ground objects
 currbackgd  = $0031
 warp_u      = $0032 ; destination warp numbers
@@ -103,6 +106,7 @@ roomspare   = $0036 ; spare byte in level data
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
 tempcol     = $0320 ; 32 bytes - temporary column to be flushed to the screen
 temppal     = $0340 ; 8 bytes  - temporary palette column to be flushed to the screen
+temprender  = $0348 ; 32 bytes - temporary tile storage for palette determination
 areaspace   = $0400 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
 sprspace    = $0600 ; 256 bytes
 

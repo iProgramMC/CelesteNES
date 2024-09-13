@@ -118,6 +118,7 @@ level_table_size = level_table_end - level_table
 
 ; Meta-tile array
 ; Format: Upleft, Downleft, Upright, Downright
+; TODO: Allow more than 64 metatiles.  They are bound to repeat because we shift left twice.
 metatiles:
 	.byte $00,$00,$00,$00 ; Air
 	.byte $80,$90,$84,$94 ; Snow
@@ -127,3 +128,31 @@ metatiles:
 	.byte $AD,$AE,$AE,$AC ; Girder Right
 	.byte $60,$70,$64,$74 ; Dirt
 	.byte $BC,$89,$BD,$8A ; Brick
+
+metatile_palette:
+	.byte $00 ; Air
+	.byte $02 ; Snow
+	.byte $01 ; Dirt
+	.byte $00 ; Brick
+	.byte $00 ; Girder Left
+	.byte $00 ; Girder Right
+	.byte $01 ; Dirt
+	.byte $00 ; Brick
+	
+	
+	; 830C -- h_get_tile
+	; 845E -- h_genpal_loop
+
+; gettiles:
+; 00 00
+; 01 00
+; 00 01
+; 21 01 (!!!)
+; 00 02
+; 41 02 (!!!)
+; 80 03 (!!!)
+; E1 03 (!!!)
+; 00 04
+; 81 04 (!!!)
+; 00 05
+; A1 05 (!!!)
