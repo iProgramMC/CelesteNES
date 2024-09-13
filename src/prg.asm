@@ -44,6 +44,7 @@ gs_1stfr    = $01   ; first frame of game screen
 gs_vertical = $02   ; is the level vertical?
 gs_gentiles = $04   ; need to generate metatiles
 gs_gencols  = $08   ; need to generate visual columns
+gs_flstcols = $10   ; need to flush generated visual columns
 lf_vertical = $01   ; level flag: is this level vertical
 tilesahead  = 36    ; tiles ahead of camera X
 camspeed    = 2     ; pixels advanced per frame by camera
@@ -79,7 +80,7 @@ tl_gametime = $0041 ; time until the transition to gm_game happens
 gamectrl    = $0020 ; game control
 ntwrhead    = $0021 ; name table write head (up to 64 columns)
 arwrhead    = $0022 ; area space write head (up to 32 columns)
-; $0023 spare
+drawtemp    = $0023
 lvlptrlo    = $0024 ; level pointer
 lvlptrhi    = $0025
 roomptrlo   = $0026 ; room pointer
@@ -88,9 +89,18 @@ arrdheadlo  = $0028 ; area read head
 arrdheadhi  = $0029
 entrdheadlo = $002A ; entity read head
 entrdheadhi = $002B
+; spare
+currground  = $0030 ; current ground tiles placed by ground objects
+currbackgd  = $0031
+warp_u      = $0032 ; destination warp numbers
+warp_d      = $0033
+warp_l      = $0034
+warp_r      = $0035
+roomspare   = $0036 ; spare byte in level data
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
+tempcol     = $0320 ; 32 bytes - temporary column to be flushed to 	
 areaspace   = $0400 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
 sprspace    = $0600 ; 256 bytes
 

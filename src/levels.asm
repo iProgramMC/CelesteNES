@@ -70,10 +70,13 @@
 ;          horizontal room -> vertical offset
 ;          the player will always be placed 1 tile (horiz) or 2 tiles (vert) from
 ;          the edge of origin
+;     .byte {startingGroundMetatile}
+;     .byte {startingBackGroundMetatile}
 ;     .byte {warpUpRoomNumber}
 ;     .byte {warpDownRoomNumber}
 ;     .byte {warpLeftRoomNumber}
 ;     .byte {warpRightRoomNumber}
+;     .byte {spare}
 ;     .byte TilesLowAddr, TilesHighAddr
 ;     .byte EntitiesLowAddr, EntitiesHighAddr
 ;
@@ -96,7 +99,9 @@ lvl_1_r1_t:
 
 lvl_1_r1:
 	.byte 1, 0, 12
-	.byte 0, 0, 0, 0
+	.byte 1, 0       ; starting ground, background
+	.byte 0, 0, 0, 0 ; warp room numbers
+	.byte 0          ; spare
 	.word lvl_1_r1_t
 	.word lvl_1_r1_e
 
@@ -105,12 +110,20 @@ lvl_1:
 	.byte $01    ; room count
 	.word lvl_1_r1
 
-
-
-
-
 level_table:
 	.word lvl_1
 level_table_end:
 
 level_table_size = level_table_end - level_table
+
+; Meta-tile array
+; Format: Upleft, Downleft, Upright, Downright
+metatiles:
+	.byte $00,$00,$00,$00 ; Air
+	.byte $80,$90,$84,$94 ; Snow
+	.byte $60,$70,$64,$74 ; Dirt
+	.byte $BC,$89,$BD,$8A ; Brick
+	.byte $AD,$AC,$AE,$00 ; Girder Left
+	.byte $AD,$AE,$AE,$AC ; Girder Right
+	.byte $60,$70,$64,$74 ; Dirt
+	.byte $BC,$89,$BD,$8A ; Brick

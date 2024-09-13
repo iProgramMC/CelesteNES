@@ -7,9 +7,12 @@
 ;     y - Y coordinate
 ; returns:  a - Tile value
 ; clobbers: a,x
+;
+; NOTE for h_get_tile1: the Y coordinate must be in A when you call!
 h_get_tile:
 	tya
 	asl                 ; shift left by 5.  The last shift will put the bit in carry
+h_get_tile1:
 	asl
 	asl
 	asl
@@ -76,6 +79,7 @@ h_generate_metatiles:
 	ldy #$00
 h_genmtloop:
 	jsr rand
+	and #7
 	ldx arwrhead
 	jsr h_set_tile
 	iny
@@ -88,28 +92,13 @@ h_genmtloop:
 	sta arwrhead
 	rts
 
-; ** SUBROUTINE: h_generate_if_needed
-; desc:    Generates a column of metatiles ahead of the visual column render head,
-;          if needed. Clears the gs_gentiles bit from gamectrl.
-h_generate_if_needed:
-	lda #gs_gentiles
-	bit gamectrl
-	bne h_gm_generate
-	rts
-h_gm_generate:
-	lda gamectrl
-	and #(gs_gentiles ^ %11111111)
-	sta gamectrl
-	jmp h_generate_metatiles
-
-; ** SUBROUTINE: h_generate_column
-; desc:    Generates a vertical column of characters corresponding to the respective
-;          metatiles in area space.
+; ** SUBROUTINE: h_flush_column
+; desc:    
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
-h_generate_column:
+h_flush_column:
 	lda #ctl_irq_i32
 	sta ppu_ctrl
-	
+
 	; the PPU address we want to start writing to is
 	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32)
 	lda ntwrhead
@@ -129,20 +118,12 @@ h_dontadd4:
 	; start writing tiles.
 	; each iteration will write 2 character tiles for one metatile.
 	ldy #0
-h_gen_wrloop:
-	lda ntwrhead
-	lsr                 ; get the tile coordinate
-	tax
-	jsr h_get_tile
-	
-	; TODO
-	; simply write it down twice
+h_fls_wrloop:
+	lda tempcol, y
 	sta ppu_data
-	sta ppu_data
-
 	iny
-	cpy #15
-	bne h_gen_wrloop
+	cpy #$1E
+	bne h_fls_wrloop
 
 	; advance the write head but keep it within 64
 	ldx ntwrhead
@@ -155,15 +136,54 @@ h_gen_wrloop:
 	lda ctl_flags
 	ora #ctl_irq_off
 	sta ppu_ctrl
+	rts
+
+; ** SUBROUTINE: h_generate_column
+; desc:    Generates a vertical column of characters corresponding to the respective
+;          metatiles in area space.
+; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
+h_generate_column:
+	; start writing tiles.
+	; each iteration will write 2 character tiles for one metatile.
+	ldy #0
+h_gen_wrloop:
+	lda ntwrhead
+	lsr                 ; get the tile coordinate
+	tax                 ; x = ntwrhead >> 1
+	tya
+	jsr h_get_tile1
+	asl
+	asl
+	sta drawtemp
+	lda ntwrhead
+	and #1
+	asl
+	clc
+	adc drawtemp
+	tax
+	
+	lda metatiles,x
+	sta tempcol, y
+	inx
+	iny
+	lda metatiles,x
+	sta tempcol, y
+	iny
+	
+	cpy #$1E
+	bne h_gen_wrloop
+
+	; set the gamectrl gs_flstcols flag
+	lda #gs_flstcols
+	ora gamectrl
+	sta gamectrl
 	
 	; check if we were writing the odd column
 	; generate a column of metatiles if so
 	lda ntwrhead
 	and #$01
-	bne h_gen_dont
-	lda gamectrl
-	ora #gs_gentiles
-	sta gamectrl
+	beq h_gen_dont
+	jsr h_generate_metatiles
 h_gen_dont:
 	rts
 
@@ -289,8 +309,8 @@ gm_game_init:
 loop2:
 	tya
 	pha
-	jsr h_generate_if_needed
 	jsr h_generate_column
+	jsr h_flush_column
 	pla
 	tay
 	iny
@@ -304,6 +324,7 @@ loop2:
 	
 	lda gamectrl
 	ora #gs_1stfr
+	eor #gs_flstcols  ; all columns have already been flushed
 	sta gamectrl
 	jmp gm_game_update
 
@@ -313,8 +334,6 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	jsr h_generate_if_needed
-	
 	; for now, check if the right key is pressed, and advance the
 	; camera and column generation logic
 	lda #cont_right
@@ -323,7 +342,7 @@ gm_game_update:
 	
 	; add camspeed to camera_x / camera_x_hi. make sure camera_x_hi
 	; is 0 and 1 only.
-	lda #camspeed
+	lda #1
 	clc
 	adc camera_x
 	sta camera_x
@@ -334,10 +353,7 @@ gm_game_update:
 	lda #7
 	bit camera_x
 	bne gm_dontright
-	
-	lda gamectrl
-	ora #gs_gencols
-	sta gamectrl
+	jsr h_generate_column
 gm_dontright:
 	jmp game_update_return
 

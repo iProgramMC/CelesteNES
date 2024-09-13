@@ -15,13 +15,13 @@ nmi_titletra:
 	jmp nmi_gamemodeend
 
 nmi_game:
-	lda #gs_gencols
+	lda #gs_flstcols
 	bit gamectrl
 	beq nmi_gamemodeend
-	lda gamectrl
-	and #(gs_gencols ^ %11111111)
+	lda #gs_flstcols
+	eor gamectrl
 	sta gamectrl
-	jsr h_generate_column
+	jsr h_flush_column
 	jmp nmi_gamemodeend
 
 nmi:
