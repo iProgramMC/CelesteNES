@@ -94,6 +94,7 @@ entrdheadhi = $002B
 tr_regsto   = $002C
 tr_mtaddrlo = $002D ; address of the metatile
 tr_mtaddrhi = $002E
+tr_scrnpos  = $002F ; active screen position
 currground  = $0030 ; current ground tiles placed by ground objects
 currbackgd  = $0031
 warp_u      = $0032 ; destination warp numbers

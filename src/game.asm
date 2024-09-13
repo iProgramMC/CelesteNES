@@ -22,8 +22,7 @@ h_get_tile1:
 	txa
 	clc
 	adc x_crd_temp
-	sta x_crd_temp
-	ldx x_crd_temp
+	tax
 	lda areaspace+$100, x
 	rts
 h_load_4:
@@ -31,8 +30,7 @@ h_load_4:
 	txa
 	clc
 	adc x_crd_temp
-	sta x_crd_temp
-	ldx x_crd_temp
+	tax
 	lda areaspace, x
 	rts
 
@@ -57,8 +55,7 @@ h_set_tile:
 	txa
 	clc
 	adc x_crd_temp
-	sta x_crd_temp
-	ldx x_crd_temp
+	tax
 	pla
 	sta areaspace+$100, x
 	rts
@@ -67,29 +64,9 @@ h_store_4:
 	txa
 	clc
 	adc x_crd_temp
-	sta x_crd_temp
-	ldx x_crd_temp
+	tax
 	pla
 	sta areaspace, x
-	rts
-
-; ** SUBROUTINE: h_generate_metatiles
-; desc:    Generates a column of metatiles ahead of the visual column render head.
-h_generate_metatiles:
-	ldy #$00
-h_genmtloop:
-	jsr rand
-	and #7
-	ldx arwrhead
-	jsr h_set_tile
-	iny
-	cpy #$0F
-	bne h_genmtloop
-	ldx arwrhead
-	inx
-	txa
-	and #$1F
-	sta arwrhead
 	rts
 
 ; ** SUBROUTINE: h_flush_palette_init
@@ -351,6 +328,123 @@ h_gen_paltestloop:
 	sta gamectrl
 	rts
 
+h_tile_ground:
+	jsr gm_read_tile
+	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
+	sta tr_regsto       ; save the attrs now
+	lsr
+	lsr
+	lsr
+	lsr                 ; get size from attributes
+	tax                 ; save it into X
+	lda tr_regsto       ; reload the attrs
+	and #$F             ; JUST the y position please
+	tay                 ; save the Y coordinate
+	lda currground      ; load the current ground tile
+	sta tilecounts,y    ; save it into the tilecounts[y] array
+	txa                 ; get the size from X into A
+	cmp #0
+	bne h_tilegnd_dontset
+	lda #16
+h_tilegnd_dontset:
+	sta tilecounts+16,y ; save t at tilecounts[y+16]
+	jmp h_genmt_continue
+h_tile_ground_v:
+h_tile_change:
+h_tile_backgd:
+h_tile_backgd_v:
+h_tile_backgd_c:
+	; TODO this is broken
+	jsr gm_read_tile
+	jsr gm_read_tile
+	lda arwrhead
+	and #7
+	tay
+	ldx arwrhead
+	jsr rand
+	and #7
+	jsr h_set_tile
+	jmp h_genmt_continue
+
+h_tile_opcodes:
+	.word h_tile_ground
+	.word h_tile_ground_v
+	.word h_tile_change
+	.word h_tile_backgd
+	.word h_tile_backgd_v
+	.word h_tile_backgd_c
+
+h_genmt_screenstop:
+	lda #$10
+	clc
+	adc tr_scrnpos
+	sta tr_scrnpos
+	jmp h_genmt_readdone
+
+; ** SUBROUTINE: h_generate_metatiles
+; desc:    Generates a column of metatiles ahead of the visual column render head.
+h_generate_metatiles:
+	; read tile data until X is different
+	jsr gm_read_tile_na
+	cmp #$FF
+	beq h_genmt_readdone
+	cmp #$FE
+	beq h_genmt_screenstop
+	sta tr_mtaddrlo
+	and #$F0             ; fetch the X coordinate
+	lsr
+	lsr
+	lsr
+	lsr
+	clc
+	adc tr_scrnpos       ; add it on top of the current screen position
+	cmp arwrhead
+	bne h_genmt_readdone ; if arwrhead == tr_scrnpos + objectX
+	; process this object
+	lda tr_mtaddrlo
+	and #%1111
+	asl
+	tay
+	lda h_tile_opcodes, y
+	sta tr_mtaddrlo
+	iny
+	lda h_tile_opcodes, y
+	sta tr_mtaddrhi
+	jmp (tr_mtaddrlo)
+h_genmt_continue:      ; the return address from the jump table
+	jmp h_generate_metatiles
+h_genmt_readdone:
+	
+	; generate any previously set up block rows
+	; if there are none, simply generate blank
+	ldy #$00
+h_genmtloop:
+	lda tilecounts+16,y
+	cmp #0
+	beq h_genmtsetzero
+	clc
+	sbc #0
+	sta tilecounts+16,y
+	lda tilecounts,y
+	jmp asdsd
+h_genmtsetzero:          ; when this label is BRANCHED to, a is zero
+	;jsr rand
+	;and #7
+asdsd:
+	ldx arwrhead
+	jsr h_set_tile
+	iny
+	cpy #$0F
+	bne h_genmtloop
+	
+	; loop done, increment arwrhead, ensuring it rolls over after 31
+	ldx arwrhead
+	inx
+	txa
+	and #$1F
+	sta arwrhead
+	rts
+
 ; ** SUBROUTINE: gm_increment_ptr
 ; ** SUBROUTINE: gm_decrement_ptr
 ; args: x - offset in zero page to (in/de)crement 16-bit address
@@ -390,29 +484,46 @@ gm_set_ent_head:
 	stx entrdheadlo
 	sty entrdheadhi
 	rts
-	
-; ** SUBROUTINE: gm_read_level
-; ** SUBROUTINE: gm_read_room
+
+; ** SUBROUTINE: gm_adv_tile
+; ** SUBROUTINE: gm_adv_ent
+; desc:     Advances the tile or entity stream by 1 byte.
+; clobbers: x
+gm_adv_tile:
+	pha
+	ldx #<arrdheadlo
+	jsr gm_increment_ptr
+	pla
+	rts
+gm_adv_ent:
+	pha
+	ldx #<entrdheadlo
+	jsr gm_increment_ptr
+	pla
+	rts
+
+; ** SUBROUTINE: gm_read_tile_na
+; ** SUBROUTINE: gm_read_ent_na
 ; ** SUBROUTINE: gm_read_tile
 ; ** SUBROUTINE: gm_read_ent
+; desc: Reads a byte from the tile or entity streams. The _na versions don't
+; advance the pointer.
 ; returns: a - the byte of data read in
 ; clobbers: x
-gm_read_tile:
+gm_read_tile_na:
 	ldx #0
 	lda (arrdheadlo,x)
-	pha
-	ldx <arrdheadlo
-	jsr gm_increment_ptr
-	pla
 	rts
-gm_read_ent:
+gm_read_ent_na:
 	ldx #0
 	lda (entrdheadlo,x)
-	pha
-	ldx <entrdheadlo
-	jsr gm_increment_ptr
-	pla
 	rts
+gm_read_tile:
+	jsr gm_read_tile_na
+	jmp gm_adv_tile
+gm_read_ent:
+	jsr gm_read_ent_na
+	jmp gm_adv_ent
 
 ; ** SUBROUTINE: gm_fetch_room
 ; args: y - offset into lvl array
@@ -426,18 +537,26 @@ gm_fetch_room:
 	lda (lvlptrlo),y
 	tay
 	jsr gm_set_room_ptr
+	iny
+	iny      ; set Y to 3, offset of starting ground & background
+
+gm_fetch_room_loop:
+	lda (roomptrlo),y
+	sta currground-3,y
+	iny
+	cpy #10
+	bne gm_fetch_room_loop
 	
-	; load tile pointer from room pointer
-	ldy #7
+	; load tile pointer from room pointer, Y=10
 	lda (roomptrlo),y
 	tax
 	iny
 	lda (roomptrlo),y
 	tay
 	jsr gm_set_tile_head
-	
-	; load tile pointer from room pointer
-	ldy #9
+	iny
+
+	; load entity pointer from room pointer
 	lda (roomptrlo),y
 	tax
 	iny
@@ -461,6 +580,7 @@ gm_game_init:
 	sta gamectrl      ; clear some game fields
 	sta ntwrhead
 	sta arwrhead
+	sta tr_scrnpos
 	sta ppu_mask      ; disable rendering
 	sta camera_x
 	jsr vblank_wait
