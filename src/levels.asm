@@ -91,10 +91,16 @@
 lvl_1_r1_e: .byte $FF
 lvl_1_r1_t:
 	.byte $00, $0E  ; 16X horizontal ground, at Y=14
-	.byte $00, $0D  ; 16X horizontal ground, at Y=13
-	.byte $00, $0C  ; 16X horizontal ground, at Y=12
-	.byte $40, $8B  ;  8X horizontal ground, at X=4,Y=11
-	.byte $60, $8A  ;  8X horizontal ground, at X=4,Y=10
+	.byte $FE
+	.byte $00, $0D  ; new page
+	.byte $00, $0E  ; new page
+	.byte $FE
+	.byte $00, $0C  ; new page
+	.byte $FE
+	.byte $00, $0D  ; new page
+	.byte $00, $0E  ; new page
+	.byte $FE
+	.byte $00, $0E  ; new page
 	.byte $FF    ; terminator
 
 lvl_1_r1:

@@ -328,7 +328,8 @@ h_gen_paltestloop:
 	sta gamectrl
 	rts
 
-h_tile_ground:
+h_tile_ground:   ; $84AD - h_tile_ground
+                 ; $84FF - h_generate_metatiles
 	jsr gm_read_tile
 	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
 	sta tr_regsto       ; save the attrs now
@@ -376,9 +377,9 @@ h_tile_opcodes:
 
 h_genmt_screenstop:
 	lda #$10
-	clc
-	adc tr_scrnpos
+	eor tr_scrnpos
 	sta tr_scrnpos
+	jsr gm_adv_tile
 	jmp h_genmt_readdone
 
 ; ** SUBROUTINE: h_generate_metatiles
@@ -399,7 +400,7 @@ h_generate_metatiles:
 	clc
 	adc tr_scrnpos       ; add it on top of the current screen position
 	cmp arwrhead
-	bne h_genmt_readdone ; if arwrhead == tr_scrnpos + objectX
+	bne h_genmt_readdone ; if arwrhead2 == tr_scrnpos + objectX
 	; process this object
 	lda tr_mtaddrlo
 	and #%1111
@@ -438,9 +439,9 @@ asdsd:
 	bne h_genmtloop
 	
 	; loop done, increment arwrhead, ensuring it rolls over after 31
-	ldx arwrhead
-	inx
-	txa
+	clc
+	lda #1
+	adc arwrhead
 	and #$1F
 	sta arwrhead
 	rts
@@ -537,8 +538,7 @@ gm_fetch_room:
 	lda (lvlptrlo),y
 	tay
 	jsr gm_set_room_ptr
-	iny
-	iny      ; set Y to 3, offset of starting ground & background
+	ldy #3
 
 gm_fetch_room_loop:
 	lda (roomptrlo),y

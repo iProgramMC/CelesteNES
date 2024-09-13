@@ -102,6 +102,7 @@ warp_d      = $0033
 warp_l      = $0034
 warp_r      = $0035
 roomspare   = $0036 ; spare byte in level data
+;arwrhead2   = $0037 ; like arwrhead, but does not wrap around at 64
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
