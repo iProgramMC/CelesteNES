@@ -362,6 +362,7 @@ main_loop:
 
 .res leveldata - *, $FF
 .include "levels.asm"
+.include "metatile.asm"
 
 .res lastpage - *, $FF
 init_palette:

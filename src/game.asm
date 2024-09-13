@@ -328,8 +328,9 @@ h_gen_paltestloop:
 	sta gamectrl
 	rts
 
-h_tile_ground:   ; $84AD - h_tile_ground
-                 ; $84FF - h_generate_metatiles
+; ** TILE OBJECT TYPE: h_tile_ground
+; desc: Horizontal strip of ground.
+h_tile_ground:
 	jsr gm_read_tile
 	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
 	sta tr_regsto       ; save the attrs now
@@ -350,21 +351,53 @@ h_tile_ground:   ; $84AD - h_tile_ground
 h_tilegnd_dontset:
 	sta tilecounts+16,y ; save t at tilecounts[y+16]
 	jmp h_genmt_continue
+
+; ** TILE OBJECT TYPE: v_tile_ground
+; desc: Vertical strip of ground.
 h_tile_ground_v:
+	jsr gm_read_tile
+	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
+	sta tr_regsto       ; save the attrs now
+	lsr
+	lsr
+	lsr
+	lsr                 ; get size from attributes
+	sta tr_bufidx       ; save it into tr_bufidx
+	lda tr_regsto       ; reload the attrs
+	and #$F             ; JUST the y position please
+	tay                 ; save the Y coordinate
+	ldx #0
+h_tgv_loop:
+	lda currground      ; load the current ground tile
+	sta tilecounts,y    ; save it into the tilecounts[y] array
+	lda #1
+	sta tilecounts+16,y
+	iny
+	inx
+	cpx tr_bufidx
+	bne h_tgv_loop
+	
+	jmp h_genmt_continue
+
+; ** TILE OBJECT TYPE: h_tile_change
+; desc: Change the active ground type.
 h_tile_change:
+	jsr gm_read_tile
+	jsr gm_read_tile
+	sta currground
+	jmp h_genmt_continue
+
+; ** TILE OBJECT TYPE: h_tile_change
+; desc: Change the active background type.
+h_tile_backgd_c:
+	jsr gm_read_tile
+	jsr gm_read_tile
+	sta currbackgd
+	jmp h_genmt_continue
+
 h_tile_backgd:
 h_tile_backgd_v:
-h_tile_backgd_c:
-	; TODO this is broken
-	jsr gm_read_tile
-	jsr gm_read_tile
-	lda arwrhead
-	and #7
-	tay
-	ldx arwrhead
-	jsr rand
-	and #7
-	jsr h_set_tile
+	; TODO
 	jmp h_genmt_continue
 
 h_tile_opcodes:

@@ -91,6 +91,10 @@
 lvl_1_r1_e: .byte $FF
 lvl_1_r1_t:
 	.byte $00, $0E  ; 16X horizontal ground, at Y=14
+	.byte $52, $02  ; ground change to $02
+	.byte $51, $52  ; 5X  vertical ground stripe, at X=5,Y=2
+	.byte $82, $03  ; ground change to $03
+	.byte $81, $53  ; 5X  vertical ground stripe, at X=8,Y=3
 	.byte $FE
 	.byte $00, $0D  ; new page
 	.byte $00, $0E  ; new page
@@ -121,44 +125,3 @@ level_table:
 level_table_end:
 
 level_table_size = level_table_end - level_table
-
-; Meta-tile array
-; Format: Upleft, Downleft, Upright, Downright
-; TODO: Allow more than 64 metatiles.  They are bound to repeat because we shift left twice.
-metatiles:
-	.byte $00,$00,$00,$00 ; Air
-	.byte $80,$90,$84,$94 ; Snow
-	.byte $60,$70,$64,$74 ; Dirt
-	.byte $BC,$89,$BD,$8A ; Brick
-	.byte $AD,$AC,$AE,$00 ; Girder Left
-	.byte $AD,$AE,$AE,$AC ; Girder Right
-	.byte $60,$70,$64,$74 ; Dirt
-	.byte $BC,$89,$BD,$8A ; Brick
-
-metatile_palette:
-	.byte $00 ; Air
-	.byte $02 ; Snow
-	.byte $01 ; Dirt
-	.byte $00 ; Brick
-	.byte $00 ; Girder Left
-	.byte $00 ; Girder Right
-	.byte $01 ; Dirt
-	.byte $00 ; Brick
-	
-	
-	; 830C -- h_get_tile
-	; 845E -- h_genpal_loop
-
-; gettiles:
-; 00 00
-; 01 00
-; 00 01
-; 21 01 (!!!)
-; 00 02
-; 41 02 (!!!)
-; 80 03 (!!!)
-; E1 03 (!!!)
-; 00 04
-; 81 04 (!!!)
-; 00 05
-; A1 05 (!!!)
