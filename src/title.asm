@@ -215,7 +215,7 @@ tl_no_transition:
 	
 	jmp game_update_return
 
-alt_colors: .byte $20, $10
+alt_colors: .byte $27, $29
 
 gamemode_titletr:
 	jsr tl_update_snow

@@ -45,6 +45,7 @@ gs_vertical = $02   ; is the level vertical?
 gs_gentiles = $04   ; need to generate metatiles
 gs_gencols  = $08   ; need to generate visual columns
 gs_flstcols = $10   ; need to flush generated visual columns
+gs_flstpal  = $20   ; need to flush generated palette columns
 lf_vertical = $01   ; level flag: is this level vertical
 tilesahead  = 36    ; tiles ahead of camera X
 camspeed    = 2     ; pixels advanced per frame by camera
@@ -100,7 +101,8 @@ roomspare   = $0036 ; spare byte in level data
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
-tempcol     = $0320 ; 32 bytes - temporary column to be flushed to 	
+tempcol     = $0320 ; 32 bytes - temporary column to be flushed to the screen
+temppal     = $0340 ; 8 bytes  - temporary palette column to be flushed to the screen
 areaspace   = $0400 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
 sprspace    = $0600 ; 256 bytes
 

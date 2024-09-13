@@ -92,8 +92,61 @@ h_genmtloop:
 	sta arwrhead
 	rts
 
+; ** SUBROUTINE: h_flush_palette_init
+; desc:    Flushes a generated palette column in temppal to the screen if gs_flstpal is set
+; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
+h_flush_palette_init:
+	lda #gs_flstpal
+	bit gamectrl
+	bne h_flush_palette
+	rts
+
+; ** SUBROUTINE: h_flush_palette
+; desc:    Flushes a generated palette column in temppal to the screen
+; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
+h_flush_palette:
+	clc
+	lda ntwrhead
+	sbc #2
+	and #$20
+	beq h_flupal_high
+	ldx #$27
+	jmp h_flupal_done
+h_flupal_high:
+	ldx #$23
+h_flupal_done:
+	stx y_crd_temp      ; store the high byte of the nametable address there. we'll need it.
+	ldx #$C0
+	stx x_crd_temp
+	lda ntwrhead
+	lsr
+	clc
+	sbc #1
+	lsr
+	and #7
+	clc
+	adc x_crd_temp
+	sta x_crd_temp
+	; need to write 8 bytes.
+	ldy #0
+h_flupal_loop:
+	tya
+	ldx x_crd_temp
+	ldy y_crd_temp
+	jsr ppu_loadaddr
+	tay
+	lda temppal, y
+	sta ppu_data
+	lda #8
+	adc x_crd_temp
+	sta x_crd_temp
+	iny
+	cpy #8
+	bne h_flupal_loop
+	rts
+
 ; ** SUBROUTINE: h_flush_column
-; desc:    
+; desc:    Flushes a generated column in tempcol to the screen
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
 h_flush_column:
 	lda #ctl_irq_i32
@@ -185,7 +238,26 @@ h_gen_wrloop:
 	beq h_gen_dont
 	jsr h_generate_metatiles
 h_gen_dont:
+	; check if we're writing the 3rd odd column
+	lda ntwrhead
+	and #$03
+	cmp #$0
+	bne h_gen_dont2
+	ldy #0
+h_gen_paltestloop:
+	;jsr rand
+	lda stuff, y
+	sta temppal, y
+	iny
+	cpy #8
+	bne h_gen_paltestloop
+	lda #gs_flstpal
+	ora gamectrl
+	sta gamectrl
+h_gen_dont2:
 	rts
+
+stuff: .byte $00, $55, $AA, $FF, $00, $5A, $A5, $0A
 
 ; ** SUBROUTINE: gm_increment_ptr
 ; ** SUBROUTINE: gm_decrement_ptr
@@ -299,16 +371,20 @@ gm_game_init:
 	sta arwrhead
 	sta ppu_mask      ; disable rendering
 	sta camera_x
+	jsr vblank_wait
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
+	ldy init_palette - lastpage
+	jsr load_palette  ; load game palette into palette RAM
 	jsr gm_set_level_1
 	jsr h_generate_metatiles
 	ldy #$00          ; generate tilesahead columns
 loop2:
 	tya
 	pha
+	jsr h_flush_palette_init
 	jsr h_generate_column
 	jsr h_flush_column
 	pla
@@ -317,10 +393,10 @@ loop2:
 	cpy #tilesahead
 	bne loop2
 	
+	jsr vblank_wait
 	jsr ppu_rstaddr   ; reset PPUADDR
 	lda #def_ppu_msk  ; turn rendering back on
 	sta ppu_mask
-	jsr vblank_wait
 	
 	lda gamectrl
 	ora #gs_1stfr

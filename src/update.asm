@@ -17,11 +17,17 @@ nmi_titletra:
 nmi_game:
 	lda #gs_flstcols
 	bit gamectrl
-	beq nmi_gamemodeend
+	beq nmi_game_trypal
 	lda #gs_flstcols
 	eor gamectrl
 	sta gamectrl
 	jsr h_flush_column
+	jmp nmi_gamemodeend
+nmi_game_trypal:
+	lda #gs_flstpal
+	eor gamectrl
+	sta gamectrl
+	jsr h_flush_palette
 	jmp nmi_gamemodeend
 
 nmi:
