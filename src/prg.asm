@@ -49,8 +49,17 @@ gs_flstcols = $10   ; need to flush generated visual columns
 gs_flstpal  = $20   ; need to flush generated palette columns
 gs_turnon   = $40   ; need to program the PPU mask to turn on rendering
 lf_vertical = $01   ; level flag: is this level vertical
+plr_idle1   = $02   ; player sprite poses
+plr_idle2   = $04
+pl_left     = $01   ; player is facing left
+pl_ground   = $02   ; player is grounded
 tilesahead  = 36    ; tiles ahead of camera X
-camspeed    = 2     ; pixels advanced per frame by camera
+camspeed    = 4     ; maximum pixels advanced per frame by camera
+maxvelyhi   = $08   ; max Y velocity in pixels
+maxvelxhi   = $08   ; max X velocity in pixels
+gravity     = $24   ; gravity acceleration per frame in subpixels
+ctrpull     = $18   ; acceleration imposed by player pressing buttons
+scrolllimit = $90   ; around halfway to the screen
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -74,6 +83,7 @@ ctl_flags   = $0016 ; copied into ppuctrl
 gamemode    = $0017 ; active game mode
 titlectrl   = $0018 ; title control
 camera_x_hi = $0019
+player_x_hi = $001A ; player screen X - alternates between 0 and 1
 
 ; NOTE: these addresses can and should be repurposed for in-game
 tl_snow_y   = $0020 ; Y coordinates of the 16 snow particles
@@ -108,6 +118,11 @@ warp_d_x    = $0037
 warp_l_y    = $0038
 warp_r_y    = $0039
 roomspare   = $003A
+playerctrl  = $003B
+player_vl_x = $003C ; velocity X, pixels
+player_vs_x = $003D ; velocity X, subpixels
+player_vl_y = $003E ; velocity Y, pixels
+player_vs_y = $003F ; velocity Y, subpixels
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]

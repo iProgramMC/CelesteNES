@@ -606,23 +606,259 @@ gm_set_level_1:
 	ldy #2
 	jsr gm_fetch_room
 	rts
+
+; ** SUBROUTINE: gm_draw_player
+gm_draw_player:
+	lda player_x
+	sec
+	sbc camera_x
+	sta x_crd_temp
+	lda player_y
+	sta y_crd_temp
+	ldy #plr_idle1
+	lda #0
+	jsr oam_putsprite
+	lda #8
+	clc
+	adc x_crd_temp
+	sta x_crd_temp
+	ldy #plr_idle2
+	lda #0
+	jsr oam_putsprite
+	rts
 	
+; ** SUBROUTINE: gm_gravity
+; desc:    If player is not grounded, applies a constant downward force.
+gm_gravity:
+	lda #pl_ground
+	bit playerctrl
+	beq gm_apply_gravity
+	rts
+gm_apply_gravity:
+	lda #gravity
+	clc
+	adc player_vs_y
+	sta player_vs_y
+	lda #0
+	adc player_vl_y
+	sta player_vl_y
+	rts
+	
+; ** SUBROUTINE: gm_drag
+; desc:    Apply a constant dragging force that makes the X velocity tend to zero.
+gm_drag:
+	lda #0
+	sta player_vl_x
+	rts
+	
+; ** SUBROUTINE: gm_controls
+; desc:    Check controller input and apply forces based on it.
+gm_controls:
+	; TODO: add to the velocity instead of outright setting it.
+	lda #cont_right
+	bit p1_cont
+	beq gm_dontright
+	lda #2
+	sta player_vl_x
+gm_dontright:
+	lda #cont_left
+	bit p1_cont
+	beq gm_dontleft
+	lda #$FE
+	sta player_vl_x
+gm_dontleft:
+	rts
+
+; ** SUBROUTINE: gm_sanevels
+; desc:    Ensure sane maximums
+gm_sanevels:
+	ldy #0
+	jsr gm_sanevelx
+	jmp gm_sanevely
+	
+gm_sanevelx:
+	lda player_vl_x
+	bmi gm_negvelx
+	; positive x velocity
+	cmp #maxvelxhi
+	bcc gm_nocorvelx
+	lda #maxvelxhi
+	sta player_vl_x
+	sty player_vs_x
+gm_nocorvelx:
+	rts
+gm_negvelx:
+	cmp #(maxvelxhi^$FF + 1)
+	bcs gm_nocorvelx
+	lda #(maxvelxhi^$FF + 1)
+	sta player_vl_x
+	sty player_vs_x
+	rts
+gm_sanevely:
+	lda player_vl_y
+	bmi gm_negvely
+	; positive y velocity
+	cmp #maxvelyhi
+	bcc gm_nocorvely
+	lda #maxvelyhi
+	sta player_vl_y
+	sty player_vs_y
+gm_nocorvely:
+	rts
+gm_negvely:
+	cmp #(maxvelyhi^$FF + 1)
+	bcs gm_nocorvely
+	lda #(maxvelyhi^$FF + 1)
+	sta player_vl_y
+	sty player_vs_y
+	rts
+	
+; ** SUBROUTINE: gm_applyx
+; desc:    Apply the velocity in the X direction. 
+gm_applyx:
+	clc
+	lda player_vs_x
+	adc player_sp_x
+	sta player_sp_x
+	lda player_vl_x
+	adc player_x
+	bcc gm_detour
+gm_detourback:
+	sta player_x
+	lda #0
+	adc player_x_hi
+	and #1
+	sta player_x_hi
+	lda player_vl_x
+	bpl gm_scroll_if_needed  ; if moving positively, check if need to scroll
+	lda player_x
+	sec
+	sbc camera_x             ; if calculating player_x - camera_x resulted in an overflow
+	bcs gm_applyxret
+	lda camera_x
+	sta player_x
+gm_applyxret:
+	rts
+gm_detour:
+	; it looks like adding 1 to our player X has caused it to overflow!
+	ldx player_vl_x
+	bpl gm_detourback        ; yeah this overflow was par for the course
+	lda #0
+	jmp gm_detourback
+	
+	
+; ** SUBROUTINE: gm_applyy
+; desc:    Apply the velocity in the Y direction.
+gm_applyy:
+	clc
+	lda player_vs_y
+	adc player_sp_y
+	sta player_sp_y
+	lda player_vl_y
+	adc player_y
+	bcs gm_fellout    ; if an overflow happened while adding the velocity of the player over
+	sta player_y
+gm_didntdie:
+	lda player_vl_y
+	bmi gm_checkceil
+	jmp gm_checkfloor
+gm_fellout:           ; if the player fell out of the world
+	sta player_y
+	lda player_vl_y
+	bmi gm_didntdie
+	; player velocity is positive and the player fell out of the world
+	; TODO: actually kill. right now just warp them up a bit
+	lda #$80
+	sta player_y
+	rts
+gm_checkceil:
+	rts
+gm_checkfloor:
+	clc
+	lda player_y
+	adc #$10          ; height of player sprite
+	lsr
+	lsr
+	lsr
+	lsr               ; divide by tile size
+	tay
+	lda player_x_hi   ; load the 9th bit of the player pixel position
+	ror               ; rotate it in the carry
+	lda player_x      ; load the player position
+	ror               ; put that bit into the player's x
+	lsr
+	lsr
+	lsr               ; finish dividing by the tile size
+	tax
+	jsr h_get_tile    ; get the tile at that location.
+	cmp #$00          ; check if it is blank, if it is, then simply return
+	bne gm_snaptofloor
+	rts
+gm_snaptofloor:
+	lda #%11110000    ; round player's position to lowest multiple of 16
+	and player_y
+	sta player_y
+	lda #0            ; set the subpixel to zero
+	sta player_sp_y
+	lda #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
+	ora playerctrl
+	sta playerctrl
+	rts
+
+; ** SUBROUTINE: gm_scroll_if_needed
+gm_scroll_if_needed:
+	lda player_x
+	sec
+	sbc camera_x      ; calculate on screen position
+	cmp #scrolllimit
+	bcs gm_scroll_do  ; A >= scrolllimit
+	rts
+gm_scroll_do:
+	sec
+	sbc #scrolllimit
+	cmp #camspeed     ; see the difference we need to scroll
+	bcc gm_scr_nofix  ; A < camspeed
+	lda camera_x
+	adc #scrolllimit
+	adc #camspeed
+	sta player_x
+	lda #camspeed
+gm_scr_nofix:         ; A now contains the delta we need to scroll by
+	clc
+	adc camera_x
+	sta camera_x
+	lda #0
+	adc camera_x_hi
+	and #1
+	sta camera_x_hi
+	lda #7
+	bit camera_x
+	beq gm_go_generate
+	rts
+gm_go_generate:
+	jmp h_generate_column
+
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
 	lda #$00
 	sta gamectrl      ; clear game related fields to zero
 	sta ntwrhead
 	sta arwrhead
-	sta player_x
 	sta player_y
 	sta player_sp_x
 	sta player_sp_y
 	sta camera_x
 	sta camera_y
 	sta camera_x_hi
+	sta player_x_hi
 	sta tr_scrnpos
 	sta tr_mtaddrlo
 	sta tr_mtaddrhi
+	sta playerctrl
+	sta player_vl_x
+	sta player_vs_x
+	sta player_vl_y
+	sta player_vs_y
 	sta ppu_mask      ; disable rendering
 	
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
@@ -671,27 +907,13 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	; for now, check if the right key is pressed, and advance the
-	; camera and column generation logic
-	lda #cont_right
-	bit p1_cont
-	beq gm_dontright
-	
-	; add camspeed to camera_x / camera_x_hi. make sure camera_x_hi
-	; is 0 and 1 only.
-	lda #1
-	clc
-	adc camera_x
-	sta camera_x
-	lda #0
-	adc camera_x_hi
-	and #1
-	sta camera_x_hi
-	lda #7
-	bit camera_x
-	bne gm_dontright
-	jsr h_generate_column
-gm_dontright:
+	;jsr gm_gravity
+	jsr gm_drag
+	jsr gm_controls
+	jsr gm_sanevels
+	jsr gm_applyx
+	jsr gm_applyy
+	jsr gm_draw_player
 	
 	lda #cont_select
 	bit p1_cont
