@@ -610,7 +610,7 @@ gm_set_level_1:
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
 	lda #$00
-	sta gamectrl      ; clear some game fields
+	sta gamectrl      ; clear game related fields to zero
 	sta ntwrhead
 	sta arwrhead
 	sta player_x
@@ -621,8 +621,20 @@ gm_game_init:
 	sta camera_y
 	sta camera_x_hi
 	sta tr_scrnpos
+	sta tr_mtaddrlo
+	sta tr_mtaddrhi
 	sta ppu_mask      ; disable rendering
-	sta camera_x
+	
+	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
+	ldx #$00
+gm_game_clear:
+	sta $300,x
+	sta $400,x
+	sta $500,x
+	sta $600,x
+	inx
+	bne gm_game_clear
+	
 	jsr vblank_wait
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
@@ -645,15 +657,12 @@ loop2:
 	cpy #tilesahead
 	bne loop2
 	
-	jsr vblank_wait
-	jsr ppu_rstaddr   ; reset PPUADDR
-	lda #def_ppu_msk  ; turn rendering back on
-	sta ppu_mask
-	
 	lda gamectrl
 	ora #gs_1stfr
+	ora #gs_turnon
 	eor #gs_flstcols  ; all columns have already been flushed
 	sta gamectrl
+	jsr vblank_wait
 	jmp gm_game_update
 
 ; ** GAMEMODE: gamemode_game
@@ -683,5 +692,17 @@ gm_game_update:
 	bne gm_dontright
 	jsr h_generate_column
 gm_dontright:
+	
+	lda #cont_select
+	bit p1_cont
+	bne gm_titleswitch
+	jmp game_update_return
+
+; ** SUBROUTINE: gm_titleswitch
+gm_titleswitch:
+	lda #gm_title
+	sta gamemode
+	lda #0
+	sta titlectrl
 	jmp game_update_return
 

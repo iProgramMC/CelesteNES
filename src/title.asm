@@ -184,6 +184,8 @@ gamemode_title:
 	bit titlectrl    ; might need to update the screen buffer
 	bne gamemode_title_update 
 	lda #$00
+	sta camera_x     ; clear some fields
+	sta camera_x_hi
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait  ; wait for vblank
 	lda #$20
@@ -191,12 +193,11 @@ gamemode_title:
 	jsr print_logo   ; print the logo and the "PRESS BUTTON" text
 	jsr tl_init_snow ; initialize snow
 	jsr ppu_rstaddr  ; reset PPUADDR
-	lda #def_ppu_msk ; turn rendering back on
-	sta ppu_mask
-	jsr vblank_wait
 	lda titlectrl
-	ora #ts_1stfr    ; set bit 1
+	ora #ts_1stfr
+	ora #ts_turnon
 	sta titlectrl
+	jsr vblank_wait
 	
 gamemode_title_update:
 	jsr tl_update_snow

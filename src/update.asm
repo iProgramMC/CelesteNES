@@ -14,7 +14,29 @@ nmi_titletra:
 	sta ppu_data
 	jmp nmi_gamemodeend
 
+nmi_title:
+	lda #ts_turnon
+	bit titlectrl
+	bne nmi_title_turnon
+	jmp nmi_gamemodeend
+nmi_title_turnon:
+	lda titlectrl
+	eor #ts_turnon
+	sta titlectrl
+	lda #def_ppu_msk
+	sta ppu_mask
+	jmp nmi_gamemodeend
+
 nmi_game:
+	lda #gs_turnon
+	bit gamectrl
+	beq nmi_game_trycols
+	lda gamectrl
+	eor #gs_turnon
+	sta gamectrl
+	lda #def_ppu_msk
+	sta ppu_mask
+nmi_game_trycols:
 	lda #gs_flstcols
 	bit gamectrl
 	beq nmi_game_trypal
@@ -43,8 +65,9 @@ nmi:
 	ldx gamemode
 	cpx #gm_titletra
 	beq nmi_titletra
-	cpx #gm_game
-	beq nmi_game
+	cpx #gm_title
+	beq nmi_title
+	jmp nmi_game
 	
 nmi_gamemodeend:
 	
