@@ -19,6 +19,9 @@ apu_frctr   = $4017
 blank_tile  = $00
 apu_irq_off = $40
 oam_buf_hi  = $07   ; matches the upper bytes of the address of oam_buf
+obj_fliphz  = $40   ; flip horizontally
+obj_flipvt  = $80   ; flip vertically
+obj_backgd  = $20   ; behind background
 leveldata   = $E000
 lastpage    = $FF00
 ctl_irq_off = %00110000 ; PPUCTRL with IRQs off
@@ -55,14 +58,17 @@ pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 tilesahead  = 36    ; tiles ahead of camera X
 camspeed    = 4     ; maximum pixels advanced per frame by camera
-maxvelyhi   = $04   ; max Y velocity in pixels
+maxvelyhi   = $08   ; max Y velocity in pixels
 maxvelxhi   = $06   ; max X velocity in pixels
 gravity     = $24   ; gravity acceleration per frame in subpixels
 gravitynoA  = $90   ; gravity when A is not held and the player's going up
 ctrpull     = $18   ; acceleration imposed by player pressing buttons
 scrolllimit = $78   ; around halfway to the screen
-jumpvel     = $03   ; jump velocity
-jumpvello   = $B0   ; the low component of the jump force
+;jumpvel     = $03   ; jump velocity
+;jumpvello   = $B0   ; the low component of the jump force
+jumpvel     = $05
+jumpvello   = $20
+plrwid      = $06   ; player hitbox width - 6 pixels wide
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -88,6 +94,9 @@ titlectrl   = $0018 ; title control
 camera_x_hi = $0019
 player_x_hi = $001A ; player screen X - alternates between 0 and 1
 camera_rev  = $001B ; revealed pixels - if it goes above 8, request a column to be generated
+plr_spr_l   = $001C ; player sprite left
+plr_spr_r   = $001D ; player sprite right
+plr_hair    = $001E ; player hair color
 
 ; NOTE: these addresses can and should be repurposed for in-game
 tl_snow_y   = $0020 ; Y coordinates of the 16 snow particles

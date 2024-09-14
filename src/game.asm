@@ -608,20 +608,52 @@ gm_set_level_1:
 
 ; ** SUBROUTINE: gm_draw_player
 gm_draw_player:
+	lda #pl_left
+	bit playerctrl
+	bne gm_draw_left_player
 	lda player_x
 	sta x_crd_temp
 	lda player_y
 	sta y_crd_temp
-	ldy #plr_idle1
+	ldy plr_spr_l
 	lda #0
 	jsr oam_putsprite
 	lda #8
 	clc
 	adc x_crd_temp
 	sta x_crd_temp
-	ldy #plr_idle2
+	ldy plr_spr_r
 	lda #0
 	jsr oam_putsprite
+	rts
+gm_draw_left_player:      ; draw left facing player
+	lda player_x
+	sta x_crd_temp
+	lda player_y
+	sta y_crd_temp
+	ldy plr_spr_r
+	lda #$40
+	jsr oam_putsprite
+	lda #8
+	clc
+	adc x_crd_temp
+	sta x_crd_temp
+	ldy plr_spr_l
+	lda #$40
+	jsr oam_putsprite
+	rts
+	
+	
+gm_anim_player:
+	lda #plr_idle1
+	sta plr_spr_l
+	lda #plr_idle2
+	sta plr_spr_r
+	
+	;lda plr_hair
+	;adc #1
+	;and #$3F
+	;sta plr_hair
 	rts
 	
 ; ** SUBROUTINE: gm_getdownforce
@@ -661,23 +693,30 @@ gm_drag:
 	lda #0
 	sta player_vl_x
 	rts
-	
+
+; ** SUBROUTINE: gm_pressedleft
+gm_pressedleft:
+	; TODO: add to the velocity instead of outright setting it.
+	lda #$FE
+	sta player_vl_x
+	lda #pl_left
+	ora playerctrl
+	sta playerctrl
+	rts
+
+; ** SUBROUTINE: gm_pressedright
+gm_pressedright:
+	; TODO: add to the velocity instead of outright setting it.
+	lda #2
+	sta player_vl_x
+	lda #(pl_left ^ $FF)
+	and playerctrl
+	sta playerctrl
+	rts
+
 ; ** SUBROUTINE: gm_controls
 ; desc:    Check controller input and apply forces based on it.
 gm_controls:
-	; TODO: add to the velocity instead of outright setting it.
-	lda #cont_right
-	bit p1_cont
-	beq gm_dontright
-	lda #2
-	sta player_vl_x
-gm_dontright:
-	lda #cont_left
-	bit p1_cont
-	beq gm_dontleft
-	lda #$FE
-	sta player_vl_x
-gm_dontleft:
 	lda #cont_a
 	bit p1_cont
 	beq gm_dontjump   ; if the player pressed A
@@ -691,6 +730,12 @@ gm_dontleft:
 	lda #(jumpvello ^ $FF + 1)
 	sta player_vs_y
 gm_dontjump:
+	lda #cont_right
+	bit p1_cont
+	bne gm_pressedright
+	lda #cont_left
+	bit p1_cont
+	bne gm_pressedleft
 	rts
 
 ; ** SUBROUTINE: gm_sanevels
@@ -736,37 +781,6 @@ gm_negvely:
 	sta player_vl_y
 	sty player_vs_y
 	rts
-	
-; ** SUBROUTINE: gm_applyx
-; desc:    Apply the velocity in the X direction. 
-gm_applyx:
-	clc
-	lda player_vl_x
-	rol                      ; store the upper bit in carry
-	lda #$FF
-	adc #0                   ; add the carry bit if needed
-	eor #$FF                 ; flip it because we need the reverse
-	tay                      ; This is the "screenfuls" part that we need to add to the player position
-	lda player_vs_x
-	adc player_sp_x
-	sta player_sp_x
-	lda player_vl_x
-	adc player_x
-	bcs gm_nocheckoffs       ; If the addition didn't overflow, we need to detour.
-	ldx player_vl_x          ; check if the velocity was positive
-	bpl gm_nocheckoffs       ; yeah, of course it wouldn't overflow, it's positive!
-	lda #0                   ; we have an underflow, means the player is trying to leave the screen
-	ldy #0                   ; through the left side. we can't let that happen!
-	clc                      ; zero out the player's new position
-gm_nocheckoffs:
-	sta player_x
-	tya
-	adc player_x_hi
-	and #1
-	sta player_x_hi
-	lda player_vl_x
-	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
-	rts
 
 ; ** SUBROUTINE: gm_applyy
 ; desc:    Apply the velocity in the Y direction.
@@ -806,8 +820,12 @@ gm_checkfloor:
 	lsr
 	lsr               ; divide by tile size
 	tay               ; keep the Y position into the Y register
+	sty y_crd_temp
+	; check block 1
 	clc
 	lda player_x      ; player_x + camera_x
+	adc #(16-plrwid*2); determine leftmost hitbox position
+	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
 	lda player_x_hi
@@ -820,7 +838,27 @@ gm_checkfloor:
 	lsr               ; finish dividing by the tile size
 	tax
 	jsr h_get_tile    ; get the tile at that location.
-	cmp #$00          ; check if it is blank, if it is, then simply return
+	cmp #$00          ; check if it is blank, if it is, then check the other tile
+	bne gm_snaptofloor
+	; check block 2
+	ldy y_crd_temp
+	clc
+	lda player_x      ; player_x + camera_x
+	adc #(15-plrwid)  ; determine rightmost hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda player_x_hi
+	adc camera_x_hi
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr
+	lsr               ; finish dividing by the tile size
+	tax
+	jsr h_get_tile    ; get the tile at that location.
+	cmp #$00          ; check if it is blank, if it is, then check the other tile
 	bne gm_snaptofloor
 	rts
 gm_snaptofloor:
@@ -833,7 +871,37 @@ gm_snaptofloor:
 	ora playerctrl
 	sta playerctrl
 	rts
-
+	
+; ** SUBROUTINE: gm_applyx
+; desc:    Apply the velocity in the X direction. 
+gm_applyx:
+	clc
+	lda player_vl_x
+	rol                      ; store the upper bit in carry
+	lda #$FF
+	adc #0                   ; add the carry bit if needed
+	eor #$FF                 ; flip it because we need the reverse
+	tay                      ; This is the "screenfuls" part that we need to add to the player position
+	lda player_vs_x
+	adc player_sp_x
+	sta player_sp_x
+	lda player_vl_x
+	adc player_x
+	bcs gm_nocheckoffs       ; If the addition didn't overflow, we need to detour.
+	ldx player_vl_x          ; check if the velocity was positive
+	bpl gm_nocheckoffs       ; yeah, of course it wouldn't overflow, it's positive!
+	lda #0                   ; we have an underflow, means the player is trying to leave the screen
+	ldy #0                   ; through the left side. we can't let that happen!
+	clc                      ; zero out the player's new position
+gm_nocheckoffs:
+	sta player_x
+	tya
+	adc player_x_hi
+	and #1
+	sta player_x_hi
+	lda player_vl_x
+	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
+	rts
 ; ** SUBROUTINE: gm_scroll_if_needed
 gm_scroll_if_needed:
 	lda player_x
@@ -944,8 +1012,9 @@ gm_game_update:
 	jsr gm_drag
 	jsr gm_controls
 	jsr gm_sanevels
-	jsr gm_applyx
 	jsr gm_applyy
+	jsr gm_applyx
+	jsr gm_anim_player
 	jsr gm_draw_player
 	
 	lda #cont_select
