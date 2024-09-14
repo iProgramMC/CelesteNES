@@ -18,10 +18,42 @@ apu_frctr   = $4017
 ; Flags
 
 ; Sprite Indices
-plr_idle1   = $02
-plr_idle2   = $04
-plr_hair1   = $0E
-plr_hair2   = $10
+plr_idle1_l = $02
+plr_idle1_r = $04
+plr_idle2_l = $06
+plr_idle2_r = $08
+plr_jump_l  = $0A
+plr_jump_r  = $0C
+plr_lkup_l  = $20   ; look up
+plr_lkup_r  = $22
+plr_flip_l  = $24
+plr_flip_r  = $26
+plr_fall_l  = $28
+plr_fall_r  = $2A
+plr_clim1_l = $44   ; climb
+plr_clim1_r = $46
+plr_clim2_l = $48   ; climb
+plr_clim2_r = $4A
+plr_dang1_l = $4C
+plr_dang1_r = $4E
+plr_dang2_l = $50
+plr_dang2_r = $52
+plr_dash_l  = $58
+plr_dash_r  = $5A
+plr_hasta_l = $0E   ; hair stationary
+plr_hasta_r = $10
+plr_hamvr_l = $12   ; hair move right
+plr_hamvr_r = $14
+plr_hamsr_l = $1A   ; hair move slight right
+plr_hamsr_r = $1C
+plr_hamvu_l = $2E   ; hair move up
+plr_hamvu_r = $30
+plr_hamvd_l = $2E   ; hair move down
+plr_hamvd_r = $30
+plr_haflp_l = $40   ; hair flip
+plr_haflp_r = $42
+plr_hadsh_l = $5C   ; hair dash
+plr_hadsh_r = $5E
 
 ; Constants
 blank_tile  = $00
@@ -62,6 +94,7 @@ gs_turnon   = $40   ; need to program the PPU mask to turn on rendering
 lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
+pl_dash     = $04   ; dash active, don't perform drag or gravity
 tilesahead  = 36    ; tiles ahead of camera X
 camspeed    = 4     ; maximum pixels advanced per frame by camera
 maxvelyhi   = $08   ; max Y velocity in pixels
@@ -72,8 +105,11 @@ ctrpull     = $18   ; acceleration imposed by player pressing buttons
 scrolllimit = $78   ; around halfway to the screen
 ;jumpvel     = $03   ; jump velocity
 ;jumpvello   = $B0   ; the low component of the jump force
-jumpvel     = $05
-jumpvello   = $20
+jumpvel     = $05   ; jump velocity
+jumpvello   = $20   ; the low component of the jump force
+accelhi     = $00   ; acceleration when holding a direction in pixels
+accel       = $10   ; subpixel component of acceleration
+maxwalk     = $02   ; max walk speed in pixels
 plrwid      = $06   ; player hitbox width - 6 pixels wide
 
 ; Variables (RAM: 0x0000 - 0x0800)
@@ -151,6 +187,7 @@ player_vs_x = $003D ; velocity X, subpixels
 player_vl_y = $003E ; velocity Y, pixels
 player_vs_y = $003F ; velocity Y, subpixels
 plh_attrs   = $0040 ; player hair attributes
+dashtime    = $0041
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
@@ -418,7 +455,7 @@ init_palette:
 	.byte $0f,$37,$16,$06 ; brown tiles
 	.byte $0f,$20,$21,$11 ; blue tiles
 	.byte $0f,$39,$29,$19 ; green tiles
-	.byte $0f,$37,$15,$21 ; player sprite colors
+	.byte $0f,$37,$14,$21 ; player sprite colors
 	.byte $0f,$35,$15,$06 ; red/strawberry sprite
 	.byte $0f,$20,$21,$11 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite

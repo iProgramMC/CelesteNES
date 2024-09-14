@@ -672,18 +672,82 @@ gm_donecomputing:
 	ldy player_y
 	jsr gm_draw_2xsprite
 	rts
-	
+
+; ** SUBROUTINE: gm_anim_player
+; desc: Updates the sprite numbers for the player character and their hair.
+gm_jumping:
+	ldx #plr_jump_l
+	ldy #plr_jump_r
+	stx plr_spr_l
+	sty plr_spr_r
+	ldx #plr_hamvu_l
+	ldy #plr_hamvu_r
+	stx plh_spr_l
+	sty plh_spr_r
+	rts
+gm_falling:
+	ldx #plr_fall_l
+	ldy #plr_fall_r
+	stx plr_spr_l
+	sty plr_spr_r
+	ldx #plr_hamvd_l
+	ldy #plr_hamvd_r
+	stx plh_spr_l
+	sty plh_spr_r
+	rts
 gm_anim_player:
-	lda #plr_idle1
-	sta plr_spr_l
-	lda #plr_idle2
-	sta plr_spr_r
-	lda #plr_hair1
-	sta plh_spr_l
-	lda #plr_hair2
-	sta plh_spr_r
 	lda #1
 	sta plh_attrs    ; set the palette to 1
+	lda player_vl_y
+	bmi gm_jumping   ; if it's <0, then jumping
+	lda #pl_ground
+	bit playerctrl
+	beq gm_falling   ; if pl_ground set, then moving only in X direction
+	lda #pl_left     ; check if facing left
+	bit playerctrl
+	beq gm_anim_right
+	lda player_vl_x  ; load the player's velocity but flip its sign
+	eor #$FF
+	clc
+	adc #1
+	jmp gm_anim_done
+gm_anim_right:
+	lda player_vl_x
+gm_anim_done:
+	cmp #0           ; compare the velocity to 0
+;	bne gm_dontloadsp
+;	lda player_vs_x
+;gm_dontloadsp:
+	bmi gm_flip      ; if A < 0, then flipping
+	bne gm_right     ; if A > 0, then running
+	ldx #plr_idle1_l
+	ldy #plr_idle1_r
+	stx plr_spr_l
+	sty plr_spr_r
+	ldx #plr_hasta_l
+	ldy #plr_hasta_r
+	stx plh_spr_l
+	sty plh_spr_r
+	rts
+gm_flip:
+	ldx #plr_flip_l
+	ldy #plr_flip_r
+	stx plr_spr_l
+	sty plr_spr_r
+	ldx #plr_haflp_l
+	ldy #plr_haflp_r
+	stx plh_spr_l
+	sty plh_spr_r
+	rts
+gm_right:
+	ldx #plr_dash_l
+	ldy #plr_dash_r
+	stx plr_spr_l
+	sty plr_spr_r
+	ldx #plr_hadsh_l
+	ldy #plr_hadsh_r
+	stx plh_spr_l
+	sty plh_spr_r
 	rts
 	
 ; ** SUBROUTINE: gm_getdownforce
@@ -720,14 +784,21 @@ gm_apply_gravity:
 ; ** SUBROUTINE: gm_drag
 ; desc:    Apply a constant dragging force that makes the X velocity tend to zero.
 gm_drag:
+	rts
+gm_drag2:
 	lda #0
 	sta player_vl_x
+	sta player_vs_x
 	rts
 
 ; ** SUBROUTINE: gm_pressedleft
 gm_pressedleft:
-	; TODO: add to the velocity instead of outright setting it.
-	lda #$FE
+	lda player_vs_x
+	sec
+	sbc #accel
+	sta player_vs_x
+	lda player_vl_x
+	sbc #accelhi
 	sta player_vl_x
 	lda #pl_left
 	ora playerctrl
@@ -736,8 +807,12 @@ gm_pressedleft:
 
 ; ** SUBROUTINE: gm_pressedright
 gm_pressedright:
-	; TODO: add to the velocity instead of outright setting it.
-	lda #2
+	clc
+	lda player_vs_x
+	adc #accel
+	sta player_vs_x
+	lda player_vl_x
+	adc #accelhi
 	sta player_vl_x
 	lda #(pl_left ^ $FF)
 	and playerctrl
@@ -766,6 +841,7 @@ gm_dontjump:
 	lda #cont_left
 	bit p1_cont
 	bne gm_pressedleft
+	jmp gm_drag2      ; temporary
 	rts
 
 ; ** SUBROUTINE: gm_sanevels
@@ -900,6 +976,9 @@ gm_snaptofloor:
 	lda #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
 	ora playerctrl
 	sta playerctrl
+	lda #0
+	sta player_vl_y
+	sta player_vs_y
 	rts
 	
 ; ** SUBROUTINE: gm_applyx
