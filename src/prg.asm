@@ -15,6 +15,14 @@ apu_joypad1 = $4016
 apu_joypad2 = $4017
 apu_frctr   = $4017
 
+; Flags
+
+; Sprite Indices
+plr_idle1   = $02
+plr_idle2   = $04
+plr_hair1   = $0E
+plr_hair2   = $10
+
 ; Constants
 blank_tile  = $00
 apu_irq_off = $40
@@ -52,8 +60,6 @@ gs_flstcols = $10   ; need to flush generated visual columns
 gs_flstpal  = $20   ; need to flush generated palette columns
 gs_turnon   = $40   ; need to program the PPU mask to turn on rendering
 lf_vertical = $01   ; level flag: is this level vertical
-plr_idle1   = $02   ; player sprite poses
-plr_idle2   = $04
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 tilesahead  = 36    ; tiles ahead of camera X
@@ -77,10 +83,17 @@ oam_wrhead  = $0001 ; OAM buffer write head
 wr_str_temp = $0002 ; and $0003
 x_crd_temp  = $0004 ; used by oam_putsprite and h_get_tile, MUST be x before y!
 y_crd_temp  = $0005 ; used by oam_putsprite
+tr_bufidx   = $0005 ; alias to y_crd_temp
 rng_state   = $0006
 p1_cont     = $0007
 p1_conto    = $0008
-tr_bufidx   = $0005 ; alias to y_crd_temp
+temp1       = $0009 ; player left sprite - these 6 used by gm_draw_player
+temp2       = $000A ; player right sprite
+temp3       = $000B ; player sprite attrs
+temp4       = $000C ; hair left sprite
+temp5       = $000D ; hair right sprite
+temp6       = $000E ; hair sprite attrs
+temp7       = $000F ; used by gm_draw_player
 
 player_x    = $0010 ; offset by the camera's position!
 player_y    = $0011
@@ -96,7 +109,8 @@ player_x_hi = $001A ; player screen X - alternates between 0 and 1
 camera_rev  = $001B ; revealed pixels - if it goes above 8, request a column to be generated
 plr_spr_l   = $001C ; player sprite left
 plr_spr_r   = $001D ; player sprite right
-plr_hair    = $001E ; player hair color
+plh_spr_l   = $001E ; player hair sprite left
+plh_spr_r   = $001F ; player hair sprite right
 
 ; NOTE: these addresses can and should be repurposed for in-game
 tl_snow_y   = $0020 ; Y coordinates of the 16 snow particles
@@ -136,6 +150,7 @@ player_vl_x = $003C ; velocity X, pixels
 player_vs_x = $003D ; velocity X, subpixels
 player_vl_y = $003E ; velocity Y, pixels
 player_vs_y = $003F ; velocity Y, subpixels
+plh_attrs   = $0040 ; player hair attributes
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
@@ -403,10 +418,10 @@ init_palette:
 	.byte $0f,$37,$16,$06 ; brown tiles
 	.byte $0f,$20,$21,$11 ; blue tiles
 	.byte $0f,$39,$29,$19 ; green tiles
-	.byte $0f,$15,$37,$21 ; player sprite colors
-	.byte $0f,$15,$25,$36 ; red/strawberry sprite
+	.byte $0f,$37,$15,$21 ; player sprite colors
+	.byte $0f,$35,$15,$06 ; red/strawberry sprite
+	.byte $0f,$20,$21,$11 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite
-	.byte $0f,$20,$10,$00 ; unused sprite 3
 
 ; logo data
 logo_row1: .byte $20,$20,$20,$c0,$20,$20,$20

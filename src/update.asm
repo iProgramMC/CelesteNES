@@ -28,11 +28,6 @@ nmi_title_turnon:
 	jmp nmi_gamemodeend
 
 nmi_game:
-	;ldy #$3F
-	;ldx #$11
-	;jsr ppu_loadaddr      ; load address of sprite palette 0, color 1
-	;lda plr_hair
-	;sta ppu_data          ; update the player's hair color
 	lda #gs_turnon
 	bit gamectrl
 	beq nmi_game_trycols

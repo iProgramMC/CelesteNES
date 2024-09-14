@@ -606,54 +606,84 @@ gm_set_level_1:
 	jsr gm_fetch_room
 	rts
 
+; ** SUBROUTINE: gm_draw_2xsprite
+; arguments: x - offset into zero page with sprite structure
+;            a - x position, y - y position
+; structure:  [shared attributes] [left sprite] [right sprite]
+gm_draw_2xsprite:
+	sta x_crd_temp
+	sty y_crd_temp
+	lda $00,x       ; get shared attributes into a
+	inx
+	ldy $00,x       ; get left sprite
+	inx
+	stx temp7
+	jsr oam_putsprite
+	ldx temp7
+	ldy $00,x       ; get right sprite
+	lda x_crd_temp  ; add 8 to x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	dex
+	dex
+	lda $00,x       ; get shared attributes again
+	jsr oam_putsprite
+	rts
+
 ; ** SUBROUTINE: gm_draw_player
 gm_draw_player:
 	lda #pl_left
 	bit playerctrl
-	bne gm_draw_left_player
-	lda player_x
-	sta x_crd_temp
-	lda player_y
-	sta y_crd_temp
-	ldy plr_spr_l
+	bne gm_facingleft
 	lda #0
-	jsr oam_putsprite
-	lda #8
-	clc
-	adc x_crd_temp
-	sta x_crd_temp
+	ldx plr_spr_l
 	ldy plr_spr_r
-	lda #0
-	jsr oam_putsprite
-	rts
-gm_draw_left_player:      ; draw left facing player
-	lda player_x
-	sta x_crd_temp
-	lda player_y
-	sta y_crd_temp
-	ldy plr_spr_r
-	lda #$40
-	jsr oam_putsprite
-	lda #8
-	clc
-	adc x_crd_temp
-	sta x_crd_temp
+	sta temp1
+	stx temp2
+	sty temp3
+	lda plh_attrs
+	ldx plh_spr_l
+	ldy plh_spr_r
+	sta temp4
+	stx temp5
+	sty temp6
+	jmp gm_donecomputing
+gm_facingleft:
+	lda #obj_fliphz
+	ldx plr_spr_r
 	ldy plr_spr_l
-	lda #$40
-	jsr oam_putsprite
+	sta temp1
+	stx temp2
+	sty temp3
+	ora plh_attrs
+	ldx plh_spr_r
+	ldy plh_spr_l
+	sta temp4
+	stx temp5
+	sty temp6
+gm_donecomputing:
+	ldx #temp1           ; draw player
+	lda player_x
+	ldy player_y
+	jsr gm_draw_2xsprite
+	ldx #temp4           ; draw hair
+	lda player_x
+	ldy player_y
+	jsr gm_draw_2xsprite
 	rts
-	
 	
 gm_anim_player:
 	lda #plr_idle1
 	sta plr_spr_l
 	lda #plr_idle2
 	sta plr_spr_r
-	
-	;lda plr_hair
-	;adc #1
-	;and #$3F
-	;sta plr_hair
+	lda #plr_hair1
+	sta plh_spr_l
+	lda #plr_hair2
+	sta plh_spr_r
+	lda #1
+	sta plh_attrs    ; set the palette to 1
 	rts
 	
 ; ** SUBROUTINE: gm_getdownforce
@@ -844,7 +874,7 @@ gm_checkfloor:
 	ldy y_crd_temp
 	clc
 	lda player_x      ; player_x + camera_x
-	adc #(15-plrwid)  ; determine rightmost hitbox position
+	adc #(16-plrwid)  ; determine rightmost hitbox position
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
