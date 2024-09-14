@@ -610,8 +610,6 @@ gm_set_level_1:
 ; ** SUBROUTINE: gm_draw_player
 gm_draw_player:
 	lda player_x
-	sec
-	sbc camera_x
 	sta x_crd_temp
 	lda player_y
 	sta y_crd_temp
@@ -667,6 +665,14 @@ gm_dontright:
 	lda #$FE
 	sta player_vl_x
 gm_dontleft:
+	lda #cont_a
+	bit p1_cont
+	beq gm_dontjump
+	lda #(jumpvel ^ $FF + 1)
+	sta player_vl_y
+	lda #$00
+	sta player_vs_y
+gm_dontjump:
 	rts
 
 ; ** SUBROUTINE: gm_sanevels
@@ -717,33 +723,33 @@ gm_negvely:
 ; desc:    Apply the velocity in the X direction. 
 gm_applyx:
 	clc
+	lda player_vl_x
+	rol                      ; store the upper bit in carry
+	lda #$FF
+	adc #0                   ; add the carry bit if needed
+	eor #$FF                 ; flip it because we need the reverse
+	tay                      ; This is the "screenfuls" part that we need to add to the player position
 	lda player_vs_x
 	adc player_sp_x
 	sta player_sp_x
 	lda player_vl_x
 	adc player_x
-	bcc gm_detour
+	bcc gm_detour            ; If the addition didn't overflow, we need to detour.
 gm_detourback:
 	sta player_x
-	lda #0
+	tya
 	adc player_x_hi
 	and #1
 	sta player_x_hi
 	lda player_vl_x
-	bpl gm_scroll_if_needed  ; if moving positively, check if need to scroll
-	lda player_x
-	sec
-	sbc camera_x             ; if calculating player_x - camera_x resulted in an overflow
-	bcs gm_applyxret
-	lda camera_x
-	sta player_x
-gm_applyxret:
+	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
 	rts
 gm_detour:
-	; it looks like adding 1 to our player X has caused it to overflow!
-	ldx player_vl_x
-	bpl gm_detourback        ; yeah this overflow was par for the course
-	lda #0
+	ldx player_vl_x          ; check if the velocity was positive
+	bpl gm_detourback        ; yeah, of course it wouldn't overflow, it's positive!
+	lda #0                   ; we have an underflow, means the player is trying to leave the screen
+	ldy #0                   ; through the left side. we can't let that happen!
+	clc                      ; zero out the player's new position
 	jmp gm_detourback
 	
 	
@@ -751,6 +757,9 @@ gm_detour:
 ; desc:    Apply the velocity in the Y direction.
 gm_applyy:
 	clc
+	lda #(pl_ground ^ $FF)
+	and playerctrl
+	sta playerctrl    ; remove the grounded flag - it'll be added back if we are on the ground
 	lda player_vs_y
 	adc player_sp_y
 	sta player_sp_y
@@ -781,11 +790,16 @@ gm_checkfloor:
 	lsr
 	lsr
 	lsr               ; divide by tile size
-	tay
-	lda player_x_hi   ; load the 9th bit of the player pixel position
-	ror               ; rotate it in the carry
-	lda player_x      ; load the player position
-	ror               ; put that bit into the player's x
+	tay               ; keep the Y position into the Y register
+	clc
+	lda player_x      ; player_x + camera_x
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda player_x_hi
+	adc camera_x_hi
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
 	lsr
 	lsr
 	lsr               ; finish dividing by the tile size
@@ -808,20 +822,14 @@ gm_snaptofloor:
 ; ** SUBROUTINE: gm_scroll_if_needed
 gm_scroll_if_needed:
 	lda player_x
-	sec
-	sbc camera_x      ; calculate on screen position
 	cmp #scrolllimit
-	bcs gm_scroll_do  ; A >= scrolllimit
-	rts
+	bcc gm_scroll_ret ; A < scrolllimit
+	beq gm_scroll_ret ; A = scrolllimit
 gm_scroll_do:
 	sec
 	sbc #scrolllimit
 	cmp #camspeed     ; see the difference we need to scroll
 	bcc gm_scr_nofix  ; A < camspeed
-	lda camera_x
-	adc #scrolllimit
-	adc #camspeed
-	sta player_x
 	lda #camspeed
 gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	clc
@@ -834,8 +842,13 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	lda #7
 	bit camera_x
 	beq gm_go_generate
+	lda #scrolllimit
+	sta player_x
+gm_scroll_ret:
 	rts
 gm_go_generate:
+	lda #scrolllimit
+	sta player_x
 	jmp h_generate_column
 
 ; ** SUBROUTINE: gamemode_init
@@ -907,7 +920,7 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	;jsr gm_gravity
+	jsr gm_gravity
 	jsr gm_drag
 	jsr gm_controls
 	jsr gm_sanevels

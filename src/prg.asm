@@ -60,6 +60,7 @@ maxvelxhi   = $08   ; max X velocity in pixels
 gravity     = $24   ; gravity acceleration per frame in subpixels
 ctrpull     = $18   ; acceleration imposed by player pressing buttons
 scrolllimit = $90   ; around halfway to the screen
+jumpvel     = $02   ; jump velocity
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -73,7 +74,7 @@ p1_cont     = $0007
 p1_conto    = $0008
 tr_bufidx   = $0005 ; alias to y_crd_temp
 
-player_x    = $0010
+player_x    = $0010 ; offset by the camera's position!
 player_y    = $0011
 player_sp_x = $0012 ; subpixel memory X
 player_sp_y = $0013 ; subpixel memory Y

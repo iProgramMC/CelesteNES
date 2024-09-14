@@ -47,6 +47,9 @@ nmi_game_trycols:
 	jmp nmi_gamemodeend
 nmi_game_trypal:
 	lda #gs_flstpal
+	bit gamectrl
+	beq nmi_gamemodeend
+	lda #gs_flstpal
 	eor gamectrl
 	sta gamectrl
 	jsr h_flush_palette
