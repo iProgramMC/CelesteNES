@@ -55,12 +55,14 @@ pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 tilesahead  = 36    ; tiles ahead of camera X
 camspeed    = 4     ; maximum pixels advanced per frame by camera
-maxvelyhi   = $08   ; max Y velocity in pixels
-maxvelxhi   = $08   ; max X velocity in pixels
+maxvelyhi   = $04   ; max Y velocity in pixels
+maxvelxhi   = $06   ; max X velocity in pixels
 gravity     = $24   ; gravity acceleration per frame in subpixels
+gravitynoA  = $90   ; gravity when A is not held and the player's going up
 ctrpull     = $18   ; acceleration imposed by player pressing buttons
-scrolllimit = $90   ; around halfway to the screen
-jumpvel     = $02   ; jump velocity
+scrolllimit = $78   ; around halfway to the screen
+jumpvel     = $03   ; jump velocity
+jumpvello   = $B0   ; the low component of the jump force
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM

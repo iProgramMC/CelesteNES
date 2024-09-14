@@ -625,6 +625,20 @@ gm_draw_player:
 	jsr oam_putsprite
 	rts
 	
+; ** SUBROUTINE: gm_getdownforce
+; desc:    Gets the downward force in the A register depending on their state.
+gm_getdownforce:
+	lda player_vl_y
+	bpl gm_defaultgrav
+	lda #cont_a
+	bit p1_cont
+	bne gm_defaultgrav  ; if A isn't held, then use a stronger gravity force
+	lda #gravitynoA
+	rts
+gm_defaultgrav:
+	lda #gravity
+	rts
+	
 ; ** SUBROUTINE: gm_gravity
 ; desc:    If player is not grounded, applies a constant downward force.
 gm_gravity:
@@ -633,7 +647,7 @@ gm_gravity:
 	beq gm_apply_gravity
 	rts
 gm_apply_gravity:
-	lda #gravity
+	jsr gm_getdownforce
 	clc
 	adc player_vs_y
 	sta player_vs_y
@@ -667,10 +681,15 @@ gm_dontright:
 gm_dontleft:
 	lda #cont_a
 	bit p1_cont
-	beq gm_dontjump
+	beq gm_dontjump   ; if the player pressed A
+	bit p1_conto
+	bne gm_dontjump   ; if the player wasn't pressing A last frame
+	lda #pl_ground
+	bit playerctrl
+	beq gm_dontjump   ; if the player is grounded
 	lda #(jumpvel ^ $FF + 1)
 	sta player_vl_y
-	lda #$00
+	lda #(jumpvello ^ $FF + 1)
 	sta player_vs_y
 gm_dontjump:
 	rts
@@ -734,8 +753,13 @@ gm_applyx:
 	sta player_sp_x
 	lda player_vl_x
 	adc player_x
-	bcc gm_detour            ; If the addition didn't overflow, we need to detour.
-gm_detourback:
+	bcs gm_nocheckoffs       ; If the addition didn't overflow, we need to detour.
+	ldx player_vl_x          ; check if the velocity was positive
+	bpl gm_nocheckoffs       ; yeah, of course it wouldn't overflow, it's positive!
+	lda #0                   ; we have an underflow, means the player is trying to leave the screen
+	ldy #0                   ; through the left side. we can't let that happen!
+	clc                      ; zero out the player's new position
+gm_nocheckoffs:
 	sta player_x
 	tya
 	adc player_x_hi
@@ -744,15 +768,7 @@ gm_detourback:
 	lda player_vl_x
 	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
 	rts
-gm_detour:
-	ldx player_vl_x          ; check if the velocity was positive
-	bpl gm_detourback        ; yeah, of course it wouldn't overflow, it's positive!
-	lda #0                   ; we have an underflow, means the player is trying to leave the screen
-	ldy #0                   ; through the left side. we can't let that happen!
-	clc                      ; zero out the player's new position
-	jmp gm_detourback
-	
-	
+
 ; ** SUBROUTINE: gm_applyy
 ; desc:    Apply the velocity in the Y direction.
 gm_applyy:
