@@ -833,22 +833,27 @@ gm_scroll_do:
 	lda #camspeed
 gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	clc
-	adc camera_x
+	tax               ; save the delta as we'll need it later
+	adc camera_x      ; add the delta to the camera X
 	sta camera_x
 	lda #0
 	adc camera_x_hi
 	and #1
 	sta camera_x_hi
-	lda #7
-	bit camera_x
-	beq gm_go_generate
-	lda #scrolllimit
+	lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
 	sta player_x
+	txa               ; restore the delta to add to camera_rev
+	adc camera_rev
+	sta camera_rev
+	cmp #8
+	bcs gm_go_generate; if camera_rev+diff < 8 return
 gm_scroll_ret:
 	rts
 gm_go_generate:
-	lda #scrolllimit
-	sta player_x
+	lda camera_rev    ; subtract 8 from camera_rev
+	sec
+	sbc #8
+	sta camera_rev
 	jmp h_generate_column
 
 ; ** SUBROUTINE: gamemode_init

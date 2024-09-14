@@ -85,6 +85,7 @@ gamemode    = $0017 ; active game mode
 titlectrl   = $0018 ; title control
 camera_x_hi = $0019
 player_x_hi = $001A ; player screen X - alternates between 0 and 1
+camera_rev  = $001B ; revealed pixels - if it goes above 8, request a column to be generated
 
 ; NOTE: these addresses can and should be repurposed for in-game
 tl_snow_y   = $0020 ; Y coordinates of the 16 snow particles
