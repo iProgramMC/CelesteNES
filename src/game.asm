@@ -107,11 +107,10 @@ h_flupal_done:
 	; need to write 8 bytes.
 	ldy #0
 h_flupal_loop:
-	tya
+	ldx y_crd_temp
+	stx ppu_addr
 	ldx x_crd_temp
-	ldy y_crd_temp
-	jsr ppu_loadaddr
-	tay
+	stx ppu_addr
 	lda temppal, y
 	sta ppu_data
 	lda #8
