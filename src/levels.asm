@@ -105,6 +105,8 @@ lvl_1_r1_t:
 	.byte $20, $45  ; 4X horizontal ground at X=2, Y=5
 	.byte $72, $02  ; ground change to $02
 	.byte $71, $52  ; 5X  vertical ground stripe, at X=7,Y=2
+	.byte $82, $02  ; ground change to $03
+	.byte $80, $CA  ; 12X horizontal ground at X=8,Y=12
 	.byte $A2, $03  ; ground change to $03
 	.byte $A1, $53  ; 5X  vertical ground stripe, at X=10,Y=3
 	.byte $B2, $01  ; ground change to $01

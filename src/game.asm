@@ -1067,6 +1067,50 @@ gm_negvely:
 	sty player_vs_y
 	rts
 
+; ** SUBROUTINE: gm_getleftx
+; desc: Gets the tile X position where the left edge of the player's hitbox resides
+; returns: A - the X coordinate
+; clobbers: A
+gm_getleftx:
+	clc
+	lda player_x
+	adc #(16-plrwid*2); determine leftmost hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda player_x_hi
+	adc camera_x_hi
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
+; ** SUBROUTINE: gm_getrightx
+; desc:     Gets the tile X position where the right edge of the player's hitbox resides
+; returns:  A - the X coordinate
+; clobbers: A
+; note:     this is NOT ALWAYS the same as the result of gm_getleftx!! though perhaps
+;           some optimizations are possible..
+gm_getrightx:
+	clc
+	lda player_x
+	adc #(15-plrwid)  ; determine right hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda player_x_hi
+	adc camera_x_hi
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
 ; ** SUBROUTINE: gm_applyy
 ; desc:    Apply the velocity in the Y direction.
 gm_applyy:
@@ -1095,6 +1139,35 @@ gm_fellout:           ; if the player fell out of the world
 	sta player_y
 	rts
 gm_checkceil:
+	lda player_y
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	sty y_crd_temp
+	jsr gm_getleftx   ; check block 1
+	tax
+	jsr h_get_tile    ; get the tile at that location.
+	cmp #$00          ; check if it is blank, if it is, then check the other tile
+	bne gm_snaptoceil
+	ldy y_crd_temp    ; check block 2
+	jsr gm_getrightx
+	tax
+	jsr h_get_tile    ; get the tile at that location.
+	cmp #$00          ; check if it is blank, if it is, then check the other tile
+	bne gm_snaptoceil
+	rts
+gm_snaptoceil:
+	clc
+	lda player_y
+	adc #$0F
+	and #$F0          ; calculate ((player_y + 15) % 16) * 16
+	sta player_y      ; rounds player's position to higher mu;tiple of 16
+	lda #0            ; set the subpixel to zero
+	sta player_sp_y
+	sta player_vl_y   ; also clear the velocity
+	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
 	rts
 gm_checkfloor:
 	clc
@@ -1106,48 +1179,20 @@ gm_checkfloor:
 	lsr               ; divide by tile size
 	tay               ; keep the Y position into the Y register
 	sty y_crd_temp
-	; check block 1
-	clc
-	lda player_x      ; player_x + camera_x
-	adc #(16-plrwid*2); determine leftmost hitbox position
-	clc
-	adc camera_x
-	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda player_x_hi
-	adc camera_x_hi
-	ror               ; rotate it into carry
-	lda x_crd_temp
-	ror               ; rotate it into the low position
-	lsr
-	lsr
-	lsr               ; finish dividing by the tile size
+	jsr gm_getleftx   ; check block 1
 	tax
 	jsr h_get_tile    ; get the tile at that location.
 	cmp #$00          ; check if it is blank, if it is, then check the other tile
 	bne gm_snaptofloor
-	; check block 2
-	ldy y_crd_temp
-	clc
-	lda player_x      ; player_x + camera_x
-	adc #(16-plrwid)  ; determine rightmost hitbox position
-	clc
-	adc camera_x
-	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda player_x_hi
-	adc camera_x_hi
-	ror               ; rotate it into carry
-	lda x_crd_temp
-	ror               ; rotate it into the low position
-	lsr
-	lsr
-	lsr               ; finish dividing by the tile size
+	ldy y_crd_temp    ; check block 2
+	jsr gm_getrightx
 	tax
 	jsr h_get_tile    ; get the tile at that location.
 	cmp #$00          ; check if it is blank, if it is, then check the other tile
 	bne gm_snaptofloor
 	rts
 gm_snaptofloor:
-	lda #%11110000    ; round player's position to lowest multiple of 16
+	lda #%11110000    ; round player's position to lower multiple of 16
 	and player_y
 	sta player_y
 	lda #0            ; set the subpixel to zero
@@ -1242,6 +1287,7 @@ gm_dash_lock:
 	stx player_vl_y
 	stx player_vs_x
 	stx player_vs_y
+	jmp gm_dash_update_done
 gm_dash_over:
 	jmp gm_dash_update_done
 
@@ -1349,6 +1395,8 @@ gm_dash_noflip:
 	lda #cont_a
 	bit p1_cont
 	beq gm_dash_nosj
+	bit p1_conto
+	bne gm_dash_nosj
 	jsr gm_superjump
 gm_dash_nosj:
 	jmp gm_dash_update_done
@@ -1451,9 +1499,9 @@ gm_titleswitch:
 
 dashX:
 	.byte $00  ; --
-	.byte $06  ; -R
-	.byte $FA  ; L-
-	.byte $FA  ; LR
+	.byte $04  ; -R
+	.byte $FC  ; L-
+	.byte $FC  ; LR
 dashY:
 	.byte $00  ; --
 	.byte $05  ; -D
