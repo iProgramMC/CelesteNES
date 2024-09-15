@@ -903,6 +903,7 @@ gm_appmaxwalkR:
 	beq gm_appmaxwalkrtsR
 	lda player_vl_x
 	bmi gm_appmaxwalkrtsR  ; If the player's velocity is negative, don't perform any adjustments
+	beq gm_appmaxwalkrtsR  ; Ditto with zero
 	sec
 	lda player_vs_x
 	sbc #maxwalkad
@@ -919,6 +920,22 @@ gm_appmaxwalkR:
 gm_appmaxwalkrtsR:
 	rts
 
+gm_add3xL:
+	beq gm_dontadd3xL
+	sec
+	lda player_vs_x
+	sbc #(accel*3)
+	jmp gm_added3xL
+
+gm_add3xR:
+	clc
+	lda player_vs_x
+	adc #(accel*3)
+	jmp gm_added3xR
+
+gm_appmaxwalkR_BEQ:
+	beq gm_appmaxwalkR
+
 ; ** SUBROUTINE: gm_pressedleft
 gm_pressedleft:
 	ldx #0
@@ -928,9 +945,13 @@ gm_pressedleft:
 	bcc gm_lnomwc    ; carry clear if A < -maxwalk.
 	ldx #1           ; if it was bigger than the walking speed already,
 gm_lnomwc:           ; then we don't need to check the cap
+	lda player_vl_x
+	bpl gm_add3xL
+gm_dontadd3xL:
 	sec
 	lda player_vs_x
 	sbc #accel
+gm_added3xL:
 	sta player_vs_x
 	lda player_vl_x
 	sbc #accelhi
@@ -959,9 +980,12 @@ gm_pressedright:
 	bcs gm_rnomwc    ; if it was bigger than the walking speed already,
 	ldx #1           ; then we don't need to check the cap
 gm_rnomwc:
+	lda player_vl_x
+	bmi gm_add3xR    ; A < 0, then add stronger accel
 	clc
 	lda player_vs_x
 	adc #accel
+gm_added3xR:
 	sta player_vs_x
 	lda player_vl_x
 	adc #accelhi
@@ -970,7 +994,7 @@ gm_rnomwc:
 	and playerctrl
 	sta playerctrl
 	cpx #0           ; check if we need to cap it to maxwalk
-	beq gm_appmaxwalkR ; no, instead, approach maxwalk
+	beq gm_appmaxwalkR_BEQ ; no, instead, approach maxwalk
 	lda player_vl_x  ; load the player's position
 	cmp #maxwalk
 	bcc gm_rnomwc2   ; carry set if A >= maxwalk meaning we don't need to
@@ -1074,7 +1098,7 @@ gm_negvely:
 gm_getleftx:
 	clc
 	lda player_x
-	adc #(16-plrwid*2); determine leftmost hitbox position
+	adc #(8-plrwidth/2); determine leftmost hitbox position
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -1097,7 +1121,7 @@ gm_getleftx:
 gm_getrightx:
 	clc
 	lda player_x
-	adc #(15-plrwid)  ; determine right hitbox position
+	adc #(15-plrwidth/2); determine right hitbox position
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -1111,8 +1135,71 @@ gm_getrightx:
 	lsr               ; finish dividing by the tile size
 	rts
 
+; ** SUBROUTINE: gm_gettopy
+; desc:     Gets the tile Y position where the top edge of the player's hitbox resides
+; returns:  A - the Y coordinate
+; clobbers: A
+gm_gettopy:
+	clc
+	lda player_y
+	adc #(16-plrheight)
+	lsr
+	lsr
+	lsr
+	lsr
+	rts
+
+; ** SUBROUTINE: gm_getbottomy_w
+; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
+;           when checking for collision with walls.
+; returns:  A - the Y coordinate
+; clobbers: A
+; note:     this is NOT ALWAYS the same as the result of gm_gettopy!! though perhaps
+;           some optimizations are possible..
+; note:     to allow for a bit of leeway, I took off one pixel from the wall check.
+gm_getbottomy_w:
+	clc
+	lda player_y
+	adc #$D
+	lsr
+	lsr
+	lsr
+	lsr
+	rts
+
+; ** SUBROUTINE: gm_getbottomy_f
+; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
+;           when checking for collision with floors.
+; returns:  A - the Y coordinate
+; clobbers: A
+; note:     this is NOT ALWAYS the same as the result of gm_gettopy!! though perhaps
+;           some optimizations are possible..
+gm_getbottomy_f:
+	clc
+	lda player_y
+	adc #$10
+	lsr
+	lsr
+	lsr
+	lsr
+	rts
+
+; ** SUBROUTINE: gm_collide
+; desc:      Checks for collision.
+; arguments: X - tile's x position, Y - tile's y position, A - direction
+; returns:   zero flag set - not collided
+; direction: 0 - floor, 1 - ceiling, 2 - left, 3 - right
+gc_floor = $00
+gc_ceil  = $01
+gc_left  = $02
+gc_right = $03
+gm_collide:
+	jsr h_get_tile    ; TODO: this just checks for blank tiles
+	cmp #0
+	rts               ; note: comparison to 0 is redundant as h_get_tile ends with a lda
+
 ; ** SUBROUTINE: gm_applyy
-; desc:    Apply the velocity in the Y direction.
+; desc:     Apply the velocity in the Y direction.
 gm_applyy:
 	clc
 	lda #(pl_ground ^ $FF)
@@ -1126,6 +1213,10 @@ gm_applyy:
 	bcs gm_fellout    ; if an overflow happened while adding the velocity of the player over
 	sta player_y
 gm_didntdie:
+	jsr gm_getleftx
+	sta temp1
+	jsr gm_getrightx
+	sta temp2
 	lda player_vl_y
 	bmi gm_checkceil
 	jmp gm_checkfloor
@@ -1139,23 +1230,17 @@ gm_fellout:           ; if the player fell out of the world
 	sta player_y
 	rts
 gm_checkceil:
-	lda player_y
-	lsr
-	lsr
-	lsr
-	lsr
+	jsr gm_gettopy
 	tay
 	sty y_crd_temp
-	jsr gm_getleftx   ; check block 1
-	tax
-	jsr h_get_tile    ; get the tile at that location.
-	cmp #$00          ; check if it is blank, if it is, then check the other tile
+	ldx temp1         ; check block 1
+	lda #gc_ceil
+	jsr gm_collide
 	bne gm_snaptoceil
 	ldy y_crd_temp    ; check block 2
-	jsr gm_getrightx
-	tax
-	jsr h_get_tile    ; get the tile at that location.
-	cmp #$00          ; check if it is blank, if it is, then check the other tile
+	ldx temp2
+	lda #gc_ceil
+	jsr gm_collide
 	bne gm_snaptoceil
 	rts
 gm_snaptoceil:
@@ -1163,6 +1248,8 @@ gm_snaptoceil:
 	lda player_y
 	adc #$0F
 	and #$F0          ; calculate ((player_y + 15) % 16) * 16
+	sec
+	sbc #(16-plrheight)
 	sta player_y      ; rounds player's position to higher mu;tiple of 16
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
@@ -1170,25 +1257,17 @@ gm_snaptoceil:
 	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
 	rts
 gm_checkfloor:
-	clc
-	lda player_y
-	adc #$10          ; height of player sprite
-	lsr
-	lsr
-	lsr
-	lsr               ; divide by tile size
+	jsr gm_getbottomy_f
 	tay               ; keep the Y position into the Y register
 	sty y_crd_temp
-	jsr gm_getleftx   ; check block 1
-	tax
-	jsr h_get_tile    ; get the tile at that location.
-	cmp #$00          ; check if it is blank, if it is, then check the other tile
+	ldx temp1         ; check block 1
+	lda #gc_floor
+	jsr gm_collide
 	bne gm_snaptofloor
 	ldy y_crd_temp    ; check block 2
-	jsr gm_getrightx
-	tax
-	jsr h_get_tile    ; get the tile at that location.
-	cmp #$00          ; check if it is blank, if it is, then check the other tile
+	ldx temp2
+	lda #gc_floor
+	jsr gm_collide
 	bne gm_snaptofloor
 	rts
 gm_snaptofloor:
@@ -1237,6 +1316,52 @@ gm_nocheckoffs:
 	adc player_x_hi
 	and #1
 	sta player_x_hi
+	jsr gm_gettopy
+	sta temp1                ; temp1 - top Y
+	jsr gm_getbottomy_w
+	sta temp2                ; temp2 - bottom Y
+	lda player_vl_x
+	bmi gm_checkleft
+gm_checkright:
+	jsr gm_getrightx
+	tax
+	stx y_crd_temp           ; note: x_crd_temp is clobbered by gm_collide!
+	ldy temp1
+	lda #gc_right
+	jsr gm_collide
+	bne gm_collright         ; if collided, move a pixel back and try again
+	ldy temp2                ;  snapping to the nearest tile is a BIT more complicated so
+	ldx y_crd_temp           ;  I will not bother
+	lda #gc_right
+	jsr gm_collide
+	beq gm_checkdone
+gm_collright:
+	ldx player_x
+	beq gm_checkdone         ; if the player X is zero... we're stuck inside a wall
+	dex
+	stx player_x
+	jmp gm_checkright        ; !! note: in case of a potential clip, this might cause lag frames!
+gm_checkleft:
+	jsr gm_getleftx
+	tax
+	stx y_crd_temp
+	ldy temp1
+	lda #gc_left
+	jsr gm_collide
+	bne gm_collleft          ; if collided, move a pixel to the right & try again
+	ldy temp2
+	ldx y_crd_temp
+	lda #gc_left
+	jsr gm_collide
+	beq gm_checkdone
+gm_collleft:
+	ldx player_x
+	cpx #$F0                 ; compare to [screenWidth-16]
+	bcs gm_checkdone         ; if bigger or equal, just bail, we might be stuck in a wall
+	inx
+	stx player_x
+	jmp gm_checkleft
+gm_checkdone:
 	lda player_vl_x
 	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
 	rts
