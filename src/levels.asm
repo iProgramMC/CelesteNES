@@ -118,7 +118,7 @@ lvl_1_r1_t:
 	.byte $00, $0E  ; new page
 	.byte $FE
 	.byte $00, $0E  ; new page
-	.byte $FF    ; terminator
+	.byte $FF       ; terminator
 
 lvl_1_r1:
 	.byte 1, 0, 12

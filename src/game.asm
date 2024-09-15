@@ -219,6 +219,14 @@ h_gen_wrloop:
 	cmp #$03
 	beq h_generate_palette
 h_gen_dont:
+; TODO: make scroll stopping work well
+;	lda #gs_scrstop
+;	bit gamectrl
+;	beq h_flupal_ret
+;	lda gamectrl
+;	ora #gs_scrstopd
+;	sta gamectrl
+;h_flupal_ret:
 	rts
 
 ; ** SUBROUTINE: h_gen_pal_blk
@@ -414,13 +422,19 @@ h_genmt_screenstop:
 	jsr gm_adv_tile
 	jmp h_genmt_readdone
 
+h_genmt_readstop:
+	lda #gs_scrstop
+	ora gamectrl
+	sta gamectrl
+	jmp h_genmt_readdone
+
 ; ** SUBROUTINE: h_generate_metatiles
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_generate_metatiles:
 	; read tile data until X is different
 	jsr gm_read_tile_na
 	cmp #$FF
-	beq h_genmt_readdone
+	beq h_genmt_readstop
 	cmp #$FE
 	beq h_genmt_screenstop
 	sta tr_mtaddrlo
@@ -675,6 +689,7 @@ gm_donecomputing:
 
 ; ** SUBROUTINE: gm_anim_player
 ; desc: Updates the sprite numbers for the player character and their hair.
+; note: gm_anim_player starts a little below.
 gm_jumping:
 	ldx #plr_jump_l
 	ldy #plr_jump_r
@@ -696,8 +711,12 @@ gm_falling:
 	sty plh_spr_r
 	rts
 gm_anim_player:
-	lda #1
-	sta plh_attrs    ; set the palette to 1
+	ldx dashcount
+	inx
+	stx plh_attrs    ; set the palette to the dash count + 1
+	lda dashtime
+	cmp #0
+	bne gm_dashing
 	lda player_vl_y
 	bmi gm_jumping   ; if it's <0, then jumping
 	lda #pl_ground
@@ -742,13 +761,23 @@ gm_flip:
 	stx plh_spr_l
 	sty plh_spr_r
 	rts
-gm_right:
+gm_dashing:
 	ldx #plr_dash_l
 	ldy #plr_dash_r
 	stx plr_spr_l
 	sty plr_spr_r
 	ldx #plr_hadsh_l
 	ldy #plr_hadsh_r
+	stx plh_spr_l
+	sty plh_spr_r
+	rts
+gm_right:
+	ldx #plr_walk3_l
+	ldy #plr_walk3_r
+	stx plr_spr_l
+	sty plr_spr_r
+	ldx #plr_hamvr_l
+	ldy #plr_hamvr_r
 	stx plh_spr_l
 	sty plh_spr_r
 	rts
@@ -783,52 +812,112 @@ gm_apply_gravity:
 	adc player_vl_y
 	sta player_vl_y
 	rts
+
+; ** SUBROUTINE: gm_dragshift
+; desc:    Shifts the 16-bit number at (temp2, temp1) by 1.
+gm_dragshift:
+	clc
+	lda temp2
+	ror
+	sta temp2
+	lda temp1
+	ror
+	sta temp1
+	rts
 	
 ; ** SUBROUTINE: gm_drag
 ; desc:    Apply a constant dragging force that makes the X velocity tend to zero.
 gm_drag:
+	lda dashtime
+	bne gm_drag4      ; while dashing, ensure drag doesn't take hold
+	lda #%00000011    ; check if any direction on the D-pad is held
+	bit p1_cont       ; don't apply drag while holding buttons (the
+	bne gm_drag4      ; button routines pull the player towards maxwalk)
 	lda player_vl_x
 	bne gm_drag5
 	lda player_vs_x
 	beq gm_drag4      ; if both vl_x nor vs_x are zero, then return
 gm_drag5:
-	lda player_vl_x
+	lda player_vl_x   ; perform one shift to the right, this divides by 2
+	clc
 	ror
-	ror
-	ror
-	ror             ; this puts the 3 low bits of player_vl_y in the upper 5 bits
-	; the format of A after the sequence of "ror" instructions is as follows:
-	; [ lower 3 bits of player_vl_x ] [ whatever Carry was ] [ upper 4 bits of player_vl_x ]
-	and #%11100000  ; discard the old carry value and the low 4 bits
-	tax             ; keep it in x as we'll OR this with the subpixel value
+	sta temp2
 	lda player_vs_x
-	lsr
-	lsr
-	lsr             ; get the 5 MSBs from player_vs_x
-	cpx #0
-	bne gm_drag3
-	inx             ; if the drag amount is equal to zero, then add 1
-gm_drag3:
-	stx temp1
-	ora temp1       ; combine them together
+	ror
 	sta temp1
-	bmi gm_drag1    ; if temp1 is negative then also set temp2 to 0xff
-	lda #0
+	jsr gm_dragshift  ; perform another shift to the right
+	lda #%00100000
+	bit temp2         ; check if the high bit of the result is 1
+	beq gm_drag2
+	lda temp2
+	ora #%11000000    ; extend the sign
 	sta temp2
 gm_drag2:
+	ldx temp2
+	bne gm_drag3
+	ldx temp1         ; make sure the diff in question is not zero
+	bne gm_drag3      ; this can't happen with a negative velocity vector
+	inx               ; because it is not null. but it can happen with a
+	stx temp1         ; positive velocity vector less than $00.$04
+gm_drag3:
 	sec
 	lda player_vs_x
-	sbc temp1       ; take that much off of the player's subpixel speed
+	sbc temp1
 	sta player_vs_x
 	lda player_vl_x
 	sbc temp2
 	sta player_vl_x
 gm_drag4:
 	rts
-gm_drag1:
-	lda #$FF
-	sta temp2
-	jmp gm_drag2
+
+gm_appmaxwalkL:
+	; this label was reached because the velocity is < -maxwalk.
+	; if we are on the ground, we need to approach maxwalk.
+	lda #pl_ground
+	bit playerctrl
+	beq gm_appmaxwalkrtsL
+	lda player_vl_x
+	bpl gm_appmaxwalkrtsL  ; If the player's velocity is >= 0, don't perform any adjustments
+	clc
+	lda player_vs_x
+	adc #maxwalkad
+	sta player_vs_x
+	lda player_vl_x
+	adc #0
+	sta player_vl_x
+	cmp #(maxwalk^$FF+1)
+	bcc gm_appmaxwalkrtsL  ; A < -maxwalk, so there's still some approaching to be done
+	beq gm_appmaxwalkrtsL  ; A == -maxwalk
+	lda #(maxwalk^$FF+1)
+	sta player_vl_x
+	lda #0
+	sta player_vs_x
+gm_appmaxwalkrtsL:
+	rts
+
+gm_appmaxwalkR:
+	; this label was reached because the velocity is > maxwalk.
+	; if we are on the ground, we need to approach maxwalk.
+	lda #pl_ground
+	bit playerctrl
+	beq gm_appmaxwalkrtsR
+	lda player_vl_x
+	bmi gm_appmaxwalkrtsR  ; If the player's velocity is negative, don't perform any adjustments
+	sec
+	lda player_vs_x
+	sbc #maxwalkad
+	sta player_vs_x
+	lda player_vl_x
+	sbc #0
+	sta player_vl_x
+	cmp #maxwalk
+	bcs gm_appmaxwalkrtsR  ; A >= maxwalk, so there's still some approaching to be done
+	lda #maxwalk
+	sta player_vl_x
+	lda #0
+	sta player_vs_x
+gm_appmaxwalkrtsR:
+	rts
 
 ; ** SUBROUTINE: gm_pressedleft
 gm_pressedleft:
@@ -850,7 +939,7 @@ gm_lnomwc:           ; then we don't need to check the cap
 	ora playerctrl
 	sta playerctrl
 	cpx #0           ; check if we need to cap it to -maxwalk
-	beq gm_lnomwc2
+	beq gm_lnomwc2   ; no, instead, approach -maxwalk
 	lda player_vl_x  ; load the player's position
 	cmp #(maxwalk^$FF+1)
 	bcs gm_lnomwc2   ; carry set if A >= -maxwalk meaning we don't need to
@@ -859,7 +948,7 @@ gm_lnomwc:           ; then we don't need to check the cap
 	lda #0
 	sta player_vs_x
 gm_lnomwc2:
-	rts	
+	rts
 
 ; ** SUBROUTINE: gm_pressedright
 gm_pressedright:
@@ -880,12 +969,12 @@ gm_rnomwc:
 	lda #(pl_left ^ $FF)
 	and playerctrl
 	sta playerctrl
-	cpx #0           ; check if we need to cap it to -maxwalk
-	beq gm_rnomwc2
+	cpx #0           ; check if we need to cap it to maxwalk
+	beq gm_appmaxwalkR ; no, instead, approach maxwalk
 	lda player_vl_x  ; load the player's position
 	cmp #maxwalk
 	bcc gm_rnomwc2   ; carry set if A >= maxwalk meaning we don't need to
-	lda #maxwalk
+	lda #maxwalk     ; cap it at maxwalk
 	sta player_vl_x
 	lda #0
 	sta player_vs_x
@@ -894,6 +983,14 @@ gm_rnomwc2:
 
 ; ** SUBROUTINE: gm_controls
 ; desc:    Check controller input and apply forces based on it.
+gm_dontdash:
+	lda #cont_right
+	bit p1_cont
+	bne gm_pressedright
+	lda #cont_left
+	bit p1_cont
+	bne gm_pressedleft
+	rts
 gm_controls:
 	lda #cont_a
 	bit p1_cont
@@ -904,21 +1001,27 @@ gm_controls:
 	bit playerctrl
 	bne gm_jump
 gm_dontjump:
-	lda #cont_right
+	lda #cont_b
 	bit p1_cont
-	bne gm_pressedright
-	lda #cont_left
-	bit p1_cont
-	bne gm_pressedleft
-	jmp gm_drag
-	rts
-
+	beq gm_dontdash   ; if the player pressed B
+	bit p1_conto
+	bne gm_dontdash   ; if the player wasn't pressing B last frame
+	lda dashcount
+	cmp #maxdashes
+	bcs gm_dontdash   ; and if the dashcount is < maxdashes
+	ldx dashcount
+	inx
+	stx dashcount
+	ldx #defdashtime
+	stx dashtime
+	jmp gm_dontdash
 gm_jump:
 	lda #(jumpvel ^ $FF + 1)
 	sta player_vl_y
 	lda #(jumpvello ^ $FF + 1)
 	sta player_vs_y
-	jmp gm_dontjump
+	; add a small boost to the currently held direction TODO
+	jmp gm_dontdash
 
 ; ** SUBROUTINE: gm_sanevels
 ; desc:    Ensure sane maximums
@@ -1049,12 +1152,17 @@ gm_snaptofloor:
 	sta player_y
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
+	lda dashtime
+	cmp #(defdashtime-dashchrgtm-2)
+	bcs gm_sfloordone ; until the player has started their dash, exempt from ground check
 	lda #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
 	ora playerctrl
 	sta playerctrl
 	lda #0
 	sta player_vl_y
 	sta player_vs_y
+	sta dashcount
+gm_sfloordone:
 	rts
 	
 ; ** SUBROUTINE: gm_applyx
@@ -1087,8 +1195,12 @@ gm_nocheckoffs:
 	lda player_vl_x
 	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
 	rts
+
 ; ** SUBROUTINE: gm_scroll_if_needed
 gm_scroll_if_needed:
+	lda #gs_scrstopd
+	bit gamectrl
+	bne gm_scroll_ret
 	lda player_x
 	cmp #scrolllimit
 	bcc gm_scroll_ret ; A < scrolllimit
@@ -1124,6 +1236,123 @@ gm_go_generate:
 	sta camera_rev
 	jmp h_generate_column
 
+gm_dash_lock:
+	ldx #0
+	stx player_vl_x
+	stx player_vl_y
+	stx player_vs_x
+	stx player_vs_y
+gm_dash_over:
+	jmp gm_dash_update_done
+
+gm_defaultdir:
+	ldy #0                  ; player will not be dashing up or down
+	lda #pl_left
+	and playerctrl          ; bit 0 will be the facing direction
+	sec                     ; shift it left by 1 and append a 1
+	rol                     ; this will result in either 1 or 3. we handle the L+R case by dashing left
+	jmp gm_dash_nodir
+
+gm_superjump:
+	lda #pl_ground
+	bit playerctrl
+	beq gm_sjret            ; if player wasn't grounded, then ...
+	lda dashdiry
+	cmp #1
+	bne gm_sj_normal
+	; half the jump height here
+	lda #((jumpvel >> 1) ^ $FF + 1)
+	sta player_vl_y
+	lda #((((jumpvel << 7) | (jumpvello >> 1)) ^ $FF + 1) & $FF)
+	sta player_vs_y
+	jmp gm_superjumph
+gm_sj_normal:
+	lda #(jumpvel ^ $FF + 1)
+	sta player_vl_y
+	lda #(jumpvello ^ $FF + 1)
+	sta player_vs_y         ; super jump speed is the same as normal jump speed
+gm_superjumph:
+	lda #superjmphhi
+	sta player_vl_x
+	lda #superjmphlo
+	sta player_vs_x
+	lda #pl_left
+	bit playerctrl
+	beq gm_sjret
+	lda player_vl_x
+	eor #$FF
+	sta player_vl_x
+	lda player_vs_x
+	eor #$FF
+	sta player_vs_x
+gm_sjret:
+	rts
+
+gm_dash_update:
+	; NOTE: dashtime is loaded into A
+	sec
+	sbc #1
+	sta dashtime
+	beq gm_dash_over        ; if dashtime is now 0, then finish the dash
+	cmp #(defdashtime-dashchrgtm)
+	beq gm_dash_read_cont   ; if it isn't exactly defdashtime-dashchrgtm, let physics run its course
+	bcs gm_dash_lock        ; dash hasn't charged
+	jmp gm_dash_after
+gm_dash_read_cont:
+	lda p1_cont
+	and #%00001111          ; check if holding any direction
+	beq gm_defaultdir       ; if not, determine the dash direction from the facing direction	
+	lda p1_cont
+	and #%00001100          ; get just the up/down flags
+	lsr
+	lsr
+	tay                     ; use them as an index into the dashY table
+	lda p1_cont
+	and #%00000011          ; get just the left/right flags
+	; if horizontal flags are 0, then the vertical flags must NOT be zero, otherwise we ended up in gm_defaultdir
+gm_dash_nodir:
+	tax                     ; this is now an index into the X table
+	stx dashdirx
+	sty dashdiry
+	lda #0
+	sta player_vs_x
+	sta player_vs_y
+	lda dashY, y
+	sta player_vl_y
+	lda dashX, x
+	bmi gm_leftdash
+	sta player_vl_x
+	lda playerctrl
+	and #(pl_left^$FF)
+	sta playerctrl
+	jmp gm_dash_update_done
+gm_leftdash:
+	sta player_vl_x
+	lda playerctrl
+	ora #pl_left
+	sta playerctrl
+	jmp gm_dash_update_done
+gm_dash_after:
+	; this label is reached when the dash is "completed", i.e. it gives no more
+	; boost to the player and physics are enabled.
+	lda #%00000011
+	bit p1_cont
+	beq gm_dash_noflip  ; not pressing a direction, so no need to flip the character
+	lda playerctrl
+	ora #pl_left
+	sta playerctrl      ; set the left bit...
+	lda #cont_right     ; assumes cont_right == 1
+	and p1_cont
+	eor playerctrl
+	sta playerctrl      ; so that, if right is pressed, then we can flip it back
+gm_dash_noflip:
+	lda #cont_a
+	bit p1_cont
+	beq gm_dash_nosj
+	jsr gm_superjump
+gm_dash_nosj:
+	jmp gm_dash_update_done
+
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
 	lda #$00
@@ -1145,6 +1374,8 @@ gm_game_init:
 	sta player_vs_x
 	sta player_vl_y
 	sta player_vs_y
+	sta dashtime
+	sta dashcount
 	sta ppu_mask      ; disable rendering
 	
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
@@ -1179,13 +1410,13 @@ loop2:
 	cpy #tilesahead
 	bne loop2
 	
-	lda gamectrl
-	ora #gs_1stfr
-	ora #gs_turnon
-	eor #gs_flstcols  ; all columns have already been flushed
+	lda #(gs_1stfr|gs_turnon)
 	sta gamectrl
 	jsr vblank_wait
 	jmp gm_game_update
+
+gm_dash_update1:
+	jmp gm_dash_update; NOTE: remove if the gm_game_init function's slim enough!
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
@@ -1193,8 +1424,12 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	lda dashtime
+	bne gm_dash_update1
 	jsr gm_gravity
 	jsr gm_controls
+gm_dash_update_done:
+	jsr gm_drag
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
@@ -1214,3 +1449,13 @@ gm_titleswitch:
 	sta titlectrl
 	jmp game_update_return
 
+dashX:
+	.byte $00  ; --
+	.byte $06  ; -R
+	.byte $FA  ; L-
+	.byte $FA  ; LR
+dashY:
+	.byte $00  ; --
+	.byte $05  ; -D
+	.byte $FB  ; U-
+	.byte $00  ; UD
