@@ -703,6 +703,11 @@ gm_anim_player:
 	lda #pl_ground
 	bit playerctrl
 	beq gm_falling   ; if pl_ground set, then moving only in X direction
+	lda player_vl_x  ; check if both components of the velocity are zero
+	bne gm_anim_notidle
+	lda player_vs_x
+	beq gm_anim_idle
+gm_anim_notidle:
 	lda #pl_left     ; check if facing left
 	bit playerctrl
 	beq gm_anim_right
@@ -712,14 +717,12 @@ gm_anim_player:
 	adc #1
 	bmi gm_flip      ; if A <= 0, then flipping
 	beq gm_flip
-	jmp gm_anim_done
+	jmp gm_right
 gm_anim_right:
 	lda player_vl_x
 	bmi gm_flip      ; if A < 0, then flipping
-	bne gm_right     ; if A > 0, then running
-	lda player_vs_x  ; A is 0, so also check the sub pixel value
-gm_anim_done:        ; note: A < 0 with player_vl_x >= 0 still means positive velocity!
-	bne gm_right     ; if A > 0, then running
+	jmp gm_right     ; if A >= 0, then running. vl_x==vs_x==0 case is already handled.
+gm_anim_idle:
 	ldx #plr_idle1_l
 	ldy #plr_idle1_r
 	stx plr_spr_l
@@ -785,6 +788,11 @@ gm_apply_gravity:
 ; desc:    Apply a constant dragging force that makes the X velocity tend to zero.
 gm_drag:
 	lda player_vl_x
+	bne gm_drag5
+	lda player_vs_x
+	beq gm_drag4      ; if both vl_x nor vs_x are zero, then return
+gm_drag5:
+	lda player_vl_x
 	ror
 	ror
 	ror
@@ -797,6 +805,10 @@ gm_drag:
 	lsr
 	lsr
 	lsr             ; get the 5 MSBs from player_vs_x
+	cpx #0
+	bne gm_drag3
+	inx             ; if the drag amount is equal to zero, then add 1
+gm_drag3:
 	stx temp1
 	ora temp1       ; combine them together
 	sta temp1
@@ -811,6 +823,7 @@ gm_drag2:
 	lda player_vl_x
 	sbc temp2
 	sta player_vl_x
+gm_drag4:
 	rts
 gm_drag1:
 	lda #$FF
