@@ -710,15 +710,15 @@ gm_anim_player:
 	eor #$FF
 	clc
 	adc #1
+	bmi gm_flip      ; if A <= 0, then flipping
+	beq gm_flip
 	jmp gm_anim_done
 gm_anim_right:
 	lda player_vl_x
-gm_anim_done:
-	cmp #0           ; compare the velocity to 0
-;	bne gm_dontloadsp
-;	lda player_vs_x
-;gm_dontloadsp:
 	bmi gm_flip      ; if A < 0, then flipping
+	bne gm_right     ; if A > 0, then running
+	lda player_vs_x  ; A is 0, so also check the sub pixel value
+gm_anim_done:        ; note: A < 0 with player_vl_x >= 0 still means positive velocity!
 	bne gm_right     ; if A > 0, then running
 	ldx #plr_idle1_l
 	ldy #plr_idle1_r
@@ -784,17 +784,50 @@ gm_apply_gravity:
 ; ** SUBROUTINE: gm_drag
 ; desc:    Apply a constant dragging force that makes the X velocity tend to zero.
 gm_drag:
-	rts
-gm_drag2:
+	lda player_vl_x
+	ror
+	ror
+	ror
+	ror             ; this puts the 3 low bits of player_vl_y in the upper 5 bits
+	; the format of A after the sequence of "ror" instructions is as follows:
+	; [ lower 3 bits of player_vl_x ] [ whatever Carry was ] [ upper 4 bits of player_vl_x ]
+	and #%11100000  ; discard the old carry value and the low 4 bits
+	tax             ; keep it in x as we'll OR this with the subpixel value
+	lda player_vs_x
+	lsr
+	lsr
+	lsr             ; get the 5 MSBs from player_vs_x
+	stx temp1
+	ora temp1       ; combine them together
+	sta temp1
+	bmi gm_drag1    ; if temp1 is negative then also set temp2 to 0xff
 	lda #0
-	sta player_vl_x
+	sta temp2
+gm_drag2:
+	sec
+	lda player_vs_x
+	sbc temp1       ; take that much off of the player's subpixel speed
 	sta player_vs_x
+	lda player_vl_x
+	sbc temp2
+	sta player_vl_x
 	rts
+gm_drag1:
+	lda #$FF
+	sta temp2
+	jmp gm_drag2
 
 ; ** SUBROUTINE: gm_pressedleft
 gm_pressedleft:
-	lda player_vs_x
+	ldx #0
+	lda player_vl_x
+	bpl gm_lnomwc
+	cmp #(maxwalk^$FF+1) ; compare it to the max walking speed
+	bcc gm_lnomwc    ; carry clear if A < -maxwalk.
+	ldx #1           ; if it was bigger than the walking speed already,
+gm_lnomwc:           ; then we don't need to check the cap
 	sec
+	lda player_vs_x
 	sbc #accel
 	sta player_vs_x
 	lda player_vl_x
@@ -803,10 +836,27 @@ gm_pressedleft:
 	lda #pl_left
 	ora playerctrl
 	sta playerctrl
-	rts
+	cpx #0           ; check if we need to cap it to -maxwalk
+	beq gm_lnomwc2
+	lda player_vl_x  ; load the player's position
+	cmp #(maxwalk^$FF+1)
+	bcs gm_lnomwc2   ; carry set if A >= -maxwalk meaning we don't need to
+	lda #(maxwalk^$FF+1)
+	sta player_vl_x
+	lda #0
+	sta player_vs_x
+gm_lnomwc2:
+	rts	
 
 ; ** SUBROUTINE: gm_pressedright
 gm_pressedright:
+	ldx #0
+	lda player_vl_x
+	bmi gm_rnomwc    ; if the player was moving left a comparison would lead to an overcorrectiom
+	cmp #(maxwalk+1) ; compare it to the max walking speed
+	bcs gm_rnomwc    ; if it was bigger than the walking speed already,
+	ldx #1           ; then we don't need to check the cap
+gm_rnomwc:
 	clc
 	lda player_vs_x
 	adc #accel
@@ -817,6 +867,16 @@ gm_pressedright:
 	lda #(pl_left ^ $FF)
 	and playerctrl
 	sta playerctrl
+	cpx #0           ; check if we need to cap it to -maxwalk
+	beq gm_rnomwc2
+	lda player_vl_x  ; load the player's position
+	cmp #maxwalk
+	bcc gm_rnomwc2   ; carry set if A >= maxwalk meaning we don't need to
+	lda #maxwalk
+	sta player_vl_x
+	lda #0
+	sta player_vs_x
+gm_rnomwc2:
 	rts
 
 ; ** SUBROUTINE: gm_controls
@@ -829,11 +889,7 @@ gm_controls:
 	bne gm_dontjump   ; if the player wasn't pressing A last frame
 	lda #pl_ground
 	bit playerctrl
-	beq gm_dontjump   ; if the player is grounded
-	lda #(jumpvel ^ $FF + 1)
-	sta player_vl_y
-	lda #(jumpvello ^ $FF + 1)
-	sta player_vs_y
+	bne gm_jump
 gm_dontjump:
 	lda #cont_right
 	bit p1_cont
@@ -841,8 +897,15 @@ gm_dontjump:
 	lda #cont_left
 	bit p1_cont
 	bne gm_pressedleft
-	jmp gm_drag2      ; temporary
+	jmp gm_drag
 	rts
+
+gm_jump:
+	lda #(jumpvel ^ $FF + 1)
+	sta player_vl_y
+	lda #(jumpvello ^ $FF + 1)
+	sta player_vs_y
+	jmp gm_dontjump
 
 ; ** SUBROUTINE: gm_sanevels
 ; desc:    Ensure sane maximums
@@ -1118,7 +1181,6 @@ gamemode_game:
 	beq gm_game_init
 gm_game_update:
 	jsr gm_gravity
-	jsr gm_drag
 	jsr gm_controls
 	jsr gm_sanevels
 	jsr gm_applyy
