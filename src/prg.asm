@@ -107,6 +107,7 @@ lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 pl_pushing  = $04   ; player is pushing against a wall - either sliding or ground-pushing
+pl_wallleft = $08   ; player is sliding along a wall on their LEFT side
 am_idle     = $00
 am_walk     = $01
 am_jump     = $02
@@ -130,10 +131,10 @@ gravity     = $24   ; gravity acceleration per frame in subpixels
 gravitynoA  = $90   ; gravity when A is not held and the player's going up
 ctrpull     = $18   ; acceleration imposed by player pressing buttons
 scrolllimit = $78   ; around halfway to the screen
-;jumpvel     = $03   ; jump velocity
-;jumpvello   = $B0   ; the low component of the jump force
-jumpvel     = $05   ; jump velocity
-jumpvello   = $20   ; the low component of the jump force
+jumpvel     = $03   ; jump velocity
+jumpvello   = $B0   ; the low component of the jump force
+;jumpvel     = $05   ; jump velocity
+;jumpvello   = $20   ; the low component of the jump force
 accelhi     = $00   ; acceleration when holding a direction in pixels
 accel       = $10   ; subpixel component of acceleration
 maxwalk     = $02   ; max walk speed in pixels
@@ -149,6 +150,9 @@ animspd     = $10   ; 256/animspd is the amount of frames per animation up-tick 
 maxslidespd = $80   ; maximum slide speed in subpixels
 defjmpbuff  = $04   ; 4 frames of buffering a jump
 defjmpcoyot = $06   ; 6 frames of coyote time
+defwjmpcoyo = $03   ; 3 frames of wall coyote time
+jmphboost   = 170   ; boost applied to the player's jump when running
+wjgrace     = 2     ; walls are checked this many pixels away from the hitbox for a wall jump
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -240,6 +244,7 @@ sprxoff     = $004C ; hair sprite X offset
 spryoffbase = $004D ; hair sprite Y offset base (used for af_oddryth)
 jumpbuff    = $004E ; jump buff time
 jumpcoyote  = $004F ; jump coyote time, if not zero, player may jump
+wjumpcoyote = $0050 ; wall jump coyote time
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]

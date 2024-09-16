@@ -1060,6 +1060,7 @@ gm_appmaxwalkL:
 	cmp #(maxwalk^$FF+1)
 	bcc gm_appmaxwalkrtsL  ; A < -maxwalk, so there's still some approaching to be done
 	beq gm_appmaxwalkrtsL  ; A == -maxwalk
+gm_setmaxwalkL:            ; <--- referenced by gm_walljump
 	lda #(maxwalk^$FF+1)
 	sta player_vl_x
 	lda #0
@@ -1085,6 +1086,7 @@ gm_appmaxwalkR:
 	sta player_vl_x
 	cmp #maxwalk
 	bcs gm_appmaxwalkrtsR  ; A >= maxwalk, so there's still some approaching to be done
+gm_setmaxwalkR:            ; <--- referenced by gm_walljump
 	lda #maxwalk
 	sta player_vl_x
 	lda #0
@@ -1133,6 +1135,7 @@ gm_added3xL:
 	sta playerctrl
 	cpx #0           ; check if we need to cap it to -maxwalk
 	beq gm_lnomwc2   ; no, instead, approach -maxwalk
+gm_capmaxwalkL:      ; <-- referenced by gm_jump
 	lda player_vl_x  ; load the player's position
 	cmp #(maxwalk^$FF+1)
 	bcs gm_lnomwc2   ; carry set if A >= -maxwalk meaning we don't need to
@@ -1167,6 +1170,7 @@ gm_added3xR:
 	sta playerctrl
 	cpx #0           ; check if we need to cap it to maxwalk
 	beq gm_appmaxwalkR_BEQ ; no, instead, approach maxwalk
+gm_capmaxwalkR:      ; <-- referenced by gm_jump
 	lda player_vl_x  ; load the player's position
 	cmp #maxwalk
 	bcc gm_rnomwc2   ; carry set if A >= maxwalk meaning we don't need to
@@ -1189,9 +1193,7 @@ gm_dontdash:
 	rts
 gm_controls:
 	lda jumpbuff
-	beq gm_dontjump
-	lda jumpcoyote
-	bne gm_jump       ; If player has coyote and buffer time, then jump.
+	bne gm_jump       ; If player buffered a jump, then try to perform it.
 gm_dontjump:
 	lda #cont_b
 	bit p1_cont
@@ -1209,16 +1211,68 @@ gm_dontjump:
 	jmp gm_dontdash
 
 gm_jump:
-	lda #0
-	sta jumpbuff      ; consume the buffered jump input
-	sta jumpcoyote    ; consume the existing coyote time
+	lda wjumpcoyote
+	bne gm_walljump
+	lda jumpcoyote
+	beq gm_dontjump   ; if no coyote time, then can't jump
+gm_actuallyjump:
 	lda #(jumpvel ^ $FF + 1)
 	sta player_vl_y
 	lda #(jumpvello ^ $FF + 1)
 	sta player_vs_y
-	; add a small boost to the currently held direction TODO
+	lda #0
+	sta jumpbuff      ; consume the buffered jump input
+	sta jumpcoyote    ; consume the existing coyote time
+	sta wjumpcoyote   ; or the wall coyote time
+	lda #%00000011
+	bit p1_cont
+	beq gm_dontdash   ; don't give a boost if we aren't moving
+	lda #pl_left
+	bit playerctrl
+	beq gm_jumphboostR
+	sec               ; apply the small jump boost to the right
+	lda #jmphboost
+	sbc player_vs_x
+	sta player_vs_x
+	lda #0
+	sbc player_vl_x
+	sta player_vl_x
+	jsr gm_capmaxwalkL; ensure that it doesn't go over maxwalk
+	jmp gm_dontdash   ; that would be pretty stupid as it would
+gm_jumphboostR:       ; allow speed buildup up to the physical limit
+	clc
+	lda #jmphboost
+	adc player_vs_x
+	sta player_vs_x
+	lda #0
+	adc player_vl_x
+	sta player_vl_x
+	jsr gm_capmaxwalkR
 	jmp gm_dontdash
-
+	
+gm_walljump:
+	; the facing direction IS the one the player is currently pushing against.
+	; that means that the opposite direction is the one they should be flinged against
+	lda playerctrl
+	and #pl_wallleft
+	eor #pl_wallleft
+	lsr
+	lsr
+	lsr               ; move bit 3 (pl_wallleft) into bit 0 (pl_left)'s position
+	sta temp1
+	lda playerctrl
+	and #(pl_left^$FF)
+	ora temp1
+	sta playerctrl
+	
+	lda #pl_left
+	bit playerctrl
+	bne gm_walljumpboostL
+	jsr gm_setmaxwalkR; going right, so set vel to +maxwalk
+	jmp gm_actuallyjump
+gm_walljumpboostL:
+	jsr gm_setmaxwalkL; going left, so set vel to -maxwalk
+	jmp gm_actuallyjump
 
 ; ** SUBROUTINE: gm_jumpgrace
 ; desc:    Update the jump grace state.  If the A button is held, start buffering a jump.
@@ -1242,6 +1296,11 @@ gm_nodecbuff:
 	dex
 	stx jumpcoyote
 gm_nodeccoyote:
+	ldx wjumpcoyote
+	beq gm_nodecwcoyote
+	dex
+	stx wjumpcoyote
+gm_nodecwcoyote:
 	rts
 
 ; ** SUBROUTINE: gm_sanevels
@@ -1294,7 +1353,6 @@ gm_negvely:
 ; ** SUBROUTINE: gm_getleftx
 ; desc: Gets the tile X position where the left edge of the player's hitbox resides
 ; returns: A - the X coordinate
-; clobbers: A
 gm_getleftx:
 	clc
 	lda player_x
@@ -1315,7 +1373,6 @@ gm_getleftx:
 ; ** SUBROUTINE: gm_getrightx
 ; desc:     Gets the tile X position where the right edge of the player's hitbox resides
 ; returns:  A - the X coordinate
-; clobbers: A
 ; note:     this is NOT ALWAYS the same as the result of gm_getleftx!! though perhaps
 ;           some optimizations are possible..
 gm_getrightx:
@@ -1335,10 +1392,49 @@ gm_getrightx:
 	lsr               ; finish dividing by the tile size
 	rts
 
+; ** SUBROUTINE: gm_getleftwjx
+; desc: Gets the tile X position where the left of the wall jump check hitbox resides.
+; returns: A - the X coordinate.
+gm_getleftwjx:
+	clc
+	lda player_x
+	adc #(8-plrwidth/2-wjgrace); determine leftmost hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda player_x_hi
+	adc camera_x_hi
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
+; ** SUBROUTINE: gm_getrightwjx
+; desc: Gets the tile X position where the right of the wall jump check hitbox resides.
+; returns: A - the X coordinate.
+gm_getrightwjx:
+	clc
+	lda player_x
+	adc #(15+wjgrace-plrwidth/2); determine right hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda player_x_hi
+	adc camera_x_hi
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
 ; ** SUBROUTINE: gm_gettopy
 ; desc:     Gets the tile Y position where the top edge of the player's hitbox resides
 ; returns:  A - the Y coordinate
-; clobbers: A
 gm_gettopy:
 	clc
 	lda player_y
@@ -1353,14 +1449,26 @@ gm_gettopy:
 ; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
 ;           when checking for collision with walls.
 ; returns:  A - the Y coordinate
-; clobbers: A
 ; note:     this is NOT ALWAYS the same as the result of gm_gettopy!! though perhaps
 ;           some optimizations are possible..
 ; note:     to allow for a bit of leeway, I took off one pixel from the wall check.
 gm_getbottomy_w:
 	clc
 	lda player_y
-	adc #$D
+	adc #14
+	lsr
+	lsr
+	lsr
+	lsr
+	rts
+
+; ** SUBROUTINE: gm_getmidy
+; desc:     Gets the tile Y position at the middle of the player's hitbox, used for wall jump checking
+; returns:  A - the Y coordinate
+gm_getmidy:
+	clc
+	lda player_y
+	adc #(14-plrheight/2)
 	lsr
 	lsr
 	lsr
@@ -1485,6 +1593,7 @@ gm_snaptofloor:
 	lda #defjmpcoyot
 	sta jumpcoyote    ; assign coyote time because we're on the ground
 	lda #0
+	sta wjumpcoyote   ; can't perform a wall jump while on the ground
 	sta player_vl_y
 	sta player_vs_y
 	sta dashcount
@@ -1547,7 +1656,10 @@ gm_collright:
 	stx player_vs_x
 	lda playerctrl
 	ora #pl_pushing
+	and #(pl_wallleft^$FF)   ; the wall wasn't found on the left.
 	sta playerctrl
+	lda #defwjmpcoyo
+	sta wjumpcoyote
 	ldx player_x
 	beq gm_checkdone         ; if the player X is zero... we're stuck inside a wall
 	dex
@@ -1574,7 +1686,10 @@ gm_collleft:
 	stx player_vs_x
 	lda playerctrl
 	ora #pl_pushing
+	ora #pl_wallleft         ; the wall was found on the left.
 	sta playerctrl
+	lda #defwjmpcoyo
+	sta wjumpcoyote
 	ldx player_x
 	cpx #$F0                 ; compare to [screenWidth-16]
 	bcs gm_checkdone         ; if bigger or equal, just bail, we might be stuck in a wall
@@ -1587,6 +1702,40 @@ gm_checkdone:
 	lda player_vl_x
 	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
 	rts
+
+; ** SUBROUTINE: gm_checkwjump
+; desc: Assigns coyote time if wall is detected near the player.
+gm_checkwjump:
+	lda #pl_ground
+	bit playerctrl
+	bne gm_dontsetwcoyote    ; if player is grounded, simply return
+	jsr gm_getmidy
+	tay
+	sty y_crd_temp
+	jsr gm_getleftwjx        ; handle the left tile
+	tax
+	lda #gc_left
+	jsr gm_collide
+	bne gm_setwcoyoteL
+	ldy y_crd_temp
+	jsr gm_getrightwjx       ; and now the right tile
+	tax
+	lda #gc_right
+	jsr gm_collide
+	beq gm_dontsetwcoyote
+	lda playerctrl
+	and #(pl_wallleft^$FF)
+	sta playerctrl           ; set that a wall was found on the RIGHT side
+gm_setwcoyote:
+	lda #defwjmpcoyo
+	sta wjumpcoyote
+gm_dontsetwcoyote:
+	rts
+gm_setwcoyoteL:
+	lda playerctrl
+	ora #pl_wallleft
+	sta playerctrl           ; set that a wall was found on the LEFT side
+	jmp gm_setwcoyote
 
 ; ** SUBROUTINE: gm_scroll_if_needed
 gm_scroll_if_needed:
@@ -1830,6 +1979,7 @@ gm_dash_update_done:
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
+	jsr gm_checkwjump
 	jsr gm_anim_player
 	jsr gm_draw_player
 	
