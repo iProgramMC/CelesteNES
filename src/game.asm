@@ -1188,14 +1188,10 @@ gm_dontdash:
 	bne gm_pressedleft
 	rts
 gm_controls:
-	lda #cont_a
-	bit p1_cont
-	beq gm_dontjump   ; if the player pressed A
-	bit p1_conto
-	bne gm_dontjump   ; if the player wasn't pressing A last frame
-	lda #pl_ground
-	bit playerctrl
-	bne gm_jump
+	lda jumpbuff
+	beq gm_dontjump
+	lda jumpcoyote
+	bne gm_jump       ; If player has coyote and buffer time, then jump.
 gm_dontjump:
 	lda #cont_b
 	bit p1_cont
@@ -1211,7 +1207,11 @@ gm_dontjump:
 	ldx #defdashtime
 	stx dashtime
 	jmp gm_dontdash
+
 gm_jump:
+	lda #0
+	sta jumpbuff      ; consume the buffered jump input
+	sta jumpcoyote    ; consume the existing coyote time
 	lda #(jumpvel ^ $FF + 1)
 	sta player_vl_y
 	lda #(jumpvello ^ $FF + 1)
@@ -1219,8 +1219,36 @@ gm_jump:
 	; add a small boost to the currently held direction TODO
 	jmp gm_dontdash
 
+
+; ** SUBROUTINE: gm_jumpgrace
+; desc:    Update the jump grace state.  If the A button is held, start buffering a jump.
+;          If necessary, decrement the coyote timer.
+gm_jumpgrace:
+	lda #cont_a
+	bit p1_conto
+	bne gm_nosetbuff  ; (p1_conto & #cont_a) = 0
+	bit p1_cont
+	beq gm_nosetbuff  ; if A was just pressed, then assign the default buff time
+	lda #defjmpbuff
+	sta jumpbuff
+gm_nosetbuff:
+	ldx jumpbuff
+	beq gm_nodecbuff  ; if there is buff time to deduct, deduct 1 point this frame
+	dex
+	stx jumpbuff
+gm_nodecbuff:
+	ldx jumpcoyote
+	beq gm_nodeccoyote
+	dex
+	stx jumpcoyote
+gm_nodeccoyote:
+	rts
+
 ; ** SUBROUTINE: gm_sanevels
-; desc:    Ensure sane maximums
+; desc:    Uphold velocity limits.  This is especially of importance for the X component.
+;          Due to the limited bandwidth of the PPU (we can't effectively copy more than
+;          1 column of tiles or so to PPU VRAM), we're forced to uphold this limit.
+;          Technically we could do up to 8, but only if we disable the palette feature.
 gm_sanevels:
 	ldy #0
 	jsr gm_sanevelx
@@ -1454,6 +1482,8 @@ gm_snaptofloor:
 	lda #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
 	ora playerctrl
 	sta playerctrl
+	lda #defjmpcoyot
+	sta jumpcoyote    ; assign coyote time because we're on the ground
 	lda #0
 	sta player_vl_y
 	sta player_vs_y
@@ -1709,11 +1739,10 @@ gm_dash_after:
 	eor playerctrl
 	sta playerctrl      ; so that, if right is pressed, then we can flip it back
 gm_dash_noflip:
-	lda #cont_a
-	bit p1_cont
+	lda jumpcoyote
 	beq gm_dash_nosj
-	bit p1_conto
-	bne gm_dash_nosj
+	lda jumpbuff
+	beq gm_dash_nosj    ; if there is jump buffer and coyote time, then perform a super jump
 	jsr gm_superjump
 gm_dash_nosj:
 	jmp gm_dash_update_done
@@ -1791,6 +1820,7 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	jsr gm_jumpgrace
 	lda dashtime
 	bne gm_dash_update1
 	jsr gm_gravity

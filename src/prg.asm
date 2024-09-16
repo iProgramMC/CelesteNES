@@ -147,6 +147,8 @@ superjmphhi = $04   ; super jump boost pixel part
 superjmphlo = $80   ; super jump boost subpixel part
 animspd     = $10   ; 256/animspd is the amount of frames per animation up-tick (for 32, it's 8 fr)
 maxslidespd = $80   ; maximum slide speed in subpixels
+defjmpbuff  = $04   ; 4 frames of buffering a jump
+defjmpcoyot = $06   ; 6 frames of coyote time
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -236,6 +238,8 @@ anfrptrlo   = $004A ; animation frame pointer low
 anfrptrhi   = $004B ; animation frame pointer high
 sprxoff     = $004C ; hair sprite X offset
 spryoffbase = $004D ; hair sprite Y offset base (used for af_oddryth)
+jumpbuff    = $004E ; jump buff time
+jumpcoyote  = $004F ; jump coyote time, if not zero, player may jump
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
