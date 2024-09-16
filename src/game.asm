@@ -682,35 +682,189 @@ gm_donecomputing:
 	ldy player_y
 	jsr gm_draw_2xsprite
 	ldx #temp4           ; draw hair
+	clc
+	lda player_y
+	adc spryoff
+	tay
+	clc
 	lda player_x
-	ldy player_y
+	adc sprxoff
 	jsr gm_draw_2xsprite
+	rts
+
+gm_idletbl:
+	.byte plr_idle1_l, plr_idle1_r
+	.byte plr_idle2_l, plr_idle2_r
+gm_walktbl:
+	.byte plr_walk1_l, plr_walk1_r
+	.byte plr_walk2_l, plr_walk2_r
+	.byte plr_walk3_l, plr_walk3_r
+	.byte plr_walk4_l, plr_walk4_r
+gm_pushtbl:
+	.byte plr_push2_l, plr_push2_r
+	.byte plr_push1_l, plr_push1_r
+gm_climtbl:
+	.byte plr_clim1_l, plr_clim1_r
+	.byte plr_clim2_l, plr_clim2_r
+
+gm_anim_table:
+	; format: player L, player R, hair L, hair R, hair X off, hair Y off, flags, unused.
+	.byte <gm_idletbl, >gm_idletbl, plr_hasta_l, plr_hasta_r, $00, $00, af_2frame, $00  ; IDLE
+	.byte <gm_walktbl, >gm_walktbl, plr_hamvr_l, plr_hamvr_r, $00, $00, af_4frame|af_wlkspd|af_oddryth, $00  ; WALK
+	.byte plr_jump_l,  plr_jump_r,  plr_hamvu_l, plr_hamvu_r, $00, $00, af_none,   $00  ; JUMP
+	.byte plr_fall_l,  plr_fall_r,  plr_hamvd_l, plr_hamvd_r, $00, $00, af_none,   $00  ; FALL
+	.byte <gm_pushtbl, >gm_pushtbl, plr_hasta_l, plr_hasta_r, $01, $00, af_2frame|af_oddryth, $00  ; PUSH
+	.byte <gm_climtbl, >gm_climtbl, plr_hasta_l, plr_hasta_r, $00, $00, af_2frame, $00  ; CLIMB
+	.byte plr_dash_l,  plr_dash_r,  plr_hadsh_l, plr_hadsh_r, $00, $00, af_none,   $00  ; DASH
+	.byte plr_flip_l,  plr_flip_r,  plr_haflp_l, plr_haflp_r, $00, $00, af_none,   $00  ; FLIP
+
+gm_anim_advwalkL:
+	sec
+	lda animtimersb
+	sbc temp1
+	sta animtimersb
+	lda animtimer
+	sbc temp2
+	sta animtimer
+	jmp gm_timeradvanced
+gm_anim_advwalk:
+	; advance the animation timer by the walk speed divided by 8
+	lda player_vs_x
+	sta temp1
+	lda player_vl_x
+	sta temp2
+	clc
+	ldy #3
+gm_advwalkloop:
+	lda temp2
+	ror
+	sta temp2
+	lda temp1
+	ror
+	sta temp1
+	dey
+	bne gm_advwalkloop
+	lda #pl_left         ; shift loop done, check which direction we should advance
+	bit playerctrl
+	bne gm_anim_advwalkL
+	clc
+	lda animtimersb
+	adc temp1
+	sta animtimersb
+	lda animtimer
+	adc temp2
+	sta animtimer
+	jmp gm_timeradvanced
+
+; ** SUBROUTINE: gm_anim_mode
+; desc:      Sets the current animation mode.  Resets the animation timer if necessary.
+; arguments: A - new animation mode
+gm_anim_mode:
+	cmp animmode         ; check if the animation mode is the same
+	beq gm_sameanim
+	sta animmode         ; animation is different
+	lda #0               ; clear animation timer
+	sta animtimer
+	sta animtimersb
+	lda animmode         ; load animation data
+	asl
+	asl
+	asl                  ; 8 bytes per animation state
+	tax                  ; use as index into table
+	lda gm_anim_table, x ; load animation frame pointer or left/right sprite
+	inx
+	sta anfrptrlo
+	lda gm_anim_table, x
+	inx
+	sta anfrptrhi
+	lda gm_anim_table, x
+	inx
+	sta plh_spr_l
+	lda gm_anim_table, x
+	inx
+	sta plh_spr_r
+	lda gm_anim_table, x
+	inx
+	sta sprxoff
+	lda gm_anim_table, x
+	inx
+	sta spryoff
+	sta spryoffbase
+	lda gm_anim_table, x
+	inx
+	sta animflags
+	;                      8th byte unused
+	jmp gm_donetimer
+gm_sameanim:
+	lda #af_wlkspd
+	bit animflags
+	bne gm_anim_advwalk
+	clc
+	lda #animspd
+	adc animtimersb
+	sta animtimersb
+	lda #0
+	adc animtimer
+	sta animtimer
+gm_timeradvanced:
+	ldx #$FF
+	lda #af_2frame       ; load the 2 frame limit into X if needed
+	bit animflags
+	beq gm_timerNOT2f
+	ldx #1
+gm_timerNOT2f:
+	lda #af_4frame       ; load the 4 frame limit into X if needed
+	bit animflags
+	beq gm_timerNOT4f
+	ldx #3
+gm_timerNOT4f:
+	lda #af_noloop
+	bit animflags
+	beq gm_timernomax
+	cpx animtimer        ; af_noloop set, so need to cap
+	bcs gm_donetimer     ; X >= animtimer, so it's fine
+	stx animtimer
+	jmp gm_donetimer
+gm_timernomax:
+	txa                  ; af_noloop not set, so this is a loop
+	and animtimer
+	sta animtimer
+gm_donetimer:
+	lda #(af_2frame|af_4frame)
+	bit animflags
+	beq gm_regularload
+	lda animtimer
+	asl
+	tay
+	iny
+	lda (anfrptrlo),y
+	tax
+	dey
+	lda (anfrptrlo),y
+	jmp gm_loaded
+gm_regularload:
+	lda anfrptrlo
+	ldx anfrptrhi
+gm_loaded:
+	sta plr_spr_l
+	stx plr_spr_r
+	lda #af_oddryth
+	bit animflags
+	beq gm_nooddrhythm
+	clc
+	lda animtimer
+	and #1
+	adc spryoffbase
+	sta spryoff
+gm_nooddrhythm:
 	rts
 
 ; ** SUBROUTINE: gm_anim_player
 ; desc: Updates the sprite numbers for the player character and their hair.
 ; note: gm_anim_player starts a little below.
-gm_jumping:
-	ldx #plr_jump_l
-	ldy #plr_jump_r
-	stx plr_spr_l
-	sty plr_spr_r
-	ldx #plr_hamvu_l
-	ldy #plr_hamvu_r
-	stx plh_spr_l
-	sty plh_spr_r
-	rts
-gm_falling:
-	ldx #plr_fall_l
-	ldy #plr_fall_r
-	stx plr_spr_l
-	sty plr_spr_r
-	ldx #plr_hamvd_l
-	ldy #plr_hamvd_r
-	stx plh_spr_l
-	sty plh_spr_r
-	rts
 gm_anim_player:
+	lda #0
+	sta spryoff
 	ldx dashcount
 	inx
 	stx plh_attrs    ; set the palette to the dash count + 1
@@ -725,8 +879,11 @@ gm_anim_player:
 	lda player_vl_x  ; check if both components of the velocity are zero
 	bne gm_anim_notidle
 	lda player_vs_x
-	beq gm_anim_idle
+	beq gm_idle
 gm_anim_notidle:
+	lda #pl_pushing  ; check if pushing
+	bit playerctrl
+	bne gm_pushing
 	lda #pl_left     ; check if facing left
 	bit playerctrl
 	beq gm_anim_right
@@ -741,55 +898,39 @@ gm_anim_right:
 	lda player_vl_x
 	bmi gm_flip      ; if A < 0, then flipping
 	jmp gm_right     ; if A >= 0, then running. vl_x==vs_x==0 case is already handled.
-gm_anim_idle:
-	ldx #plr_idle1_l
-	ldy #plr_idle1_r
-	stx plr_spr_l
-	sty plr_spr_r
-	ldx #plr_hasta_l
-	ldy #plr_hasta_r
-	stx plh_spr_l
-	sty plh_spr_r
-	rts
+gm_idle:
+	lda #am_idle
+	jmp gm_anim_mode
 gm_flip:
-	ldx #plr_flip_l
-	ldy #plr_flip_r
-	stx plr_spr_l
-	sty plr_spr_r
-	ldx #plr_haflp_l
-	ldy #plr_haflp_r
-	stx plh_spr_l
-	sty plh_spr_r
-	rts
+	lda #am_flip
+	jmp gm_anim_mode
 gm_dashing:
-	ldx #plr_dash_l
-	ldy #plr_dash_r
-	stx plr_spr_l
-	sty plr_spr_r
-	ldx #plr_hadsh_l
-	ldy #plr_hadsh_r
-	stx plh_spr_l
-	sty plh_spr_r
-	rts
+	lda #am_dash
+	jmp gm_anim_mode
 gm_right:
-	ldx #plr_walk3_l
-	ldy #plr_walk3_r
-	stx plr_spr_l
-	sty plr_spr_r
-	ldx #plr_hamvr_l
-	ldy #plr_hamvr_r
-	stx plh_spr_l
-	sty plh_spr_r
-	rts
+	lda #am_walk
+	jmp gm_anim_mode
+gm_jumping:
+	lda #am_jump
+	jmp gm_anim_mode
+gm_falling:
+	lda #am_fall
+	jmp gm_anim_mode
+gm_pushing:
+	lda #am_push
+	jmp gm_anim_mode
 	
 ; ** SUBROUTINE: gm_getdownforce
 ; desc:    Gets the downward force in the A register depending on their state.
 gm_getdownforce:
 	lda player_vl_y
 	bpl gm_defaultgrav
+	lda dashcount
+	bne gm_stronggrav   ; if dashed more than once, return the strong gravity
 	lda #cont_a
 	bit p1_cont
 	bne gm_defaultgrav  ; if A isn't held, then use a stronger gravity force
+gm_stronggrav:
 	lda #gravitynoA
 	rts
 gm_defaultgrav:
@@ -1299,6 +1440,9 @@ gm_applyx:
 	adc #0                   ; add the carry bit if needed
 	eor #$FF                 ; flip it because we need the reverse
 	tay                      ; This is the "screenfuls" part that we need to add to the player position
+	lda playerctrl
+	and #(pl_pushing^$FF)
+	sta playerctrl           ; clear the pushing flag - it will be set on collision
 	lda player_vs_x
 	adc player_sp_x
 	sta player_sp_x
@@ -1336,10 +1480,19 @@ gm_checkright:
 	jsr gm_collide
 	beq gm_checkdone
 gm_collright:
+	ldx #0                   ; set the velocity to a minuscule value to
+	stx player_vl_x          ; ensure the player doesn't look idle
+	inx
+	stx player_vs_x
+	lda playerctrl
+	ora #pl_pushing
+	sta playerctrl
 	ldx player_x
 	beq gm_checkdone         ; if the player X is zero... we're stuck inside a wall
 	dex
 	stx player_x
+	ldx #$FF                 ; set the subpixel to $FF.  This allows our minuscule velocity to
+	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
 	jmp gm_checkright        ; !! note: in case of a potential clip, this might cause lag frames!
 gm_checkleft:
 	jsr gm_getleftx
@@ -1355,11 +1508,19 @@ gm_checkleft:
 	jsr gm_collide
 	beq gm_checkdone
 gm_collleft:
+	ldx #$FF                 ; set the velocity to a minuscule value to
+	stx player_vl_x          ; ensure the player doesn't look idle
+	stx player_vs_x
+	lda playerctrl
+	ora #pl_pushing
+	sta playerctrl
 	ldx player_x
 	cpx #$F0                 ; compare to [screenWidth-16]
 	bcs gm_checkdone         ; if bigger or equal, just bail, we might be stuck in a wall
 	inx
 	stx player_x
+	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
+	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
 	jmp gm_checkleft
 gm_checkdone:
 	lda player_vl_x
@@ -1528,31 +1689,33 @@ gm_dash_nosj:
 
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
-	lda #$00
-	sta gamectrl      ; clear game related fields to zero
-	sta ntwrhead
-	sta arwrhead
-	sta player_y
-	sta player_sp_x
-	sta player_sp_y
-	sta camera_x
-	sta camera_y
-	sta camera_x_hi
-	sta player_x_hi
-	sta tr_scrnpos
-	sta tr_mtaddrlo
-	sta tr_mtaddrhi
-	sta playerctrl
-	sta player_vl_x
-	sta player_vs_x
-	sta player_vl_y
-	sta player_vs_y
-	sta dashtime
-	sta dashcount
-	sta ppu_mask      ; disable rendering
+	ldx #$FF
+	stx animmode
+	inx
+	stx gamectrl      ; clear game related fields to zero
+	stx ntwrhead
+	stx arwrhead
+	stx player_y
+	stx player_sp_x
+	stx player_sp_y
+	stx camera_x
+	stx camera_y
+	stx camera_x_hi
+	stx player_x_hi
+	stx tr_scrnpos
+	stx tr_mtaddrlo
+	stx tr_mtaddrhi
+	stx playerctrl
+	stx player_vl_x
+	stx player_vs_x
+	stx player_vl_y
+	stx player_vs_y
+	stx dashtime
+	stx dashcount
+	stx ppu_mask      ; disable rendering
 	
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
-	ldx #$00
+	; note: ldx #$00 was removed because it's already 0!
 gm_game_clear:
 	sta $300,x
 	sta $400,x
