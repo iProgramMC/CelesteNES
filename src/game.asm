@@ -686,9 +686,18 @@ gm_donecomputing:
 	lda player_y
 	adc spryoff
 	tay
+	lda #pl_left
+	bit playerctrl
+	bne gm_sprxoffleft
 	clc
 	lda player_x
 	adc sprxoff
+	jmp gm_sprxoffdone
+gm_sprxoffleft:
+	sec
+	lda player_x
+	sbc sprxoff
+gm_sprxoffdone:
 	jsr gm_draw_2xsprite
 	rts
 
@@ -714,9 +723,10 @@ gm_anim_table:
 	.byte plr_jump_l,  plr_jump_r,  plr_hamvu_l, plr_hamvu_r, $00, $00, af_none,   $00  ; JUMP
 	.byte plr_fall_l,  plr_fall_r,  plr_hamvd_l, plr_hamvd_r, $00, $00, af_none,   $00  ; FALL
 	.byte <gm_pushtbl, >gm_pushtbl, plr_hasta_l, plr_hasta_r, $01, $00, af_2frame|af_oddryth, $00  ; PUSH
-	.byte <gm_climtbl, >gm_climtbl, plr_hasta_l, plr_hasta_r, $00, $00, af_2frame, $00  ; CLIMB
+	.byte <gm_climtbl, >gm_climtbl, plr_hasta_l, plr_hasta_r, $01, $00, af_2frame, $00  ; CLIMB
 	.byte plr_dash_l,  plr_dash_r,  plr_hadsh_l, plr_hadsh_r, $00, $00, af_none,   $00  ; DASH
 	.byte plr_flip_l,  plr_flip_r,  plr_haflp_l, plr_haflp_r, $00, $00, af_none,   $00  ; FLIP
+	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_none,   $00  ; CLIMB IDLE
 
 gm_anim_advwalkL:
 	sec
@@ -871,6 +881,9 @@ gm_anim_player:
 	lda dashtime
 	cmp #0
 	bne gm_dashing
+	lda #pl_pushing
+	bit playerctrl
+	bne gm_pushing
 	lda player_vl_y
 	bmi gm_jumping   ; if it's <0, then jumping
 	lda #pl_ground
@@ -881,9 +894,6 @@ gm_anim_player:
 	lda player_vs_x
 	beq gm_idle
 gm_anim_notidle:
-	lda #pl_pushing  ; check if pushing
-	bit playerctrl
-	bne gm_pushing
 	lda #pl_left     ; check if facing left
 	bit playerctrl
 	beq gm_anim_right
@@ -917,7 +927,13 @@ gm_falling:
 	lda #am_fall
 	jmp gm_anim_mode
 gm_pushing:
+	lda #pl_ground
+	bit playerctrl
+	beq gm_sliding
 	lda #am_push
+	jmp gm_anim_mode
+gm_sliding:
+	lda #am_climbidl
 	jmp gm_anim_mode
 	
 ; ** SUBROUTINE: gm_getdownforce
@@ -952,6 +968,21 @@ gm_apply_gravity:
 	lda #0
 	adc player_vl_y
 	sta player_vl_y
+	lda #pl_pushing
+	bit playerctrl
+	beq gm_gravityreturn
+	lda player_vl_y
+	bmi gm_gravityreturn
+	bne gm_gravityslide   ; player_vl_x > 0
+	lda player_vs_y
+	cmp #maxslidespd
+	bcc gm_gravityreturn  ; player_vl_x == 0, player_vs_x < maxslidespd
+gm_gravityslide:
+	lda #maxslidespd
+	sta player_vs_y
+	lda #0
+	sta player_vl_y
+gm_gravityreturn:
 	rts
 
 ; ** SUBROUTINE: gm_dragshift

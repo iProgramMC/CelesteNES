@@ -115,6 +115,7 @@ am_push     = $04
 am_climb    = $05
 am_dash     = $06
 am_flip     = $07
+am_climbidl = $08
 af_none     = $00   ; animation flags
 af_2frame   = $01   ; 2 frame animation. interpret player L and R as a pointer to a table
 af_4frame   = $02   ; 4 frame animation. interpret player L and R as a pointer to a table
@@ -145,6 +146,7 @@ maxwalkad   = $40   ; maximum walk approach delta in subpixels
 superjmphhi = $04   ; super jump boost pixel part
 superjmphlo = $80   ; super jump boost subpixel part
 animspd     = $10   ; 256/animspd is the amount of frames per animation up-tick (for 32, it's 8 fr)
+maxslidespd = $80   ; maximum slide speed in subpixels
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
