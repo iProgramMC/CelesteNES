@@ -1514,6 +1514,16 @@ gm_getbottomy_f:
 	lsr
 	rts
 
+; ** SUBROUTINE: gm_killplayer
+; desc:     Initiates the player death sequence.
+gm_killplayer:
+	;jmp gm_killplayer
+	; player velocity is positive and the player fell out of the world
+	; TODO: actually kill. right now just warp them up a bit
+	lda #$80
+	sta player_y
+	rts
+
 ; ** SUBROUTINE: gm_collide
 ; desc:      Checks for collision.
 ; arguments: X - tile's x position, Y - tile's y position, A - direction
@@ -1530,7 +1540,23 @@ gm_collide:
 
 ; ** SUBROUTINE: gm_applyy
 ; desc:     Apply the velocity in the Y direction.
+gm_velminus:
+	adc player_y      ; Velocity is minus. X contains whether the old position was >= $F0
+	sta player_y
+	cmp #$F0
+	bcs gm_velapplied ; if the position is now more than #$F1, then we don't need to do anything
+	cpx #0            ; if X is 0, then the old position was < $F1, therefore we're done
+	beq gm_velapplied
+	lda #$F0
+	sta player_y      ; otherwise, cap our position up to $F1
+	jmp gm_velapplied
+	
 gm_applyy:
+	lda player_y
+	cmp #$F0
+	rol               ; A = (A << 1) | carry [set if A >= $F0]
+	and #1            ; A = A & 1
+	tax               ; X = (player_y >= $F0)
 	clc
 	lda #(pl_ground ^ $FF)
 	and playerctrl
@@ -1539,10 +1565,14 @@ gm_applyy:
 	adc player_sp_y
 	sta player_sp_y
 	lda player_vl_y
-	adc player_y
-	bcs gm_fellout    ; if an overflow happened while adding the velocity of the player over
+	bmi gm_velminus   ; if player_vl_y < 0, then handle the minus case separately
+	adc player_y      ; player_vl_y >= 0
 	sta player_y
-gm_didntdie:
+	cmp #$F0          ; if A >= $F0 && X, then die
+	bcc gm_velapplied
+	cpx #1
+	bne gm_killplayer
+gm_velapplied:        ; this is the return label from gm_velminus
 	jsr gm_getleftx
 	sta temp1
 	jsr gm_getrightx
@@ -1553,11 +1583,7 @@ gm_didntdie:
 gm_fellout:           ; if the player fell out of the world
 	sta player_y
 	lda player_vl_y
-	bmi gm_didntdie
-	; player velocity is positive and the player fell out of the world
-	; TODO: actually kill. right now just warp them up a bit
-	lda #$80
-	sta player_y
+	bpl gm_killplayer
 	rts
 gm_checkceil:
 	jsr gm_gettopy
