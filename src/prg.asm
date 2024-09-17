@@ -108,6 +108,7 @@ pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 pl_pushing  = $04   ; player is pushing against a wall - either sliding or ground-pushing
 pl_wallleft = $08   ; player is sliding along a wall on their LEFT side
+pl_dashed   = $10   ; player has dashed before touching the ground
 am_idle     = $00
 am_walk     = $01
 am_jump     = $02

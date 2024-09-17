@@ -941,13 +941,17 @@ gm_sliding:
 gm_getdownforce:
 	lda player_vl_y
 	bpl gm_defaultgrav
-	lda dashcount
-	bne gm_stronggrav   ; if dashed more than once, return the strong gravity
+	lda #pl_dashed
+	bit playerctrl
+	bne gm_dashgrav     ; if dashed before touching the ground, return the strong gravity
 	lda #cont_a
 	bit p1_cont
 	bne gm_defaultgrav  ; if A isn't held, then use a stronger gravity force
 gm_stronggrav:
 	lda #gravitynoA
+	rts
+gm_dashgrav:
+	lda #$FF
 	rts
 gm_defaultgrav:
 	lda #gravity
@@ -1102,6 +1106,8 @@ gm_add3xL:
 	jmp gm_added3xL
 
 gm_add3xR:
+	cmp #$FF
+	beq gm_dontadd3xR
 	clc
 	lda player_vs_x
 	adc #(accel*3)
@@ -1157,6 +1163,7 @@ gm_pressedright:
 gm_rnomwc:
 	lda player_vl_x
 	bmi gm_add3xR    ; A < 0, then add stronger accel
+gm_dontadd3xR:
 	clc
 	lda player_vs_x
 	adc #accel
@@ -1208,11 +1215,15 @@ gm_dontjump:
 	stx dashcount
 	ldx #defdashtime
 	stx dashtime
+	lda #pl_dashed
+	ora playerctrl
+	sta playerctrl
 	jmp gm_dontdash
 
 gm_jump:
 	lda wjumpcoyote
 	bne gm_walljump
+gm_normaljump:
 	lda jumpcoyote
 	beq gm_dontjump   ; if no coyote time, then can't jump
 gm_actuallyjump:
@@ -1226,7 +1237,15 @@ gm_actuallyjump:
 	sta wjumpcoyote   ; or the wall coyote time
 	lda #%00000011
 	bit p1_cont
-	beq gm_dontdash   ; don't give a boost if we aren't moving
+	beq gm_dontjump   ; don't give a boost if we aren't moving
+	lda player_vl_x
+	bmi gm_jumpboostneg; if velocity < 0 pixels, then apply the leftward jump boost
+	bne gm_applyjumpboost ; if velocity >= 1 pixel, then apply the jump boost
+	jmp gm_dontjump   ; 0 < velocity < 1 so dont do a jump boost
+gm_jumpboostneg:
+	cmp #$FF
+	beq gm_dontjump   ; if -1 <= velocity, then don't apply a jump boost
+gm_applyjumpboost:
 	lda #pl_left
 	bit playerctrl
 	beq gm_jumphboostR
@@ -1238,7 +1257,7 @@ gm_actuallyjump:
 	sbc player_vl_x
 	sta player_vl_x
 	jsr gm_capmaxwalkL; ensure that it doesn't go over maxwalk
-	jmp gm_dontdash   ; that would be pretty stupid as it would
+	jmp gm_dontjump   ; that would be pretty stupid as it would
 gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	clc
 	lda #jmphboost
@@ -1248,9 +1267,12 @@ gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	adc player_vl_x
 	sta player_vl_x
 	jsr gm_capmaxwalkR
-	jmp gm_dontdash
+	jmp gm_dontjump
 	
 gm_walljump:
+	lda #pl_ground
+	bit playerctrl
+	bne gm_normaljump ; if player is grounded, ALWAYS perform a standard jump
 	; the facing direction IS the one the player is currently pushing against.
 	; that means that the opposite direction is the one they should be flinged against
 	lda playerctrl
@@ -1261,7 +1283,7 @@ gm_walljump:
 	lsr               ; move bit 3 (pl_wallleft) into bit 0 (pl_left)'s position
 	sta temp1
 	lda playerctrl
-	and #(pl_left^$FF)
+	and #((pl_left|pl_dashed)^$FF) ; also clear the pl_dashed flag to allow the wall jump at full force
 	ora temp1
 	sta playerctrl
 	
@@ -1589,6 +1611,7 @@ gm_snaptofloor:
 	bcs gm_sfloordone ; until the player has started their dash, exempt from ground check
 	lda #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
 	ora playerctrl
+	and #(pl_dashed^$FF) ; clear the dashed flag
 	sta playerctrl
 	lda #defjmpcoyot
 	sta jumpcoyote    ; assign coyote time because we're on the ground
@@ -1613,6 +1636,7 @@ gm_applyx:
 	lda playerctrl
 	and #(pl_pushing^$FF)
 	sta playerctrl           ; clear the pushing flag - it will be set on collision
+	clc
 	lda player_vs_x
 	adc player_sp_x
 	sta player_sp_x
