@@ -56,6 +56,12 @@
 ;       - background chunk:             5
 ;            size X h - chunk of background
 ;            h is the height between this chunk's Y and the bottom of the world
+;       - horizontal ground with type   6
+;            size X 1 - horizontal sliver of ground
+;            has extra parameter: the metatile ID used
+;       - horizontal ground with type   7
+;            1 X size - vertical sliver of ground
+;            has extra parameter: the metatile ID used
 ;       - player respawn:               SHOULD BE AN ENTITY
 ;            attributes:
 ;                bits 0:3: player Y
@@ -121,23 +127,17 @@ lvl_1_r1_t:
 	.byte $A2, $01  ; ground change to $01 (snow) at X=10
 	.byte $FE
 	.byte $00, $0C
-	.byte $32, $07  ; ground change to $07 (jumpthru) at X=3
-	.byte $30, $4A  ; 4X row at X=3, Y=10
-	.byte $70, $4B  ; 4X row at X=7, Y=11
-	.byte $A2, $01  ; ground change to $01 (snow) at X=10
+	.byte $36, $4A, $07  ; 4X row at X=3, Y=10
+	.byte $76, $4B, $07  ; 4X row at X=7, Y=11
 	.byte $FE
 	.byte $00, $0D
 	.byte $00, $0E
-	.byte $32, $09  ; ground change to $08 (halfslab) at X=3
-	.byte $30, $4A  ; 4X row at X=3, Y=10
-	.byte $70, $4B  ; 4X row at X=7, Y=11
-	.byte $A2, $01  ; ground change to $01 (snow) at X=10
+	.byte $36, $4A, $09  ; 4X row at X=3, Y=10
+	.byte $76, $4B, $09  ; 4X row at X=7, Y=11
 	.byte $FE
 	.byte $00, $0E
-	.byte $32, $08  ; ground change to $08 (halfslab) at X=3
-	.byte $30, $4B  ; 4X row at X=3, Y=11
-	.byte $70, $4D  ; 4X row at X=7, Y=13
-	.byte $A2, $01  ; ground change to $01 (snow) at X=10
+	.byte $36, $4B, $08  ; 4X row at X=3, Y=11
+	.byte $76, $4D, $08  ; 4X row at X=7, Y=13
 	.byte $FF       ; terminator
 
 lvl_1_r1:

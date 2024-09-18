@@ -352,6 +352,7 @@ h_tile_ground:
 	lda currground      ; load the current ground tile
 	sta tilecounts,y    ; save it into the tilecounts[y] array
 	txa                 ; get the size from X into A
+h_tile_ground2:
 	cmp #0
 	bne h_tilegnd_dontset
 	lda #16
@@ -359,12 +360,32 @@ h_tilegnd_dontset:
 	sta tilecounts+16,y ; save t at tilecounts[y+16]
 	jmp h_genmt_continue
 
-; ** TILE OBJECT TYPE: v_tile_ground
-; desc: Vertical strip of ground.
-h_tile_ground_v:
+; ** TILE OBJECT TYPE: h_tile_ground_s
+; desc: Horizontal strip of ground with different metatile ID.
+h_tile_ground_s:
 	jsr gm_read_tile
 	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
 	sta tr_regsto       ; save the attrs now
+	lsr
+	lsr
+	lsr
+	lsr                 ; get size from attributes
+	sta temp1           ; save it into temp1
+	lda tr_regsto       ; reload the attrs
+	and #$F             ; JUST the y position please
+	tay                 ; save the Y coordinate
+	jsr gm_read_tile    ; read the used ground tile
+	sta tilecounts,y    ; save it into the tilecounts[y] array
+	lda temp1
+	jmp h_tile_ground2
+
+; ** TILE OBJECT TYPE: v_tile_ground
+; desc: Vertical strip of ground.
+v_tile_ground2:
+	jsr gm_read_tile
+	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
+	sta tr_regsto       ; save the attrs now
+v_tile_ground3:
 	lsr
 	lsr
 	lsr
@@ -383,8 +404,26 @@ h_tgv_loop:
 	inx
 	cpx tr_bufidx
 	bne h_tgv_loop
-	
+	rts
+v_tile_ground:
+	jsr v_tile_ground2
 	jmp h_genmt_continue
+
+; ** TILE OBJECT TYPE: v_tile_ground_s
+; desc: Vertical strip of ground with temporary ground override.
+v_tile_ground_s:
+	jsr gm_read_tile
+	jsr gm_read_tile
+	sta tr_regsto       ; save the attrs - need them later
+	lda currground      ; load the current ground tile
+	pha                 ; and push it to the stack - we'll need to restore it later
+	jsr gm_read_tile    ; load the new current ground value
+	sta currground      ; that's the current ground now
+	lda tr_regsto       ; reload the attrs
+	jsr v_tile_ground3  ; start generating
+	pla
+	sta currground      ; restore old ground id from stack
+	jmp h_genmt_continue; return
 
 ; ** TILE OBJECT TYPE: h_tile_change
 ; desc: Change the active ground type.
@@ -409,11 +448,13 @@ h_tile_backgd_v:
 
 h_tile_opcodes:
 	.word h_tile_ground    ; 0
-	.word h_tile_ground_v  ; 1
+	.word v_tile_ground    ; 1
 	.word h_tile_change    ; 2
 	.word h_tile_backgd    ; 3
 	.word h_tile_backgd_v  ; 4
 	.word h_tile_backgd_c  ; 5
+	.word h_tile_ground_s  ; 6
+	.word v_tile_ground_s  ; 7
 
 h_genmt_screenstop:
 	lda #$10
