@@ -1484,6 +1484,20 @@ gm_getbottomy_w:
 	lsr
 	rts
 
+; ** SUBROUTINE: gm_getbottomy_g
+; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
+;           when checking for collision with ground objects.
+; returns:  A - the Y coordinate
+gm_getbottomy_g:
+	clc
+	lda player_y
+	adc #15
+	lsr
+	lsr
+	lsr
+	lsr
+	rts
+
 ; ** SUBROUTINE: gm_getmidy
 ; desc:     Gets the tile Y position at the middle of the player's hitbox, used for wall jump checking
 ; returns:  A - the Y coordinate
@@ -1514,29 +1528,84 @@ gm_getbottomy_f:
 	lsr
 	rts
 
+; ** SUBROUTINE: gm_collide
+; desc:      Checks for collision.
+; arguments: X - tile's x position, Y - tile's y position, A - direction
+; returns:   zero flag set - collided
+; direction: 0 - floor, 1 - ceiling, 2 - left, 3 - right
+; note:      temp1 & temp2 are used by caller
+gc_floor = $00
+gc_ceil  = $01
+gc_left  = $02
+gc_right = $03
+gm_collide:
+	pha
+	jsr h_get_tile    ; note: this doesnt clobber Y
+	tax
+	lda metatile_collision, x
+	asl
+	tax               ; x = metatile_collision[x] << 1
+	lda gm_colljumptable, x
+	sta temp3
+	inx
+	lda gm_colljumptable, x
+	sta temp4
+	pla
+	jmp (temp3)       ; use temp1 as an indirect jump pointer
+
+; Arguments for these jump table subroutines:
+; * A - The direction of collision
+gm_colljumptable:
+	.word gm_collidenone
+	.word gm_collidefull
+	.word gm_collidespikes
+	.word gm_collidejthru
+
+gm_collidenone:
+gm_collidejthru:
+	lda #0
+	rts
+gm_collidefull:
+	lda #1
+	rts
+
+gm_collidespikes:
+	tax
+	lda player_vl_y
+	bmi gm_collidenone; if player is going UP, then don't do collision checks at all.
+	txa
+	cmp #gc_ceil      ; if NOT moving up, then kill the player and return
+	beq gm_colliderts
+	cmp #gc_floor
+	bne gm_collidespkw
+	clc
+	lda player_yo     ; get the player old Y position, MOD 16. the bottom pixel's
+	and #$F           ; position is exactly the same as the player old Y position
+	adc player_vl_y   ; add the Y velocity that was added to get to player_y.
+	cmp #$E           ; a spike's hit box is like 2 px tall
+	bcs gm_killplayer
+gm_collideno:
+	lda #0            ; clear the zero flag
+gm_colliderts:
+	rts
+gm_collidespkw:
+	lda #pl_ground
+	bit playerctrl
+	beq gm_collideno  ; if wasn't grounded, then it's fine
+	;jmp gm_killplayer
+	; fall through to killplayer
+
+
+
 ; ** SUBROUTINE: gm_killplayer
 ; desc:     Initiates the player death sequence.
 gm_killplayer:
 	;jmp gm_killplayer
 	; player velocity is positive and the player fell out of the world
 	; TODO: actually kill. right now just warp them up a bit
-	lda #$80
+	lda #$00
 	sta player_y
 	rts
-
-; ** SUBROUTINE: gm_collide
-; desc:      Checks for collision.
-; arguments: X - tile's x position, Y - tile's y position, A - direction
-; returns:   zero flag set - not collided
-; direction: 0 - floor, 1 - ceiling, 2 - left, 3 - right
-gc_floor = $00
-gc_ceil  = $01
-gc_left  = $02
-gc_right = $03
-gm_collide:
-	jsr h_get_tile    ; TODO: this just checks for blank tiles
-	cmp #0
-	rts               ; note: comparison to 0 is redundant as h_get_tile ends with a lda
 
 ; ** SUBROUTINE: gm_applyy
 ; desc:     Apply the velocity in the Y direction.
@@ -1552,15 +1621,20 @@ gm_velminus:
 	jmp gm_velapplied
 	
 gm_applyy:
+	jsr gm_getleftx
+	sta temp1
+	jsr gm_getrightx
+	sta temp2
 	lda player_y
+	sta player_yo     ; backup the old Y position. Used for spike collision
 	cmp #$F0
 	rol               ; A = (A << 1) | carry [set if A >= $F0]
 	and #1            ; A = A & 1
 	tax               ; X = (player_y >= $F0)
-	clc
-	lda #(pl_ground ^ $FF)
-	and playerctrl
+	lda playerctrl
+	and #(pl_ground ^ $FF)
 	sta playerctrl    ; remove the grounded flag - it'll be added back if we are on the ground
+	clc
 	lda player_vs_y
 	adc player_sp_y
 	sta player_sp_y
@@ -1573,10 +1647,6 @@ gm_applyy:
 	cpx #1
 	bne gm_killplayer
 gm_velapplied:        ; this is the return label from gm_velminus
-	jsr gm_getleftx
-	sta temp1
-	jsr gm_getrightx
-	sta temp2
 	lda player_vl_y
 	bmi gm_checkceil
 	jmp gm_checkfloor
@@ -1616,6 +1686,7 @@ gm_checkfloor:
 	jsr gm_getbottomy_f
 	tay               ; keep the Y position into the Y register
 	sty y_crd_temp
+gm_checkgdfloor:
 	ldx temp1         ; check block 1
 	lda #gc_floor
 	jsr gm_collide
@@ -1649,9 +1720,12 @@ gm_snaptofloor:
 gm_sfloordone:
 	rts
 	
+	
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
 gm_applyx:
+	lda player_x
+	sta player_xo
 	clc
 	lda player_vl_x
 	rol                      ; store the upper bit in carry

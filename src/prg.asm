@@ -154,6 +154,10 @@ defjmpcoyot = $06   ; 6 frames of coyote time
 defwjmpcoyo = $03   ; 3 frames of wall coyote time
 jmphboost   = 170   ; boost applied to the player's jump when running
 wjgrace     = 2     ; walls are checked this many pixels away from the hitbox for a wall jump
+ct_none     = $00   ; no collision
+ct_full     = $01   ; the entire tile has collision
+ct_upspike  = $02   ; the tile is UP spike shaped
+ct_jumpthru = $03   ; the tile is a jump through
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -246,6 +250,8 @@ spryoffbase = $004D ; hair sprite Y offset base (used for af_oddryth)
 jumpbuff    = $004E ; jump buff time
 jumpcoyote  = $004F ; jump coyote time, if not zero, player may jump
 wjumpcoyote = $0050 ; wall jump coyote time
+player_yo   = $0051 ; player Y old. used for spike collision
+player_xo   = $0052 ; player Y old. used for horizontal spike collision
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]

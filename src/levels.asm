@@ -106,20 +106,30 @@ lvl_1_r1_t:
 	.byte $72, $02  ; ground change to $02
 	.byte $71, $52  ; 5X  vertical ground stripe, at X=7,Y=2
 	.byte $82, $02  ; ground change to $03
-	.byte $80, $CA  ; 12X horizontal ground at X=8,Y=12
+	.byte $80, $CA  ; 12X horizontal ground at X=8,Y=10
 	.byte $A2, $03  ; ground change to $03
 	.byte $A1, $53  ; 5X  vertical ground stripe, at X=10,Y=3
 	.byte $B2, $01  ; ground change to $01
 	.byte $FE
-	.byte $00, $0D  ; new page
-	.byte $00, $0E  ; new page
+	.byte $00, $0D
+	.byte $00, $0E
+	.byte $10, $E7  ; 14X ground at X=1, Y=7
+	.byte $22, $06  ; ground change to $06 (spikes)
+	.byte $20, $4C  ; 4X row at X=2 Y=12
+	.byte $80, $2A  ; 2X row at X=8 Y=10
+	.byte $A0, $2B  ; 2X row at X=10 Y=11
+	.byte $A2, $01  ; ground change to $01 (snow) at X=10
 	.byte $FE
-	.byte $00, $0C  ; new page
+	.byte $00, $0C
+	.byte $32, $07  ; ground change to $07 (jumpthru) at X=3
+	.byte $30, $4A  ; 4X row at X=3, Y=10
+	.byte $70, $4B  ; 4X row at X=7, Y=11
+	.byte $A2, $01  ; ground change to $01 (snow) at X=10
 	.byte $FE
-	.byte $00, $0D  ; new page
-	.byte $00, $0E  ; new page
+	.byte $00, $0D
+	.byte $00, $0E
 	.byte $FE
-	.byte $00, $0E  ; new page
+	.byte $00, $0E
 	.byte $FF       ; terminator
 
 lvl_1_r1:
