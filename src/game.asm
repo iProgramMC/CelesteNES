@@ -1560,27 +1560,60 @@ gm_colljumptable:
 	.word gm_collidefull
 	.word gm_collidespikes
 	.word gm_collidejthru
-
-gm_collidenone:
-gm_collidejthru:
-	lda #0
-	rts
+	
 gm_collidefull:
 	lda #1
+	rts
+	
+gm_collidejthru:      ; note: this is a hackjob and should probably be rewritten
+	tax
+	lda player_vl_y
+	bmi gm_collidenone; if player is moving UP, don't do collision checks at all
+	cpx #gc_floor
+	bne gm_collidenone; no collision for anything but the floor
+	tya               ; the tile's Y position now in A
+	asl
+	asl
+	asl
+	asl               ; it's a pixel position now
+	sec
+	sbc #(16-3)
+	sta temp3
+	ldx player_yo
+	cpx player_y
+	beq gm_colljtnochg
+gm_colljtloop:
+	cpx temp3
+	bcc gm_collidefull; if player failed to fall below tileX - 16 + 3
+	inx
+	cpx player_y
+	bne gm_colljtloop
+gm_collidenone:
+	lda #0
+	rts
+gm_colljtnochg:
+	; no change in Y
+	lda temp3
+	sec
+	sbc #3            ; take off the rest
+	sta temp3
+	lda player_y
+	cmp temp3
+	beq gm_collidefull; might be above or below, we only return collision if we're exactly
+	lda #0            ; on the platform's level.
 	rts
 
 gm_collidespikes:
 	tax
 	lda player_vl_y
 	bmi gm_collidenone; if player is going UP, then don't do collision checks at all.
-	txa
-	cmp #gc_ceil      ; if NOT moving up, then kill the player and return
+	cpx #gc_ceil      ; if NOT moving up, then kill the player and return
 	beq gm_colliderts
-	cmp #gc_floor
+	cpx #gc_floor
 	bne gm_collidespkw
 	clc
 	lda player_yo     ; get the player old Y position, MOD 16. the bottom pixel's
-	and #$F           ; position is exactly the same as the player old Y position
+	and #$F           ; position is exactly the same as the player old Y position mod 16
 	adc player_vl_y   ; add the Y velocity that was added to get to player_y.
 	cmp #$E           ; a spike's hit box is like 2 px tall
 	bcs gm_killplayer
