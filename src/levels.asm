@@ -106,6 +106,23 @@
 
 lvl_1_r1_e: .byte $FF
 lvl_1_r1_t:
+	.byte $02, $01       ; ground change to $01 (dirt)
+	.byte $00, $5A       ; 5X horizontal ground at X=0,Y=10
+	.byte $56, $1A, $07  ; 1X horizontal ground at X=5,Y=10,id=$07 (snow corner inner U+L)
+	.byte $56, $19, $03  ; 1X horizontal ground at X=5,Y=9, id=$03 (snow corner UL)
+	.byte $66, $19, $02  ; 1X horizontal ground at X=6,Y=9, id=$02 (snow)
+	.byte $66, $1A, $0C  ; 1X horizontal ground at X=6,Y=9, id=$0C (snow corner inner D+R)
+	.byte $67, $4B, $09  ; 4X vertical ground at X=6,Y=11,id=$09 (snow r wall)
+	.byte $76, $19, $04  ; 1X horizontal ground at X=7,Y=9, id=$04 (snow corner UR)
+	.byte $76, $1A, $06  ; 1X horizontal ground at X=7,Y=10,id=$06 (snow corner DR)
+	.byte $B6, $1A, $19  ; 1X horizontal ground at X=11,Y=10,id=$19(dirt lower half left corner)
+	.byte $B7, $4B, $15  ; 4X vertical ground at X=11,Y=11,id=$15 (dirt l wall)
+	.byte $C6, $1A, $18  ; 1X horizontal ground at X=12,Y=10,id=$1A(dirt lower half)
+	.byte $FF            ; terminator
+	
+	
+	
+	; old prototype level:
 	.byte $00, $0E  ; 16X horizontal ground, at Y=14
 	.byte $22, $03  ; ground change to $03 at X=2
 	.byte $20, $45  ; 4X horizontal ground at X=2, Y=5
