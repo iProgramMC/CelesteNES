@@ -128,8 +128,16 @@ lvl_1_r1_t:
 	.byte $FE
 	.byte $00, $0D
 	.byte $00, $0E
+	.byte $32, $09  ; ground change to $08 (halfslab) at X=3
+	.byte $30, $4A  ; 4X row at X=3, Y=10
+	.byte $70, $4B  ; 4X row at X=7, Y=11
+	.byte $A2, $01  ; ground change to $01 (snow) at X=10
 	.byte $FE
 	.byte $00, $0E
+	.byte $32, $08  ; ground change to $08 (halfslab) at X=3
+	.byte $30, $4B  ; 4X row at X=3, Y=11
+	.byte $70, $4D  ; 4X row at X=7, Y=13
+	.byte $A2, $01  ; ground change to $01 (snow) at X=10
 	.byte $FF       ; terminator
 
 lvl_1_r1:

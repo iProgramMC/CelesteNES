@@ -16,6 +16,8 @@ metatiles:
 	.byte $AD,$AE,$AE,$AC ; Girder Right
 	.byte $00,$AA,$00,$AA ; Spikes
 	.byte $D1,$00,$D1,$00 ; Jump Through
+	.byte $00,$80,$00,$84 ; Snow Half
+	.byte $90,$00,$94,$00 ; Snow Up Half
 
 metatile_palette:
 	.byte $00 ; Air
@@ -26,6 +28,8 @@ metatile_palette:
 	.byte $00 ; Girder Right
 	.byte $00 ; Spikes
 	.byte $01 ; Jump Through
+	.byte $02 ; Snow Half
+	.byte $02 ; Snow Up Half
 
 
 metatile_collision:
@@ -37,3 +41,5 @@ metatile_collision:
 	.byte ct_full     ; Girder Right
 	.byte ct_upspike  ; Spikes
 	.byte ct_jumpthru ; Jump Through
+	.byte ct_lowhalf  ; Snow Half
+	.byte ct_upphalf  ; Snow Up Half

@@ -1531,7 +1531,8 @@ gm_getbottomy_f:
 ; arguments: X - tile's x position, Y - tile's y position, A - direction
 ; returns:   zero flag set - collided
 ; direction: 0 - floor, 1 - ceiling, 2 - left, 3 - right
-; note:      temp1 & temp2 are used by caller
+; note:      temp1, temp2, colltemp1 & temp7 are used by caller
+; note:      collision functions rely on the Y register staying as the Y position of the tile!
 gc_floor = $00
 gc_ceil  = $01
 gc_left  = $02
@@ -1558,12 +1559,125 @@ gm_colljumptable:
 	.word gm_collidefull
 	.word gm_collidespikes
 	.word gm_collidejthru
+	.word gm_collidelohalf
+	.word gm_collidehihalf
+
+gm_collidehifull:
+	lda #1
+	rts
+gm_collidehinone:
+	lda #0
+	rts
+gm_collidehihalf:
+	pha
+	tya               ; Y coordinate of tile is still in the Y register
+	asl
+	asl
+	asl
+	asl
+	sta temp5         ; temp5 will be the top Y coord of the tile
+	adc #$10
+	sta temp6         ; temp6 will be the bottom Y coord of the tile.
+	pla
+	cmp #gc_floor
+	beq gm_collidehifull
+	cmp #gc_ceil
+	beq gm_collidehihalfV
+	clc               ; calculate the LOWER position
+	lda player_y
+	adc #14
+	cmp temp5
+	bcc gm_collidehihalf1; (player_y + 14) < tile_upper_y. skip this side
+	cmp temp6
+	bcs gm_collidehihalf3; (player_y + 14) > tile_lower_y. skip this side.
+	and #$F
+	cmp #8
+	bcc gm_collidehifull
+gm_collidehihalf1:
+	lda player_y      ; n.b. carry clear here
+	adc #(16-plrheight)
+	cmp temp5
+	bcc gm_collidehinone; (player_y + 6) < tile_upper_y. skip this side.
+	cmp temp6
+	bcs gm_collidehinone; (player_y + 6) > tile_lower_y. skip this side.
+	and #$F
+	cmp #8
+	bcc gm_collidehifull
+	jmp gm_collidehinone
+gm_collidehihalf3:
+	clc
+	bcc gm_collidehihalf1; actually unconditional because we cleared carry
+	jmp gm_collidehinone
 	
+gm_collidehihalfV:
+	lda #%11111000
+	sta temp7
+	lda #7
+	sta colltemp1
+	lda player_y
+	clc
+	adc #(16-plrheight)
+	and #$F
+	cmp #8
+	bcs gm_collidenone
+	lda temp5         ; set the player's Y position to below the ceiling.
+	adc #(8-(16-plrheight))
+	sta player_y      ; this is a HACK because it seems like the collision routine ain't doing its job
+	jmp gm_collidefull
+
+gm_collidelohalf:
+	pha
+	tya               ; Y coordinate of tile is still in the Y register
+	asl
+	asl
+	asl
+	asl
+	sta temp5         ; temp5 will be the top Y coord of the tile
+	adc #$10
+	sta temp6         ; temp6 will be the bottom Y coord of the tile.
+	pla
+	cmp #gc_ceil
+	beq gm_collidefull
+	cmp #gc_floor
+	beq gm_collidelohalfV
+	clc               ; calculate the LOWER position
+	lda player_y
+	adc #14
+	cmp temp5
+	bcc gm_collidelohalf1; (player_y + 14) < tile_upper_y. skip this side
+	cmp temp6
+	bcs gm_collidelohalf3; (player_y + 14) > tile_lower_y. skip this side
+	and #$F
+	cmp #8
+	bcs gm_collidefull
+gm_collidelohalf1:
+	lda player_y      ; n.b. carry clear here
+	adc #(16-plrheight)
+	cmp temp5
+	bcc gm_collidenone; (player_y + 6) < tile_upper_y. skip this side
+	cmp temp6
+	bcs gm_collidenone; (player_y + 6) > tile_lower_y. skip this side
+	and #$F
+	cmp #8
+	bcs gm_collidefull
+	jmp gm_collidenone
+gm_collidelohalf3:
+	clc
+	bcc gm_collidelohalf1; actually unconditional because we cleared carry
+gm_collidelohalfV:
+	lda #%11111000
+	sta temp7
+	lda player_y
+	and #$F
+	cmp #8
+	bcc gm_collidenone
+	; intentional fallthru to gm_collidefull
+
 gm_collidefull:
 	lda #1
 	rts
 	
-gm_collidejthru:      ; note: this is a hackjob and should probably be rewritten
+gm_collidejthru:
 	tax
 	lda player_vl_y
 	bmi gm_collidenone; if player is moving UP, don't do collision checks at all
@@ -1626,8 +1740,6 @@ gm_collidespkw:
 	;jmp gm_killplayer
 	; fall through to killplayer
 
-
-
 ; ** SUBROUTINE: gm_killplayer
 ; desc:     Initiates the player death sequence.
 gm_killplayer:
@@ -1656,6 +1768,10 @@ gm_applyy:
 	sta temp1
 	jsr gm_getrightx
 	sta temp2
+	lda #%11110000    ; set the default collision stepping mask
+	sta temp7
+	lda #$10          ; set the default ceiling height difference
+	sta colltemp1
 	lda player_y
 	sta player_yo     ; backup the old Y position. Used for spike collision
 	cmp #$F0
@@ -1703,11 +1819,11 @@ gm_checkceil:
 gm_snaptoceil:
 	clc
 	lda player_y
-	adc #$0F
-	and #$F0          ; calculate ((player_y + 15) % 16) * 16
+	adc colltemp1
+	and temp7         ; calculate ((player_y + 15) % 16) * 16 (or 8 if an upper slab)
 	sec
 	sbc #(16-plrheight)
-	sta player_y      ; rounds player's position to higher mu;tiple of 16
+	sta player_y      ; rounds player's position to higher multiple of 16 (or 8)
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
 	sta player_vl_y   ; also clear the velocity
@@ -1729,8 +1845,8 @@ gm_checkgdfloor:
 	bne gm_snaptofloor
 	rts
 gm_snaptofloor:
-	lda #%11110000    ; round player's position to lower multiple of 16
-	and player_y
+	lda temp7         ; round player's position to lower multiple of either 16 or 8 (temp7
+	and player_y      ; is set to %11111000 by a lower half slab tile if needed)
 	sta player_y
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
