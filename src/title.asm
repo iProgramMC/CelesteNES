@@ -103,9 +103,7 @@ osciltable:
 
 ; ** SUBROUTINE: tl_update_snow
 tl_update_snow:
-	ldx tl_timer
-	inx
-	stx tl_timer
+	inc tl_timer
 	ldy #$00
 	
 	; update Y coordinate to oscillate

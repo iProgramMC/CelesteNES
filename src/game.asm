@@ -1210,9 +1210,7 @@ gm_dontjump:
 	lda dashcount
 	cmp #maxdashes
 	bcs gm_dontdash   ; and if the dashcount is < maxdashes
-	ldx dashcount
-	inx
-	stx dashcount
+	inc dashcount
 	ldx #defdashtime
 	stx dashtime
 	lda #pl_dashed
@@ -2021,9 +2019,6 @@ gm_dash_nodir:
 	lda dashX, x
 	bmi gm_leftdash
 	sta player_vl_x
-	lda playerctrl
-	and #(pl_left^$FF)
-	sta playerctrl
 	jmp gm_dash_update_done
 gm_leftdash:
 	sta player_vl_x
