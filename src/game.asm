@@ -654,8 +654,16 @@ gm_fetch_room_loop:
 
 ; ** SUBROUTINE: gm_set_level_1
 gm_set_level_1:
-	ldx #<lvl_1
-	ldy #>lvl_1
+	ldx #0
+	; fallthru
+; ** SUBROUTINE: gm_set_level
+; args: X - level number
+; assumes: vblank is off and you're loading a new level
+gm_set_level:
+	lda level_table, x
+	inx
+	ldy level_table, x
+	tax
 	jsr gm_set_level_ptr
 	ldy #2
 	jsr gm_fetch_room
