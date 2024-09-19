@@ -46,6 +46,10 @@ metatiles:
 	.byte $D1,$00,$D1,$00 ; 23- Jumpthru M
 	.byte $60,$70,$61,$71 ; 24- Dirt
 	.byte $62,$72,$64,$74 ; 25- Dirt
+	.byte $64,$74,$00,$00 ; 26- Dirt
+	.byte $00,$00,$60,$70 ; 27- Dirt
+	.byte $69,$79,$00,$00 ; 28-Dirt
+	.byte $00,$00,$67,$77 ; 29- Dirt
 
 metatile_palette:
 	.byte $00 ; 00- Air
@@ -85,7 +89,11 @@ metatile_palette:
 	.byte $01 ; 22- Jumpthru
 	.byte $01 ; 23- Jumpthru
 	.byte $01 ; 24- Dirt
-	.byte $01 ; 24- Dirt
+	.byte $01 ; 25- Dirt
+	.byte $01 ; 26- Dirt
+	.byte $01 ; 27- Dirt
+	.byte $01 ; 28- Dirt
+	.byte $01 ; 29- Dirt
 
 
 metatile_collision:
@@ -127,3 +135,7 @@ metatile_collision:
 	.byte ct_jumpthru ; 23- Jumpthru
 	.byte ct_full     ; 24- Dirt
 	.byte ct_full     ; 25- Dirt
+	.byte ct_full     ; 26- Dirt; should be lefthalf
+	.byte ct_full     ; 27- Dirt; should be righthalf
+	.byte ct_full     ; 28- Dirt; should be lefthalf
+	.byte ct_full     ; 29- Dirt; should be righthalf

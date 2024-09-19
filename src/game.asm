@@ -1045,9 +1045,9 @@ gm_dragshift:
 	lda temp2
 	ror
 	sta temp2
-	;lda temp1
-	;ror
-	;sta temp1
+	lda temp1
+	ror
+	sta temp1
 	rts
 	
 ; ** SUBROUTINE: gm_drag
