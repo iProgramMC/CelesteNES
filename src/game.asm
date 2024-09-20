@@ -74,18 +74,20 @@ h_store_4:
 ;          and the Y coordinate stored in the Y register.  The metatile_collision will be used to determine
 ;          the shape of the tile.
 ; note:    should NOT clobber Y!
+; note:    returns the collision type & shape in the "temp6" register!
 h_get_chartile_draw:
 	tax
-	;lda metatile_info, x
-	;and #ct_shapemsk
+	lda metatile_info, x
+	sta temp6
+	and #ct_shapemsk
 	cmp #ct_none
 	beq h_getct_none
 	cmp #ct_full
 	beq h_getct_full
-;	cmp #ct_lfthalf
-;	beq h_getct_lh
-;	cmp #ct_rgthalf
-;	beq h_getct_rh
+	cmp #ct_lfthalf
+	beq h_getct_lh
+	cmp #ct_rgthalf
+	beq h_getct_rh
 	cmp #ct_lowhalf
 	beq h_getct_dh
 	tya    ; any other shape (upphalf, jumpthru)
@@ -110,6 +112,32 @@ h_getct_rh:
 h_getct_dh:
 	tya
 	and #1 ; return (y & 1) == 1
+	rts
+
+; ** SUBROUTINE: h_get_chartile
+; desc:     Gets a character sized tile from the tile coordinates in regs X and Y. These match up to screen
+;           character indices. Ranges: X in [0, 64), Y in [0, 32)
+; clobbers: A (X and Y are saved)
+h_get_chartile:
+	lda ntwrhead
+	pha                 ; back up the old name table write head, it'll be re-used
+	stx temp4           ; back up the X coord
+	sty temp5           ; back up the Y coord
+	stx ntwrhead        ; store the requested X coordinate into ntwrhead
+	txa
+	lsr                 ; divide X by 2
+	tax
+	tya
+	lsr
+	tay                 ; divide Y by 2
+	jsr h_get_tile      ; fetch the tile number
+	ldy temp5           ; restore the Y coordinate. the X coordinate is now in ntwrhead
+	jsr h_get_chartile_draw ; fetch the character tile.
+	sta temp3           ; store it temporarily
+	pla
+	sta ntwrhead        ; restore the old name table write head
+	ldx temp4           ; reload X. note that Y wasn't clobbered across h_get_chartile_draw
+	lda temp3           ; restore the return value
 	rts
 
 ; ** SUBROUTINE: h_flush_palette_init
@@ -210,6 +238,9 @@ h_fls_wrloop:
 	sta ppu_ctrl
 	rts
 
+smalltable:
+	.byte $00, $80, $81, $AB, $AB, $AA, $D1, $C4, $C9
+
 ; ** SUBROUTINE: h_generate_column
 ; desc:    Generates a vertical column of characters corresponding to the respective
 ;          metatiles in area space.
@@ -224,21 +255,23 @@ h_gen_wrloop:
 	tax                 ; x = ntwrhead >> 1
 	tya
 	jsr h_get_tile1
-	asl
-	asl
-	sta drawtemp
-	lda ntwrhead
-	and #1
-	asl
-	clc
-	adc drawtemp
-	tax
+	;asl
+	;asl
+	;sta drawtemp
+	;lda ntwrhead
+	;and #1
+	;asl
+	;clc
+	;adc drawtemp
+	;tax
 	
-	lda metatiles,x
+	pha
+	jsr h_get_chartile_draw
 	sta tempcol, y
-	inx
+	pla
 	iny
-	lda metatiles,x
+	
+	jsr h_get_chartile_draw
 	sta tempcol, y
 	iny
 	
@@ -1625,40 +1658,25 @@ gm_getbottomy_f:
 ; direction: 0 - floor, 1 - ceiling, 2 - left, 3 - right
 ; note:      temp1, temp2, colltemp1 & temp7 are used by caller
 ; note:      collision functions rely on the Y register staying as the Y position of the tile!
+; reserves:  temp3, temp4, temp5, temp6
+; clobbers:  A, X
 gc_floor = $00
 gc_ceil  = $01
 gc_left  = $02
 gc_right = $03
 gm_collide:
-	pha
-	pha
-	txa
-	lsr
-	tax
-	tya
-	lsr
-	tay
+	pha                  ; push the collision direction
+	jsr h_get_chartile
+	cmp #0            
 	pla
-	jsr h_get_tile    ; note: this doesnt clobber Y
-	tax
-	lda metatile_collision, x
-	asl
-	tax               ; x = metatile_collision[x] << 1
-	lda gm_colljumptable, x
-	sta temp3
-	inx
-	lda gm_colljumptable, x
-	sta temp4
-	pla
-	jmp (temp3)       ; use temp1 as an indirect jump pointer
 
 ; Arguments for these jump table subroutines:
 ; * A - The direction of collision
 gm_colljumptable:
 	.word gm_collidenone
 	.word gm_collidefull
-	.word gm_collidespikes
-	.word gm_collidejthru
+	;.word gm_collidespikes
+	;.word gm_collidejthru
 	.word gm_collidelohalf
 	.word gm_collidehihalf
 

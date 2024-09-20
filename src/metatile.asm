@@ -32,14 +32,14 @@ metatile_palette:
 	.byte $02 ; Snow Up Half
 
 
-metatile_collision:
-	.byte ct_none     ; Air
-	.byte ct_full     ; Snow
-	.byte ct_full     ; Dirt
-	.byte ct_full     ; Brick
-	.byte ct_full     ; Girder Left
-	.byte ct_full     ; Girder Right
-	.byte ct_upspike  ; Spikes
-	.byte ct_jumpthru ; Jump Through
-	.byte ct_lowhalf  ; Snow Half
-	.byte ct_upphalf  ; Snow Up Half
+metatile_info:
+	.byte ct_none                ; Air
+	.byte ct_full                ; Snow
+	.byte ct_full                ; Dirt
+	.byte ct_full                ; Brick
+	.byte ct_full                ; Girder Left
+	.byte ct_full                ; Girder Right
+	.byte ct_lowhalf|ct_deadly   ; Spikes
+	.byte ct_upphalf|ct_jumpthru ; Jump Through
+	.byte ct_lowhalf             ; Snow Half
+	.byte ct_upphalf             ; Snow Up Half
