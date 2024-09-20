@@ -69,6 +69,49 @@ h_store_4:
 	sta areaspace, x
 	rts
 
+; ** SUBROUTINE: h_get_chartile_draw
+; desc:    Gets a character sized tile from the tile index stored in A, the name table write head "ntwrhead",
+;          and the Y coordinate stored in the Y register.  The metatile_collision will be used to determine
+;          the shape of the tile.
+; note:    should NOT clobber Y!
+h_get_chartile_draw:
+	tax
+	;lda metatile_info, x
+	;and #ct_shapemsk
+	cmp #ct_none
+	beq h_getct_none
+	cmp #ct_full
+	beq h_getct_full
+;	cmp #ct_lfthalf
+;	beq h_getct_lh
+;	cmp #ct_rgthalf
+;	beq h_getct_rh
+	cmp #ct_lowhalf
+	beq h_getct_dh
+	tya    ; any other shape (upphalf, jumpthru)
+	and #1
+	eor #1 ; return (y & 1) == 0
+	rts
+h_getct_none:
+	lda #0
+	rts
+h_getct_full:
+	lda #1
+	rts
+h_getct_lh:
+	lda ntwrhead
+	and #1
+	eor #1 ; return (ntwrhead & 1) == 0
+	rts
+h_getct_rh:
+	lda ntwrhead
+	and #1 ; return (ntwrhead & 1) == 1
+	rts
+h_getct_dh:
+	tya
+	and #1 ; return (y & 1) == 1
+	rts
+
 ; ** SUBROUTINE: h_flush_palette_init
 ; desc:    Flushes a generated palette column in temppal to the screen if gs_flstpal is set
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
@@ -1436,7 +1479,7 @@ gm_getleftx:
 	ror               ; rotate it into the low position
 	lsr
 	lsr
-	lsr               ; finish dividing by the tile size
+	;lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_getrightx
@@ -1458,7 +1501,7 @@ gm_getrightx:
 	ror               ; rotate it into the low position
 	lsr
 	lsr
-	lsr               ; finish dividing by the tile size
+	;lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_getleftwjx
@@ -1478,7 +1521,7 @@ gm_getleftwjx:
 	ror               ; rotate it into the low position
 	lsr
 	lsr
-	lsr               ; finish dividing by the tile size
+	;lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_getrightwjx
@@ -1498,7 +1541,7 @@ gm_getrightwjx:
 	ror               ; rotate it into the low position
 	lsr
 	lsr
-	lsr               ; finish dividing by the tile size
+	;lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_gettopy
@@ -1511,7 +1554,7 @@ gm_gettopy:
 	lsr
 	lsr
 	lsr
-	lsr
+	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_w
@@ -1528,7 +1571,7 @@ gm_getbottomy_w:
 	lsr
 	lsr
 	lsr
-	lsr
+	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_g
@@ -1542,7 +1585,7 @@ gm_getbottomy_g:
 	lsr
 	lsr
 	lsr
-	lsr
+	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_getmidy
@@ -1555,7 +1598,7 @@ gm_getmidy:
 	lsr
 	lsr
 	lsr
-	lsr
+	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_f
@@ -1572,7 +1615,7 @@ gm_getbottomy_f:
 	lsr
 	lsr
 	lsr
-	lsr
+	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_collide
@@ -1588,6 +1631,14 @@ gc_left  = $02
 gc_right = $03
 gm_collide:
 	pha
+	pha
+	txa
+	lsr
+	tax
+	tya
+	lsr
+	tay
+	pla
 	jsr h_get_tile    ; note: this doesnt clobber Y
 	tax
 	lda metatile_collision, x
@@ -1669,9 +1720,6 @@ gm_collidehihalfV:
 	and #$F
 	cmp #8
 	bcs gm_collidenone
-	lda temp5         ; set the player's Y position to below the ceiling.
-	adc #(8-(16-plrheight))
-	sta player_y      ; this is a HACK because it seems like the collision routine ain't doing its job
 	jmp gm_collidefull
 
 gm_collidelohalf:
@@ -1817,9 +1865,9 @@ gm_applyy:
 	sta temp1
 	jsr gm_getrightx
 	sta temp2
-	lda #%11110000    ; set the default collision stepping mask
+	lda #%11111000    ; set the default collision stepping mask
 	sta temp7
-	lda #$10          ; set the default ceiling height difference
+	lda #$8           ; set the default ceiling height difference
 	sta colltemp1
 	lda player_y
 	sta player_yo     ; backup the old Y position. Used for spike collision
@@ -1867,12 +1915,12 @@ gm_checkceil:
 	rts
 gm_snaptoceil:
 	clc
-	lda player_y
-	adc colltemp1
-	and temp7         ; calculate ((player_y + 15) % 16) * 16 (or 8 if an upper slab)
-	sec
-	sbc #(16-plrheight)
-	sta player_y      ; rounds player's position to higher multiple of 16 (or 8)
+	lda y_crd_temp    ; load the y position of the tile that was collided with
+	asl
+	asl
+	asl               ; turn it into a screen coordinate
+	adc #(8-(16-plrheight)) ; add the height of the tile, minus the top Y offset of the player hitbox
+	sta player_y
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
 	sta player_vl_y   ; also clear the velocity
