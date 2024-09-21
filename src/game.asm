@@ -69,7 +69,7 @@ h_store_4:
 	sta areaspace, x
 	rts
 
-; ** SUBROUTINE: h_get_chartile_draw
+; ** SUBROUTINE: h_get_quadrant2
 ; desc:    Gets a character sized tile from the tile index stored in A, the name table write head "ntwrhead",
 ;          and the Y coordinate stored in the Y register.  The metatile_collision will be used to determine
 ;          the shape of the tile.
@@ -114,11 +114,11 @@ h_getct_dh:
 	and #1 ; return (y & 1) == 1
 	rts
 
-; ** SUBROUTINE: h_get_chartile
+; ** SUBROUTINE: h_get_quadrant
 ; desc:     Gets a character sized tile from the tile coordinates in regs X and Y. These match up to screen
 ;           character indices. Ranges: X in [0, 64), Y in [0, 32)
 ; clobbers: A (X and Y are saved)
-h_get_chartile:
+h_get_quadrant:
 	lda ntwrhead
 	pha                 ; back up the old name table write head, it'll be re-used
 	stx temp4           ; back up the X coord
@@ -255,23 +255,22 @@ h_gen_wrloop:
 	tax                 ; x = ntwrhead >> 1
 	tya
 	jsr h_get_tile1
-	;asl
-	;asl
-	;sta drawtemp
-	;lda ntwrhead
-	;and #1
-	;asl
-	;clc
-	;adc drawtemp
-	;tax
+	asl
+	asl
+	sta drawtemp
+	lda ntwrhead
+	and #1
+	asl
+	clc
+	adc drawtemp
+	tax
 	
-	pha
-	jsr h_get_chartile_draw
+	lda metatiles, x
 	sta tempcol, y
-	pla
+	inx
 	iny
 	
-	jsr h_get_chartile_draw
+	lda metatiles, x
 	sta tempcol, y
 	iny
 	
@@ -1665,10 +1664,11 @@ gc_ceil  = $01
 gc_left  = $02
 gc_right = $03
 gm_collide:
-	pha                  ; push the collision direction
-	jsr h_get_chartile
+	;pha                  ; push the collision direction
+	jsr h_get_quadrant
 	cmp #0            
-	pla
+	;pla
+	rts
 
 ; Arguments for these jump table subroutines:
 ; * A - The direction of collision
@@ -1728,10 +1728,6 @@ gm_collidehihalf3:
 	jmp gm_collidehinone
 	
 gm_collidehihalfV:
-	lda #%11111000
-	sta temp7
-	lda #7
-	sta colltemp1
 	lda player_y
 	clc
 	adc #(16-plrheight)
@@ -1780,8 +1776,6 @@ gm_collidelohalf3:
 	clc
 	bcc gm_collidelohalf1; actually unconditional because we cleared carry
 gm_collidelohalfV:
-	lda #%11111000
-	sta temp7
 	lda player_y
 	and #$F
 	cmp #8
@@ -1883,10 +1877,6 @@ gm_applyy:
 	sta temp1
 	jsr gm_getrightx
 	sta temp2
-	lda #%11111000    ; set the default collision stepping mask
-	sta temp7
-	lda #$8           ; set the default ceiling height difference
-	sta colltemp1
 	lda player_y
 	sta player_yo     ; backup the old Y position. Used for spike collision
 	cmp #$F0
@@ -1960,8 +1950,8 @@ gm_checkgdfloor:
 	bne gm_snaptofloor
 	rts
 gm_snaptofloor:
-	lda temp7         ; round player's position to lower multiple of either 16 or 8 (temp7
-	and player_y      ; is set to %11111000 by a lower half slab tile if needed)
+	lda #%11111000    ; round player's position to lower multiple of 8
+	and player_y
 	sta player_y
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
