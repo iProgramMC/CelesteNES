@@ -259,11 +259,14 @@ player_yo   = $0051 ; player Y old. used for spike collision
 player_xo   = $0052 ; player Y old. used for horizontal spike collision
 colltemp1   = $0053 ; temporary used by the collision code
 
+tilecounts  = $0090 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
+tempcol     = $00B0 ; 32 bytes - temporary column to be flushed to the screen
+temppal     = $00D0 ; 8 bytes  - temporary palette column to be flushed to the screen
+temprender  = $00D8 ; 32 bytes - temporary tile storage for palette determination
+freespace1  = $00F8 ; 8 bytes of free space
+
 ; large areas reserved by the game
-tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
-tempcol     = $0320 ; 32 bytes - temporary column to be flushed to the screen
-temppal     = $0340 ; 8 bytes  - temporary palette column to be flushed to the screen
-temprender  = $0348 ; 32 bytes - temporary tile storage for palette determination
+connspace   = $0200 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
 areaspace   = $0400 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
 sprspace    = $0600 ; 256 bytes
 

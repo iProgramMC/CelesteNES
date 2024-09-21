@@ -7,6 +7,26 @@
 ;
 ; Format: Upleft, Downleft, Upright, Downright
 ; TODO: Allow more than 64 metatiles.  They are bound to repeat because we shift left twice.
+;
+; new tile ID format:
+; [groupID: 2 bits] [connections: 6 bits]
+;
+; group 0 will treat the lower 6 bits as connectionless metatile IDs
+;
+; groups 1-2 will use tilesets 1-2. can be changed using a tileset change command in the level
+;
+; connection bits:
+; bit 0 - connect UP
+; bit 1 - connect DOWN
+; bit 2 - connect LEFT
+; bit 3 - connect RIGHT
+; bit 4 - corner gap
+; bit 5 - corner gap direction
+;
+; explanation:
+; 
+;
+
 metatiles:
 	.byte $00,$00,$00,$00 ; Air
 	.byte $80,$90,$84,$94 ; Snow
