@@ -163,8 +163,6 @@ ct_rgthalf  = $05   ; tile is only collidable on its right half
 ct_shapemsk = $0F   ; shape mask
 ct_deadly   = $10   ; the tile is UP spike shaped
 ct_jumpthru = $20   ; the tile is a jump through
-ct_horzonly = $40   ; horizontal only mode
-ct_4wayonly = $80   ; vertical only mode. note: if ct_horzonly|ct_4wayonly set, then tile has 1 frame
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -259,9 +257,7 @@ jumpcoyote  = $004F ; jump coyote time, if not zero, player may jump
 wjumpcoyote = $0050 ; wall jump coyote time
 player_yo   = $0051 ; player Y old. used for spike collision
 player_xo   = $0052 ; player Y old. used for horizontal spike collision
-temp8       = $0053 ; temporary used by the tile render code
-temp9       = $0054
-temp10      = $0055
+colltemp1   = $0053 ; temporary used by the collision code
 
 ; large areas reserved by the game
 tilecounts  = $0300 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]

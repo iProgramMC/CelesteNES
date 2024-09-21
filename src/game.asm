@@ -6,7 +6,7 @@
 ;     x - X coordinate
 ;     y - Y coordinate
 ; returns:  a - Tile value
-; clobbers: a, x, x_crd_temp
+; clobbers: a,x
 ;
 ; NOTE for h_get_tile1: the Y coordinate must be in A when you call!
 h_get_tile:
@@ -41,7 +41,7 @@ h_load_4:
 ;     x - X coordinate
 ;     y - Y coordinate
 ;     a - Tile value
-; clobbers: a, x, x_crd_temp
+; clobbers: a,x
 h_set_tile:
 	pha
 	tya
@@ -69,14 +69,13 @@ h_store_4:
 	sta areaspace, x
 	rts
 
-; ** SUBROUTINE: h_isquadrantsolid2
-; desc:    Checks if the specified quadrant is solid.  A quadrant is a half-tile by half-tile
-;          region of a level.
-; params:  A reg - tile index, "ntwrhead" - X coord, Y reg - Y coord
-; note:    saves the state of the X and Y registers.
-; uses:    temp6
-; TODO: might be better to use a jump table here.
-h_isquadrantsolid2:
+; ** SUBROUTINE: h_get_chartile_draw
+; desc:    Gets a character sized tile from the tile index stored in A, the name table write head "ntwrhead",
+;          and the Y coordinate stored in the Y register.  The metatile_collision will be used to determine
+;          the shape of the tile.
+; note:    should NOT clobber Y!
+; note:    returns the collision type & shape in the "temp6" register!
+h_get_chartile_draw:
 	tax
 	lda metatile_info, x
 	sta temp6
@@ -115,100 +114,11 @@ h_getct_dh:
 	and #1 ; return (y & 1) == 1
 	rts
 
-cf_xNyZ = $01  ; (-1, 0)
-cf_xPyZ = $02  ; (+1, 0)
-cf_xZyN = $04  ; (0, -1)
-cf_xZyP = $08  ; (0, +1)
-cf_xNyN = $10  ; (-1,-1)
-cf_xNyP = $20  ; (-1,+1)
-cf_xPyN = $40  ; (+1,-1)
-cf_xPyP = $80  ; (+1,+1)
-
-; ** SUBROUTINE: h_getconnframe
-; params: Same as h_isquadrantsolid2.
-;         A reg - curr tile, ntwrhead - X coord, Y reg - Y coord
-; uses:   temp6 (h_isquadrantsolid2)
-;         temp1, temp2, temp3, temp4, temp5, temp7, temp8, temp9, temp10
-; returns:the connection mask (cf_*)
-h_getconnframe:
-	sty y_crd_temp
-	sta temp7
-	pha
-	tax
-	lda metatile_info, x
-	sta temp5           ; store the metatile info in temp5
-	lda #(ct_horzonly|ct_4wayonly)
-	and temp5
-	eor #(ct_horzonly|ct_4wayonly)
-	bne :+              ; if ct_horzonly AND ct_4wayonly are set, then 
-	pla
-	lda #0              ; simply return 0. that means only one frame is available
-	beq h_getconnframe_done
-:	pla
-	jsr h_isquadrantsolid2
-	bne :+              ; if the quadrant isn't solid, just return a blank tile
-	rts
-:	lda ntwrhead
-	sta temp8           ; back up the old ntwrhead
-	sty temp9           ; back up the Y coordinate
-	sec
-	sbc #1              ; subtract 1 from the ntwrhead 
-	sta ntwrhead
-	jsr h_isquadrantsolid2 ; check the (-1, 0)  tile
-	bne :+              ; if solid, OR with cf_xNyZ
-	lda #cf_xNyZ
-	sta temp10
-:	inc ntwrhead
-	inc ntwrhead
-	jsr h_isquadrantsolid2 ; check the (+1, 0) tile
-	bne :+              ; if solid, OR with cf_xPyZ
-	lda #cf_xPyZ
-	ora temp10
-	sta temp10
-:	dec ntwrhead
-	lda #ct_horzonly
-	bit temp5
-	bne h_getconnframe_done
-	dey
-	jsr h_isquadrantsolid2 ; check the (0, -1) tile
-	bne :+
-	lda #cf_xZyN
-	ora temp10
-	sta temp10
-:	iny
-	iny
-	jsr h_isquadrantsolid2 ; check the (0, +1) Tile
-	bne :+
-	lda #cf_xZyP
-	ora temp10
-	sta temp10
-:   lda #ct_4wayonly
-	bit temp5
-	bne h_getconnframe_done
-	
-	
-	
-h_getconnframe_done:
-	ldx temp10          ; load the connection mask
-	ldy conn_offset, x  ; load the tile's offset from the start
-	ldx temp7           ; load the metatile ID itself
-	lda metatiles, x    ; load the first defining sprite index
-	sta temp7
-	tya                 ; add the tile index offset
-	clc
-	adc temp7           ; now the calculation is complete !
-	ldy y_crd_temp
-	rts
-	
-
-; ** SUBROUTINE: h_isquadrantsolid
-; desc:    Checks if the specified quadrant is solid.  A quadrant is a half-tile by half-tile
-;          region of a level.
-; params:  X reg - X coord, Y reg - Y coord
-; returns: A reg - is solid or not
-; note:    saves the state of the X and Y registers.
-; uses:    temp3, temp4, temp5, temp6, x_crd_temp
-h_isquadrantsolid:
+; ** SUBROUTINE: h_get_chartile
+; desc:     Gets a character sized tile from the tile coordinates in regs X and Y. These match up to screen
+;           character indices. Ranges: X in [0, 64), Y in [0, 32)
+; clobbers: A (X and Y are saved)
+h_get_chartile:
 	lda ntwrhead
 	pha                 ; back up the old name table write head, it'll be re-used
 	stx temp4           ; back up the X coord
@@ -222,12 +132,12 @@ h_isquadrantsolid:
 	tay                 ; divide Y by 2
 	jsr h_get_tile      ; fetch the tile number
 	ldy temp5           ; restore the Y coordinate. the X coordinate is now in ntwrhead
-	jsr h_isquadrantsolid2 ; fetch the character tile.
+	jsr h_get_chartile_draw ; fetch the character tile.
 	sta temp3           ; store it temporarily
 	pla
 	sta ntwrhead        ; restore the old name table write head
 	ldx temp4           ; reload X. note that Y wasn't clobbered across h_get_chartile_draw
-	lda temp3           ; restore the return value. this also updates the flags reg
+	lda temp3           ; restore the return value
 	rts
 
 ; ** SUBROUTINE: h_flush_palette_init
@@ -328,7 +238,8 @@ h_fls_wrloop:
 	sta ppu_ctrl
 	rts
 
-; *****************************************
+smalltable:
+	.byte $00, $80, $81, $AB, $AB, $AA, $D1, $C4, $C9
 
 ; ** SUBROUTINE: h_generate_column
 ; desc:    Generates a vertical column of characters corresponding to the respective
@@ -344,12 +255,23 @@ h_gen_wrloop:
 	tax                 ; x = ntwrhead >> 1
 	tya
 	jsr h_get_tile1
+	;asl
+	;asl
+	;sta drawtemp
+	;lda ntwrhead
+	;and #1
+	;asl
+	;clc
+	;adc drawtemp
+	;tax
+	
 	pha
-	jsr h_getconnframe
+	jsr h_get_chartile_draw
 	sta tempcol, y
 	pla
 	iny
-	jsr h_getconnframe
+	
+	jsr h_get_chartile_draw
 	sta tempcol, y
 	iny
 	
@@ -1734,16 +1656,19 @@ gm_getbottomy_f:
 ; arguments: X - tile's x position, Y - tile's y position, A - direction
 ; returns:   zero flag set - collided
 ; direction: 0 - floor, 1 - ceiling, 2 - left, 3 - right
-; note:      temp1, temp2 are used by caller
+; note:      temp1, temp2, colltemp1 & temp7 are used by caller
 ; note:      collision functions rely on the Y register staying as the Y position of the tile!
-; reserves:  temp3, temp4, temp5, temp6, temp8
+; reserves:  temp3, temp4, temp5, temp6
 ; clobbers:  A, X
 gc_floor = $00
 gc_ceil  = $01
 gc_left  = $02
 gc_right = $03
 gm_collide:
-	jmp h_isquadrantsolid
+	pha                  ; push the collision direction
+	jsr h_get_chartile
+	cmp #0            
+	pla
 
 ; Arguments for these jump table subroutines:
 ; * A - The direction of collision
@@ -1803,6 +1728,10 @@ gm_collidehihalf3:
 	jmp gm_collidehinone
 	
 gm_collidehihalfV:
+	lda #%11111000
+	sta temp7
+	lda #7
+	sta colltemp1
 	lda player_y
 	clc
 	adc #(16-plrheight)
@@ -1851,6 +1780,8 @@ gm_collidelohalf3:
 	clc
 	bcc gm_collidelohalf1; actually unconditional because we cleared carry
 gm_collidelohalfV:
+	lda #%11111000
+	sta temp7
 	lda player_y
 	and #$F
 	cmp #8
@@ -1930,7 +1861,7 @@ gm_killplayer:
 	;jmp gm_killplayer
 	; player velocity is positive and the player fell out of the world
 	; TODO: actually kill. right now just warp them up a bit
-	lda #$20
+	lda #$00
 	sta player_y
 	rts
 
@@ -1952,6 +1883,10 @@ gm_applyy:
 	sta temp1
 	jsr gm_getrightx
 	sta temp2
+	lda #%11111000    ; set the default collision stepping mask
+	sta temp7
+	lda #$8           ; set the default ceiling height difference
+	sta colltemp1
 	lda player_y
 	sta player_yo     ; backup the old Y position. Used for spike collision
 	cmp #$F0
@@ -2025,8 +1960,8 @@ gm_checkgdfloor:
 	bne gm_snaptofloor
 	rts
 gm_snaptofloor:
-	lda #%11111000    ; round player's position to lower multiple of 8
-	and player_y
+	lda temp7         ; round player's position to lower multiple of either 16 or 8 (temp7
+	and player_y      ; is set to %11111000 by a lower half slab tile if needed)
 	sta player_y
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
