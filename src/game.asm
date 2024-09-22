@@ -238,21 +238,29 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	cmp #$03
 	beq :+
 	rts
-:	ldy #0
-:	jsr gm_read_pal
+:	ldy #0                    ; start writing palette data.
+h_pal_wrloop:
+	jsr gm_read_pal
+	cmp #$FE
+	beq h_pal_haveFE          ; break out of this loop
 	cmp #$FF
-	bne :+
+	bne h_pal_noFF
 	ldx #<palrdheadlo
 	jsr gm_decrement_ptr
 	lda #0
-:	sta temppal,y
+h_pal_noFF:
+	sta temppal,y
 	iny
 	cpy #8
-	bne :--
+	bne h_pal_wrloop
+h_pal_haveFE:
 	lda #gs_flstpal
 	ora gamectrl
 	sta gamectrl
 	rts
+; significance of palette combinations:
+; $FE - Re-use the same palette data as the previous column
+; $FF - End of palette data
 
 ; ** SUBROUTINE: h_genertiles_dup
 ; desc:    Generates a column of metatiles from 2 bytes.
