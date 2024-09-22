@@ -1,8 +1,17 @@
 .segment "INES"
 .byte $4E,$45,$53,$1A
-.byte 2        ; size of prg rom in 16kb units
-.byte 1        ; size of chr rom in 8kb units
-.byte %0000001 ; flags 6 -- horizontal nametable mirroring. TODO: this should be versatile
+.byte 2         ; size of prg rom in 16kb units
+.byte 1         ; size of chr rom in 8kb units
+.byte %00000001 ; flags 6 -- horizontal nametable mirroring. TODO: this should be versatile
+.byte %00001000 ; flags 7 -- NES 2.0 header
+.byte %00000000 ; mapper msb / submapper
+.byte %00000000 ; prg-rom / chr-rom size msb
+.byte %00000101 ; prg-ram / eeprom size (64 << 5 == 2048)
+.byte %00000000 ; chr-ram size
+.byte %00000000 ; cpu/ppu timing mode
+.byte %00000000 ; vs. system type
+.byte %00000000 ; misc ROMs
+.byte %00000000 ; default exp device
 
 .segment "PRG"
 .include "prg.asm"
