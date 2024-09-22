@@ -214,297 +214,45 @@ smalltable:
 
 ; ** SUBROUTINE: h_generate_column
 ; desc:    Generates a vertical column of characters corresponding to the respective
-;          metatiles in area space.
+;          metatiles in area space.  Also generates the next column of tiles and
+;          the palette if necessary.
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
 h_generate_column:
-	; start writing tiles.
-	; each iteration will write 2 character tiles for one metatile.
-	ldy #0
-h_gen_wrloop:
+	ldy #0                    ; start writing tiles.
+h_gen_wrloop:                 ; each iteration will write 1 character tile for one metatile.
 	ldx ntwrhead
 	jsr h_get_tile
 	tax
-	
 	lda metatiles, x
 	sta tempcol, y
 	inx
 	iny
-	
 	cpy #$1E
 	bne h_gen_wrloop
-
-	; set the gamectrl gs_flstcols flag
-	lda #gs_flstcols
+	lda #gs_flstcols          ; set the gamectrl gs_flstcols flag
 	ora gamectrl
 	sta gamectrl
-	
-	; check if we were writing the odd column
-	; generate a column of metatiles if so
-	;lda ntwrhead
-	;and #$01
-	;beq h_gen_dont
-	jsr h_generate_metatiles
-	; check if we're writing the 3rd odd column
-	lda ntwrhead
+	jsr h_generate_metatiles  ; generate a new column of meta-tiles
+	lda ntwrhead              ; check if we're writing the 3rd odd column
 	and #$03
 	cmp #$03
-	beq h_generate_palette
-h_gen_dont:
+	beq :+
 	rts
-
-; ** SUBROUTINE: h_gen_pal_blk
-; arguments: y - Y position of block
-; desc:      Generates a palette value in A to use as attributes.
-;h_gen_pal_blk:
-;	tya
-;	asl
-;	asl
-;	clc
-;	adc #3
-;	tay           ; y = y << 2 + 3
-;	ldx temprender, y
-;	lda metatile_palette, x
-;	asl
-;	asl
-;	dey
-;	ldx temprender, y
-;	ora metatile_palette, x
-;	asl
-;	asl
-;	dey
-;	ldx temprender, y
-;	ora metatile_palette, x
-;	asl
-;	asl
-;	dey
-;	ldx temprender, y
-;	ora metatile_palette, x
-;	rts
-
-; ** SUBROUTINE: h_generate_palette
-; desc: Generates a palette for a 15X2 column of tiles.
-h_generate_palette:
-	ldy #0
+:	ldy #0
 :	jsr gm_read_pal
-	sta temppal,y
+	cmp #$FF
+	bne :+
+	ldx #<palrdheadlo
+	jsr gm_decrement_ptr
+	lda #0
+:	sta temppal,y
 	iny
 	cpy #8
-	bne :-
+	bne :--
 	lda #gs_flstpal
 	ora gamectrl
 	sta gamectrl
 	rts
-	
-;	; this loop puts the metatiles in the proper order to generate palettes
-;	; for them easily
-;	ldy #0
-;	sty tr_bufidx
-;h_genpal_loop:
-;	; fetch the upper left tile
-;	lda ntwrhead
-;	lsr
-;	clc
-;	sbc #0
-;	tax              ; x = ntwrhead >> 1, y is this loop's iterator
-;	stx tr_regsto    ; store x in tr_regsto because it's clobbered by h_get_tile
-;	jsr h_get_tile
-;	ldx tr_regsto
-;	sty tr_regsto    ; store y in tr_regsto to load the write offset
-;	ldy tr_bufidx    ; load the write offset from tr_bufidx
-;	sta temprender,y
-;	iny
-;	sty tr_bufidx
-;	ldy tr_regsto
-;	; fetch the upper right tile
-;	inx
-;	stx tr_regsto
-;	jsr h_get_tile
-;	ldx tr_regsto
-;	sty tr_regsto
-;	ldy tr_bufidx
-;	sta temprender,y
-;	iny
-;	sty tr_bufidx
-;	ldy tr_regsto
-;	; fetch the lower left tile
-;	iny
-;	dex
-;	stx tr_regsto
-;	jsr h_get_tile
-;	ldx tr_regsto
-;	sty tr_regsto
-;	ldy tr_bufidx
-;	sta temprender,y
-;	iny
-;	sty tr_bufidx
-;	ldy tr_regsto
-;	; fetch the lower right tile
-;	inx
-;	stx tr_regsto
-;	jsr h_get_tile
-;	ldx tr_regsto
-;	sty tr_regsto
-;	ldy tr_bufidx
-;	sta temprender,y
-;	iny
-;	sty tr_bufidx
-;	ldy tr_regsto
-;	; done, now increment Y
-;	dex
-;	iny
-;	cpy #$10
-;	bne h_genpal_loop
-;	
-;	ldy #0
-;h_gen_paltestloop:
-;	sty tr_regsto
-;	jsr h_gen_pal_blk
-;	ldy tr_regsto
-;	sta temppal, y
-;	iny
-;	cpy #8
-;	bne h_gen_paltestloop
-;	lda #gs_flstpal
-;	ora gamectrl
-;	sta gamectrl
-;	rts
-
-; ** TILE OBJECT TYPE: h_tile_ground
-; desc: Horizontal strip of ground.
-h_tile_ground:
-	jsr gm_read_tile
-	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
-	sta tr_regsto       ; save the attrs now
-	lsr
-	lsr
-	lsr
-	lsr                 ; get size from attributes
-	tax                 ; save it into X
-	lda tr_regsto       ; reload the attrs
-	and #$F             ; JUST the y position please
-	tay                 ; save the Y coordinate
-	lda currground      ; load the current ground tile
-	sta tilecounts,y    ; save it into the tilecounts[y] array
-	txa                 ; get the size from X into A
-h_tile_ground2:
-	cmp #0
-	bne h_tilegnd_dontset
-	lda #16
-h_tilegnd_dontset:
-	sta tilecounts+16,y ; save t at tilecounts[y+16]
-	jmp h_genmt_continue
-
-; ** TILE OBJECT TYPE: h_tile_ground_s
-; desc: Horizontal strip of ground with different metatile ID.
-h_tile_ground_s:
-	jsr gm_read_tile
-	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
-	sta tr_regsto       ; save the attrs now
-	lsr
-	lsr
-	lsr
-	lsr                 ; get size from attributes
-	sta temp1           ; save it into temp1
-	lda tr_regsto       ; reload the attrs
-	and #$F             ; JUST the y position please
-	tay                 ; save the Y coordinate
-	jsr gm_read_tile    ; read the used ground tile
-	sta tilecounts,y    ; save it into the tilecounts[y] array
-	lda temp1
-	jmp h_tile_ground2
-
-; ** TILE OBJECT TYPE: v_tile_ground
-; desc: Vertical strip of ground.
-v_tile_ground2:
-	jsr gm_read_tile
-	jsr gm_read_tile    ; read into A: [4:7-flags] [0:3-y position]
-	sta tr_regsto       ; save the attrs now
-v_tile_ground3:
-	lsr
-	lsr
-	lsr
-	lsr                 ; get size from attributes
-	sta tr_bufidx       ; save it into tr_bufidx
-	lda tr_regsto       ; reload the attrs
-	and #$F             ; JUST the y position please
-	tay                 ; save the Y coordinate
-	ldx #0
-h_tgv_loop:
-	lda currground      ; load the current ground tile
-	sta tilecounts,y    ; save it into the tilecounts[y] array
-	lda #1
-	sta tilecounts+16,y
-	iny
-	inx
-	cpx tr_bufidx
-	bne h_tgv_loop
-	rts
-v_tile_ground:
-	jsr v_tile_ground2
-	jmp h_genmt_continue
-
-; ** TILE OBJECT TYPE: v_tile_ground_s
-; desc: Vertical strip of ground with temporary ground override.
-v_tile_ground_s:
-	jsr gm_read_tile
-	jsr gm_read_tile
-	sta tr_regsto       ; save the attrs - need them later
-	lda currground      ; load the current ground tile
-	pha                 ; and push it to the stack - we'll need to restore it later
-	jsr gm_read_tile    ; load the new current ground value
-	sta currground      ; that's the current ground now
-	lda tr_regsto       ; reload the attrs
-	jsr v_tile_ground3  ; start generating
-	pla
-	sta currground      ; restore old ground id from stack
-	jmp h_genmt_continue; return
-
-; ** TILE OBJECT TYPE: h_tile_change
-; desc: Change the active ground type.
-h_tile_change:
-	jsr gm_read_tile
-	jsr gm_read_tile
-	sta currground
-	jmp h_genmt_continue
-
-; ** TILE OBJECT TYPE: h_tile_change
-; desc: Change the active background type.
-h_tile_backgd_c:
-	jsr gm_read_tile
-	jsr gm_read_tile
-	sta currbackgd
-	jmp h_genmt_continue
-
-h_tile_backgd:
-h_tile_backgd_v:
-	; TODO
-	jmp h_genmt_continue
-
-h_tile_opcodes:
-	.word h_tile_ground    ; 0
-	.word v_tile_ground    ; 1
-	.word h_tile_change    ; 2
-	.word h_tile_backgd    ; 3
-	.word h_tile_backgd_v  ; 4
-	.word h_tile_backgd_c  ; 5
-	.word h_tile_ground_s  ; 6
-	.word v_tile_ground_s  ; 7
-
-h_genmt_screenstop:
-	lda #$20
-	eor tr_scrnpos
-	sta tr_scrnpos
-	jsr gm_adv_tile
-	jmp h_genmt_readdone
-
-h_genmt_readstop:
-	lda #gs_scrstop
-	ora gamectrl
-	sta gamectrl
-	jmp h_genmt_readdone
-
-h_genmt_continue:
-h_genmt_readdone:
 
 ; ** SUBROUTINE: h_genertiles_dup
 ; desc:    Generates a column of metatiles from 2 bytes.
@@ -557,66 +305,6 @@ h_genertiles_cont:
 	and #$3F
 	sta arwrhead
 	rts
-;	; read tile data until X is different
-;	jsr gm_read_tile_na
-;	cmp #$FF
-;	beq h_genmt_readstop
-;	cmp #$FE
-;	beq h_genmt_screenstop
-;	sta tr_mtaddrlo
-;	and #$F0             ; fetch the X coordinate
-;	lsr
-;	lsr
-;	lsr
-;	lsr
-;	clc
-;	adc tr_scrnpos       ; add it on top of the current screen position
-;	cmp arwrhead
-;	bne h_genmt_readdone ; if arwrhead2 == tr_scrnpos + objectX
-;	; process this object
-;	lda tr_mtaddrlo
-;	and #%1111
-;	asl
-;	tay
-;	lda h_tile_opcodes, y
-;	sta tr_mtaddrlo
-;	iny
-;	lda h_tile_opcodes, y
-;	sta tr_mtaddrhi
-;	jmp (tr_mtaddrlo)
-;h_genmt_continue:      ; the return address from the jump table
-;	jmp h_generate_metatiles
-;h_genmt_readdone:
-;	
-;	; generate any previously set up block rows
-;	; if there are none, simply generate blank
-;	ldy #$00
-;h_genmtloop:
-;	lda tilecounts+16,y
-;	cmp #0
-;	beq h_genmtsetzero
-;	clc
-;	sbc #0
-;	sta tilecounts+16,y
-;	lda tilecounts,y
-;	jmp asdsd
-;h_genmtsetzero:          ; when this label is BRANCHED to, a is zero
-;	;jsr rand
-;	;and #7
-;asdsd:
-;	ldx arwrhead
-;	jsr h_set_tile
-;	iny
-;	cpy #$0F
-;	bne h_genmtloop
-;	
-;	; loop done, increment arwrhead, ensuring it rolls over after 31
-;	clc
-;	lda #1
-;	adc arwrhead
-;	and #$1F
-;	sta arwrhead
-;	rts
 
 ; ** SUBROUTINE: gm_increment_ptr
 ; ** SUBROUTINE: gm_decrement_ptr

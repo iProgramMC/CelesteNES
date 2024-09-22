@@ -266,10 +266,8 @@ palrdheadhi = $0057
 ; large areas reserved by the game
 sprspace    = $0500 ; 256 bytes
 
-tilecounts  = $0690 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
-tempcol     = $06B0 ; 32 bytes - temporary column to be flushed to the screen
-temppal     = $06D0 ; 8 bytes  - temporary palette column to be flushed to the screen
-temprender  = $06D8 ; 32 bytes - temporary tile storage for palette determination
+tempcol     = $0600 ; 32 bytes - temporary column to be flushed to the screen
+temppal     = $0620 ; 8 bytes  - temporary palette column to be flushed to the screen
 freespace1  = $06F8 ; 8 bytes of free space
 
 areaspace   = $6000 ; 2048 bytes -- 64 X 32 area, OR 32 X 64 in V mode
