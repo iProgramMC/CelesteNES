@@ -257,18 +257,22 @@ jumpcoyote  = $004F ; jump coyote time, if not zero, player may jump
 wjumpcoyote = $0050 ; wall jump coyote time
 player_yo   = $0051 ; player Y old. used for spike collision
 player_xo   = $0052 ; player Y old. used for horizontal spike collision
-colltemp1   = $0053 ; temporary used by the collision code
-
-tilecounts  = $0090 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
-tempcol     = $00B0 ; 32 bytes - temporary column to be flushed to the screen
-temppal     = $00D0 ; 8 bytes  - temporary palette column to be flushed to the screen
-temprender  = $00D8 ; 32 bytes - temporary tile storage for palette determination
-freespace1  = $00F8 ; 8 bytes of free space
+; $0053 spare
+lvladdr     = $0054 ; temporaries used by h_get_tile and h_set_tile
+lvladdrhi   = $0055
+palrdheadlo = $0056 ; palette read head
+palrdheadhi = $0057
 
 ; large areas reserved by the game
-connspace   = $0200 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
-areaspace   = $0400 ; 512 bytes -- 32 X 16 area, OR 16 X 32 in V mode
-sprspace    = $0600 ; 256 bytes
+sprspace    = $0500 ; 256 bytes
+
+tilecounts  = $0690 ; 32 bytes - 16 X 2.  Format: [Metatile ID, Count]
+tempcol     = $06B0 ; 32 bytes - temporary column to be flushed to the screen
+temppal     = $06D0 ; 8 bytes  - temporary palette column to be flushed to the screen
+temprender  = $06D8 ; 32 bytes - temporary tile storage for palette determination
+freespace1  = $06F8 ; 8 bytes of free space
+
+areaspace   = $6000 ; 2048 bytes -- 64 X 32 area, OR 32 X 64 in V mode
 
 .org $8000
 

@@ -28,29 +28,16 @@
 ;
 
 metatiles:
-	.byte $00,$00,$00,$00 ; Air
-	.byte $80,$90,$84,$94 ; Snow
-	.byte $60,$70,$64,$74 ; Dirt
-	.byte $BC,$89,$BD,$8A ; Brick
-	.byte $AD,$AC,$AE,$00 ; Girder Left
-	.byte $AD,$AE,$AE,$AC ; Girder Right
-	.byte $00,$AA,$00,$AA ; Spikes
-	.byte $D1,$00,$D1,$00 ; Jump Through
-	.byte $00,$80,$00,$84 ; Snow Half
-	.byte $90,$00,$94,$00 ; Snow Up Half
-
-metatile_palette:
 	.byte $00 ; Air
-	.byte $02 ; Snow
-	.byte $01 ; Dirt
-	.byte $00 ; Brick
-	.byte $00 ; Girder Left
-	.byte $00 ; Girder Right
-	.byte $00 ; Spikes
-	.byte $01 ; Jump Through
-	.byte $02 ; Snow Half
-	.byte $02 ; Snow Up Half
-
+	.byte $80 ; Snow
+	.byte $60 ; Dirt
+	.byte $BC ; Brick
+	.byte $AD ; Girder Left
+	.byte $AE ; Girder Right
+	.byte $AA ; Spikes
+	.byte $D1 ; Jump Through
+	.byte $84 ; Snow Half
+	.byte $94 ; Snow Up Half
 
 metatile_info:
 	.byte ct_none                ; Air

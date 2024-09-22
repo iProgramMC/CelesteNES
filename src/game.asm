@@ -1,72 +1,61 @@
 
+; ** SUBROUTINE: h_comp_addr
+; desc:    Computes the address of the 64 byte row of tiles into lvladdr.
+; arguments:
+;     x - X coordinate
+; clobbers: a
+h_comp_addr:
+	; the address goes as follows:
+	; 0110 0xxx xxxy yyyy
+	lda #<areaspace
+	sta lvladdr
+	lda #>areaspace
+	sta lvladdrhi
+	txa
+	lsr
+	lsr
+	lsr             ; chop off the first 3 bits
+	and #%00000111
+	clc
+	adc lvladdrhi
+	sta lvladdrhi
+	txa
+	ror
+	ror
+	ror
+	ror
+	and #%11100000  ; put the 3 LSBs of X in the lvladdr
+	sta lvladdr     ; note: need to ror 4x because rotation also involves the carry bit
+	rts
+
 ; ** SUBROUTINE: h_get_tile
 ; desc:    Gets the value of a tile in loaded areaspace for the horizontal layout
-;          (equivalent of the C code "areaspace[y * 32 + x]")
+;          (equivalent of the C code "areaspace[x * 32 + y]")
 ; arguments:
 ;     x - X coordinate
 ;     y - Y coordinate
 ; returns:  a - Tile value
-; clobbers: a,x
+; clobbers: a
 ;
 ; NOTE for h_get_tile1: the Y coordinate must be in A when you call!
 h_get_tile:
-	tya
-	asl                 ; shift left by 5.  The last shift will put the bit in carry
-h_get_tile1:
-	asl
-	asl
-	asl
-	asl
-	bcc h_load_4
-	sta x_crd_temp
-	txa
-	clc
-	adc x_crd_temp
-	tax
-	lda areaspace+$100, x
-	rts
-h_load_4:
-	sta x_crd_temp
-	txa
-	clc
-	adc x_crd_temp
-	tax
-	lda areaspace, x
+	jsr h_comp_addr
+	lda (lvladdr), y; A = (&areaspace[x * 32])[y]
 	rts
 
 ; ** SUBROUTINE: h_set_tile
 ; desc:    Sets the value of a tile in loaded areaspace for the horizontal layout
-;          (equivalent of the C code "areaspace[y * 32 + x]")
+;          (equivalent of the C code "areaspace[x * 32 + y]")
 ; arguments:
 ;     x - X coordinate
 ;     y - Y coordinate
 ;     a - Tile value
-; clobbers: a,x
+; clobbers: a
 h_set_tile:
 	pha
-	tya
-	asl                 ; shift left by 5.  The last shift will put the bit in carry
-	asl
-	asl
-	asl
-	asl
-	bcc h_store_4
-	sta x_crd_temp
-	txa
-	clc
-	adc x_crd_temp
-	tax
+	jsr h_comp_addr
 	pla
-	sta areaspace+$100, x
-	rts
-h_store_4:
-	sta x_crd_temp
-	txa
-	clc
-	adc x_crd_temp
-	tax
-	pla
-	sta areaspace, x
+	sta (lvladdr), y
 	rts
 
 ; ** SUBROUTINE: h_get_quadrant2
@@ -119,25 +108,7 @@ h_getct_dh:
 ;           character indices. Ranges: X in [0, 64), Y in [0, 32)
 ; clobbers: A (X and Y are saved)
 h_get_quadrant:
-	lda ntwrhead
-	pha                 ; back up the old name table write head, it'll be re-used
-	stx temp4           ; back up the X coord
-	sty temp5           ; back up the Y coord
-	stx ntwrhead        ; store the requested X coordinate into ntwrhead
-	txa
-	lsr                 ; divide X by 2
-	tax
-	tya
-	lsr
-	tay                 ; divide Y by 2
-	jsr h_get_tile      ; fetch the tile number
-	ldy temp5           ; restore the Y coordinate. the X coordinate is now in ntwrhead
-	jsr h_get_chartile_draw ; fetch the character tile.
-	sta temp3           ; store it temporarily
-	pla
-	sta ntwrhead        ; restore the old name table write head
-	ldx temp4           ; reload X. note that Y wasn't clobbered across h_get_chartile_draw
-	lda temp3           ; restore the return value
+	jmp h_get_tile      ; fetch the tile number
 	rts
 
 ; ** SUBROUTINE: h_flush_palette_init
@@ -250,28 +221,13 @@ h_generate_column:
 	; each iteration will write 2 character tiles for one metatile.
 	ldy #0
 h_gen_wrloop:
-	lda ntwrhead
-	lsr                 ; get the tile coordinate
-	tax                 ; x = ntwrhead >> 1
-	tya
-	jsr h_get_tile1
-	asl
-	asl
-	sta drawtemp
-	lda ntwrhead
-	and #1
-	asl
-	clc
-	adc drawtemp
+	ldx ntwrhead
+	jsr h_get_tile
 	tax
 	
 	lda metatiles, x
 	sta tempcol, y
 	inx
-	iny
-	
-	lda metatiles, x
-	sta tempcol, y
 	iny
 	
 	cpy #$1E
@@ -284,9 +240,9 @@ h_gen_wrloop:
 	
 	; check if we were writing the odd column
 	; generate a column of metatiles if so
-	lda ntwrhead
-	and #$01
-	beq h_gen_dont
+	;lda ntwrhead
+	;and #$01
+	;beq h_gen_dont
 	jsr h_generate_metatiles
 	; check if we're writing the 3rd odd column
 	lda ntwrhead
@@ -294,121 +250,124 @@ h_gen_wrloop:
 	cmp #$03
 	beq h_generate_palette
 h_gen_dont:
-; TODO: make scroll stopping work well
-;	lda #gs_scrstop
-;	bit gamectrl
-;	beq h_flupal_ret
-;	lda gamectrl
-;	ora #gs_scrstopd
-;	sta gamectrl
-;h_flupal_ret:
 	rts
 
 ; ** SUBROUTINE: h_gen_pal_blk
 ; arguments: y - Y position of block
 ; desc:      Generates a palette value in A to use as attributes.
-h_gen_pal_blk:
-	tya
-	asl
-	asl
-	clc
-	adc #3
-	tay           ; y = y << 2 + 3
-	ldx temprender, y
-	lda metatile_palette, x
-	asl
-	asl
-	dey
-	ldx temprender, y
-	ora metatile_palette, x
-	asl
-	asl
-	dey
-	ldx temprender, y
-	ora metatile_palette, x
-	asl
-	asl
-	dey
-	ldx temprender, y
-	ora metatile_palette, x
-	rts
+;h_gen_pal_blk:
+;	tya
+;	asl
+;	asl
+;	clc
+;	adc #3
+;	tay           ; y = y << 2 + 3
+;	ldx temprender, y
+;	lda metatile_palette, x
+;	asl
+;	asl
+;	dey
+;	ldx temprender, y
+;	ora metatile_palette, x
+;	asl
+;	asl
+;	dey
+;	ldx temprender, y
+;	ora metatile_palette, x
+;	asl
+;	asl
+;	dey
+;	ldx temprender, y
+;	ora metatile_palette, x
+;	rts
 
 ; ** SUBROUTINE: h_generate_palette
 ; desc: Generates a palette for a 15X2 column of tiles.
 h_generate_palette:
-	; this loop puts the metatiles in the proper order to generate palettes
-	; for them easily
 	ldy #0
-	sty tr_bufidx
-h_genpal_loop:
-	; fetch the upper left tile
-	lda ntwrhead
-	lsr
-	clc
-	sbc #0
-	tax              ; x = ntwrhead >> 1, y is this loop's iterator
-	stx tr_regsto    ; store x in tr_regsto because it's clobbered by h_get_tile
-	jsr h_get_tile
-	ldx tr_regsto
-	sty tr_regsto    ; store y in tr_regsto to load the write offset
-	ldy tr_bufidx    ; load the write offset from tr_bufidx
-	sta temprender,y
-	iny
-	sty tr_bufidx
-	ldy tr_regsto
-	; fetch the upper right tile
-	inx
-	stx tr_regsto
-	jsr h_get_tile
-	ldx tr_regsto
-	sty tr_regsto
-	ldy tr_bufidx
-	sta temprender,y
-	iny
-	sty tr_bufidx
-	ldy tr_regsto
-	; fetch the lower left tile
-	iny
-	dex
-	stx tr_regsto
-	jsr h_get_tile
-	ldx tr_regsto
-	sty tr_regsto
-	ldy tr_bufidx
-	sta temprender,y
-	iny
-	sty tr_bufidx
-	ldy tr_regsto
-	; fetch the lower right tile
-	inx
-	stx tr_regsto
-	jsr h_get_tile
-	ldx tr_regsto
-	sty tr_regsto
-	ldy tr_bufidx
-	sta temprender,y
-	iny
-	sty tr_bufidx
-	ldy tr_regsto
-	; done, now increment Y
-	dex
-	iny
-	cpy #$10
-	bne h_genpal_loop
-	
-	ldy #0
-h_gen_paltestloop:
-	sty tr_regsto
-	jsr h_gen_pal_blk
-	ldy tr_regsto
-	sta temppal, y
+:	jsr gm_read_pal
+	sta temppal,y
 	iny
 	cpy #8
-	bne h_gen_paltestloop
+	bne :-
 	lda #gs_flstpal
 	ora gamectrl
 	sta gamectrl
 	rts
+	
+;	; this loop puts the metatiles in the proper order to generate palettes
+;	; for them easily
+;	ldy #0
+;	sty tr_bufidx
+;h_genpal_loop:
+;	; fetch the upper left tile
+;	lda ntwrhead
+;	lsr
+;	clc
+;	sbc #0
+;	tax              ; x = ntwrhead >> 1, y is this loop's iterator
+;	stx tr_regsto    ; store x in tr_regsto because it's clobbered by h_get_tile
+;	jsr h_get_tile
+;	ldx tr_regsto
+;	sty tr_regsto    ; store y in tr_regsto to load the write offset
+;	ldy tr_bufidx    ; load the write offset from tr_bufidx
+;	sta temprender,y
+;	iny
+;	sty tr_bufidx
+;	ldy tr_regsto
+;	; fetch the upper right tile
+;	inx
+;	stx tr_regsto
+;	jsr h_get_tile
+;	ldx tr_regsto
+;	sty tr_regsto
+;	ldy tr_bufidx
+;	sta temprender,y
+;	iny
+;	sty tr_bufidx
+;	ldy tr_regsto
+;	; fetch the lower left tile
+;	iny
+;	dex
+;	stx tr_regsto
+;	jsr h_get_tile
+;	ldx tr_regsto
+;	sty tr_regsto
+;	ldy tr_bufidx
+;	sta temprender,y
+;	iny
+;	sty tr_bufidx
+;	ldy tr_regsto
+;	; fetch the lower right tile
+;	inx
+;	stx tr_regsto
+;	jsr h_get_tile
+;	ldx tr_regsto
+;	sty tr_regsto
+;	ldy tr_bufidx
+;	sta temprender,y
+;	iny
+;	sty tr_bufidx
+;	ldy tr_regsto
+;	; done, now increment Y
+;	dex
+;	iny
+;	cpy #$10
+;	bne h_genpal_loop
+;	
+;	ldy #0
+;h_gen_paltestloop:
+;	sty tr_regsto
+;	jsr h_gen_pal_blk
+;	ldy tr_regsto
+;	sta temppal, y
+;	iny
+;	cpy #8
+;	bne h_gen_paltestloop
+;	lda #gs_flstpal
+;	ora gamectrl
+;	sta gamectrl
+;	rts
 
 ; ** TILE OBJECT TYPE: h_tile_ground
 ; desc: Horizontal strip of ground.
@@ -532,7 +491,7 @@ h_tile_opcodes:
 	.word v_tile_ground_s  ; 7
 
 h_genmt_screenstop:
-	lda #$10
+	lda #$20
 	eor tr_scrnpos
 	sta tr_scrnpos
 	jsr gm_adv_tile
@@ -544,90 +503,112 @@ h_genmt_readstop:
 	sta gamectrl
 	jmp h_genmt_readdone
 
+h_genmt_continue:
+h_genmt_readdone:
+
 ; ** SUBROUTINE: h_generate_metatiles
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_generate_metatiles:
-	; read tile data until X is different
-	jsr gm_read_tile_na
-	cmp #$FF
-	beq h_genmt_readstop
-	cmp #$FE
-	beq h_genmt_screenstop
-	sta tr_mtaddrlo
-	and #$F0             ; fetch the X coordinate
-	lsr
-	lsr
-	lsr
-	lsr
-	clc
-	adc tr_scrnpos       ; add it on top of the current screen position
-	cmp arwrhead
-	bne h_genmt_readdone ; if arwrhead2 == tr_scrnpos + objectX
-	; process this object
-	lda tr_mtaddrlo
-	and #%1111
-	asl
-	tay
-	lda h_tile_opcodes, y
-	sta tr_mtaddrlo
-	iny
-	lda h_tile_opcodes, y
-	sta tr_mtaddrhi
-	jmp (tr_mtaddrlo)
-h_genmt_continue:      ; the return address from the jump table
-	jmp h_generate_metatiles
-h_genmt_readdone:
-	
-	; generate any previously set up block rows
-	; if there are none, simply generate blank
-	ldy #$00
-h_genmtloop:
-	lda tilecounts+16,y
-	cmp #0
-	beq h_genmtsetzero
-	clc
-	sbc #0
-	sta tilecounts+16,y
-	lda tilecounts,y
-	jmp asdsd
-h_genmtsetzero:          ; when this label is BRANCHED to, a is zero
-	;jsr rand
-	;and #7
-asdsd:
+	ldy #0
+:	jsr gm_read_tile
 	ldx arwrhead
 	jsr h_set_tile
 	iny
-	cpy #$0F
-	bne h_genmtloop
-	
-	; loop done, increment arwrhead, ensuring it rolls over after 31
+	cpy #$1E
+	bne :-
+
+	; loop done, increment arwrhead, ensuring it rolls over after 63
 	clc
 	lda #1
 	adc arwrhead
-	and #$1F
+	and #$3F
 	sta arwrhead
 	rts
+;	; read tile data until X is different
+;	jsr gm_read_tile_na
+;	cmp #$FF
+;	beq h_genmt_readstop
+;	cmp #$FE
+;	beq h_genmt_screenstop
+;	sta tr_mtaddrlo
+;	and #$F0             ; fetch the X coordinate
+;	lsr
+;	lsr
+;	lsr
+;	lsr
+;	clc
+;	adc tr_scrnpos       ; add it on top of the current screen position
+;	cmp arwrhead
+;	bne h_genmt_readdone ; if arwrhead2 == tr_scrnpos + objectX
+;	; process this object
+;	lda tr_mtaddrlo
+;	and #%1111
+;	asl
+;	tay
+;	lda h_tile_opcodes, y
+;	sta tr_mtaddrlo
+;	iny
+;	lda h_tile_opcodes, y
+;	sta tr_mtaddrhi
+;	jmp (tr_mtaddrlo)
+;h_genmt_continue:      ; the return address from the jump table
+;	jmp h_generate_metatiles
+;h_genmt_readdone:
+;	
+;	; generate any previously set up block rows
+;	; if there are none, simply generate blank
+;	ldy #$00
+;h_genmtloop:
+;	lda tilecounts+16,y
+;	cmp #0
+;	beq h_genmtsetzero
+;	clc
+;	sbc #0
+;	sta tilecounts+16,y
+;	lda tilecounts,y
+;	jmp asdsd
+;h_genmtsetzero:          ; when this label is BRANCHED to, a is zero
+;	;jsr rand
+;	;and #7
+;asdsd:
+;	ldx arwrhead
+;	jsr h_set_tile
+;	iny
+;	cpy #$0F
+;	bne h_genmtloop
+;	
+;	; loop done, increment arwrhead, ensuring it rolls over after 31
+;	clc
+;	lda #1
+;	adc arwrhead
+;	and #$1F
+;	sta arwrhead
+;	rts
 
 ; ** SUBROUTINE: gm_increment_ptr
 ; ** SUBROUTINE: gm_decrement_ptr
 ; args: x - offset in zero page to (in/de)crement 16-bit address
 ; clobbers: a
 gm_increment_ptr:
-	lda #00
+	lda #0
 	sec
-	adc $0000, x
-	sta $0000, x
+	adc $00, x
+	sta $00, x
+	lda $01, x
+	adc #0
+	sta $01, x
 	rts
 gm_decrement_ptr:
-	lda #00
+	lda #0
 	sec
-	sbc $0000, x
-	sta $0000, x
+	sbc $00, x
+	sta $00, x
+	lda $01, x
+	sbc #0
+	sta $01, x
 	rts
 ; ** SUBROUTINE: gm_set_level_ptr
 ; ** SUBROUTINE: gm_set_room_ptr
-; ** SUBROUTINE: gm_set_tile_head
-; ** SUBROUTINE: gm_set_ent_head
 ; args:
 ;     x - low byte
 ;     y - high byte
@@ -639,22 +620,39 @@ gm_set_room_ptr:
 	stx roomptrlo
 	sty roomptrhi
 	rts
+; ** SUBROUTINE: gm_set_tile_head
+; ** SUBROUTINE: gm_set_pal_head
+; ** SUBROUTINE: gm_set_ent_head
+; args:
+;     x - low byte
+;     a - high byte
 gm_set_tile_head:
 	stx arrdheadlo
-	sty arrdheadhi
+	sta arrdheadhi
+	rts
+gm_set_pal_head:
+	stx palrdheadlo
+	sta palrdheadhi
 	rts
 gm_set_ent_head:
 	stx entrdheadlo
-	sty entrdheadhi
+	sta entrdheadhi
 	rts
 
 ; ** SUBROUTINE: gm_adv_tile
+; ** SUBROUTINE: gm_adv_pal
 ; ** SUBROUTINE: gm_adv_ent
-; desc:     Advances the tile or entity stream by 1 byte.
+; desc:     Advances the tile, palette, or entity stream by 1 byte.
 ; clobbers: x
 gm_adv_tile:
 	pha
 	ldx #<arrdheadlo
+	jsr gm_increment_ptr
+	pla
+	rts
+gm_adv_pal:
+	pha
+	ldx #<palrdheadlo
 	jsr gm_increment_ptr
 	pla
 	rts
@@ -681,12 +679,19 @@ gm_read_ent_na:
 	ldx #0
 	lda (entrdheadlo,x)
 	rts
+gm_read_pal_na:
+	ldx #0
+	lda (palrdheadlo,x)
+	rts
 gm_read_tile:
 	jsr gm_read_tile_na
 	jmp gm_adv_tile
 gm_read_ent:
 	jsr gm_read_ent_na
 	jmp gm_adv_ent
+gm_read_pal:
+	jsr gm_read_pal_na
+	jmp gm_adv_pal
 
 ; ** SUBROUTINE: gm_fetch_room
 ; args: y - offset into lvl array
@@ -714,16 +719,23 @@ gm_fetch_room_loop:
 	tax
 	iny
 	lda (roomptrlo),y
-	tay
-	jsr gm_set_tile_head
 	iny
+	jsr gm_set_tile_head
+
+	; load palette pointer from room pointer
+	lda (roomptrlo),y
+	tax
+	iny
+	lda (roomptrlo),y
+	iny
+	jsr gm_set_pal_head
 
 	; load entity pointer from room pointer
 	lda (roomptrlo),y
 	tax
 	iny
 	lda (roomptrlo),y
-	tay
+	iny
 	jsr gm_set_ent_head
 	rts
 
@@ -1655,7 +1667,7 @@ gm_getbottomy_f:
 ; arguments: X - tile's x position, Y - tile's y position, A - direction
 ; returns:   zero flag set - collided
 ; direction: 0 - floor, 1 - ceiling, 2 - left, 3 - right
-; note:      temp1, temp2, colltemp1 & temp7 are used by caller
+; note:      temp1, temp2 & temp7 are used by caller
 ; note:      collision functions rely on the Y register staying as the Y position of the tile!
 ; reserves:  temp3, temp4, temp5, temp6
 ; clobbers:  A, X
