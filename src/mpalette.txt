@@ -1,0 +1,12 @@
+; note : this file is NOT included for the game! only for my level editor.
+metatile_palette:
+	.byte $00 ; Air
+	.byte $02 ; Snow
+	.byte $01 ; Dirt
+	.byte $00 ; Brick
+	.byte $00 ; Girder Left
+	.byte $00 ; Girder Right
+	.byte $00 ; Spikes
+	.byte $01 ; Jump Through
+	.byte $02 ; Snow Half
+    .byte $02 ; Snow Up Half

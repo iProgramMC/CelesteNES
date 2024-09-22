@@ -288,7 +288,7 @@ h_genertiles_loop:
 	jsr gm_decrement_ptr
 	lda #0                ; just store 0
 	jmp :++               ; and jump ahead
-:	cmp #$20              ; if data >= 0x20 && data < 0x40, then this is a "duplicate" tile.
+:	cmp #$21              ; if data >= 0x21 && data < 0x40, then this is a "duplicate" tile.
 	bcc :+
 	cmp #$40
 	bcs :+
