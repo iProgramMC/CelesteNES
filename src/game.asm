@@ -506,19 +506,52 @@ h_genmt_readstop:
 h_genmt_continue:
 h_genmt_readdone:
 
+; ** SUBROUTINE: h_genertiles_dup
+; desc:    Generates a column of metatiles from 2 bytes.
+; args:    A - the dup data, Y - the Y position to start placing at
+;
+; The format in bytes for the first byte (currently loaded in A) as follows: 001CCCCC TTTTTTTT
+h_genertiles_dup:
+	and #%00011111
+	sta temp1
+	tya                   ; transfer the Y coordinate over to add it to temp1
+	clc
+	adc temp1
+	sta temp1             ; store it in temp1
+	jsr gm_read_tile      ; read another byte - will be used as our 'brush'
+	ldx arwrhead
+:   pha
+	jsr h_set_tile
+	pla
+	iny
+	cpy temp1             ; check it against the limit
+	bne :-
+	jmp h_genertiles_cont
+
 ; ** SUBROUTINE: h_generate_metatiles
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_generate_metatiles:
 	ldy #0
-:	jsr gm_read_tile
-	ldx arwrhead
+h_genertiles_loop:
+	jsr gm_read_tile
+	cmp #$FF              ; if data == 0xFF, then decrement the pointer
+	bne :+
+	ldx #<arrdheadlo
+	jsr gm_decrement_ptr
+	lda #0                ; just store 0
+	jmp :++               ; and jump ahead
+:	cmp #$20              ; if data >= 0x20 && data < 0x40, then this is a "duplicate" tile.
+	bcc :+
+	cmp #$40
+	bcs :+
+	jmp h_genertiles_dup
+:	ldx arwrhead
 	jsr h_set_tile
 	iny
+h_genertiles_cont:
 	cpy #$1E
-	bne :-
-
-	; loop done, increment arwrhead, ensuring it rolls over after 63
-	clc
+	bcc h_genertiles_loop
+	clc                   ; loop done, increment arwrhead, ensuring it rolls over after 63
 	lda #1
 	adc arwrhead
 	and #$3F
@@ -599,9 +632,9 @@ gm_increment_ptr:
 	sta $01, x
 	rts
 gm_decrement_ptr:
-	lda #0
-	sec
-	sbc $00, x
+	clc
+	lda $00, x
+	sbc #0
 	sta $00, x
 	lda $01, x
 	sbc #0
