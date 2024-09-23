@@ -44,7 +44,7 @@ nmi_game_trycols:
 	eor gamectrl
 	sta gamectrl
 	jsr h_flush_column
-	jmp nmi_gamemodeend
+	;jmp nmi_gamemodeend
 nmi_game_trypal:
 	lda #gs_flstpal
 	bit gamectrl

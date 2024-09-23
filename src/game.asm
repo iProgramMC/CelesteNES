@@ -156,8 +156,59 @@ h_fls_wrloop:
 	sta ppu_ctrl
 	rts
 
-smalltable:
-	.byte $00, $80, $81, $AB, $AB, $AA, $D1, $C4, $C9
+h_gen_addyoff:
+	pha
+	tya
+	clc
+	adc lvlyoff
+	cmp #$1E
+	bcc :+
+	sec
+	sbc #$1E
+:	tay
+	pla
+	rts
+h_gen_subyoff:
+	pha
+	tya
+	sec
+	sbc lvlyoff
+	bpl :+
+	clc
+	adc #$1E
+:	tay
+	pla
+	rts
+h_gen_addyoffQUART:
+	pha
+	lda lvlyoff
+	lsr
+	lsr
+	sta temp1
+	tya
+	clc
+	adc temp1
+	cmp #8
+	bcc :+
+	sbc #8
+:	tay
+	pla
+	rts
+h_gen_subyoffQUART:
+	pha
+	lda lvlyoff
+	lsr
+	lsr
+	sta temp1
+	tya
+	sec
+	sbc temp1
+	bpl :+
+	clc
+	adc #8
+:	tay
+	pla
+	rts
 
 ; ** SUBROUTINE: h_generate_column
 ; desc:    Generates a vertical column of characters corresponding to the respective
@@ -175,7 +226,9 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	jsr h_get_tile
 	tax
 	lda metatiles, x
+	jsr h_gen_addyoff
 	sta tempcol, y
+	jsr h_gen_subyoff
 	inx
 	iny
 	cpy #$1E
@@ -207,7 +260,9 @@ h_pal_wrloop:
 	jsr gm_decrement_ptr
 	lda #0
 h_pal_noFF:
+	jsr h_gen_addyoffQUART
 	sta temppal,y
+	jsr h_gen_subyoffQUART
 	iny
 	cpy #8
 	bne h_pal_wrloop
@@ -280,8 +335,6 @@ h_genertiles_lvlend:
 	sta gamectrl
 	lda ntwrhead
 	sta trntwrhead
-	lda arwrhead
-	sta trarwrhead
 	lda #0                ; just store 0 as the tile
 	jmp h_gentlsnocheck
 
@@ -1639,15 +1692,23 @@ gm_leave_doframe:
 	jsr ppu_nmi_off	
 	jmp com_clear_oam
 
+cspeed = 8
+
 gm_leaveroomR:
 	lda #$F0
 	sta player_x
 	; now leave the room through the right side
+	ldy warp_r_y
+	sty transoff
 	ldy warp_r
 	cpy #$FF
 	bne :+
 	rts                      ; no warp was assigned there so return
 :	jsr gm_set_room
+	clc
+	lda transoff
+	adc lvlyoff
+	sta lvlyoff
 	lda gamectrl             ; clear the camera stop bits
 	and #((gs_scrstop|gs_scrstopd)^$FF)
 	;ora #gs_deferpal
@@ -1668,34 +1729,78 @@ gm_roomRtranloopI:
 	ldy transtimer
 	dey
 	bne gm_roomRtranloopI
-	ldy #64
+	ldy #32
 gm_roomRtranloop:
 	sty transtimer
 	sec
 	lda player_x
-	sbc #4
+	sbc #cspeed
 	bcs :+
 	lda #0
-:	sta player_x             ; move the player left by 4 pixels per transition
+:	sta player_x             ; move the player left by cspeed pixels per transition
 	clc
 	lda camera_x
-	adc #4                   ; add 4 to the camera X
+	adc #cspeed              ; add cspeed to the camera X
 	sta camera_x
 	lda camera_x_hi
 	adc #0
 	and #1
 	sta camera_x_hi
-	lda camera_x
-	and #%00000100
+	
+	lda transoff
+	ror
+	ror
+	ror
+	ror                      ; lvlyoff: 11100000
+	and #%11100000
+	sta trantmp1
+	lda transoff
+	lsr
+	lsr
+	lsr                      ; lvlyoff: 00011111
+	sta trantmp2
+	lda #%11110000
+	bit trantmp2
 	beq :+
-	jsr h_generate_column
-:	jsr gm_leave_doframe
+	ora trantmp2
+	sta trantmp2
+:	clc
+	lda trantmp3
+	adc trantmp1
+	sta trantmp3
+	lda camera_y
+	adc trantmp2
+	sta camera_y
+	
+	sec
+	lda player_sp_y
+	sbc trantmp1
+	sta player_sp_y
+	lda player_y
+	sbc trantmp2
+	sta player_y
+	
+	lda #cspeed
+	adc camera_rev
+	sta camera_rev
+	cmp #8
+	bcs gm_tranR_gener
+gm_tranR_gener_back:
+	jsr gm_leave_doframe
 	ldy transtimer
 	dey
 	bne gm_roomRtranloop
 	lda #0
 	sta dashcount            ; reset some things on room transition
 	rts
+
+gm_tranR_gener:
+	jsr h_generate_column
+	lda camera_rev
+	sec
+	sbc #8
+	sta camera_rev
+	jmp gm_tranR_gener_back
 
 gm_leaveroomR_:
 	jmp gm_leaveroomR

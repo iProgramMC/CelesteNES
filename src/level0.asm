@@ -76,7 +76,7 @@ level0_r1:
 	.byte 1, 0, 12
 	.byte 1, 0
 	.byte 255, 255, 255, 2
-	.byte 255, 255, 255, 255
+	.byte 255, 255, 255, 0
 	.byte 0
 	.word level0_r1_t
 	.word level0_r1_p
@@ -157,7 +157,7 @@ level0_r2:
 	.byte 1, 0, 12
 	.byte 1, 0
 	.byte 255, 255, 255, 0
-	.byte 255, 255, 255, 255
+	.byte 255, 255, 255, 0
 	.byte 0
 	.word level0_r2_t
 	.word level0_r2_p

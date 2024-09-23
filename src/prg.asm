@@ -253,7 +253,7 @@ jumpcoyote  = $004F ; jump coyote time, if not zero, player may jump
 wjumpcoyote = $0050 ; wall jump coyote time
 player_yo   = $0051 ; player Y old. used for spike collision
 player_xo   = $0052 ; player Y old. used for horizontal spike collision
-; $0053 spare
+transoff    = $0053
 lvladdr     = $0054 ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   = $0055
 palrdheadlo = $0056 ; palette read head
@@ -261,10 +261,13 @@ palrdheadhi = $0057
 camlimit    = $0058
 camlimithi  = $0059
 transtimer  = $005A
-trntwrhead  = $005B
-trarwrhead  = $005C
+trantmp3    = $005B
+trntwrhead  = $005C
 scrchklo    = $005D ; temporaries used for scroll checking
 scrchkhi    = $005E
+lvlyoff     = $005F ; level Y offset when writing name table data
+trantmp1    = $0060 ; temporaries used for transitioning
+trantmp2    = $0061
 
 ; large areas reserved by the game
 sprspace    = $0500 ; 256 bytes
