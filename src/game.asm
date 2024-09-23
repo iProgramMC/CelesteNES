@@ -1374,125 +1374,31 @@ gc_ceil  = $01
 gc_left  = $02
 gc_right = $03
 gm_collide:
-	jsr h_get_tile
-	rts
+	pha                 ; store the collision direction
+	jsr h_get_tile      ; get the tile
+	tax
+	lda metatile_info,x ; get collision information
+	asl
+	tax
+	lda gm_colljumptable,x
+	sta temp3
+	inx
+	lda gm_colljumptable,x
+	sta temp4
+	pla
+	jmp (temp3)         ; use temp3 as an indirect jump pointer
 
 ; Arguments for these jump table subroutines:
 ; * A - The direction of collision
 gm_colljumptable:
 	.word gm_collidenone
 	.word gm_collidefull
-	;.word gm_collidespikes
-	;.word gm_collidejthru
-	.word gm_collidelohalf
-	.word gm_collidehihalf
-
-gm_collidehifull:
-	lda #1
-	rts
-gm_collidehinone:
-	lda #0
-	rts
-gm_collidehihalf:
-	pha
-	tya               ; Y coordinate of tile is still in the Y register
-	asl
-	asl
-	asl
-	asl
-	sta temp5         ; temp5 will be the top Y coord of the tile
-	adc #$10
-	sta temp6         ; temp6 will be the bottom Y coord of the tile.
-	pla
-	cmp #gc_floor
-	beq gm_collidehifull
-	cmp #gc_ceil
-	beq gm_collidehihalfV
-	clc               ; calculate the LOWER position
-	lda player_y
-	adc #14
-	cmp temp5
-	bcc gm_collidehihalf1; (player_y + 14) < tile_upper_y. skip this side
-	cmp temp6
-	bcs gm_collidehihalf3; (player_y + 14) > tile_lower_y. skip this side.
-	and #$F
-	cmp #8
-	bcc gm_collidehifull
-gm_collidehihalf1:
-	lda player_y      ; n.b. carry clear here
-	adc #(16-plrheight)
-	cmp temp5
-	bcc gm_collidehinone; (player_y + 6) < tile_upper_y. skip this side.
-	cmp temp6
-	bcs gm_collidehinone; (player_y + 6) > tile_lower_y. skip this side.
-	and #$F
-	cmp #8
-	bcc gm_collidehifull
-	jmp gm_collidehinone
-gm_collidehihalf3:
-	clc
-	bcc gm_collidehihalf1; actually unconditional because we cleared carry
-	jmp gm_collidehinone
-	
-gm_collidehihalfV:
-	lda player_y
-	clc
-	adc #(16-plrheight)
-	and #$F
-	cmp #8
-	bcs gm_collidenone
-	jmp gm_collidefull
-
-gm_collidelohalf:
-	pha
-	tya               ; Y coordinate of tile is still in the Y register
-	asl
-	asl
-	asl
-	asl
-	sta temp5         ; temp5 will be the top Y coord of the tile
-	adc #$10
-	sta temp6         ; temp6 will be the bottom Y coord of the tile.
-	pla
-	cmp #gc_ceil
-	beq gm_collidefull
-	cmp #gc_floor
-	beq gm_collidelohalfV
-	clc               ; calculate the LOWER position
-	lda player_y
-	adc #14
-	cmp temp5
-	bcc gm_collidelohalf1; (player_y + 14) < tile_upper_y. skip this side
-	cmp temp6
-	bcs gm_collidelohalf3; (player_y + 14) > tile_lower_y. skip this side
-	and #$F
-	cmp #8
-	bcs gm_collidefull
-gm_collidelohalf1:
-	lda player_y      ; n.b. carry clear here
-	adc #(16-plrheight)
-	cmp temp5
-	bcc gm_collidenone; (player_y + 6) < tile_upper_y. skip this side
-	cmp temp6
-	bcs gm_collidenone; (player_y + 6) > tile_lower_y. skip this side
-	and #$F
-	cmp #8
-	bcs gm_collidefull
-	jmp gm_collidenone
-gm_collidelohalf3:
-	clc
-	bcc gm_collidelohalf1; actually unconditional because we cleared carry
-gm_collidelohalfV:
-	lda player_y
-	and #$F
-	cmp #8
-	bcc gm_collidenone
-	; intentional fallthru to gm_collidefull
+	.word gm_collidespikes
+	.word gm_collidejthru
 
 gm_collidefull:
 	lda #1
 	rts
-	
 gm_collidejthru:
 	tax
 	lda player_vl_y
@@ -1500,7 +1406,6 @@ gm_collidejthru:
 	cpx #gc_floor
 	bne gm_collidenone; no collision for anything but the floor
 	tya               ; the tile's Y position now in A
-	asl
 	asl
 	asl
 	asl               ; it's a pixel position now
@@ -1540,10 +1445,10 @@ gm_collidespikes:
 	cpx #gc_floor
 	bne gm_collidespkw
 	clc
-	lda player_yo     ; get the player old Y position, MOD 16. the bottom pixel's
-	and #$F           ; position is exactly the same as the player old Y position mod 16
+	lda player_yo     ; get the player old Y position, MOD 8. the bottom pixel's
+	and #$7           ; position is exactly the same as the player old Y position mod 8
 	adc player_vl_y   ; add the Y velocity that was added to get to player_y.
-	cmp #$E           ; a spike's hit box is like 2 px tall
+	cmp #$6           ; a spike's hit box is like 2 px tall
 	bcs gm_killplayer
 gm_collideno:
 	lda #0            ; clear the zero flag
