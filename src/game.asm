@@ -189,6 +189,13 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	cmp #$03
 	beq :+
 	rts
+:	lda #gs_deferpal          ; if we need to defer palette load, do it
+	bit gamectrl
+	beq :+
+	lda gamectrl
+	eor #gs_deferpal
+	sta gamectrl
+	rts
 :	ldy #0                    ; start reading palette data.
 h_pal_wrloop:
 	jsr gm_read_pal
@@ -261,7 +268,7 @@ h_genertiles_lvlend:
 	rol
 	rol                   ; rotate that ANDed bit back to bit 0
 	and #1
-	eor #1                ; subtract 256 from the limit
+	eor #1            ; subtract 256 from it
 	sta camlimithi
 	lda arwrhead
 	asl
@@ -271,13 +278,21 @@ h_genertiles_lvlend:
 	lda #gs_scrstop
 	ora gamectrl
 	sta gamectrl
+	lda ntwrhead
+	sta trntwrhead
+	lda arwrhead
+	sta trarwrhead
 	lda #0                ; just store 0 as the tile
 	jmp h_gentlsnocheck
 
 ; ** SUBROUTINE: h_generate_metatiles
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_generate_metatiles:
-	ldy #0
+	lda #gs_scrstop
+	bit gamectrl
+	beq :+
+	rts
+:	ldy #0
 h_genertiles_loop:
 	jsr gm_read_tile
 	cmp #$FF              ; if data == 0xFF, then decrement the pointer
@@ -464,6 +479,7 @@ gm_fetch_room_loop:
 gm_set_level_1:
 	ldx #0
 	; fallthru
+
 ; ** SUBROUTINE: gm_set_level
 ; args: X - level number
 ; assumes: vblank is off and you're loading a new level
@@ -474,8 +490,17 @@ gm_set_level:
 	tax
 	jsr gm_set_level_ptr
 	ldy #2
+	; fallthru
+
+; ** SUBROUTINE: gm_set_room
+; args: Y - room number
+; assumes: you're loading a new level
+gm_set_room:
+	iny
+	iny
 	jsr gm_fetch_room
 	rts
+
 
 ; ** SUBROUTINE: gm_draw_2xsprite
 ; arguments: x - offset into zero page with sprite structure
@@ -1607,12 +1632,71 @@ gm_snaptofloor:
 gm_sfloordone:
 	rts
 
+gm_leave_doframe:
+	jsr gm_draw_player
+	jsr ppu_nmi_on
+	jsr vblank_wait
+	jsr ppu_nmi_off	
+	jmp com_clear_oam
+
 gm_leaveroomR:
 	lda #$F0
 	sta player_x
-	
-	; leave the room through the right side
+	; now leave the room through the right side
+	ldy warp_r
+	cpy #$FF
+	bne :+
+	rts                      ; no warp was assigned there so return
+:	jsr gm_set_room
+	lda gamectrl             ; clear the camera stop bits
+	and #((gs_scrstop|gs_scrstopd)^$FF)
+	;ora #gs_deferpal
+	sta gamectrl
+	lda camera_x
+	and #%11111100
+	sta camera_x
+	ldx trntwrhead
+	inx
+	stx arwrhead
+	stx ntwrhead
+	jsr h_generate_metatiles
+	ldy #8
+gm_roomRtranloopI:
+	sty transtimer
+	jsr h_generate_column
+	jsr gm_leave_doframe
+	ldy transtimer
+	dey
+	bne gm_roomRtranloopI
+	ldy #64
+gm_roomRtranloop:
+	sty transtimer
+	sec
+	lda player_x
+	sbc #4
+	bcs :+
+	lda #0
+:	sta player_x             ; move the player left by 4 pixels per transition
+	clc
+	lda camera_x
+	adc #4                   ; add 4 to the camera X
+	sta camera_x
+	lda camera_x_hi
+	adc #0
+	and #1
+	sta camera_x_hi
+	lda camera_x
+	and #%00000100
+	beq :+
+	jsr h_generate_column
+:	jsr gm_leave_doframe
+	ldy transtimer
+	dey
+	bne gm_roomRtranloop
 	rts
+
+gm_leaveroomR_:
+	jmp gm_leaveroomR
 
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
@@ -1642,13 +1726,7 @@ gm_applyx:
 	ldy #0                   ; through the left side. we can't let that happen!
 	clc                      ; zero out the player's new position
 gm_nocheckoffs:
-	cmp #$F0
-	bcs gm_leaveroomR        ; try to leave the room
 	sta player_x
-	tya
-	adc player_x_hi
-	and #1
-	sta player_x_hi
 	jsr gm_gettopy
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
@@ -1656,6 +1734,9 @@ gm_nocheckoffs:
 	lda player_vl_x
 	bmi gm_checkleft
 gm_checkright:
+	lda player_x
+	cmp #$F0
+	bcs gm_leaveroomR_       ; try to leave the room
 	jsr gm_getrightx
 	tax
 	stx y_crd_temp           ; note: x_crd_temp is clobbered by gm_collide!
@@ -1780,14 +1861,27 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	lda #gs_scrstop   ; check if we overstepped the camera boundary, if needed
 	bit gamectrl
 	beq gm_scrollnolimit
-	lda camera_x_hi
-	cmp camlimithi
-	beq :+
-	bcs gm_camxlimited; camera_x_hi >= camlimithi
-	jmp gm_scrollnolimit
-:	lda camera_x
-	cmp camlimit
-	bcs gm_camxlimited; camera_x >= camlimit
+	lda camlimit
+	sta scrchklo
+	lda camlimithi
+	sta scrchkhi
+	lda camlimithi    ; check if [camlimithi,camlimit] < [camera_x_hi,camera_x]
+	cmp camera_x_hi
+	bcs :+
+	lda camlimit
+	cmp camera_x
+	bcs :+
+	lda #2            ; note: carry clear here
+	adc scrchkhi
+	sta scrchkhi
+:	sec
+	lda scrchklo
+	sbc camera_x
+	sta scrchklo
+	lda scrchkhi
+	sbc camera_x_hi
+	bmi gm_camxlimited
+	sta scrchkhi
 gm_scrollnolimit:
 	lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
 	sta player_x

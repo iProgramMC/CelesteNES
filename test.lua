@@ -21,11 +21,21 @@ local function wr_2(addr,sz,val)
 	y = y + 10
 end
 
+local function test(addr,sz,val)
+
+	x = memory.readbyte(0x5E) * 256 + memory.readbyte(0x5D)
+	gui.text(0, 0, 'dist: ' .. tostring(x))
+
+end
+
 memory.register(0x80, wr_0)
 memory.register(0x81, wr_1)
 memory.register(0x82, wr_2)
 
+-- memory.register(0x99, wr_99)
+
 while true do
 	y = 0
+	test(0,0,0)
 	emu.frameadvance()
 end

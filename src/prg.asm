@@ -103,6 +103,7 @@ gs_scrstop  = $08   ; the end of level data was reached
 gs_flstcols = $10   ; need to flush generated visual columns
 gs_flstpal  = $20   ; need to flush generated palette columns
 gs_turnon   = $40   ; need to program the PPU mask to turn on rendering
+gs_deferpal = $80   ; defer palette generation
 lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
@@ -259,6 +260,11 @@ palrdheadlo = $0056 ; palette read head
 palrdheadhi = $0057
 camlimit    = $0058
 camlimithi  = $0059
+transtimer  = $005A
+trntwrhead  = $005B
+trarwrhead  = $005C
+scrchklo    = $005D ; temporaries used for scroll checking
+scrchkhi    = $005E
 
 ; large areas reserved by the game
 sprspace    = $0500 ; 256 bytes
