@@ -179,36 +179,6 @@ h_gen_subyoff:
 :	tay
 	pla
 	rts
-h_gen_addyoffQUART:
-	pha
-	lda lvlyoff
-	lsr
-	lsr
-	sta temp1
-	tya
-	clc
-	adc temp1
-	cmp #8
-	bcc :+
-	sbc #8
-:	tay
-	pla
-	rts
-h_gen_subyoffQUART:
-	pha
-	lda lvlyoff
-	lsr
-	lsr
-	sta temp1
-	tya
-	sec
-	sbc temp1
-	bpl :+
-	clc
-	adc #8
-:	tay
-	pla
-	rts
 
 ; ** SUBROUTINE: h_generate_column
 ; desc:    Generates a vertical column of characters corresponding to the respective
@@ -260,9 +230,7 @@ h_pal_wrloop:
 	jsr gm_decrement_ptr
 	lda #0
 h_pal_noFF:
-	jsr h_gen_addyoffQUART
 	sta temppal,y
-	jsr h_gen_subyoffQUART
 	iny
 	cpy #8
 	bne h_pal_wrloop
@@ -1708,6 +1676,7 @@ gm_leaveroomR:
 	clc
 	lda transoff
 	adc lvlyoff
+	and #$1F
 	sta lvlyoff
 	lda gamectrl             ; clear the camera stop bits
 	and #((gs_scrstop|gs_scrstopd)^$FF)
@@ -1750,14 +1719,12 @@ gm_roomRtranloop:
 	lda transoff
 	ror
 	ror
-	ror
-	ror                      ; lvlyoff: 11100000
-	and #%11100000
+	ror                      ; lvlyoff: 11000000
+	and #%11000000
 	sta trantmp1
 	lda transoff
 	lsr
-	lsr
-	lsr                      ; lvlyoff: 00011111
+	lsr                      ; lvlyoff: 00111111
 	sta trantmp2
 	lda #%11110000
 	bit trantmp2
@@ -1771,7 +1738,20 @@ gm_roomRtranloop:
 	lda camera_y
 	adc trantmp2
 	sta camera_y
-	
+	cmp #$F0
+	bcc gm_roomRtrannocap
+	lda trantmp2
+	bpl gm_roomRtranpluscap
+	lda camera_y
+	sbc #$10
+	sta camera_y
+	jmp gm_roomRtrannocap
+gm_roomRtranpluscap:
+	lda camera_y
+	clc
+	adc #$10
+	sta camera_y
+gm_roomRtrannocap:
 	sec
 	lda player_sp_y
 	sbc trantmp1
@@ -1784,8 +1764,8 @@ gm_roomRtranloop:
 	adc camera_rev
 	sta camera_rev
 	cmp #8
-	bcs gm_tranR_gener
-gm_tranR_gener_back:
+	bcs gm_roomRtrangen
+gm_roomRtrangenbk:
 	jsr gm_leave_doframe
 	ldy transtimer
 	dey
@@ -1794,13 +1774,13 @@ gm_tranR_gener_back:
 	sta dashcount            ; reset some things on room transition
 	rts
 
-gm_tranR_gener:
+gm_roomRtrangen:
 	jsr h_generate_column
 	lda camera_rev
 	sec
 	sbc #8
 	sta camera_rev
-	jmp gm_tranR_gener_back
+	jmp gm_roomRtrangenbk
 
 gm_leaveroomR_:
 	jmp gm_leaveroomR
