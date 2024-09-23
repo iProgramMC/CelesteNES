@@ -6,6 +6,7 @@ metatile_palette:
 	.res   4, $1  ; Dirt
 	.res   3, $1 ; Jump Through
 	.byte     $0 ; Spikes
+	.res   4, $3 ; Grass Decals
 
 ; this is only used for the level editor
 ;

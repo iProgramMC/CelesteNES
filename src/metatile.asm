@@ -24,6 +24,7 @@ metatiles:
 	.byte $65,$66,$75,$76 ; Dirt In-corners
 	.byte $D1,$D0,$D2     ; Jump Through
 	.byte $AA             ; Spikes
+	.byte $7E,$7F,$BE,$BF ; Grass Decals
 
 metatile_info:
 	.byte ct_none                ; Air
@@ -32,3 +33,4 @@ metatile_info:
 	.res   4, ct_full            ; Dirt
 	.res   3, ct_jumpthru        ; Jump Through
 	.byte ct_deadly              ; Spikes
+	.res   4, ct_none            ; Grass Decals

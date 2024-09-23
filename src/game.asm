@@ -260,14 +260,14 @@ h_genertiles_loop:
 	jsr gm_decrement_ptr
 	lda #0                ; just store 0
 	jmp :++               ; and jump ahead
-:	cmp #$21              ; if data >= 0x21 && data < 0x40, then this is a "duplicate" tile.
+:	cmp #$A1              ; if data >= 0x21 && data < 0x40, then this is a "duplicate" tile.
 	bcc :+
-	cmp #$40
+	cmp #$C0
 	bcs :+
 	jmp h_genertiles_dup
-:	cmp #$41
+:	cmp #$C1
 	bcc :+
-	cmp #$60
+	cmp #$E0
 	bcs :+
 	jmp h_genertiles_dupair
 :	ldx arwrhead
