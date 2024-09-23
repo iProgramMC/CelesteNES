@@ -165,7 +165,11 @@ smalltable:
 ;          the palette if necessary.
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
 h_generate_column:
-	ldy #0                    ; start writing tiles.
+	lda #gs_scrstop
+	bit gamectrl
+	beq :+
+	rts
+:	ldy #0                    ; start writing tiles.
 h_gen_wrloop:                 ; each iteration will write 1 character tile for one metatile.
 	ldx ntwrhead
 	jsr h_get_tile
@@ -248,6 +252,28 @@ h_genertiles_dupair:
 	bne :-
 	jmp h_genertiles_cont
 
+h_genertiles_lvlend:
+	ldx #<arrdheadlo
+	jsr gm_decrement_ptr  ; calculates [camlimithi,camlimit] = arwrhead << 3
+	lda arwrhead          ; arwrhead: 0-63
+	rol
+	rol
+	rol
+	rol                   ; rotate that ANDed bit back to bit 0
+	and #1
+	eor #1                ; subtract 256 from the limit
+	sta camlimithi
+	lda arwrhead
+	asl
+	asl
+	asl
+	sta camlimit
+	lda #gs_scrstop
+	ora gamectrl
+	sta gamectrl
+	lda #0                ; just store 0 as the tile
+	jmp h_gentlsnocheck
+
 ; ** SUBROUTINE: h_generate_metatiles
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_generate_metatiles:
@@ -255,17 +281,14 @@ h_generate_metatiles:
 h_genertiles_loop:
 	jsr gm_read_tile
 	cmp #$FF              ; if data == 0xFF, then decrement the pointer
-	bne :+
-	ldx #<arrdheadlo
-	jsr gm_decrement_ptr
-	lda #0                ; just store 0
-	jmp :++               ; and jump ahead
-:	cmp #$A1              ; if data >= 0x21 && data < 0x40, then this is a "duplicate" tile.
-	bcc :+
+	beq h_genertiles_lvlend
+	cmp #$A1              ; if data >= 0x21 && data < 0x40, then this is a "duplicate" tile.
+	bcc h_gentlsnocheck
 	cmp #$C0
-	bcs :+
+	bcs h_gentlsnocheck
 	jmp h_genertiles_dup
-:	cmp #$C1
+h_gentlsnocheck:
+	cmp #$C1
 	bcc :+
 	cmp #$E0
 	bcs :+
@@ -1583,8 +1606,14 @@ gm_snaptofloor:
 	sta dashcount
 gm_sfloordone:
 	rts
+
+gm_leaveroomR:
+	lda #$F0
+	sta player_x
 	
-	
+	; leave the room through the right side
+	rts
+
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
 gm_applyx:
@@ -1613,6 +1642,8 @@ gm_applyx:
 	ldy #0                   ; through the left side. we can't let that happen!
 	clc                      ; zero out the player's new position
 gm_nocheckoffs:
+	cmp #$F0
+	bcs gm_leaveroomR        ; try to leave the room
 	sta player_x
 	tya
 	adc player_x_hi
@@ -1727,9 +1758,6 @@ gm_setwcoyoteL:
 
 ; ** SUBROUTINE: gm_scroll_if_needed
 gm_scroll_if_needed:
-	lda #gs_scrstopd
-	bit gamectrl
-	bne gm_scroll_ret
 	lda player_x
 	cmp #scrolllimit
 	bcc gm_scroll_ret ; A < scrolllimit
@@ -1749,6 +1777,18 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	adc camera_x_hi
 	and #1
 	sta camera_x_hi
+	lda #gs_scrstop   ; check if we overstepped the camera boundary, if needed
+	bit gamectrl
+	beq gm_scrollnolimit
+	lda camera_x_hi
+	cmp camlimithi
+	beq :+
+	bcs gm_camxlimited; camera_x_hi >= camlimithi
+	jmp gm_scrollnolimit
+:	lda camera_x
+	cmp camlimit
+	bcs gm_camxlimited; camera_x >= camlimit
+gm_scrollnolimit:
 	lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
 	sta player_x
 	txa               ; restore the delta to add to camera_rev
@@ -1764,6 +1804,17 @@ gm_go_generate:
 	sbc #8
 	sta camera_rev
 	jmp h_generate_column
+gm_camxlimited:
+	lda camlimithi
+	sta camera_x_hi
+	lda camlimit
+	sta camera_x
+	lda #gs_scrstopd
+	bit gamectrl
+	bne :+
+	ora gamectrl
+	sta gamectrl
+:	rts
 
 gm_dash_lock:
 	ldx #0

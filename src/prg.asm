@@ -257,6 +257,8 @@ lvladdr     = $0054 ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   = $0055
 palrdheadlo = $0056 ; palette read head
 palrdheadhi = $0057
+camlimit    = $0058
+camlimithi  = $0059
 
 ; large areas reserved by the game
 sprspace    = $0500 ; 256 bytes
