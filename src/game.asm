@@ -489,7 +489,7 @@ gm_set_level:
 	ldy level_table, x
 	tax
 	jsr gm_set_level_ptr
-	ldy #2
+	ldy #0
 	; fallthru
 
 ; ** SUBROUTINE: gm_set_room
@@ -1693,6 +1693,8 @@ gm_roomRtranloop:
 	ldy transtimer
 	dey
 	bne gm_roomRtranloop
+	lda #0
+	sta dashcount            ; reset some things on room transition
 	rts
 
 gm_leaveroomR_:
