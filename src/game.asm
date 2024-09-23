@@ -1675,8 +1675,20 @@ gm_leaveroomR:
 :	jsr gm_set_room
 	clc
 	lda transoff
-	adc lvlyoff
-	and #$1F
+	bmi gm_roomRtransneg
+	lda lvlyoff              ; transoff is a positive value.
+	adc transoff
+	cmp #$1E
+	bcc gm_roomRtransdone
+	sbc #$1E                 ; carry set, means it's >= 28
+	jmp gm_roomRtransdone
+gm_roomRtransneg:
+	lda lvlyoff              ; transoff is a negative value.
+	adc transoff
+	bcs gm_roomRtransdone
+	adc #$1E                 ; carry clear, means it went into the negatives
+	jmp gm_roomRtransdone
+gm_roomRtransdone:
 	sta lvlyoff
 	lda gamectrl             ; clear the camera stop bits
 	and #((gs_scrstop|gs_scrstopd)^$FF)
@@ -1719,16 +1731,14 @@ gm_roomRtranloop:
 	lda transoff
 	ror
 	ror
-	ror
-	ror                      ; lvlyoff: 11100000
-	and #%11100000
+	ror                      ; lvlyoff: 11000000
+	and #%11000000
 	sta trantmp1
 	lda transoff
 	lsr
-	lsr
-	lsr                      ; lvlyoff: 00011111
+	lsr                      ; lvlyoff: 00111111
 	sta trantmp2
-	lda #%11110000
+	lda #%11100000
 	bit trantmp2
 	beq :+
 	ora trantmp2
@@ -1774,6 +1784,11 @@ gm_roomRtrangenbk:
 	bne gm_roomRtranloop
 	lda #0
 	sta dashcount            ; reset some things on room transition
+	lda lvlyoff
+	asl
+	asl
+	asl
+	sta camera_y
 	rts
 
 gm_roomRtrangen:
