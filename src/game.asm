@@ -1719,12 +1719,14 @@ gm_roomRtranloop:
 	lda transoff
 	ror
 	ror
-	ror                      ; lvlyoff: 11000000
-	and #%11000000
+	ror
+	ror                      ; lvlyoff: 11100000
+	and #%11100000
 	sta trantmp1
 	lda transoff
 	lsr
-	lsr                      ; lvlyoff: 00111111
+	lsr
+	lsr                      ; lvlyoff: 00011111
 	sta trantmp2
 	lda #%11110000
 	bit trantmp2
