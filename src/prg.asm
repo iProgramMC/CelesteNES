@@ -156,13 +156,8 @@ jmphboost   = 170   ; boost applied to the player's jump when running
 wjgrace     = 2     ; walls are checked this many pixels away from the hitbox for a wall jump
 ct_none     = $00   ; no collision
 ct_full     = $01   ; the entire tile has collision
-ct_lowhalf  = $02   ; tile is only collidable on its lower half
-ct_upphalf  = $03   ; tile is only collidable on its higher half
-ct_lfthalf  = $04   ; tile is only collidable on its left half
-ct_rgthalf  = $05   ; tile is only collidable on its right half
-ct_shapemsk = $0F   ; shape mask
-ct_deadly   = $10   ; the tile is UP spike shaped
-ct_jumpthru = $20   ; the tile is a jump through
+ct_deadly   = $02   ; the tile is UP spike shaped
+ct_jumpthru = $03   ; the tile is a jump through
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM

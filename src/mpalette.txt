@@ -1,12 +1,61 @@
 ; note : this file is NOT included for the game! only for my level editor.
 metatile_palette:
-	.byte $00 ; Air
-	.byte $02 ; Snow
-	.byte $01 ; Dirt
-	.byte $00 ; Brick
-	.byte $00 ; Girder Left
-	.byte $00 ; Girder Right
-	.byte $00 ; Spikes
-	.byte $01 ; Jump Through
-	.byte $02 ; Snow Half
-    .byte $02 ; Snow Up Half
+	.byte     $0 ; Air
+	.res  28, $1 ; Dirt
+	.res  27, $2 ; Snow
+	.res   4, $1  ; Dirt
+	.res   3, $1 ; Jump Through
+	.byte     $0 ; Spikes
+
+; this is only used for the level editor
+;
+; NOTE: $XX means CHARACTER id, not METATILE ID. To specify a metatile ID, use #$XX
+;
+; Header: "mmt [MetametatileID],[Name],[CollisionType]"
+;
+; [udlrABCD]|none|all - All the sides that are NOT connected to solids
+; $FF character ID means unspecified, use the default one
+; you can also redirect to a specific label by passing its name
+;
+; Layout for connections
+;    A u B
+;    l X r
+;    C d D
+; where X - current tile.
+;metametatiles:
+;	mmt Air,NonSolid
+;		all: $00
+;	mmt Dirt,Solid
+;		none: $6B,$6C,$6D,$6E,$7B,$7C,$7D
+;		u: $61,$62,$63
+;		d: $71,$72,$73
+;		l: $67,$77,$68,$67
+;		r: $69,$79,$6A,$7A
+;		ul: $60
+;		ur: $64
+;		dl: $70
+;		dr: $74
+;		lr: $FF
+;		lru: $FF
+;		lrd: $FF
+;		lrud: $FF
+;		ud: $FF
+;		udl: $FF
+;		udr: $FF
+;		A: none
+;		B: none
+;		C: none
+;		D: none
+;		AB: none
+;		CD: none
+;		AC: none
+;		BD: none
+;		AD: none
+;		BC: none
+;		BCD: none
+;		ACD: none
+;		ABD: none
+;		ABC: none
+;		ABCD: none
+		
+		

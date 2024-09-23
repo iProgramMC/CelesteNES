@@ -58,59 +58,6 @@ h_set_tile:
 	sta (lvladdr), y
 	rts
 
-; ** SUBROUTINE: h_get_quadrant2
-; desc:    Gets a character sized tile from the tile index stored in A, the name table write head "ntwrhead",
-;          and the Y coordinate stored in the Y register.  The metatile_collision will be used to determine
-;          the shape of the tile.
-; note:    should NOT clobber Y!
-; note:    returns the collision type & shape in the "temp6" register!
-h_get_chartile_draw:
-	tax
-	lda metatile_info, x
-	sta temp6
-	and #ct_shapemsk
-	cmp #ct_none
-	beq h_getct_none
-	cmp #ct_full
-	beq h_getct_full
-	cmp #ct_lfthalf
-	beq h_getct_lh
-	cmp #ct_rgthalf
-	beq h_getct_rh
-	cmp #ct_lowhalf
-	beq h_getct_dh
-	tya    ; any other shape (upphalf, jumpthru)
-	and #1
-	eor #1 ; return (y & 1) == 0
-	rts
-h_getct_none:
-	lda #0
-	rts
-h_getct_full:
-	lda #1
-	rts
-h_getct_lh:
-	lda ntwrhead
-	and #1
-	eor #1 ; return (ntwrhead & 1) == 0
-	rts
-h_getct_rh:
-	lda ntwrhead
-	and #1 ; return (ntwrhead & 1) == 1
-	rts
-h_getct_dh:
-	tya
-	and #1 ; return (y & 1) == 1
-	rts
-
-; ** SUBROUTINE: h_get_quadrant
-; desc:     Gets a character sized tile from the tile coordinates in regs X and Y. These match up to screen
-;           character indices. Ranges: X in [0, 64), Y in [0, 32)
-; clobbers: A (X and Y are saved)
-h_get_quadrant:
-	jmp h_get_tile      ; fetch the tile number
-	rts
-
 ; ** SUBROUTINE: h_flush_palette_init
 ; desc:    Flushes a generated palette column in temppal to the screen if gs_flstpal is set
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
@@ -238,7 +185,7 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	cmp #$03
 	beq :+
 	rts
-:	ldy #0                    ; start writing palette data.
+:	ldy #0                    ; start reading palette data.
 h_pal_wrloop:
 	jsr gm_read_pal
 	cmp #$FE
@@ -262,7 +209,7 @@ h_pal_haveFE:
 ; $FE - Re-use the same palette data as the previous column
 ; $FF - End of palette data
 
-; ** SUBROUTINE: h_genertiles_dup
+; ** FEATURE: h_genertiles_dup
 ; desc:    Generates a column of metatiles from 2 bytes.
 ; args:    A - the dup data, Y - the Y position to start placing at
 ;
@@ -284,6 +231,23 @@ h_genertiles_dup:
 	bne :-
 	jmp h_genertiles_cont
 
+; ** FEATURE: h_genertiles_dupair
+; desc:    Like h_genertiles_dup but only generates air.
+h_genertiles_dupair:
+	and #%00011111
+	sta temp1
+	tya
+	clc
+	adc temp1
+	sta temp1
+	ldx arwrhead
+:	lda #0
+	jsr h_set_tile
+	iny
+	cpy temp1
+	bne :-
+	jmp h_genertiles_cont
+
 ; ** SUBROUTINE: h_generate_metatiles
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_generate_metatiles:
@@ -301,6 +265,11 @@ h_genertiles_loop:
 	cmp #$40
 	bcs :+
 	jmp h_genertiles_dup
+:	cmp #$41
+	bcc :+
+	cmp #$60
+	bcs :+
+	jmp h_genertiles_dupair
 :	ldx arwrhead
 	jsr h_set_tile
 	iny
@@ -1405,10 +1374,7 @@ gc_ceil  = $01
 gc_left  = $02
 gc_right = $03
 gm_collide:
-	;pha                  ; push the collision direction
-	jsr h_get_quadrant
-	cmp #0            
-	;pla
+	jsr h_get_tile
 	rts
 
 ; Arguments for these jump table subroutines:
