@@ -58,19 +58,19 @@ h_set_tile:
 	sta (lvladdr), y
 	rts
 
-; ** SUBROUTINE: h_flush_palette_init
-; desc:    Flushes a generated palette column in temppal to the screen if gs_flstpal is set
+; ** SUBROUTINE: h_flush_pal_r_cond
+; desc:    Flushes a generated palette column in temppal to the screen if gs_flstpalR is set
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
-h_flush_palette_init:
-	lda #gs_flstpal
+h_flush_pal_r_cond:
+	lda #gs_flstpalR
 	bit gamectrl
-	bne h_flush_palette
+	bne h_flush_pal_r
 	rts
 
-; ** SUBROUTINE: h_flush_palette
+; ** SUBROUTINE: h_flush_pal_r
 ; desc:    Flushes a generated palette column in temppal to the screen
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
-h_flush_palette:
+h_flush_pal_r:
 	lda #7
 	sta debug
 	clc
@@ -114,10 +114,10 @@ h_flupal_loop:
 	sta debug
 	rts
 
-; ** SUBROUTINE: h_flush_column
+; ** SUBROUTINE: h_flush_col_r
 ; desc:    Flushes a generated column in tempcol to the screen
 ; assumes: we're in vblank or rendering is disabled
-h_flush_column:
+h_flush_col_r:
 	lda #5
 	sta debug
 	
@@ -191,15 +191,15 @@ h_gen_subyoff:
 	pla
 	rts
 
-; ** SUBROUTINE: h_generate_column
+; ** SUBROUTINE: h_gener_col_r
 ; desc:    Generates a vertical column of characters corresponding to the respective
-;          metatiles in area space.  Also generates the next column of tiles and
-;          the palette if necessary.
+;          metatiles in area space, on the right side of the scroll seam.  Also
+;          generates the next column of tiles and the palette if necessary.
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
-h_generate_column:
+h_gener_col_r:
 	lda #4
 	sta debug
-	lda #gs_scrstop
+	lda #gs_scrstopR
 	bit gamectrl
 	beq :+
 	rts
@@ -226,21 +226,14 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	cpy #$1E
 	bne h_gen_wrloop
 
-	lda #gs_flstcols          ; set the gamectrl gs_flstcols flag
+	lda #gs_flstcolR          ; set the gamectrl gs_flstcolR flag
 	ora gamectrl
 	sta gamectrl
-	jsr h_generate_metatiles  ; generate a new column of meta-tiles
+	jsr h_gener_mts_r         ; generate a new column of meta-tiles
 	lda ntwrhead              ; check if we're writing the 3rd odd column
 	and #$03
 	cmp #$03
 	beq :+
-	rts
-:	lda #gs_deferpal          ; if we need to defer palette load, do it
-	bit gamectrl
-	beq :+
-	lda gamectrl
-	eor #gs_deferpal
-	sta gamectrl
 	rts
 :	ldy #0                    ; start reading palette data.
 h_pal_wrloop:
@@ -262,7 +255,7 @@ h_pal_noFF:
 	cpy #8
 	bne h_pal_wrloop
 h_pal_haveFE:
-	lda #gs_flstpal
+	lda #gs_flstpalR
 	ora gamectrl
 	sta gamectrl
 	rts
@@ -328,7 +321,7 @@ h_genertiles_lvlend:
 	asl
 	asl
 	sta camlimit
-	lda #gs_scrstop
+	lda #gs_scrstopR
 	ora gamectrl
 	sta gamectrl
 	lda ntwrhead
@@ -336,10 +329,10 @@ h_genertiles_lvlend:
 	lda #0                ; just store 0 as the tile
 	jmp h_gentlsnocheck
 
-; ** SUBROUTINE: h_generate_metatiles
+; ** SUBROUTINE: h_gener_mts_r
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
-h_generate_metatiles:
-	lda #gs_scrstop
+h_gener_mts_r:
+	lda #gs_scrstopR
 	bit gamectrl
 	beq :+
 	rts
@@ -1730,7 +1723,7 @@ gm_roomRtransneg:
 gm_roomRtransdone:
 	sta lvlyoff
 	lda gamectrl             ; clear the camera stop bits
-	and #((gs_scrstop|gs_scrstopd)^$FF)
+	and #((gs_scrstopR|gs_scrstodR)^$FF)
 	;ora #gs_deferpal
 	sta gamectrl
 	lda camera_x
@@ -1740,11 +1733,11 @@ gm_roomRtransdone:
 	inx
 	stx arwrhead
 	stx ntwrhead
-	jsr h_generate_metatiles
+	jsr h_gener_mts_r
 	ldy #8
 gm_roomRtranloopI:
 	sty transtimer
-	jsr h_generate_column
+	jsr h_gener_col_r
 	jsr gm_leave_doframe
 	ldy transtimer
 	dey
@@ -1831,7 +1824,7 @@ gm_roomRtrangenbk:
 	rts
 
 gm_roomRtrangen:
-	jsr h_generate_column
+	jsr h_gener_col_r
 	lda camera_rev
 	sec
 	sbc #8
@@ -1943,7 +1936,7 @@ gm_collleft:
 	jmp gm_checkleft
 gm_checkdone:
 	lda player_vl_x
-	bpl gm_scroll_if_needed  ; if moving positively, scroll if needed
+	bpl gm_scroll_r_cond    ; if moving positively, scroll if needed
 	rts
 
 ; ** SUBROUTINE: gm_checkwjump
@@ -1980,8 +1973,8 @@ gm_setwcoyoteL:
 	sta playerctrl           ; set that a wall was found on the LEFT side
 	jmp gm_setwcoyote
 
-; ** SUBROUTINE: gm_scroll_if_needed
-gm_scroll_if_needed:
+; ** SUBROUTINE: gm_scroll_r_cond
+gm_scroll_r_cond:
 	lda player_x
 	cmp #scrolllimit
 	bcc gm_scroll_ret ; A < scrolllimit
@@ -2001,7 +1994,7 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	adc camera_x_hi
 	and #1
 	sta camera_x_hi
-	lda #gs_scrstop   ; check if we overstepped the camera boundary, if needed
+	lda #gs_scrstopR  ; check if we overstepped the camera boundary, if needed
 	bit gamectrl
 	beq gm_scrollnolimit
 	lda camlimit
@@ -2040,13 +2033,13 @@ gm_go_generate:
 	sec
 	sbc #8
 	sta camera_rev
-	jmp h_generate_column
+	jmp h_gener_col_r
 gm_camxlimited:
 	lda camlimithi
 	sta camera_x_hi
 	lda camlimit
 	sta camera_x
-	lda #gs_scrstopd
+	lda #gs_scrstodR
 	bit gamectrl
 	bne :+
 	ora gamectrl
@@ -2214,14 +2207,14 @@ gm_game_clear:
 	ldy init_palette - lastpage
 	jsr load_palette  ; load game palette into palette RAM
 	jsr gm_set_level_1
-	jsr h_generate_metatiles
+	jsr h_gener_mts_r
 	ldy #$00          ; generate tilesahead columns
 loop2:
 	tya
 	pha
-	jsr h_generate_column
-	jsr h_flush_column
-	jsr h_flush_palette_init
+	jsr h_gener_col_r
+	jsr h_flush_col_r
+	jsr h_flush_pal_r_cond
 	pla
 	tay
 	iny

@@ -37,22 +37,22 @@ nmi_game:
 	lda #def_ppu_msk
 	sta ppu_mask
 nmi_game_trycols:
-	lda #gs_flstcols
+	lda #gs_flstcolR
 	bit gamectrl
 	beq nmi_game_trypal
-	lda #gs_flstcols
+	lda #gs_flstcolR
 	eor gamectrl
 	sta gamectrl
-	jsr h_flush_column
+	jsr h_flush_col_r
 	;jmp nmi_gamemodeend
 nmi_game_trypal:
-	lda #gs_flstpal
+	lda #gs_flstpalR
 	bit gamectrl
 	beq nmi_gamemodeend
-	lda #gs_flstpal
+	lda #gs_flstpalR
 	eor gamectrl
 	sta gamectrl
-	jsr h_flush_palette
+	jsr h_flush_pal_r
 	jmp nmi_gamemodeend
 
 nmi:
