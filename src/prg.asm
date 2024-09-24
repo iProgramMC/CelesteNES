@@ -9,8 +9,13 @@ ppu_scroll  = $2005
 ppu_addr    = $2006
 ppu_data    = $2007
 palette_mem = $3F00
+apu_pulse1  = $4000
+apu_pulse2  = $4004
+apu_triang  = $4008
+apu_noise   = $400C
 apu_dmc_cfg = $4010
 apu_oam_dma = $4014
+apu_status  = $4015
 apu_joypad1 = $4016
 apu_joypad2 = $4017
 apu_frctr   = $4017
@@ -276,10 +281,12 @@ scrchkhi    = $005E
 lvlyoff     = $005F ; level Y offset when writing name table data
 trantmp1    = $0060 ; temporaries used for transitioning
 trantmp2    = $0061
-
-audaddrlo   = $00F0
-audaddrhi   = $00F1
-audrdhead   = $00F2
+audaddrlo   = $0062
+audaddrhi   = $0063
+audrdlo     = $0064
+audrdhi     = $0065
+audlock     = $0066 ; lock up the main sequencer for X frames
+audtemp1    = $0067
 
 debug       = $00FD
 nmicount    = $00FE
@@ -603,6 +610,8 @@ reset_clrmem:
 	ldy #(pctl_sprsz | pctl_bgpat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable
 	sty ctl_flags
 	sty ppu_ctrl
+	
+	jsr aud_init
 	
 	ldy #gm_title
 	;ldy #gm_game
