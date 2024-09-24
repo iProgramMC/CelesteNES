@@ -81,14 +81,14 @@ nmi_gamemodeend:
 	ldx camera_x_hi
 	beq nmi_nocamhi
 	lda ctl_flags
-	ora #ctl_highx
+	ora #pctl_highx
 	jmp nmi_camhid
 nmi_nocamhi:
 	lda ctl_flags
-	and #(ctl_highx ^ %11111111)  ; can't do "and #~ctl_highy" for some reason!
+	and #(pctl_highx ^ %11111111)  ; can't do "and #~ctl_highy" for some reason!
 nmi_camhid:
 	sta ctl_flags
-	jsr ppu_nmi_on
+	sta ppu_ctrl
 	
 	;jsr ppu_rstaddr
 	
@@ -99,6 +99,8 @@ nmi_camhid:
 	
 	lda #10
 	sta debug
+	
+	jsr aud_run
 	
 	pla
 	tay

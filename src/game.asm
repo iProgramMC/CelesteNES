@@ -116,12 +116,16 @@ h_flupal_loop:
 
 ; ** SUBROUTINE: h_flush_column
 ; desc:    Flushes a generated column in tempcol to the screen
-; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
+; assumes: we're in vblank or rendering is disabled
 h_flush_column:
 	lda #5
 	sta debug
-	lda #ctl_irq_i32
+	
+	; set the increment to 32 in PPUCTRL
+	lda ctl_flags
+	ora #pctl_adv32
 	sta ppu_ctrl
+	
 	; the PPU address we want to start writing to is
 	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32)
 	lda ntwrhead
@@ -155,10 +159,10 @@ h_fls_wrloop:
 	and #$3F
 	sta ntwrhead
 	
-	; set the PPUCTRL increment back to 1
+	; restore the old PPUCTRL
 	lda ctl_flags
-	ora #ctl_irq_off
 	sta ppu_ctrl
+	
 	lda #6
 	sta debug
 	rts

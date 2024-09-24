@@ -83,11 +83,12 @@ obj_flipvt  = $80   ; flip vertically
 obj_backgd  = $20   ; behind background
 leveldata   = $C000
 lastpage    = $FF00
-ctl_irq_off = %00110000 ; PPUCTRL with IRQs off
-ctl_irq_on  = %10110000 ; PPUCTRL with IRQs on
-ctl_irq_i32 = %00110100 ; PPUCTRL with IRQs off and 32 byte address advance when writing
-ctl_highx   = %00000001 ; +256 to screen scroll
-ctl_highy   = %00000010 ; +240 to screen scroll
+pctl_nmi_on = %10000000
+pctl_adv32  = %00000100
+pctl_sprsz  = %00100000
+pctl_bgpat  = %00010000
+pctl_highx  = %00000001 ; +256 to screen scroll
+pctl_highy  = %00000010 ; +240 to screen scroll
 def_ppu_msk = %00011110
 gm_game     = $00   ; Game Modes
 gm_title    = $01
@@ -276,8 +277,12 @@ lvlyoff     = $005F ; level Y offset when writing name table data
 trantmp1    = $0060 ; temporaries used for transitioning
 trantmp2    = $0061
 
-debug       = $00FA
-nmicount    = $00FB
+audaddrlo   = $00F0
+audaddrhi   = $00F1
+audrdhead   = $00F2
+
+debug       = $00FD
+nmicount    = $00FE
 
 ; large areas reserved by the game
 sprspace    = $0500 ; 256 bytes
@@ -458,7 +463,9 @@ load_palette_loop:
 ; clobbers: A
 ppu_nmi_off:
 	lda ctl_flags
-	ora #ctl_irq_off
+	and #(pctl_nmi_on ^ $FF)
+	sta ctl_flags
+	
 	sta ppu_ctrl
 	rts
 
@@ -467,7 +474,9 @@ ppu_nmi_off:
 ; clobbers: A
 ppu_nmi_on:
 	lda ctl_flags
-	ora #ctl_irq_on
+	ora #pctl_nmi_on
+	sta ctl_flags
+	
 	sta ppu_ctrl
 	rts
 
@@ -591,7 +600,8 @@ reset_clrmem:
 	
 	ldy #def_ppu_msk ; show background & sprites
 	sty ppu_mask     ; set the ppu mask
-	ldy #ctl_irq_on  ; set sprite size (8x16) and NMI enable
+	ldy #(pctl_sprsz | pctl_bgpat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable
+	sty ctl_flags
 	sty ppu_ctrl
 	
 	ldy #gm_title
@@ -613,6 +623,7 @@ main_loop:
 	jmp main_loop
 
 .include "update.asm"
+.include "audio.asm"
 
 .res leveldata - *, $FF
 .include "levels.asm"
