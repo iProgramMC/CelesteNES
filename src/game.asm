@@ -116,7 +116,7 @@ h_flupal_loop:
 h_flush_column:
 	lda #ctl_irq_i32
 	sta ppu_ctrl
-
+	inc $F9
 	; the PPU address we want to start writing to is
 	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32)
 	lda ntwrhead
@@ -510,7 +510,11 @@ gm_set_level:
 	ldy level_table, x
 	tax
 	jsr gm_set_level_ptr
+	
 	ldy #0
+	lda (lvlptrlo), y
+	jsr mmc1_selcharbank    ; select the character tile bank specified in the level
+	
 	; fallthru
 
 ; ** SUBROUTINE: gm_set_room

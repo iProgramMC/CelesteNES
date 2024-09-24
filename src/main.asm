@@ -1,8 +1,8 @@
 .segment "INES"
 .byte $4E,$45,$53,$1A
 .byte 2         ; size of prg rom in 16kb units
-.byte 1         ; size of chr rom in 8kb units
-.byte %00000001 ; flags 6 -- horizontal nametable mirroring. TODO: this should be versatile
+.byte 2         ; size of chr rom in 8kb units
+.byte %00010000 ; flags 6 -- switchable nametable mirroring, mapper 1
 .byte %00001000 ; flags 7 -- NES 2.0 header
 .byte %00000000 ; mapper msb / submapper
 .byte %00000000 ; prg-rom / chr-rom size msb
@@ -13,8 +13,12 @@
 .byte %00000000 ; misc ROMs
 .byte %00000000 ; default exp device
 
+; mapper 1 -- MMC1
+
 .segment "PRG"
 .include "prg.asm"
 
 .segment "CHR"
-.incbin  "gfx.chr"
+.incbin  "sprites.chr"
+.incbin  "b_title.chr"
+.incbin  "b_lvl0.chr"

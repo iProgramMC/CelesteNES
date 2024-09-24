@@ -3,10 +3,15 @@ metatile_palette:
 	.byte     $0 ; Air
 	.res  28, $1 ; Dirt
 	.res  27, $2 ; Snow
-	.res   4, $1  ; Dirt
+	.res   4, $1 ; Dirt
 	.res   3, $1 ; Jump Through
 	.byte     $0 ; Spikes
 	.res   4, $3 ; Grass Decals
+	.res  96, $1 ; House Decal 
+	.res  18, $0 ; Bridge
+	.res   2, $1 ; Bridge Pole
+	.res   7, $0 ; Bridge
+	.res   6, $1 ; Bridge Pole
 
 ; this is only used for the level editor
 ;

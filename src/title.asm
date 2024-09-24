@@ -195,6 +195,8 @@ gamemode_title:
 	ora #ts_1stfr
 	ora #ts_turnon
 	sta titlectrl
+	lda #bank_title
+	jsr mmc1_selcharbank ; load the title's character bank
 	jsr vblank_wait
 	
 gamemode_title_update:

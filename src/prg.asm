@@ -68,13 +68,20 @@ plr_hadsh_l = $5C   ; hair dash
 plr_hadsh_r = $5E
 
 ; Constants
+mmc1bk_chr0 = 0     ; X reg in mmc1_selbank
+mmc1bk_chr1 = 1
+mmc1bk_prg  = 2
+bank_spr    = $00   ; default sprite bank
+bank_title  = $01   ; graphics bank used for title screen
+bank_lvl0   = $02   ; graphics bank used for level 0 "prologue"
+bank_lvl1   = $03   ; graphics bank used for level 1 "ruins"
 blank_tile  = $00
 apu_irq_off = $40
 oam_buf_hi  = $07   ; matches the upper bytes of the address of oam_buf
 obj_fliphz  = $40   ; flip horizontally
 obj_flipvt  = $80   ; flip vertically
 obj_backgd  = $20   ; behind background
-leveldata   = $E000
+leveldata   = $C000
 lastpage    = $FF00
 ctl_irq_off = %00110000 ; PPUCTRL with IRQs off
 ctl_irq_on  = %10110000 ; PPUCTRL with IRQs on
@@ -327,6 +334,67 @@ no_feedback:
 	lda rng_state
 	rts
 
+; ** SUBROUTINE: mmc1_selsprbank
+; arguments:
+;   a - bank offset in 4K blocks
+mmc1_selsprbank:
+	sta $A000
+	lsr
+	sta $A000
+	lsr
+	sta $A000
+	lsr
+	sta $A000
+	lsr
+	sta $A000
+	rts
+
+; ** SUBROUTINE: mmc1_selcharbank
+; arguments:
+;   a - bank offset in 4K blocks
+mmc1_selcharbank:
+	sta $C000
+	lsr
+	sta $C000
+	lsr
+	sta $C000
+	lsr
+	sta $C000
+	lsr
+	sta $C000
+	rts
+
+; ** SUBROUTINE: mmc1_selprgbank
+; arguments:
+;   a - bank offset in 16K blocks
+mmc1_selprgbank:
+	sta $E000
+	lsr
+	sta $E000
+	lsr
+	sta $E000
+	lsr
+	sta $E000
+	lsr
+	sta $E000
+	rts
+
+; ** SUBROUTINE: mmc1_control
+; arguments:
+;   a - the value to send to the control register
+; desc: Sets the internal control register of the MMC1 mapper.
+mmc1_control:
+	sta $8000
+	lsr
+	sta $8000
+	lsr
+	sta $8000
+	lsr
+	sta $8000
+	lsr
+	sta $8000
+	rts
+
 ; ** SUBROUTINE: oam_putsprite
 ; arguments:
 ;   a - attributes
@@ -437,8 +505,6 @@ ppu_wrsloop:              ; so use X for that purpose
 	dex
 	bne ppu_wrsloop       ; if X != 0 print another
 	rts
-	
-	
 
 ; ** SUBROUTINE: clear_nt
 ; arguments: a - high 8 bits of nametable address (20,24,28,2C)
@@ -490,7 +556,17 @@ reset_clrmem:
 	sta $700, x
 	inx
 	bne reset_clrmem
+	
+	; bits 0-1 : mirroring (vertical)
+	; bits 2-3 : prg rom bank mode (fix last bank at $C000 and switch 16K bank at $8000)
+	; bit  4   : chr rom bank mode (switch two separate 4kb banks)
+	lda #%11110
+	jsr mmc1_control
+	lda #bank_spr
+	jsr mmc1_selsprbank
+	
 	; TODO: other setup here
+	
 	jsr vblank_wait  ; second vblank wait
 	
 	ldy init_palette - lastpage
@@ -542,10 +618,10 @@ init_palette:
 	.byte $0f,$30,$29,$09 ; green/refill sprite
 
 ; logo data
-logo_row1: .byte $20,$20,$20,$c0,$20,$20,$20
-logo_row2: .byte $c6,$c5,$c1,$c5,$c3,$c4,$c5
-logo_row3: .byte $c7,$c8,$ca,$c9,$cb,$cc,$c9
-logo_row4: .byte $cd,$20,$20,$20,$20,$ce,$cf
+logo_row1: .byte $20,$20,$20,$10,$20,$20,$20
+logo_row2: .byte $16,$15,$11,$15,$13,$14,$15
+logo_row3: .byte $17,$18,$1a,$19,$1b,$1c,$19
+logo_row4: .byte $1d,$20,$20,$20,$20,$1e,$1f
 logo_pal:  .byte $aa,$aa,$aa,$aa
 logo_pressstart: .byte "PRESS START"
 
