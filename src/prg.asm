@@ -276,6 +276,9 @@ lvlyoff     = $005F ; level Y offset when writing name table data
 trantmp1    = $0060 ; temporaries used for transitioning
 trantmp2    = $0061
 
+debug       = $00FA
+nmiwait     = $00FB
+
 ; large areas reserved by the game
 sprspace    = $0500 ; 256 bytes
 

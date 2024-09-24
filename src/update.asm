@@ -62,6 +62,9 @@ nmi:
 	tya
 	pha
 	
+	lda #9
+	sta debug
+	
 	lda #oam_buf_hi   ; load the high byte of the OAM DMA address
 	sta apu_oam_dma   ; and perform the DMA!
 	
@@ -92,6 +95,9 @@ nmi_camhid:
 	stx ppu_scroll
 	ldx camera_y
 	stx ppu_scroll
+	
+	lda #10
+	sta debug
 	
 	pla
 	tay

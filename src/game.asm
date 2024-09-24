@@ -71,6 +71,8 @@ h_flush_palette_init:
 ; desc:    Flushes a generated palette column in temppal to the screen
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
 h_flush_palette:
+	lda #7
+	sta debug
 	clc
 	lda ntwrhead
 	sbc #2
@@ -108,15 +110,18 @@ h_flupal_loop:
 	iny
 	cpy #8
 	bne h_flupal_loop
+	lda #8
+	sta debug
 	rts
 
 ; ** SUBROUTINE: h_flush_column
 ; desc:    Flushes a generated column in tempcol to the screen
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
 h_flush_column:
+	lda #5
+	sta debug
 	lda #ctl_irq_i32
 	sta ppu_ctrl
-	inc $F9
 	; the PPU address we want to start writing to is
 	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32)
 	lda ntwrhead
@@ -154,6 +159,8 @@ h_fls_wrloop:
 	lda ctl_flags
 	ora #ctl_irq_off
 	sta ppu_ctrl
+	lda #6
+	sta debug
 	rts
 
 h_gen_addyoff:
@@ -186,23 +193,35 @@ h_gen_subyoff:
 ;          the palette if necessary.
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
 h_generate_column:
+	lda #4
+	sta debug
 	lda #gs_scrstop
 	bit gamectrl
 	beq :+
 	rts
-:	ldy #0                    ; start writing tiles.
+:	ldx ntwrhead              ; compute the areaspace address
+	jsr h_comp_addr
+	ldy lvlyoff               ; start writing tiles.
+	sty temp6
+	ldy #0                    ; start writing tiles.
+	sty temp7
 h_gen_wrloop:                 ; each iteration will write 1 character tile for one metatile.
-	ldx ntwrhead
-	jsr h_get_tile
+	lda (lvladdr), y
 	tax
 	lda metatiles, x
-	jsr h_gen_addyoff
+	sty temp7                 ; store the current y into temp1
+	ldy temp6                 ; load the offsetted version into temp6
 	sta tempcol, y
-	jsr h_gen_subyoff
-	inx
+	iny
+	cpy #$1E
+	bne :+
+	ldy #0
+:	sty temp6
+	ldy temp7                 ; restore the current y into temp1
 	iny
 	cpy #$1E
 	bne h_gen_wrloop
+
 	lda #gs_flstcols          ; set the gamectrl gs_flstcols flag
 	ora gamectrl
 	sta gamectrl
@@ -226,8 +245,12 @@ h_pal_wrloop:
 	beq h_pal_haveFE          ; break out of this loop
 	cmp #$FF
 	bne h_pal_noFF
-	ldx #<palrdheadlo
-	jsr gm_decrement_ptr
+	
+	lda palrdheadlo
+	bne :+
+	dec palrdheadhi
+:	dec palrdheadlo
+	
 	lda #0
 h_pal_noFF:
 	sta temppal,y
@@ -275,16 +298,19 @@ h_genertiles_dupair:
 	adc temp1
 	sta temp1
 	ldx arwrhead
-:	lda #0
-	jsr h_set_tile
+	lda #0
+:	sta (lvladdr), y
 	iny
 	cpy temp1
 	bne :-
 	jmp h_genertiles_cont
 
 h_genertiles_lvlend:
-	ldx #<arrdheadlo
-	jsr gm_decrement_ptr  ; calculates [camlimithi,camlimit] = arwrhead << 3
+	lda arrdheadlo
+	bne :+
+	dec arrdheadhi
+:	dec arrdheadlo
+	
 	lda arwrhead          ; arwrhead: 0-63
 	rol
 	rol
@@ -313,7 +339,11 @@ h_generate_metatiles:
 	bit gamectrl
 	beq :+
 	rts
-:	ldy #0
+	
+:	ldx arwrhead
+	jsr h_comp_addr       ; compute the address in (lvladdr)
+	
+	ldy #0
 h_genertiles_loop:
 	jsr gm_read_tile
 	cmp #$FF              ; if data == 0xFF, then decrement the pointer
@@ -329,8 +359,7 @@ h_gentlsnocheck:
 	cmp #$E0
 	bcs :+
 	jmp h_genertiles_dupair
-:	ldx arwrhead
-	jsr h_set_tile
+:	sta (lvladdr), y
 	iny
 h_genertiles_cont:
 	cpy #$1E
@@ -346,24 +375,24 @@ h_genertiles_cont:
 ; ** SUBROUTINE: gm_decrement_ptr
 ; args: x - offset in zero page to (in/de)crement 16-bit address
 ; clobbers: a
-gm_increment_ptr:
-	lda #0
-	sec
-	adc $00, x
-	sta $00, x
-	lda $01, x
-	adc #0
-	sta $01, x
-	rts
-gm_decrement_ptr:
-	clc
-	lda $00, x
-	sbc #0
-	sta $00, x
-	lda $01, x
-	sbc #0
-	sta $01, x
-	rts
+;m_increment_ptr:
+;	lda #0
+;	sec
+;	adc $00, x
+;	sta $00, x
+;	lda $01, x
+;	adc #0
+;	sta $01, x
+;	rts
+;m_decrement_ptr:
+;	clc
+;	lda $00, x
+;	sbc #0
+;	sta $00, x
+;	lda $01, x
+;	sbc #0
+;	sta $01, x
+;	rts
 ; ** SUBROUTINE: gm_set_level_ptr
 ; ** SUBROUTINE: gm_set_room_ptr
 ; args:
@@ -396,30 +425,6 @@ gm_set_ent_head:
 	sta entrdheadhi
 	rts
 
-; ** SUBROUTINE: gm_adv_tile
-; ** SUBROUTINE: gm_adv_pal
-; ** SUBROUTINE: gm_adv_ent
-; desc:     Advances the tile, palette, or entity stream by 1 byte.
-; clobbers: x
-gm_adv_tile:
-	pha
-	ldx #<arrdheadlo
-	jsr gm_increment_ptr
-	pla
-	rts
-gm_adv_pal:
-	pha
-	ldx #<palrdheadlo
-	jsr gm_increment_ptr
-	pla
-	rts
-gm_adv_ent:
-	pha
-	ldx #<entrdheadlo
-	jsr gm_increment_ptr
-	pla
-	rts
-
 ; ** SUBROUTINE: gm_read_tile_na
 ; ** SUBROUTINE: gm_read_ent_na
 ; ** SUBROUTINE: gm_read_tile
@@ -432,23 +437,41 @@ gm_read_tile_na:
 	ldx #0
 	lda (arrdheadlo,x)
 	rts
+
 gm_read_ent_na:
 	ldx #0
 	lda (entrdheadlo,x)
 	rts
+
 gm_read_pal_na:
 	ldx #0
 	lda (palrdheadlo,x)
 	rts
+
 gm_read_tile:
-	jsr gm_read_tile_na
-	jmp gm_adv_tile
+	ldx #0
+	lda (arrdheadlo,x)
+	inc arrdheadlo
+	bne :+
+	inc arrdheadhi
+:	rts
+
 gm_read_ent:
-	jsr gm_read_ent_na
-	jmp gm_adv_ent
+	ldx #0
+	lda (entrdheadlo,x)
+	inc entrdheadlo
+	bne :+
+	inc entrdheadhi
+:	rts
+
 gm_read_pal:
-	jsr gm_read_pal_na
-	jmp gm_adv_pal
+	ldx #0
+	lda (palrdheadlo,x)
+	inc palrdheadlo
+	bne :+
+	inc palrdheadhi
+:	rts
+
 
 ; ** SUBROUTINE: gm_fetch_room
 ; args: y - offset into lvl array
@@ -1659,9 +1682,17 @@ gm_sfloordone:
 
 gm_leave_doframe:
 	jsr gm_draw_player
+	
+	lda #1
+	sta debug           ; end frame
+	
 	jsr ppu_nmi_on
 	jsr vblank_wait
 	jsr ppu_nmi_off	
+	
+	lda #0
+	sta debug           ; start frame
+	
 	jmp com_clear_oam
 
 cspeed = 8
@@ -2207,6 +2238,8 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	lda #3
+	sta debug
 	jsr gm_jumpgrace
 	lda dashtime
 	bne gm_dash_update1
@@ -2224,6 +2257,8 @@ gm_dash_update_done:
 	lda #cont_select
 	bit p1_cont
 	bne gm_titleswitch
+	lda #2
+	sta debug
 	jmp game_update_return
 
 ; ** SUBROUTINE: gm_titleswitch
