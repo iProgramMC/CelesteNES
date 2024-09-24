@@ -277,7 +277,7 @@ trantmp1    = $0060 ; temporaries used for transitioning
 trantmp2    = $0061
 
 debug       = $00FA
-nmiwait     = $00FB
+nmicount    = $00FB
 
 ; large areas reserved by the game
 sprspace    = $0500 ; 256 bytes
@@ -297,6 +297,15 @@ vblank_wait:
 	lda #$00
 	bit ppu_status
 	bpl vblank_wait  ; check bit 7, equal to zero means not in vblank
+	rts
+
+; ** SUBROUTINE: nmi_wait
+; arguments: none
+; clobbers: A
+nmi_wait:
+	lda nmicount
+:	cmp nmicount
+	beq :-
 	rts
 
 ; ** SUBROUTINE: read_cont
@@ -600,7 +609,7 @@ main_loop:
 	jsr ppu_nmi_off
 	jsr game_update
 	jsr ppu_nmi_on
-	jsr vblank_wait
+	jsr nmi_wait
 	jmp main_loop
 
 .include "update.asm"

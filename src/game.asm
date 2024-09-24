@@ -1687,7 +1687,7 @@ gm_leave_doframe:
 	sta debug           ; end frame
 	
 	jsr ppu_nmi_on
-	jsr vblank_wait
+	jsr nmi_wait
 	jsr ppu_nmi_off	
 	
 	lda #0

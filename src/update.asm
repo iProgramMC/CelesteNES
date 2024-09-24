@@ -56,6 +56,7 @@ nmi_game_trypal:
 	jmp nmi_gamemodeend
 
 nmi:
+	inc nmicount
 	pha
 	txa
 	pha
