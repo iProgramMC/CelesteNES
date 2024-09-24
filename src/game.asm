@@ -546,7 +546,6 @@ gm_set_room:
 	jsr gm_fetch_room
 	rts
 
-
 ; ** SUBROUTINE: gm_draw_2xsprite
 ; arguments: x - offset into zero page with sprite structure
 ;            a - x position, y - y position
@@ -572,9 +571,114 @@ gm_draw_2xsprite:
 	jsr oam_putsprite
 	rts
 
+deathtable1: .byte $FC, $FD, $00, $03, $04, $03, $00, $FD
+deathtable2: .byte $00, $FD, $FC, $FD, $00, $03, $04, $03
+
+gm_dead_sub1:
+	lda deathtimer
+	tay
+	lda temp1
+	beq :++
+:	clc
+	adc temp1
+	dey
+	bne :-
+	sta temp1
+:	rts
+gm_dead_sub2:
+	lda deathtimer
+	tay
+	beq :++
+	lda temp2
+:	clc
+	adc temp2
+	dey
+	bne :-
+	sta temp2
+:	rts
+
+; ** SUBROUTINE: gm_draw_dead
+gm_draw_dead:
+	lda #pl_dead
+	bit playerctrl
+	bne :+
+	rts
+:	ldy #0
+gm_draw_dead_loop:
+	lda deathtable1, y ; the X coordinate offset
+	sta temp1
+	lda deathtable2, y ; the Y coordinate offset
+	sta temp2
+	
+	sty temp3
+	jsr gm_dead_sub1
+	jsr gm_dead_sub2
+	ldy temp3
+	
+	lda player_x
+	clc
+	adc #4
+	clc
+	adc temp1
+	sta x_crd_temp
+	
+	lda player_y
+	clc
+	adc #4
+	clc
+	adc temp2
+	sta y_crd_temp
+	
+	; hackhack
+	lda player_y
+	cmp #$C0
+	bcc :+
+	cpy #4
+	bcc :+
+	jmp gm_draw_dead_done
+	
+:	lda plh_attrs
+	sty temp3
+
+	ldy deathtimer
+	cpy #8
+	bcc :+
+	ldy #$72
+	bne :++
+:	ldy #$70
+:	jsr oam_putsprite
+	ldy temp3
+	
+	iny
+	cpy #8
+	bne gm_draw_dead_loop
+	
+	; increment death timer
+gm_draw_dead_done:
+	ldx deathtimer
+	inx
+	cpx #16
+	beq gm_respawn
+	stx deathtimer
+	rts
+
+gm_respawn:
+	lda #pl_dead
+	eor playerctrl
+	sta playerctrl
+	
+	lda #0
+	sta player_y
+	
+	rts
+
 ; ** SUBROUTINE: gm_draw_player
 gm_draw_player:
-	lda #pl_left
+	lda #pl_dead
+	bit playerctrl       ; don't draw player if dead
+	beq :+
+	rts
+:	lda #pl_left
 	bit playerctrl
 	bne gm_facingleft
 	lda #0
@@ -1557,11 +1661,11 @@ gm_collidespkw:
 ; ** SUBROUTINE: gm_killplayer
 ; desc:     Initiates the player death sequence.
 gm_killplayer:
-	;jmp gm_killplayer
-	; player velocity is positive and the player fell out of the world
-	; TODO: actually kill. right now just warp them up a bit
-	lda #$00
-	sta player_y
+	lda #pl_dead
+	ora playerctrl
+	sta playerctrl
+	lda #0
+	sta deathtimer
 	rts
 
 ; ** SUBROUTINE: gm_applyy
@@ -2162,6 +2266,23 @@ gm_dash_noflip:
 gm_dash_nosj:
 	jmp gm_dash_update_done
 
+gm_physics:
+	lda #pl_dead
+	bit playerctrl
+	beq :+
+	rts
+:	jsr gm_jumpgrace
+	lda dashtime
+	bne gm_dash_update
+	jsr gm_gravity
+	jsr gm_controls
+gm_dash_update_done:
+	jsr gm_drag
+	jsr gm_sanevels
+	jsr gm_applyy
+	jsr gm_applyx
+	jmp gm_checkwjump
+	
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
 	ldx #$FF
@@ -2226,36 +2347,20 @@ loop2:
 	jsr vblank_wait
 	jmp gm_game_update
 
-gm_dash_update1:
-	jmp gm_dash_update; NOTE: remove if the gm_game_init function's slim enough!
-
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
 	lda gamectrl
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	lda #3
-	sta debug
-	jsr gm_jumpgrace
-	lda dashtime
-	bne gm_dash_update1
-	jsr gm_gravity
-	jsr gm_controls
-gm_dash_update_done:
-	jsr gm_drag
-	jsr gm_sanevels
-	jsr gm_applyy
-	jsr gm_applyx
-	jsr gm_checkwjump
+	jsr gm_physics
 	jsr gm_anim_player
 	jsr gm_draw_player
+	jsr gm_draw_dead
 	
 	lda #cont_select
 	bit p1_cont
 	bne gm_titleswitch
-	lda #2
-	sta debug
 	jmp game_update_return
 
 ; ** SUBROUTINE: gm_titleswitch

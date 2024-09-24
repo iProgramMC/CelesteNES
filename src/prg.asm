@@ -122,6 +122,7 @@ pl_ground   = $02   ; player is grounded
 pl_pushing  = $04   ; player is pushing against a wall - either sliding or ground-pushing
 pl_wallleft = $08   ; player is sliding along a wall on their LEFT side
 pl_dashed   = $10   ; player has dashed before touching the ground
+pl_dead     = $20   ; player has died and will be taken back to the beginning soon
 am_idle     = $00
 am_walk     = $01
 am_jump     = $02
@@ -286,6 +287,7 @@ audrdlo     = $0064
 audrdhi     = $0065
 audlock     = $0066 ; lock up the main sequencer for X frames
 audtemp1    = $0067
+deathtimer  = $0068
 
 debug       = $00FD
 nmicount    = $00FE
