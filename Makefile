@@ -1,3 +1,5 @@
+# Copyright (C) 2024 iProgramInCpp
+
 AS = ca65
 CC = cc65
 LD = ld65

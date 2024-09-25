@@ -1,9 +1,14 @@
+; Copyright (C) 2024 iProgramInCpp
+
 ; Metatiles
 ;
 ; For a single metatile ID, the following properties:
 ; - metatiles: The char tiles that make up the visual representation of the metatile
 ; - metatile_palette: The palette used for the metatile
 ; - metatile_collision: The collision mask for the metatile.
+
+; These are the metatiles for the Intro level.
+; Eventually the metatile bank will be swappable with different level banks.
 
 metatiles:
 	.byte $00 ; Air

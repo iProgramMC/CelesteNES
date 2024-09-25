@@ -1,3 +1,5 @@
+; Copyright (C) 2024 iProgramInCpp
+
 ; note : this file is NOT included for the game! only for my level editor.
 metatile_palette:
 	.byte     $0 ; Air

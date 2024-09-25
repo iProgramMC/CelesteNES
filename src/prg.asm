@@ -1,3 +1,4 @@
+; Copyright (C) 2024 iProgramInCpp
 
 ; Addresses
 ppu_ctrl    = $2000

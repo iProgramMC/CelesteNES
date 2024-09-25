@@ -1,3 +1,5 @@
+; Copyright (C) 2024 iProgramInCpp
+
 ; Level Data
 
 ; Level Format Concept
@@ -12,6 +14,12 @@
 ; in size, but scrolling is allowed throughout the entire room.
 ;
 ; Normal rooms will only be scrollable to the right
+;
+;
+; ***********************************************************
+; * THE ROOM TILE DATA STRUCTURE IS **OUTDATED**, IGNORE.   *
+; * I'll come up with an explanation later.                 *
+; ***********************************************************
 ;
 ; Format:
 ;
