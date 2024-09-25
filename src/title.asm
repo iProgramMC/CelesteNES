@@ -52,6 +52,15 @@ print_logo:
 	lda #11
 	jsr ppu_wrstring
 	
+	; write iProgramInCpp's name
+	ldy #$23
+	ldx #$0C
+	jsr ppu_loadaddr
+	ldx #<logo_iprogram
+	ldy #>logo_iprogram
+	lda #7
+	jsr ppu_wrstring
+	
 	; write the palette
 	ldy #$23
 	ldx #$D2
