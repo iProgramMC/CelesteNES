@@ -34,6 +34,11 @@
 ;
 ;   - opCode == 0xFE and 0xFF are the same as Tile rooms
 ;
+; ROOM_ENTITIES: (not outdated)
+;     .byte {X coord}, {Y coord}, {Entity Type}
+;  OR .byte ec_scrnext     -- ends this screen's entity data
+;  OR .byte ec_dataend     -- ends the level's entity stream
+;
 ; ROOM_TILES:
 ;     .byte {opCode}
 ;     .byte {attributes}

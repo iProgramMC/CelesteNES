@@ -21,7 +21,37 @@ apu_joypad1 = $4016
 apu_joypad2 = $4017
 apu_frctr   = $4017
 
-; Flags
+; Offsets in Sprite Struct
+
+; The sprite struct is 16 bytes.
+; The sprite struct is spread across 16 segments of 16 bytes each, for a total of 256.
+; So first, the sp_kind segment, then the sp_x segment, etc.
+; This allows easy indexing via the X/Y registers as you can simply do:
+;   lda sprspace + sp_kind, x
+
+sp_max      = $10   ; maximum of 16 sprites.
+
+sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
+sp_x        = (sp_max * 1)   ; X coordinate within a page
+sp_x_hi     = (sp_max * 2)   ; X coordinate in pages
+sp_x_lo     = (sp_max * 3)   ; X coordinate subpixels (used for things like crystal hearts for smooth bounceback)
+sp_y        = (sp_max * 4)   ; Y coordinate
+sp_y_lo     = (sp_max * 5)   ; Y coordinate subpixels
+sp_entspec1 = (sp_max * 6)   ; entity specific 1
+sp_entspec2 = (sp_max * 7)   ; entity specific 2
+
+; Entity Types
+e_none      = $00
+e_strawb    = $01
+e_refill    = $02
+e_spring    = $03
+e_key       = $04
+;e_fallclus  = $04
+;e_fallbrid  = $05
+
+; Entity Commands
+ec_scrnext  = $FE
+ec_dataend  = $FF
 
 ; Sprite Indices
 plr_idle1_l = $02
@@ -289,6 +319,8 @@ audrdhi     = $0065
 audlock     = $0066 ; lock up the main sequencer for X frames
 audtemp1    = $0067
 deathtimer  = $0068
+tmp_sprx    = $0069 ; used by gm_draw_entities to calculate the X and Y
+tmp_spry    = $006A
 
 debug       = $00FD
 nmicount    = $00FE
@@ -647,7 +679,7 @@ init_palette:
 	.byte $0f,$20,$21,$11 ; blue tiles
 	.byte $0f,$39,$29,$19 ; green tiles
 	.byte $0f,$37,$14,$21 ; player sprite colors
-	.byte $0f,$35,$15,$06 ; red/strawberry sprite
+	.byte $0f,$36,$16,$06 ; red/strawberry sprite
 	.byte $0f,$20,$21,$11 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite
 

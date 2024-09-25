@@ -214,7 +214,7 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	lda (lvladdr), y
 	tax
 	lda metatiles, x
-	sty temp7                 ; store the current y into temp1
+	sty temp7                 ; store the current y into temp7
 	ldy temp6                 ; load the offsetted version into temp6
 	sta tempcol, y
 	iny
@@ -222,7 +222,7 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	bne :+
 	ldy #0
 :	sty temp6
-	ldy temp7                 ; restore the current y into temp1
+	ldy temp7                 ; restore the current y into temp7
 	iny
 	cpy #$1E
 	bne h_gen_wrloop
@@ -230,7 +230,8 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	lda #gs_flstcolR          ; set the gamectrl gs_flstcolR flag
 	ora gamectrl
 	sta gamectrl
-	jsr h_gener_mts_r         ; generate a new column of meta-tiles
+	jsr h_gener_ents_r
+	jsr h_gener_mts_r         ; generate a new column of meta-tiles and entities
 	lda ntwrhead              ; check if we're writing the 3rd odd column
 	and #$03
 	cmp #$03
@@ -369,6 +370,87 @@ h_genertiles_cont:
 	sta arwrhead
 	rts
 
+; ** SUBROUTINE: h_gener_ents_r
+; desc:    Generates a column of entities ahead of the visual column render head.
+h_gener_ents_r:
+	jsr gm_read_ent_na    ; read the byte at the beginning of the stream without advancing
+	cmp #ec_dataend       ; if it's a level terminator, simply return.
+	bne :+
+	rts
+:	cmp #ec_scrnext       ; if it's a next screen command, handle it separately and return.
+	beq h_generents_scrnext
+	sta temp1
+	; this is the X coordinate of an entity.
+	
+	lda arwrhead          ; ok. check if we're on the correct screen
+	lsr
+	lsr
+	lsr
+	lsr
+	lsr                   ; divide by 32 to get the screen number
+	and #1                ; NOTE: assumes arwrhead is between 0-63! change if/when expanding.
+	cmp tr_scrnpos
+	beq :+
+	rts                   ; if the screen numbers are not equal, then return
+:	lda arwrhead
+	and #$1F              ; cap it between 0-31, this will be an in-screen coordinate.
+	asl
+	asl
+	asl                   ; now check if the X coordinate is bigger than the area write head.
+	cmp temp1
+	bcs :+                ; if A [(arwrhead & 0x1F) >> 3] >= M [the X coord of the tile]
+	rts                   ; then return.
+:	jsr gm_adv_ent        ; advance the stream. we will process this entity's data.
+	
+	; load the rest of the data
+	jsr gm_read_ent
+	sta temp2             ; store the Y position in temp2
+	jsr gm_read_ent
+	sta temp3             ; store the entity kind in temp3
+	
+	; find a free spot in sprite space.
+	ldx #0
+:	lda sprspace+sp_kind, x
+	beq h_generents_spotfound
+	inx
+	cpx #sp_max
+	bne :-
+	; no more space found for this entity! :(
+	rts
+h_generents_spotfound:
+	; a sprite slot was found. its slot number is located in the x register.
+	lda temp3
+	sta sprspace+sp_kind, x
+	lda temp2
+	sta sprspace+sp_y, x
+	lda temp1
+	sta sprspace+sp_x, x
+	; initialize other data about this entity
+	lda #0
+	sta sprspace+sp_entspec1, x
+	sta sprspace+sp_entspec2, x
+	sta sprspace+sp_x_lo, x
+	sta sprspace+sp_y_lo, x
+	lda tr_scrnpos
+	sta sprspace+sp_x_hi, x
+	; done!
+	rts
+	
+	
+h_generents_lvlend:
+	lda entrdheadlo       ; decrement the stream pointer...
+	bne :+
+	dec entrdheadhi
+:	dec entrdheadlo       ; and return
+	rts
+
+h_generents_scrnext:
+	jsr gm_adv_ent        ; advance the entity stream
+	lda #1                ; NOTE: assumes arwrhead is between 0-63! change if/when expanding.
+	eor tr_scrnpos
+	sta tr_scrnpos
+	rts
+
 ; ** SUBROUTINE: gm_increment_ptr
 ; ** SUBROUTINE: gm_decrement_ptr
 ; args: x - offset in zero page to (in/de)crement 16-bit address
@@ -449,6 +531,7 @@ gm_read_pal_na:
 gm_read_tile:
 	ldx #0
 	lda (arrdheadlo,x)
+gm_adv_tile:
 	inc arrdheadlo
 	bne :+
 	inc arrdheadhi
@@ -457,6 +540,7 @@ gm_read_tile:
 gm_read_ent:
 	ldx #0
 	lda (entrdheadlo,x)
+gm_adv_ent:
 	inc entrdheadlo
 	bne :+
 	inc entrdheadhi
@@ -570,6 +654,23 @@ gm_draw_2xsprite:
 	dex
 	lda $00,x       ; get shared attributes again
 	jsr oam_putsprite
+	rts
+
+.include "entities.asm"
+
+; ** SUBROUTINE: gm_draw_entities
+; desc: Draws visible entities to the screen.
+gm_draw_entities:
+	ldx #0
+gm_draw_ents_loop:
+	stx temp1
+	lda sprspace+sp_kind, x
+	beq :+             ; this is an empty entity slot. waste no time
+	jsr gm_draw_ent_call
+	ldx temp1
+	inx
+	cpx #sp_max
+	bne gm_draw_ents_loop
 	rts
 
 deathtable1: .byte $FC, $FD, $00, $03, $04, $03, $00, $FD
@@ -1838,6 +1939,7 @@ gm_roomRtransdone:
 	inx
 	stx arwrhead
 	stx ntwrhead
+	jsr h_gener_ents_r
 	jsr h_gener_mts_r
 	ldy #8
 gm_roomRtranloopI:
@@ -2329,6 +2431,7 @@ gm_game_clear:
 	ldy init_palette - lastpage
 	jsr load_palette  ; load game palette into palette RAM
 	jsr gm_set_level_1
+	jsr h_gener_ents_r
 	jsr h_gener_mts_r
 	ldy #$00          ; generate tilesahead columns
 loop2:
@@ -2357,6 +2460,7 @@ gm_game_update:
 	jsr gm_physics
 	jsr gm_anim_player
 	jsr gm_draw_player
+	jsr gm_draw_entities
 	jsr gm_draw_dead
 	
 	lda #cont_select
