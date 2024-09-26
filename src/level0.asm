@@ -104,6 +104,11 @@ level0_r2_p:
 	.byte $00,$00,$30,$15,$01,$10,$11,$00
 	.byte $FF
 level0_r2_e:
+	.byte $30, $60, e_strawb
+	.byte $40, $60, e_refill
+	.byte $50, $60, e_spring
+	.byte $FE
+	.byte $10, $50, e_key
 	.byte $FF
 level0_r2_t:
 	.byte $D8,$05,$13,$C4,$D7,$43,$05,$14

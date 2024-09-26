@@ -203,7 +203,31 @@ gm_ceos_left:
 gm_ceos_rt0:
 	lda #0
 	rts
+
+; ** SUBROUTINE: gm_unload_os_ents
+; desc: Unloads entities that went off the left side of the screen.
+gm_unload_os_ents:
+	ldx #0
+:	lda sprspace+sp_kind, x
+	beq :+
 	
+	sec
+	lda sprspace+sp_x, x
+	sbc camera_x
+	sta temp2
+	lda sprspace+sp_x_hi, x
+	sbc camera_x_hi
+	
+	; result < 0: sprite went off the right side.
+	bpl :+
+	
+	lda #0
+	sta sprspace+sp_kind, x
+:	inx
+	cpx #sp_max
+	bne :--
+	rts
+
 
 ; List of entity palette IDs
 ent_palettes:

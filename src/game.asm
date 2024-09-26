@@ -432,6 +432,7 @@ h_generents_spotfound:
 	
 	lda tr_scrnpos
 	adc roombeghi
+	and #1
 	sta sprspace+sp_x_hi, x
 	
 	; initialize other data about this entity
@@ -670,12 +671,12 @@ gm_draw_2xsprite:
 gm_draw_entities:
 	ldx #0
 gm_draw_ents_loop:
-	stx temp1
 	lda sprspace+sp_kind, x
 	beq :+             ; this is an empty entity slot. waste no time
+	stx temp1
 	jsr gm_draw_ent_call
 	ldx temp1
-	inx
+:	inx
 	cpx #sp_max
 	bne gm_draw_ents_loop
 	rts
@@ -1892,6 +1893,8 @@ gm_sfloordone:
 
 gm_leave_doframe:
 	jsr gm_draw_player
+	jsr gm_unload_os_ents
+	jsr gm_draw_entities
 	
 	lda #1
 	sta debug           ; end frame
@@ -2448,8 +2451,9 @@ gm_game_update:
 	jsr gm_physics
 	jsr gm_anim_player
 	jsr gm_draw_player
-	jsr gm_draw_entities
 	jsr gm_draw_dead
+	jsr gm_unload_os_ents
+	jsr gm_draw_entities
 	jsr gm_allocate_palettes
 	
 	lda #cont_select
