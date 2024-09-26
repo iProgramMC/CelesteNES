@@ -423,16 +423,23 @@ h_generents_spotfound:
 	sta sprspace+sp_kind, x
 	lda temp2
 	sta sprspace+sp_y, x
+	
+	; load the X coordinate, and add the room beginning pixel and the current screen pos
+	clc
 	lda temp1
+	adc roombeglo
 	sta sprspace+sp_x, x
+	
+	lda tr_scrnpos
+	adc roombeghi
+	sta sprspace+sp_x_hi, x
+	
 	; initialize other data about this entity
 	lda #0
 	sta sprspace+sp_entspec1, x
 	sta sprspace+sp_entspec2, x
 	sta sprspace+sp_x_lo, x
 	sta sprspace+sp_y_lo, x
-	lda tr_scrnpos
-	sta sprspace+sp_x_hi, x
 	; done!
 	rts
 	
@@ -571,7 +578,7 @@ gm_fetch_room:
 
 gm_fetch_room_loop:
 	lda (roomptrlo),y
-	sta currground-3,y
+	sta leveldatas1-3,y
 	iny
 	cpy #14
 	bne gm_fetch_room_loop
@@ -1911,6 +1918,17 @@ gm_leaveroomR:
 	bne :+
 	rts                      ; no warp was assigned there so return
 :	jsr gm_set_room
+	
+	; load the room beginning pixel
+	lda arwrhead             ; NOTE: assumes arwrhead in [0, 64)
+	asl
+	asl
+	asl                      ; multiply by 8
+	sta roombeglo
+	rol
+	and #1
+	sta roombeghi
+	
 	clc
 	lda transoff
 	bmi gm_roomRtransneg
@@ -2391,38 +2409,8 @@ gm_game_init:
 	ldx #$FF
 	stx animmode
 	inx
-	stx gamectrl      ; clear game related fields to zero
-	stx ntwrhead
-	stx arwrhead
-	stx player_y
-	stx player_sp_x
-	stx player_sp_y
-	stx camera_x
-	stx camera_y
-	stx camera_x_hi
-	stx player_x_hi
-	stx tr_scrnpos
-	stx tr_mtaddrlo
-	stx tr_mtaddrhi
-	stx playerctrl
-	stx player_vl_x
-	stx player_vs_x
-	stx player_vl_y
-	stx player_vs_y
-	stx dashtime
-	stx dashcount
 	stx ppu_mask      ; disable rendering
-	
-	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
-	; note: ldx #$00 was removed because it's already 0!
-gm_game_clear:
-	sta $300,x
-	sta $400,x
-	sta $500,x
-	sta $600,x
-	inx
-	bne gm_game_clear
-	
+	jsr gm_game_clear_all_wx
 	jsr vblank_wait
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
@@ -2462,6 +2450,7 @@ gm_game_update:
 	jsr gm_draw_player
 	jsr gm_draw_entities
 	jsr gm_draw_dead
+	jsr gm_allocate_palettes
 	
 	lda #cont_select
 	bit p1_cont
@@ -2486,3 +2475,49 @@ dashY:
 	.byte $05  ; -D
 	.byte $FB  ; U-
 	.byte $00  ; UD
+
+; ** SUBROUTINE: gm_game_clear_all_wx
+; desc: Clears ALL game variables with the X register.
+;       Unlike gm_game_clear_all_wx, this clears data that's necessary across,
+;       for example, respawn transitions.
+gm_game_clear_all_wx:
+	stx transoff
+	stx lvlyoff
+
+; ** SUBROUTINE: gm_game_clear_wx
+; desc: Clears game variables with the X register.
+gm_game_clear_wx:
+	stx gamectrl      ; clear game related fields to zero
+	stx ntwrhead
+	stx arwrhead
+	stx player_y
+	stx player_sp_x
+	stx player_sp_y
+	stx camera_x
+	stx camera_y
+	stx camera_x_hi
+	stx player_x_hi
+	stx tr_scrnpos
+	stx lvladdr
+	stx lvladdrhi
+	stx playerctrl
+	stx player_vl_x
+	stx player_vs_x
+	stx player_vl_y
+	stx player_vs_y
+	stx dashtime
+	stx dashcount
+	stx animmode
+	stx jumpbuff
+	stx jumpcoyote
+	stx wjumpcoyote
+	
+	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
+	; note: ldx #$00 was removed because it's already 0!
+gm_game_clear:
+	sta $300,x
+	sta $400,x
+	sta $500,x
+	sta $600,x
+	inx
+	bne gm_game_clear

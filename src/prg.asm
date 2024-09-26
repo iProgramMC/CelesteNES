@@ -249,7 +249,7 @@ tl_gametime = $0041 ; time until the transition to gm_game happens
 gamectrl    = $0020 ; game control
 ntwrhead    = $0021 ; name table write head (up to 64 columns)
 arwrhead    = $0022 ; area space write head (up to 32 columns)
-drawtemp    = $0023
+; $0023 SPARE
 lvlptrlo    = $0024 ; level pointer
 lvlptrhi    = $0025
 roomptrlo   = $0026 ; room pointer
@@ -259,11 +259,11 @@ arrdheadhi  = $0029
 entrdheadlo = $002A ; entity read head
 entrdheadhi = $002B
 tr_regsto   = $002C
-tr_mtaddrlo = $002D ; address of the metatile
-tr_mtaddrhi = $002E
+lvladdr     = $002D ; temporaries used by h_get_tile and h_set_tile
+lvladdrhi   = $002E
 tr_scrnpos  = $002F ; active screen position
-currground  = $0030 ; current ground tiles placed by ground objects
-currbackgd  = $0031
+leveldatas1 = $0030 ; 2 spare bytes for room data
+leveldatas2 = $0031
 warp_u      = $0032 ; destination warp numbers
 warp_d      = $0033
 warp_l      = $0034
@@ -298,8 +298,8 @@ wjumpcoyote = $0050 ; wall jump coyote time
 player_yo   = $0051 ; player Y old. used for spike collision
 player_xo   = $0052 ; player Y old. used for horizontal spike collision
 transoff    = $0053
-lvladdr     = $0054 ; temporaries used by h_get_tile and h_set_tile
-lvladdrhi   = $0055
+; $0054 free
+; $0055 free
 palrdheadlo = $0056 ; palette read head
 palrdheadhi = $0057
 camlimit    = $0058
@@ -312,16 +312,21 @@ scrchkhi    = $005E
 lvlyoff     = $005F ; level Y offset when writing name table data
 trantmp1    = $0060 ; temporaries used for transitioning
 trantmp2    = $0061
-audaddrlo   = $0062
-audaddrhi   = $0063
-audrdlo     = $0064
-audrdhi     = $0065
-audlock     = $0066 ; lock up the main sequencer for X frames
-audtemp1    = $0067
+;audaddrlo   = $0062
+;audaddrhi   = $0063
+;audrdlo     = $0064
+;audrdhi     = $0065
+;audlock     = $0066 ; lock up the main sequencer for X frames
+;audtemp1    = $0067
 deathtimer  = $0068
 tmp_sprx    = $0069 ; used by gm_draw_entities to calculate the X and Y
 tmp_spry    = $006A
+palallochd  = $006B
+temp8       = $006C
+roombeglo   = $006D ; beginning of room in pixels.  Used for entity placement
+roombeghi   = $006E
 
+debug2      = $00FC
 debug       = $00FD
 nmicount    = $00FE
 
@@ -330,6 +335,8 @@ sprspace    = $0500 ; 256 bytes
 
 tempcol     = $0600 ; 32 bytes - temporary column to be flushed to the screen
 temppal     = $0620 ; 8 bytes  - temporary palette column to be flushed to the screen
+allocpals   = $0628 ; 16 bytes - logical to physical palette
+palsallocd  = $0638 ; 16 bytes - physical to logical palette
 freespace1  = $06F8 ; 8 bytes of free space
 
 areaspace   = $6000 ; 2048 bytes -- 64 X 32 area, OR 32 X 64 in V mode
