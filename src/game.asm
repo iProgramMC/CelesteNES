@@ -432,7 +432,6 @@ h_generents_spotfound:
 	
 	lda tr_scrnpos
 	adc roombeghi
-	and #1
 	sta sprspace+sp_x_hi, x
 	
 	; initialize other data about this entity
@@ -1923,7 +1922,7 @@ gm_leaveroomR:
 :	jsr gm_set_room
 	
 	; load the room beginning pixel
-	lda arwrhead             ; NOTE: assumes arwrhead in [0, 64)
+	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)
 	asl
 	asl
 	asl                      ; multiply by 8
@@ -1983,8 +1982,9 @@ gm_roomRtranloop:
 	lda camera_x
 	adc #cspeed              ; add cspeed to the camera X
 	sta camera_x
-	lda camera_x_hi
+	lda camera_x_sc
 	adc #0
+	sta camera_x_sc
 	and #1
 	sta camera_x_hi
 	
@@ -2218,8 +2218,9 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	tax               ; save the delta as we'll need it later
 	adc camera_x      ; add the delta to the camera X
 	sta camera_x
-	lda #0
-	adc camera_x_hi
+	lda camera_x_sc
+	adc #0
+	sta camera_x_sc
 	and #1
 	sta camera_x_hi
 	lda #gs_scrstopR  ; check if we overstepped the camera boundary, if needed
@@ -2415,12 +2416,12 @@ gm_game_init:
 	stx ppu_mask      ; disable rendering
 	jsr gm_game_clear_all_wx
 	jsr vblank_wait
+	ldy init_palette - lastpage
+	jsr load_palette  ; load game palette into palette RAM
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
-	ldy init_palette - lastpage
-	jsr load_palette  ; load game palette into palette RAM
 	jsr gm_set_level_1
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
@@ -2500,6 +2501,7 @@ gm_game_clear_wx:
 	stx camera_x
 	stx camera_y
 	stx camera_x_hi
+	stx camera_x_sc
 	stx player_x_hi
 	stx tr_scrnpos
 	stx lvladdr

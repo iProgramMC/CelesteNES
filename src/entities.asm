@@ -181,7 +181,7 @@ gm_check_ent_onscreen:
 	sta temp2
 	
 	lda sprspace+sp_x_hi, x
-	sbc camera_x_hi
+	sbc camera_x_sc
 	sta temp4
 	
 	; result < 0: sprite went off the left side.
@@ -216,7 +216,7 @@ gm_unload_os_ents:
 	sbc camera_x
 	sta temp2
 	lda sprspace+sp_x_hi, x
-	sbc camera_x_hi
+	sbc camera_x_sc
 	
 	; result < 0: sprite went off the right side.
 	bpl :+

@@ -249,7 +249,7 @@ tl_gametime = $0041 ; time until the transition to gm_game happens
 gamectrl    = $0020 ; game control
 ntwrhead    = $0021 ; name table write head (up to 64 columns)
 arwrhead    = $0022 ; area space write head (up to 32 columns)
-; $0023 SPARE
+camera_x_sc = $0023 ; camera X high in screens
 lvlptrlo    = $0024 ; level pointer
 lvlptrhi    = $0025
 roomptrlo   = $0026 ; room pointer
