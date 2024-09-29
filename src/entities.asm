@@ -90,7 +90,6 @@ gm_draw_ent_call:
 	rts
 	
 :	; note: gm_check_ent_onscreen already calculated the x coordinate for us
-	sta temp4
 	
 	lda sprspace+sp_y, x
 	sta temp3
@@ -180,8 +179,8 @@ gm_check_ent_onscreen:
 	sbc camera_x
 	sta temp2
 	
-	lda sprspace+sp_x_hi, x
-	sbc camera_x_hi
+	lda sprspace+sp_x_pg, x
+	sbc camera_x_pg
 	sta temp4
 	
 	; result < 0: sprite went off the left side.
@@ -215,8 +214,8 @@ gm_unload_os_ents:
 	lda sprspace+sp_x, x
 	sbc camera_x
 	sta temp2
-	lda sprspace+sp_x_hi, x
-	sbc camera_x_hi
+	lda sprspace+sp_x_pg, x
+	sbc camera_x_pg
 	
 	; result < 0: sprite went off the right side.
 	bpl :+

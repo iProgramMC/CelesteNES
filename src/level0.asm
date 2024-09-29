@@ -14,6 +14,7 @@ level0_r1_p:
 	.byte $01,$00,$00,$00,$00,$00,$5F,$55
 	.byte $04,$FF
 level0_r1_e:
+	.byte $00, $80, e_strawb
 	.byte $40, $80, e_strawb
 	.byte $60, $80, e_refill
 	.byte $80, $80, e_spring
@@ -80,8 +81,8 @@ level0_r1_t:
 level0_r1:
 	.byte 1, 0, 12
 	.byte 1, 0
-	.byte 255, 255, 255, 2
-	.byte 255, 255, 255, 254
+	.byte 255, 255, 255, 0
+	.byte 255, 255, 255, 0
 	.byte 0
 	.word level0_r1_t
 	.word level0_r1_p

@@ -33,12 +33,12 @@ sp_max      = $10   ; maximum of 16 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
 sp_x        = (sp_max * 1)   ; X coordinate within a page
-sp_x_hi     = (sp_max * 2)   ; X coordinate in pages
+sp_x_hi     = (sp_max * 2)   ; X coordinate on the loaded game world
 sp_x_lo     = (sp_max * 3)   ; X coordinate subpixels (used for things like crystal hearts for smooth bounceback)
 sp_y        = (sp_max * 4)   ; Y coordinate
 sp_y_lo     = (sp_max * 5)   ; Y coordinate subpixels
-sp_entspec1 = (sp_max * 6)   ; entity specific 1
-sp_entspec2 = (sp_max * 7)   ; entity specific 2
+sp_x_pg     = (sp_max * 6)   ; X coordinate in pages
+sp_entspec1 = (sp_max * 7)   ; entity specific 1
 
 ; Entity Types
 e_none      = $00
@@ -249,7 +249,7 @@ tl_gametime = $0041 ; time until the transition to gm_game happens
 gamectrl    = $0020 ; game control
 ntwrhead    = $0021 ; name table write head (up to 64 columns)
 arwrhead    = $0022 ; area space write head (up to 32 columns)
-; $0023 SPARE
+camera_x_pg = $0023
 lvlptrlo    = $0024 ; level pointer
 lvlptrhi    = $0025
 roomptrlo   = $0026 ; room pointer
@@ -325,6 +325,7 @@ palallochd  = $006B
 temp8       = $006C
 roombeglo   = $006D ; beginning of room in pixels.  Used for entity placement
 roombeghi   = $006E
+roombeglo2  = $006F ; beginning of room in tiles.
 
 debug2      = $00FC
 debug       = $00FD

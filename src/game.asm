@@ -389,11 +389,16 @@ h_gener_ents_r:
 	lsr
 	lsr                   ; divide by 32 to get the screen number
 	and #1                ; NOTE: assumes arwrhead is between 0-63! change if/when expanding.
-	cmp tr_scrnpos
+	sta temp2
+	lda tr_scrnpos
+	and #1
+	cmp temp2
 	beq :+
 	rts                   ; if the screen numbers are not equal, then return
 :	lda arwrhead
 	and #$1F              ; cap it between 0-31, this will be an in-screen coordinate.
+	sec
+	sbc roombeglo2
 	asl
 	asl
 	asl                   ; now check if the X coordinate is bigger than the area write head.
@@ -432,13 +437,13 @@ h_generents_spotfound:
 	
 	lda tr_scrnpos
 	adc roombeghi
+	sta sprspace+sp_x_pg, x
 	and #1
 	sta sprspace+sp_x_hi, x
 	
 	; initialize other data about this entity
 	lda #0
 	sta sprspace+sp_entspec1, x
-	sta sprspace+sp_entspec2, x
 	sta sprspace+sp_x_lo, x
 	sta sprspace+sp_y_lo, x
 	; done!
@@ -454,8 +459,9 @@ h_generents_lvlend:
 
 h_generents_scrnext:
 	jsr gm_adv_ent        ; advance the entity stream
+	clc
 	lda #1                ; NOTE: assumes arwrhead is between 0-63! change if/when expanding.
-	eor tr_scrnpos
+	adc tr_scrnpos
 	sta tr_scrnpos
 	rts
 
@@ -1923,14 +1929,22 @@ gm_leaveroomR:
 :	jsr gm_set_room
 	
 	; load the room beginning pixel
-	lda arwrhead             ; NOTE: assumes arwrhead in [0, 64)
+	lda camera_x_pg
+	and #$FE
+	sta temp1
+	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)
+	sta roombeglo2
 	asl
 	asl
 	asl                      ; multiply by 8
 	sta roombeglo
 	rol
 	and #1
+	clc
+	adc temp1
 	sta roombeghi
+	lda #0
+	sta tr_scrnpos
 	
 	clc
 	lda transoff
@@ -1983,8 +1997,9 @@ gm_roomRtranloop:
 	lda camera_x
 	adc #cspeed              ; add cspeed to the camera X
 	sta camera_x
-	lda camera_x_hi
+	lda camera_x_pg
 	adc #0
+	sta camera_x_pg
 	and #1
 	sta camera_x_hi
 	
@@ -2219,7 +2234,8 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	adc camera_x      ; add the delta to the camera X
 	sta camera_x
 	lda #0
-	adc camera_x_hi
+	adc camera_x_pg
+	sta camera_x_pg
 	and #1
 	sta camera_x_hi
 	lda #gs_scrstopR  ; check if we overstepped the camera boundary, if needed
@@ -2500,6 +2516,7 @@ gm_game_clear_wx:
 	stx camera_x
 	stx camera_y
 	stx camera_x_hi
+	stx camera_x_pg
 	stx player_x_hi
 	stx tr_scrnpos
 	stx lvladdr
