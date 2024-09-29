@@ -397,11 +397,11 @@ h_gener_ents_r:
 	rts                   ; if the screen numbers are not equal, then return
 :	lda arwrhead
 	and #$1F              ; cap it between 0-31, this will be an in-screen coordinate.
-	sec
-	sbc roombeglo2
 	asl
 	asl
 	asl                   ; now check if the X coordinate is bigger than the area write head.
+	sec
+	sbc roombeglo
 	cmp temp1
 	bcs :+                ; if A [(arwrhead & 0x1F) >> 3] >= M [the X coord of the tile]
 	rts                   ; then return.
