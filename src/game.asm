@@ -383,6 +383,8 @@ h_gener_ents_r:
 	; this is the X coordinate of an entity.
 	
 	lda arwrhead          ; ok. check if we're on the correct screen
+	sec
+	sbc roombeglo2
 	lsr
 	lsr
 	lsr
@@ -1929,20 +1931,18 @@ gm_leaveroomR:
 :	jsr gm_set_room
 	
 	; load the room beginning pixel
-	lda camera_x_pg
-	and #$FE
-	sta temp1
 	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)
 	sta roombeglo2
 	asl
 	asl
 	asl                      ; multiply by 8
 	sta roombeglo
-	rol
-	and #1
+	
 	clc
-	adc temp1
+	lda camera_x_pg
+	adc #1
 	sta roombeghi
+	
 	lda #0
 	sta tr_scrnpos
 	
