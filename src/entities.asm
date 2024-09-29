@@ -64,10 +64,13 @@ gm_draw_common:
 	jsr oam_putsprite
 	
 :	; draw the right sprite
-	clc
+	lda temp4
+	bmi gm_draw_temp4neg
 	lda temp2
+	clc
 	adc #8
 	bcs :+                   ; if it overflew while computing the coord,
+gm_draw_temp4negd:
 	sta x_crd_temp           ; then it need not render
 	
 	lda temp5
@@ -75,6 +78,13 @@ gm_draw_common:
 	jsr oam_putsprite
 	
 :	rts
+
+gm_draw_temp4neg:
+	lda temp2
+	clc
+	adc #8
+	bcs gm_draw_temp4negd
+	bcc gm_draw_temp4negd
 
 ; ** SUBROUTINE: gm_draw_ent_call
 ; desc: Calls the relevant entity draw function.
@@ -210,11 +220,19 @@ gm_unload_os_ents:
 :	lda sprspace+sp_kind, x
 	beq :+
 	
-	sec
 	lda sprspace+sp_x, x
-	sbc camera_x
+	clc
+	adc #$10
 	sta temp2
 	lda sprspace+sp_x_pg, x
+	adc #0
+	sta temp3
+	
+	sec
+	lda temp2
+	sbc camera_x
+	;sta temp2
+	lda temp3
 	sbc camera_x_pg
 	
 	; result < 0: sprite went off the right side.
