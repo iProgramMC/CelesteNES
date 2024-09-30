@@ -79,9 +79,13 @@ gm_update_berry:
 	and #esb_picked
 	beq :+
 	; trailing behind player mode
-	lda plrtrahd
-	sec
-	sbc #4
+	lda sprspace+sp_strawb_colid, x
+	asl
+	asl
+	eor #$FF
+	clc
+	adc plrtrahd
+	
 	and #$3F
 	tay
 	
@@ -122,10 +126,11 @@ gm_update_berry:
 	ora #esb_picked
 	sta sprspace+sp_strawb_flags, x
 	
-:
+	inc plrstrawbs
+	lda plrstrawbs
+	sta sprspace+sp_strawb_colid, x
 	
-	
-	rts
+:	rts
 
 gm_update_refill:
 	jsr gm_ent_oscillate

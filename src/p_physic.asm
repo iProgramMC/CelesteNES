@@ -1171,22 +1171,6 @@ gm_dash_update_done:
 
 gm_addtrace:
 	ldx plrtrahd
-	lda plr_trace_x, x
-	sec
-	sbc player_x
-	cmp #2
-	bcc :+  ; < 3
-	cmp #$FE
-	bcs :+  ; > -3
-	
-	lda plr_trace_y, x
-	sec
-	sbc player_y
-	cmp #2
-	bcc :+  ; < 3
-	cmp #$FE
-	bcs :+  ; > -3
-	
 	inx
 	txa
 	and #$3F ; mod 64
@@ -1197,7 +1181,7 @@ gm_addtrace:
 	sta plr_trace_x, x
 	lda player_y
 	sta plr_trace_y, x
-:	rts
+	rts
 
 ; ** SUBROUTINE: gm_shifttrace
 ; desc: Shifts the player X trace left by an amount of pixels.

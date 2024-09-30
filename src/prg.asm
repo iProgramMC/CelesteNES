@@ -54,6 +54,7 @@ sp_oscill_timer = sp_entspec1
 sp_refill_flags = sp_entspec2
 sp_refill_oldos = sp_entspec3
 sp_strawb_flags = sp_entspec2
+sp_strawb_colid = sp_entspec3
 
 sp_part_entty = sp_entspec1
 sp_part_vel_x = sp_entspec2
@@ -356,6 +357,7 @@ roombeglo   = $006D ; beginning of room in pixels.  Used for entity placement
 roombeghi   = $006E
 roombeglo2  = $006F ; beginning of room in tiles.
 plrtrahd    = $0070 ; plr trace head
+plrstrawbs  = $0071 ; strawberries following this player
 
 debug2      = $00FC
 debug       = $00FD
