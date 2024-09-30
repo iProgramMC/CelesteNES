@@ -39,6 +39,21 @@ sp_y        = (sp_max * 4)   ; Y coordinate
 sp_y_lo     = (sp_max * 5)   ; Y coordinate subpixels
 sp_x_pg     = (sp_max * 6)   ; X coordinate in pages
 sp_entspec1 = (sp_max * 7)   ; entity specific 1
+sp_entspec2 = (sp_max * 8)   ; entity specific 2
+sp_entspec3 = (sp_max * 9)   ; entity specific 3
+sp_entspec4 = (sp_max *10)   ; entity specific 4
+sp_entspec5 = (sp_max *11)   ; entity specific 5
+sp_entspec6 = (sp_max *12)   ; entity specific 6
+
+; synonyms for entspec fields
+sp_oscill_timer = sp_entspec1
+
+sp_part_entty = sp_entspec1
+sp_part_vel_x = sp_entspec2
+sp_part_vel_y = sp_entspec3
+sp_part_timer = sp_entspec4
+sp_part_chrti = sp_entspec5
+sp_part_chrat = sp_entspec6
 
 ; Entity Types
 e_none      = $00
@@ -46,8 +61,7 @@ e_strawb    = $01
 e_refill    = $02
 e_spring    = $03
 e_key       = $04
-;e_fallclus  = $04
-;e_fallbrid  = $05
+e_particle  = $05
 
 ; Entity Commands
 ec_scrnext  = $FE

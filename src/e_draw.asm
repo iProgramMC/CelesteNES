@@ -6,6 +6,24 @@
 ;   temp3 - Y Screen Position
 ;   temp4 - X High Position
 
+;     reg X - direction (0-UL, 1-UR, 2-DL, 3-DR)
+gm_draw_particle:
+	lda temp2
+	cmp #$F8
+	bcc :++
+	lda temp4
+	bpl :+
+	rts
+:	lda temp2
+:	sta x_crd_temp
+	lda temp3
+	sta y_crd_temp
+	ldy sprspace+sp_part_chrti, x
+	lda sprspace+sp_part_chrat, x
+	jsr oam_putsprite
+	jsr gm_update_particle
+	rts
+
 gm_draw_berry:
 	jsr gm_update_berry
 	lda #$01
@@ -17,6 +35,7 @@ gm_draw_berry:
 	jmp gm_draw_common
 	
 gm_draw_refill:
+	jsr gm_update_refill
 	lda #$03
 	sta temp5
 	lda #$FC
@@ -123,6 +142,7 @@ gm_entjtable_lo:
 	.byte <gm_draw_refill
 	.byte <gm_draw_spring
 	.byte <gm_draw_key
+	.byte <gm_draw_particle
 
 gm_entjtable_hi:
 	.byte $00
@@ -130,6 +150,7 @@ gm_entjtable_hi:
 	.byte >gm_draw_refill
 	.byte >gm_draw_spring
 	.byte >gm_draw_key
+	.byte >gm_draw_particle
 
 
 gm_allocate_palettes:
@@ -147,8 +168,11 @@ gm_allocate_palettes:
 	ldy #0
 gm_allocpal_loop:
 	lda sprspace+sp_kind,y   ; load the entity's kind
-	beq :+                   ; if empty, don't update
-	tya
+	beq :++                  ; if empty, don't update
+	cmp #e_particle
+	bne :+
+	lda sprspace+sp_part_entty
+:	tya
 	tax
 	jsr gm_check_ent_onscreen
 	beq :+                   ; if entity is off screen, jump to 
@@ -268,3 +292,4 @@ ent_palettes:
 	.byte $01  ; e_refill
 	.byte $02  ; e_spring
 	.byte $03  ; e_key
+	.byte $00  ; e_particle (will inherit palette from old ent id)
