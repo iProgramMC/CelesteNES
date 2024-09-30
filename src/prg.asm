@@ -349,19 +349,24 @@ temp8       = $006C
 roombeglo   = $006D ; beginning of room in pixels.  Used for entity placement
 roombeghi   = $006E
 roombeglo2  = $006F ; beginning of room in tiles.
+plrtrahd    = $0070 ; plr trace head
 
 debug2      = $00FC
 debug       = $00FD
 nmicount    = $00FE
 
 ; large areas reserved by the game
-sprspace    = $0500 ; 256 bytes
+sprspace    = $0200 ; 256 bytes
+; 256 bytes free
+plr_trace_x = $0400
+plr_trace_y = $0440
 
-tempcol     = $0600 ; 32 bytes - temporary column to be flushed to the screen
-temppal     = $0620 ; 8 bytes  - temporary palette column to be flushed to the screen
-allocpals   = $0628 ; 16 bytes - logical to physical palette
-palsallocd  = $0638 ; 16 bytes - physical to logical palette
-freespace1  = $06F8 ; 8 bytes of free space
+tempcol     = $0500 ; 32 bytes - temporary column to be flushed to the screen
+temppal     = $0520 ; 8 bytes  - temporary palette column to be flushed to the screen
+allocpals   = $0528 ; 16 bytes - logical to physical palette
+palsallocd  = $0538 ; 16 bytes - physical to logical palette
+
+
 
 areaspace   = $6000 ; 2048 bytes -- 64 X 32 area, OR 32 X 64 in V mode
 

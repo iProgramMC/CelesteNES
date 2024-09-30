@@ -969,6 +969,7 @@ gm_scroll_do:
 	bcc gm_scr_nofix  ; A < camspeed
 	lda #camspeed
 gm_scr_nofix:         ; A now contains the delta we need to scroll by
+	sta temp1
 	clc
 	tax               ; save the delta as we'll need it later
 	adc camera_x      ; add the delta to the camera X
@@ -1006,6 +1007,10 @@ gm_scrollnolimit:
 	lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
 	sta player_x
 	txa               ; restore the delta to add to camera_rev
+	pha
+	lda temp1
+	jsr gm_shifttrace
+	pla
 	adc camera_rev
 	sta camera_rev
 	cmp #8
@@ -1161,4 +1166,48 @@ gm_dash_update_done:
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
+	jsr gm_addtrace
 	jmp gm_checkwjump
+
+gm_addtrace:
+	lda player_vl_x
+	bne :+
+	lda player_vl_y
+	bne :+
+	lda player_vs_x
+	bne :+
+	lda player_vs_y
+	bne :+
+	rts
+:	ldx plrtrahd
+	lda player_x
+	sta plr_trace_x, x
+	lda player_y
+	sta plr_trace_x, y
+	inx
+	txa
+	and #$3F   ; mod 64
+	sta plrtrahd
+	rts
+
+; ** SUBROUTINE: gm_shifttrace
+; desc: Shifts the player X trace left by an amount of pixels.
+; parameters:
+;     A - the amount of pixels to decrease the player X trace by
+; note: The player X trace is capped to 0. It will not overflow.
+gm_shifttrace:
+	pha
+	ldx #0
+	sta temp1
+:	lda plr_trace_x, x
+	clc
+	sbc temp1
+	bcs :+
+	lda #0
+:	sta plr_trace_x, x
+	inx
+	cpx #$40
+	bne :--
+	pla
+	rts
+	
