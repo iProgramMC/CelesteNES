@@ -104,6 +104,9 @@ gm_roomRtranloop:
 	and #1
 	sta camera_x_hi
 	
+	lda #8
+	jsr gm_shifttrace
+	
 	lda transoff
 	ror
 	ror

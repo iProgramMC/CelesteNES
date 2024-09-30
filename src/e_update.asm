@@ -77,7 +77,7 @@ gm_update_berry:
 	ldx temp1
 	lda sprspace+sp_strawb_flags, x
 	and #esb_picked
-	beq :+
+	beq :++
 	; trailing behind player mode
 	lda sprspace+sp_strawb_colid, x
 	asl
@@ -91,7 +91,10 @@ gm_update_berry:
 	
 	clc
 	lda temp2
-	adc plr_trace_x, y
+	cmp #$F8
+	bcc :+
+	lda #0
+:	adc plr_trace_x, y
 	ror                 ; average between temp2 and plr_trace_x
 	sta temp2
 	

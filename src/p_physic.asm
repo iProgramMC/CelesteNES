@@ -1193,7 +1193,7 @@ gm_shifttrace:
 	ldx #0
 	sta temp1
 :	lda plr_trace_x, x
-	clc
+	sec
 	sbc temp1
 	bcs :+
 	lda #0
