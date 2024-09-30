@@ -1,5 +1,5 @@
 
-; ** ENTITY DRAWING ROUTINES!
+; ** Entity Draw/Update routines
 ; Parameters:
 ;   temp1 - Entity Index (passed in through X too)
 ;   temp2 - X Screen Position
@@ -7,6 +7,7 @@
 ;   temp4 - X High Position
 
 gm_draw_berry:
+	jsr gm_update_berry
 	lda #$01
 	sta temp5
 	lda #$F8
@@ -245,6 +246,20 @@ gm_unload_os_ents:
 	bne :--
 	rts
 
+; ** SUBROUTINE: gm_draw_entities
+; desc: Draws visible entities to the screen.
+gm_draw_entities:
+	ldx #0
+gm_draw_ents_loop:
+	lda sprspace+sp_kind, x
+	beq :+             ; this is an empty entity slot. waste no time
+	stx temp1
+	jsr gm_draw_ent_call
+	ldx temp1
+:	inx
+	cpx #sp_max
+	bne gm_draw_ents_loop
+	rts
 
 ; List of entity palette IDs
 ent_palettes:
