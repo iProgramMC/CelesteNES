@@ -234,6 +234,7 @@ level0_r4_p:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $FE,$FE,$FF
 level0_r4_e:
+	.byte $40, $80, e_strawb
 	.byte $FF
 level0_r4_t:
 	.byte $D6,$06,$13,$C6,$D6,$05,$14,$C6

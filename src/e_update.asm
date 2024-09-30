@@ -73,6 +73,58 @@ gm_ent_oscillate:
 
 gm_update_berry:
 	jsr gm_ent_oscillate
+	
+	ldx temp1
+	lda sprspace+sp_strawb_flags, x
+	and #esb_picked
+	beq :+
+	; trailing behind player mode
+	lda plrtrahd
+	sec
+	sbc #4
+	and #$3F
+	tay
+	
+	clc
+	lda temp2
+	adc plr_trace_x, y
+	ror                 ; average between temp2 and plr_trace_x
+	sta temp2
+	
+	clc
+	lda temp3
+	adc plr_trace_y, y
+	ror
+	sta temp3
+	
+	clc
+	lda temp2
+	adc camera_x
+	sta sprspace+sp_x, x
+	
+	lda camera_x_pg
+	adc #0
+	sta sprspace+sp_x_pg, x
+	and #1
+	sta sprspace+sp_x_hi, x
+	
+	lda temp3
+	sta sprspace+sp_y, x
+	
+	jmp :++
+:	
+	; floating mode
+	jsr gm_check_player_bb
+	beq :+
+	
+	; collided, set to picked up mode
+	lda sprspace+sp_strawb_flags, x
+	ora #esb_picked
+	sta sprspace+sp_strawb_flags, x
+	
+:
+	
+	
 	rts
 
 gm_update_refill:

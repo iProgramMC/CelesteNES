@@ -20,6 +20,10 @@ apu_status  = $4015
 apu_joypad1 = $4016
 apu_joypad2 = $4017
 apu_frctr   = $4017
+mmc1_ctrl   = $8000
+mmc1_chr0   = $A000
+mmc1_chr1   = $C000
+mmc1_prg    = $E000
 
 ; Offsets in Sprite Struct
 
@@ -49,6 +53,7 @@ sp_entspec6 = (sp_max *12)   ; entity specific 6
 sp_oscill_timer = sp_entspec1
 sp_refill_flags = sp_entspec2
 sp_refill_oldos = sp_entspec3
+sp_strawb_flags = sp_entspec2
 
 sp_part_entty = sp_entspec1
 sp_part_vel_x = sp_entspec2
@@ -75,6 +80,7 @@ ec_dataend  = $FF
 
 ; Entity flags
 erf_regen   = $01
+esb_picked  = $01
 
 ; Sprite Indices
 plr_idle1_l = $02
@@ -432,45 +438,45 @@ no_feedback:
 ; arguments:
 ;   a - bank offset in 4K blocks
 mmc1_selsprbank:
-	sta $A000
+	sta mmc1_chr0
 	lsr
-	sta $A000
+	sta mmc1_chr0
 	lsr
-	sta $A000
+	sta mmc1_chr0
 	lsr
-	sta $A000
+	sta mmc1_chr0
 	lsr
-	sta $A000
+	sta mmc1_chr0
 	rts
 
 ; ** SUBROUTINE: mmc1_selcharbank
 ; arguments:
 ;   a - bank offset in 4K blocks
 mmc1_selcharbank:
-	sta $C000
+	sta mmc1_chr1
 	lsr
-	sta $C000
+	sta mmc1_chr1
 	lsr
-	sta $C000
+	sta mmc1_chr1
 	lsr
-	sta $C000
+	sta mmc1_chr1
 	lsr
-	sta $C000
+	sta mmc1_chr1
 	rts
 
 ; ** SUBROUTINE: mmc1_selprgbank
 ; arguments:
 ;   a - bank offset in 16K blocks
 mmc1_selprgbank:
-	sta $E000
+	sta mmc1_prg
 	lsr
-	sta $E000
+	sta mmc1_prg
 	lsr
-	sta $E000
+	sta mmc1_prg
 	lsr
-	sta $E000
+	sta mmc1_prg
 	lsr
-	sta $E000
+	sta mmc1_prg
 	rts
 
 ; ** SUBROUTINE: mmc1_control
@@ -478,15 +484,15 @@ mmc1_selprgbank:
 ;   a - the value to send to the control register
 ; desc: Sets the internal control register of the MMC1 mapper.
 mmc1_control:
-	sta $8000
+	sta mmc1_ctrl
 	lsr
-	sta $8000
+	sta mmc1_ctrl
 	lsr
-	sta $8000
+	sta mmc1_ctrl
 	lsr
-	sta $8000
+	sta mmc1_ctrl
 	lsr
-	sta $8000
+	sta mmc1_ctrl
 	rts
 
 ; ** SUBROUTINE: oam_putsprite
@@ -654,6 +660,9 @@ reset_clrmem:
 	sta $700, x
 	inx
 	bne reset_clrmem
+	
+	lda #$80
+	sta mmc1_ctrl  ; reset mmc1 shift register
 	
 	; bits 0-1 : mirroring (vertical)
 	; bits 2-3 : prg rom bank mode (fix last bank at $C000 and switch 16K bank at $8000)
