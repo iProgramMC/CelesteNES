@@ -371,6 +371,21 @@ h_genertiles_cont:
 	sta arwrhead
 	rts
 
+h_generents_lvlend:
+	lda entrdheadlo       ; decrement the stream pointer...
+	bne :+
+	dec entrdheadhi
+:	dec entrdheadlo       ; and return
+	rts
+
+h_generents_scrnext:
+	jsr gm_adv_ent        ; advance the entity stream
+	clc
+	lda #1                ; NOTE: assumes arwrhead is between 0-63! change if/when expanding.
+	adc tr_scrnpos
+	sta tr_scrnpos
+	rts
+
 ; ** SUBROUTINE: h_gener_ents_r
 ; desc:    Generates a column of entities ahead of the visual column render head.
 h_gener_ents_r:
@@ -427,8 +442,28 @@ h_gener_ents_r:
 	rts
 h_generents_spotfound:
 	; a sprite slot was found. its slot number is located in the x register.
+	lda #0
+	sta sprspace+sp_entspec1, x
+	sta sprspace+sp_entspec2, x
+	sta sprspace+sp_entspec3, x
+	sta sprspace+sp_entspec4, x
+	sta sprspace+sp_entspec5, x
+	sta sprspace+sp_entspec6, x
+	sta sprspace+sp_x_lo, x
+	sta sprspace+sp_y_lo, x
+	
 	lda temp3
+	cmp #e_rerefill
+	bne :+
+	lda #e_refill             ; this is a refill with regeneration. turn it into a
+	sta sprspace+sp_kind, x   ; normal refill entity with the erf_regen flag set.
+	lda #erf_regen
+	sta sprspace+sp_refill_flags, x
+	jmp h_generents_cont
+:
+	; some more exceptional entity IDs here...
 	sta sprspace+sp_kind, x
+h_generents_cont:
 	lda temp2
 	sta sprspace+sp_y, x
 	
@@ -444,52 +479,8 @@ h_generents_spotfound:
 	and #1
 	sta sprspace+sp_x_hi, x
 	
-	; initialize other data about this entity
-	lda #0
-	sta sprspace+sp_entspec1, x
-	sta sprspace+sp_x_lo, x
-	sta sprspace+sp_y_lo, x
-	; done!
-	rts
-	
-	
-h_generents_lvlend:
-	lda entrdheadlo       ; decrement the stream pointer...
-	bne :+
-	dec entrdheadhi
-:	dec entrdheadlo       ; and return
 	rts
 
-h_generents_scrnext:
-	jsr gm_adv_ent        ; advance the entity stream
-	clc
-	lda #1                ; NOTE: assumes arwrhead is between 0-63! change if/when expanding.
-	adc tr_scrnpos
-	sta tr_scrnpos
-	rts
-
-; ** SUBROUTINE: gm_increment_ptr
-; ** SUBROUTINE: gm_decrement_ptr
-; args: x - offset in zero page to (in/de)crement 16-bit address
-; clobbers: a
-;m_increment_ptr:
-;	lda #0
-;	sec
-;	adc $00, x
-;	sta $00, x
-;	lda $01, x
-;	adc #0
-;	sta $01, x
-;	rts
-;m_decrement_ptr:
-;	clc
-;	lda $00, x
-;	sbc #0
-;	sta $00, x
-;	lda $01, x
-;	sbc #0
-;	sta $01, x
-;	rts
 ; ** SUBROUTINE: gm_set_level_ptr
 ; ** SUBROUTINE: gm_set_room_ptr
 ; args:

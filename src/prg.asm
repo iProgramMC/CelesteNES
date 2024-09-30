@@ -47,6 +47,8 @@ sp_entspec6 = (sp_max *12)   ; entity specific 6
 
 ; synonyms for entspec fields
 sp_oscill_timer = sp_entspec1
+sp_refill_flags = sp_entspec2
+sp_refill_oldos = sp_entspec3
 
 sp_part_entty = sp_entspec1
 sp_part_vel_x = sp_entspec2
@@ -62,10 +64,17 @@ e_refill    = $02
 e_spring    = $03
 e_key       = $04
 e_particle  = $05
+e_refillhd  = $06
+
+; Entity types that turn into other entities on load
+e_rerefill  = $FF ; refill with respawn flag set
 
 ; Entity Commands
 ec_scrnext  = $FE
 ec_dataend  = $FF
+
+; Entity flags
+erf_regen   = $01
 
 ; Sprite Indices
 plr_idle1_l = $02

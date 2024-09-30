@@ -28,25 +28,39 @@ gm_draw_berry:
 	jsr gm_update_berry
 	lda #$01
 	sta temp5
+	sta temp8
 	lda #$F8
 	sta temp6
 	lda #$FA
 	sta temp7
 	jmp gm_draw_common
-	
+
+gm_draw_refillhold:
+	lda #$01
+	sta temp5
+	lda #$41
+	sta temp8
+	lda #$76
+	sta temp6
+	sta temp7
+	jsr gm_draw_common
+	jmp gm_update_refillhold
+
 gm_draw_refill:
-	jsr gm_update_refill
 	lda #$03
 	sta temp5
+	sta temp8
 	lda #$FC
 	sta temp6
 	lda #$FE
 	sta temp7
-	jmp gm_draw_common
+	jsr gm_draw_common
+	jmp gm_update_refill
 	
 gm_draw_spring:
 	lda #$01
 	sta temp5
+	sta temp8
 	lda #$C8
 	sta temp6
 	lda #$CA
@@ -56,6 +70,7 @@ gm_draw_spring:
 gm_draw_key:
 	lda #$03
 	sta temp5
+	sta temp8
 	lda #$DC
 	sta temp6
 	lda #$DE
@@ -93,7 +108,7 @@ gm_draw_common:
 gm_draw_temp4negd:
 	sta x_crd_temp           ; then it need not render
 	
-	lda temp5
+	lda temp8
 	ldy temp7
 	jsr oam_putsprite
 	
@@ -143,6 +158,7 @@ gm_entjtable_lo:
 	.byte <gm_draw_spring
 	.byte <gm_draw_key
 	.byte <gm_draw_particle
+	.byte <gm_draw_refillhold
 
 gm_entjtable_hi:
 	.byte $00
@@ -151,6 +167,7 @@ gm_entjtable_hi:
 	.byte >gm_draw_spring
 	.byte >gm_draw_key
 	.byte >gm_draw_particle
+	.byte >gm_draw_refillhold
 
 
 gm_allocate_palettes:

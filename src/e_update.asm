@@ -79,12 +79,12 @@ gm_update_refill:
 	jsr gm_ent_oscillate
 	
 	jsr gm_check_player_bb
-	beq :+
+	beq :++
 	
 	; collided!
 	; check if the dash count is non zero.
 	lda dashcount
-	beq :+
+	beq :++
 	; todo: check stamina too
 	
 	; player has dashed which means 
@@ -105,8 +105,31 @@ gm_update_refill:
 	jsr gm_spawn_particle
 	
 	ldx temp1
+	lda sprspace+sp_refill_flags, x
+	and #erf_regen
+	beq :+
+	
+	lda sprspace+sp_oscill_timer, x
+	sta sprspace+sp_refill_oldos, x
+	
+	lda #$F0
+	sta sprspace+sp_oscill_timer, x
+	lda #e_refillhd
+:	sta sprspace+sp_kind, x
+	
 	lda #0
 	sta dashcount
+	
+:	rts
+
+gm_update_refillhold:
+	ldx temp1
+	dec sprspace+sp_oscill_timer, x
+	bne :+
+	; time to replace with a normal one
+	lda sprspace+sp_refill_oldos, x
+	sta sprspace+sp_oscill_timer, x
+	lda #e_refill
 	sta sprspace+sp_kind, x
 	
 :	rts

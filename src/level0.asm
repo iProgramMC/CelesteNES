@@ -16,7 +16,7 @@ level0_r1_p:
 level0_r1_e:
 	.byte $00, $80, e_strawb
 	.byte $40, $80, e_strawb
-	.byte $60, $80, e_refill
+	.byte $60, $80, e_rerefill
 	.byte $80, $80, e_spring
 	.byte $FE
 	.byte $20, $80, e_key
