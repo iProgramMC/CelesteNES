@@ -280,6 +280,12 @@ tl_gametime = $0041 ; time until the transition to gm_game happens
 
 ; Overworld specific addresses
 owldctrl    = $0020 ; overworld control
+ow_temp1    = $0021
+ow_temp2    = $0022
+ow_temp3    = $0023
+ow_temp4    = $0024
+ow_temp5    = $0025
+ow_temp6    = $0026
 
 ; Game specific addresses
 gamectrl    = $0020 ; game control
@@ -688,7 +694,7 @@ reset_clrmem:
 	
 	jsr vblank_wait  ; second vblank wait
 	
-	ldy init_palette - lastpage
+	ldy #(init_palette - lastpage)
 	jsr load_palette ; move palette to palette RAM
 	
 	lda #$20         ; clear the two nametables
@@ -724,6 +730,7 @@ main_loop:
 
 .include "update.asm"
 .include "audio.asm"
+.include "o_mtndat.asm"
 
 .res leveldata - *, $FF
 .include "levels.asm"
@@ -735,6 +742,15 @@ init_palette:
 	.byte $0f,$37,$16,$06 ; brown tiles
 	.byte $0f,$20,$21,$11 ; blue tiles
 	.byte $0f,$39,$29,$19 ; green tiles
+	.byte $0f,$37,$14,$21 ; player sprite colors
+	.byte $0f,$36,$16,$06 ; red/strawberry sprite
+	.byte $0f,$20,$21,$11 ; blue sprite
+	.byte $0f,$30,$29,$09 ; green/refill sprite
+owld_palette:
+	.byte $0f,$0c,$01,$00
+	.byte $0f,$0c,$10,$30
+	.byte $0f,$0c,$00,$10
+	.byte $0f,$00,$10,$30
 	.byte $0f,$37,$14,$21 ; player sprite colors
 	.byte $0f,$36,$16,$06 ; red/strawberry sprite
 	.byte $0f,$20,$21,$11 ; blue sprite

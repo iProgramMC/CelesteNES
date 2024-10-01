@@ -20,7 +20,7 @@ gm_game_init:
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
-	ldy init_palette - lastpage
+	ldy #(init_palette - lastpage)
 	jsr load_palette  ; load game palette into palette RAM
 	jsr gm_set_level_1
 	jsr h_gener_ents_r
