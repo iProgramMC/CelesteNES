@@ -21,4 +21,5 @@
 .segment "CHR"
 .incbin  "sprites.chr"
 .incbin  "b_title.chr"
+.incbin  "b_overw.chr"
 .incbin  "b_lvl0.chr"

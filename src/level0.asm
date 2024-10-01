@@ -268,7 +268,7 @@ level0_r4:
 	.word level0_r4_p
 	.word level0_r4_e
 level0:
-	.byte $02	; environment type
+	.byte $03	; environment type
 	.byte $04	; room count
 	.word level0_r1
 	.word level0_r2

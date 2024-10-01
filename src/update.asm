@@ -19,41 +19,22 @@ nmi_title:
 	lda #ts_turnon
 	bit titlectrl
 	bne nmi_title_turnon
-	jmp nmi_gamemodeend
+	beq nmi_gamemodeend
 nmi_title_turnon:
 	lda titlectrl
 	eor #ts_turnon
 	sta titlectrl
 	lda #def_ppu_msk
 	sta ppu_mask
-	jmp nmi_gamemodeend
+	beq nmi_gamemodeend
 
-nmi_game:
-	lda #gs_turnon
-	bit gamectrl
-	beq nmi_game_trycols
-	lda gamectrl
-	eor #gs_turnon
-	sta gamectrl
+nmi_overwld:
+	lda #os_turnon
+	bit owldctrl
+	beq :+
 	lda #def_ppu_msk
 	sta ppu_mask
-nmi_game_trycols:
-	lda #gs_flstcolR
-	bit gamectrl
-	beq nmi_game_trypal
-	lda #gs_flstcolR
-	eor gamectrl
-	sta gamectrl
-	jsr h_flush_col_r
-	;jmp nmi_gamemodeend
-nmi_game_trypal:
-	lda #gs_flstpalR
-	bit gamectrl
-	beq nmi_gamemodeend
-	lda #gs_flstpalR
-	eor gamectrl
-	sta gamectrl
-	jsr h_flush_pal_r
+:	
 	jmp nmi_gamemodeend
 
 nmi:
@@ -75,7 +56,9 @@ nmi:
 	beq nmi_titletra
 	cpx #gm_title
 	beq nmi_title
-	jmp nmi_game
+	cpx #gm_overwld
+	beq nmi_overwld
+	bne nmi_game
 	
 nmi_gamemodeend:
 	
@@ -110,6 +93,35 @@ nmi_camhid:
 	pla
 	rti
 
+nmi_game:
+	lda #gs_turnon
+	bit gamectrl
+	beq nmi_game_trycols
+	lda gamectrl
+	eor #gs_turnon
+	sta gamectrl
+	lda #def_ppu_msk
+	sta ppu_mask
+nmi_game_trycols:
+	lda #gs_flstcolR
+	bit gamectrl
+	beq nmi_game_trypal
+	lda #gs_flstcolR
+	eor gamectrl
+	sta gamectrl
+	jsr h_flush_col_r
+	;jmp nmi_gamemodeend
+nmi_game_trypal:
+	lda #gs_flstpalR
+	bit gamectrl
+	beq nmi_gamemodeend
+	lda #gs_flstpalR
+	eor gamectrl
+	sta gamectrl
+	jsr h_flush_pal_r
+	jmp nmi_gamemodeend
+
+.include "weather.asm"
 .include "title.asm"
 
 ; ** SUBROUTINE: game_update
@@ -122,10 +134,13 @@ game_update:
 	beq gamemode_title   ; title screen
 	cpx #gm_titletra
 	beq gamemode_titletr ; title screen transition
+	cpx #gm_overwld
+	beq gamemode_overwd  ; overworld
 	jmp gamemode_game    ; default handling
 game_update_return:
 	rts
 
+.include "overwld.asm"
 .include "game.asm"
 
 ; ** SUBROUTINE: com_clear_oam

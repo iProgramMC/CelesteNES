@@ -139,8 +139,9 @@ mmc1bk_chr1 = 1
 mmc1bk_prg  = 2
 bank_spr    = $00   ; default sprite bank
 bank_title  = $01   ; graphics bank used for title screen
-bank_lvl0   = $02   ; graphics bank used for level 0 "prologue"
-bank_lvl1   = $03   ; graphics bank used for level 1 "ruins"
+bank_owld   = $02   ; graphics bank used for overworld
+bank_lvl0   = $03   ; graphics bank used for level 0 "prologue"
+bank_lvl1   = $04   ; graphics bank used for level 1 "ruins"
 blank_tile  = $00
 apu_irq_off = $40
 oam_buf_hi  = $07   ; matches the upper bytes of the address of oam_buf
@@ -159,6 +160,7 @@ def_ppu_msk = %00011110
 gm_game     = $00   ; Game Modes
 gm_title    = $01
 gm_titletra = $02   ; title transition
+gm_overwld  = $03   ; overworld
 tm_gametra  = 30    ; frames until the title->game transition ends
 cont_a      = $80
 cont_b      = $40
@@ -170,6 +172,8 @@ cont_left   = $02
 cont_right  = $01
 ts_1stfr    = $01   ; first frame of title screen
 ts_turnon   = $02   ; need to program the PPU mask to turn on rendering
+os_1stfr    = $01   ; first frame of overworld screen
+os_turnon   = $02   ; need to program the PPU mask to turn on rendering
 gs_1stfr    = $01   ; first frame of game screen
 gs_vertical = $02   ; is the level vertical?
 gs_scrstodR = $04   ; rightward camera scrolling is disabled
@@ -270,12 +274,14 @@ plr_spr_r   = $001D ; player sprite right
 plh_spr_l   = $001E ; player hair sprite left
 plh_spr_r   = $001F ; player hair sprite right
 
-; NOTE: these addresses can and should be repurposed for in-game
-tl_snow_y   = $0020 ; Y coordinates of the 16 snow particles
-tl_snow_x   = $0030 ; X coordinates of the 16 snow particles
+; Title specific addresses
 tl_timer    = $0040
 tl_gametime = $0041 ; time until the transition to gm_game happens
 
+; Overworld specific addresses
+owldctrl    = $0020 ; overworld control
+
+; Game specific addresses
 gamectrl    = $0020 ; game control
 ntwrhead    = $0021 ; name table write head (up to 64 columns)
 arwrhead    = $0022 ; area space write head (up to 32 columns)
@@ -359,6 +365,10 @@ roombeglo2  = $006F ; beginning of room in tiles.
 plrtrahd    = $0070 ; plr trace head
 plrstrawbs  = $0071 ; strawberries following this player
 
+; note: these are used by title, overworld AND MAYBE game too.
+tl_snow_y   = $00D0 ; Y coordinates of the 16 snow particles
+tl_snow_x   = $00E0 ; X coordinates of the 16 snow particles
+
 debug2      = $00FC
 debug       = $00FD
 nmicount    = $00FE
@@ -371,9 +381,9 @@ plr_trace_y = $0440
 
 tempcol     = $0500 ; 32 bytes - temporary column to be flushed to the screen
 temppal     = $0520 ; 8 bytes  - temporary palette column to be flushed to the screen
-allocpals   = $0528 ; 16 bytes - logical to physical palette
-palsallocd  = $0538 ; 16 bytes - physical to logical palette
-
+; 8 bytes spare here
+allocpals   = $0530 ; 16 bytes - logical to physical palette
+palsallocd  = $0540 ; 16 bytes - physical to logical palette
 
 
 areaspace   = $6000 ; 2048 bytes -- 64 X 32 area, OR 32 X 64 in V mode
