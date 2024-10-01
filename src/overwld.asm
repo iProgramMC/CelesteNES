@@ -82,6 +82,8 @@ gamemode_overwd:
 	lda owldctrl
 	ora #(os_1stfr | os_turnon)
 	sta owldctrl
+	lda #bank_sprow
+	jsr mmc1_selsprbank
 	lda #bank_owld
 	jsr mmc1_selcharbank
 	jsr vblank_wait

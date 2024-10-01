@@ -90,6 +90,8 @@ gamemode_title:
 	sta titlectrl
 	lda #bank_title
 	jsr mmc1_selcharbank ; load the title's character bank
+	lda #bank_spr
+	jsr mmc1_selsprbank
 	jsr vblank_wait
 	
 gamemode_title_update:

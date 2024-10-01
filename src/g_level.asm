@@ -627,6 +627,9 @@ gm_set_level:
 	lda (lvlptrlo), y
 	jsr mmc1_selcharbank    ; select the character tile bank specified in the level
 	
+	lda #bank_spr
+	jsr mmc1_selsprbank
+	
 	; fallthru
 
 ; ** SUBROUTINE: gm_set_room
