@@ -120,6 +120,13 @@
 
 level_table:
 	.word level0
+	.word level0 ; 1
+	.word level0 ; 2
+	.word level0 ; 3
+	.word level0 ; 4
+	.word level0 ; 5
+	.word level0 ; 6
+	.word level0 ; 7
 level_table_end:
 
 level_table_size = level_table_end - level_table

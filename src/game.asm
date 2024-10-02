@@ -16,13 +16,12 @@ gm_game_init:
 	stx ppu_mask      ; disable rendering
 	jsr gm_game_clear_all_wx
 	jsr vblank_wait
+	ldy #(init_palette - lastpage)
+	jsr load_palette  ; load game palette into palette RAM
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
-	ldy #(init_palette - lastpage)
-	jsr load_palette  ; load game palette into palette RAM
-	jsr gm_set_level_1
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
 	ldy #$00          ; generate tilesahead columns
@@ -94,6 +93,7 @@ gm_game_clear_wx:
 	stx gamectrl      ; clear game related fields to zero
 	stx ntwrhead
 	stx arwrhead
+	stx player_x
 	stx player_y
 	stx player_sp_x
 	stx player_sp_y
@@ -116,13 +116,16 @@ gm_game_clear_wx:
 	stx jumpbuff
 	stx jumpcoyote
 	stx wjumpcoyote
+	stx tr_scrnpos
 	
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
 	; note: ldx #$00 was removed because it's already 0!
 gm_game_clear:
+	sta $200,x
 	sta $300,x
 	sta $400,x
 	sta $500,x
 	sta $600,x
+	sta $700,x
 	inx
 	bne gm_game_clear

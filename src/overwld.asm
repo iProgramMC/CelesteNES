@@ -47,7 +47,22 @@ gamemode_overwd_update:
 	jsr ow_draw_c5_temple
 	jsr ow_draw_c7_summit
 	
-	rts
+	lda #(cont_a | cont_start)
+	bit ow_temp5
+	beq :+
+	
+	; now enter the game!
+	jsr vblank_wait
+	lda #0
+	sta ppu_mask        ; disable rendering to obscure that gm_set_level sets the bank early
+	
+	lda ow_sellvl
+	asl
+	tax
+	jsr gm_set_level
+	jmp tl_gameswitch
+	
+:	jmp game_update_return
 
 ; ** SUBROUTINE: ow_draw_level_name
 ; desc: Draws the new level name.
@@ -447,26 +462,6 @@ ow_waypoints_y:
 	.byte  67-4+yoff   ; chapter 5
 	.byte 137-4+yoff   ; chapter 6
 	.byte  36-4+yoff   ; chapter 7
-
-ow_levels_lo:
-	.byte <level0
-	.byte <level0
-	.byte <level0
-	.byte <level0
-	.byte <level0
-	.byte <level0
-	.byte <level0
-	.byte <level0
-
-ow_levels_hi:
-	.byte >level0
-	.byte >level0
-	.byte >level0
-	.byte >level0
-	.byte >level0
-	.byte >level0
-	.byte >level0
-	.byte >level0
 
 ; note: each space is 16 bytes wide
 ow_level_names:
