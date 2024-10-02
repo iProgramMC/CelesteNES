@@ -77,6 +77,47 @@ gm_draw_key:
 	sta temp7
 	jmp gm_draw_common
 	
+gm_draw_points:
+	lda #$02
+	sta temp5
+	sta temp8
+	
+	ldx temp1
+	
+	sec
+	lda sprspace+sp_y_lo, x
+	sbc #$60
+	sta sprspace+sp_y_lo, x
+	
+	lda sprspace+sp_y, x
+	sbc #0
+	beq :+
+	sta sprspace+sp_y, x
+	
+	lda sprspace+sp_points_timer, x
+	sec
+	sbc #1
+	bne :++
+:	sta sprspace+sp_kind, x
+:	sta sprspace+sp_points_timer, x
+	
+	lda sprspace+sp_points_count, x
+	cmp #6
+	bne :+
+	; 1 up mode
+	lda #$8E
+	sta temp7
+	bne :++
+	; normal points mode
+:	lda #$80
+	sta temp7
+:	asl
+	clc
+	adc #$82
+	sta temp6
+	
+	jmp gm_draw_common
+	
 ; draws a common 2X sprite.
 gm_draw_common:
 	lda temp3
@@ -159,6 +200,7 @@ gm_entjtable_lo:
 	.byte <gm_draw_key
 	.byte <gm_draw_particle
 	.byte <gm_draw_refillhold
+	.byte <gm_draw_points
 
 gm_entjtable_hi:
 	.byte $00
@@ -168,7 +210,7 @@ gm_entjtable_hi:
 	.byte >gm_draw_key
 	.byte >gm_draw_particle
 	.byte >gm_draw_refillhold
-
+	.byte >gm_draw_points
 
 gm_allocate_palettes:
 	; clear the memory related to palette allocation.

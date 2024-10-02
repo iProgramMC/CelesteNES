@@ -59,6 +59,50 @@ gm_spawn_particle:
 	sta sprspace+sp_part_chrat, y
 	
 	rts
-	
+
 partdirx: .byte $FC,$04,$FC,$04
 partdiry: .byte $FC,$FC,$04,$04
+
+; ** SUBROUTINE: gm_spawn_points
+; desc: Spawns a floating points sprite at the player's position.
+; arguments:
+;   reg X: amount of points  ((X+1)*1000, or 1UP)
+gm_spawn_points:
+	ldy #0
+:	lda sprspace+sp_kind, y
+	beq :+
+	iny
+	cpy #sp_max
+	bne :-
+	
+	; no more space :(
+	rts
+
+:	; slot found!
+	lda #e_points
+	sta sprspace+sp_kind, y
+	
+	clc
+	lda player_x
+	adc camera_x
+	sta sprspace+sp_x, y
+	
+	lda camera_x_pg
+	adc #0
+	sta sprspace+sp_x_pg, y
+	and #1
+	sta sprspace+sp_x_hi, y
+	
+	lda player_y
+	sta sprspace+sp_y, y
+	
+	lda #60
+	sta sprspace+sp_points_timer, y
+	
+	txa
+	cmp #6
+	bcc :+
+	lda #6
+:	sta sprspace+sp_points_count, y
+
+	rts

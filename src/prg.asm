@@ -55,6 +55,8 @@ sp_refill_flags = sp_entspec2
 sp_refill_oldos = sp_entspec3
 sp_strawb_flags = sp_entspec2
 sp_strawb_colid = sp_entspec3
+sp_points_count = sp_entspec1
+sp_points_timer = sp_entspec2
 
 sp_part_entty = sp_entspec1
 sp_part_vel_x = sp_entspec2
@@ -71,6 +73,7 @@ e_spring    = $03
 e_key       = $04
 e_particle  = $05
 e_refillhd  = $06
+e_points    = $07
 
 ; Entity types that turn into other entities on load
 e_rerefill  = $FF ; refill with respawn flag set
