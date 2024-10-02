@@ -175,6 +175,7 @@ ts_1stfr    = $01   ; first frame of title screen
 ts_turnon   = $02   ; need to program the PPU mask to turn on rendering
 os_1stfr    = $01   ; first frame of overworld screen
 os_turnon   = $02   ; need to program the PPU mask to turn on rendering
+os_updlvlnm = $04   ; need to update level name
 gs_1stfr    = $01   ; first frame of game screen
 gs_vertical = $02   ; is the level vertical?
 gs_scrstodR = $04   ; rightward camera scrolling is disabled
@@ -238,6 +239,7 @@ ct_none     = $00   ; no collision
 ct_full     = $01   ; the entire tile has collision
 ct_deadly   = $02   ; the tile is UP spike shaped
 ct_jumpthru = $03   ; the tile is a jump through
+ow_maxlvl   = $07   ; maximum level number
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
@@ -287,6 +289,8 @@ ow_temp3    = $0023
 ow_temp4    = $0024
 ow_temp5    = $0025
 ow_temp6    = $0026
+ow_timer    = $0027
+ow_sellvl   = $0028 ; selected level
 
 ; Game specific addresses
 gamectrl    = $0020 ; game control
@@ -753,8 +757,8 @@ owld_palette:
 	.byte $0f,$0c,$00,$10
 	.byte $0f,$00,$10,$30
 	.byte $0f,$37,$14,$21 ; player sprite colors
-	.byte $0f,$36,$16,$06 ; red/strawberry sprite
-	.byte $0f,$20,$21,$11 ; blue sprite
+	.byte $0f,$35,$15,$05 ; red/strawberry sprite
+	.byte $0f,$31,$21,$01 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite
 
 ; logo data

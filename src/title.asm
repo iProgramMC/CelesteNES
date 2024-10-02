@@ -119,15 +119,22 @@ gamemode_titletr:
 	
 	ldx tl_gametime
 	dex
-	beq tl_gameswitch
+	;beq tl_gameswitch
+	beq tl_owldswitch
 	stx tl_gametime
 	
 	jmp game_update_return
 	
 tl_gameswitch:
-	;lda #gm_game
-	lda #gm_overwld
+	lda #gm_game
 	sta gamemode
 	lda #0
 	sta gamectrl
+	jmp game_update_return
+	
+tl_owldswitch:
+	lda #gm_overwld
+	sta gamemode
+	lda #0
+	sta owldctrl
 	jmp game_update_return

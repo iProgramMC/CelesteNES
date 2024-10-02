@@ -34,8 +34,11 @@ nmi_overwld:
 	beq :+
 	lda #def_ppu_msk
 	sta ppu_mask
-:	
-	jmp nmi_gamemodeend
+:	lda #os_updlvlnm
+	bit owldctrl
+	beq :+
+	jsr ow_draw_level_name
+:	jmp nmi_gamemodeend
 
 nmi:
 	inc nmicount
@@ -165,4 +168,3 @@ com_game_log:
 	jsr read_cont
 	jsr com_clear_oam
 	rts
-	
