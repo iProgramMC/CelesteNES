@@ -348,8 +348,8 @@ wjumpcoyote = $0050 ; wall jump coyote time
 player_yo   = $0051 ; player Y old. used for spike collision
 player_xo   = $0052 ; player Y old. used for horizontal spike collision
 transoff    = $0053
-; $0054 free
-; $0055 free
+ptscount    = $0054 ; last points count given
+ptstimer    = $0055 ; time the ptscount is valid in frames
 palrdheadlo = $0056 ; palette read head
 palrdheadhi = $0057
 camlimit    = $0058

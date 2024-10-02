@@ -63,6 +63,22 @@ gm_spawn_particle:
 partdirx: .byte $FC,$04,$FC,$04
 partdiry: .byte $FC,$FC,$04,$04
 
+; ** SUBROUTINE: gm_give_points
+; desc: Gives points to a player. Note: these aren't actually tracked anywhere >:)
+;
+;       Handles the bonus streak mechanic.
+gm_give_points:
+	inc ptscount
+	ldx ptscount
+	cpx #7           ; values between 1 and 6 are valid.
+	bne :+
+	ldx #6
+	stx ptscount
+:	lda #120
+	sta ptstimer
+	
+	; fallthrough
+
 ; ** SUBROUTINE: gm_spawn_points
 ; desc: Spawns a floating points sprite at the player's position.
 ; arguments:

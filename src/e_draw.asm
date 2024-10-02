@@ -102,6 +102,7 @@ gm_draw_points:
 :	sta sprspace+sp_points_timer, x
 	
 	lda sprspace+sp_points_count, x
+	pha
 	cmp #6
 	bne :+
 	; 1 up mode
@@ -111,9 +112,10 @@ gm_draw_points:
 	; normal points mode
 :	lda #$80
 	sta temp7
-:	asl
+:	pla
+	asl
 	clc
-	adc #$82
+	adc #$80
 	sta temp6
 	
 	jmp gm_draw_common

@@ -133,8 +133,7 @@ gm_update_berry:
 	lda plrstrawbs
 	sta sprspace+sp_strawb_colid, x
 	
-	ldx #1
-	jsr gm_spawn_points
+	jsr gm_give_points
 	
 :	rts
 

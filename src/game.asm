@@ -8,6 +8,16 @@
 .include "p_draw.asm"
 .include "p_physic.asm"
 
+; ** SUBROUTINE: gm_update_ptstimer
+gm_update_ptstimer:
+	lda ptstimer
+	beq :+            ; if ptstimer != 0, then just decrement it
+	dec ptstimer
+	rts
+:	lda #0            ; if they're both 0, reset the points count and return
+	sta ptscount
+	rts
+
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
 	ldx #$FF
@@ -54,6 +64,7 @@ gm_game_update:
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities
 	jsr gm_allocate_palettes
+	jsr gm_update_ptstimer
 	
 	lda #cont_select
 	bit p1_cont
