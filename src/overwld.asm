@@ -6,12 +6,11 @@ gamemode_overwd:
 	bit owldctrl
 	bne gamemode_overwd_update
 	
-	lda #3
-	sta ow_sellvl
 	lda #0
 	sta camera_x
 	sta camera_x_hi
 	sta camera_y
+	sta ow_sellvl
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait
 	ldy #(owld_palette - lastpage)
@@ -84,12 +83,14 @@ ow_level_slide:
 	bne :+
 	lda ow_sellvl
 	beq @cancel_slide   ; if level is already 0, then cancel!
-:	cmp #24
+	lda ow_slidetmr
+:	cmp #12
 	beq @cancel_slide
-	cmp #8
-	beq @left_frame8
+	cmp #4
+	beq @left_frame4
 	
 	inc ow_slidetmr
+	inc ow_iconoff
 	inc ow_iconoff
 	rts
 	
@@ -105,19 +106,21 @@ ow_level_slide:
 	lda ow_sellvl
 	cmp #ow_maxlvl
 	beq @cancel_slide   ; if level is already max, then cancel!
-:	cmp #24
+	lda ow_slidetmr
+:	cmp #12
 	beq @cancel_slide
-	cmp #8
-	beq @right_frame8
+	cmp #4
+	beq @right_frame4
 	
 	inc ow_slidetmr
+	dec ow_iconoff
 	dec ow_iconoff
 	rts
 	
 @ret:
 	rts
 
-@left_frame8:
+@left_frame4:
 	inc ow_slidetmr
 	dec ow_sellvl
 	lda #$F0
@@ -125,7 +128,7 @@ ow_level_slide:
 	jsr ow_queue_lvlnm_upd
 	rts
 
-@right_frame8:
+@right_frame4:
 	inc ow_slidetmr
 	inc ow_sellvl
 	lda #$10
@@ -196,7 +199,7 @@ ow_draw_level_icon_ls:
 ; ** SUBROUTINE: ow_draw_icon_fadeout
 ow_Xof3A:
 	lda #$3A
-	ldx #12
+	ldx #11
 :	sta ppu_data
 	dex
 	bne :-
@@ -221,7 +224,7 @@ ow_draw_icon_fadeout:
 	sta ppu_data
 	; skip a bunch
 	lda #0
-	ldx #6
+	ldx #8
 :	sta ppu_data
 	dex
 	bne :-
