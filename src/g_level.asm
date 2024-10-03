@@ -364,6 +364,12 @@ h_gentlsnocheck:
 h_genertiles_cont:
 	cpy #$1E
 	bcc h_genertiles_loop
+	lda #0
+	sta (lvladdr), y
+	iny
+	sta (lvladdr), y
+	iny
+	
 	clc                   ; loop done, increment arwrhead, ensuring it rolls over after 63
 	lda #1
 	adc arwrhead
