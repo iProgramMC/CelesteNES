@@ -179,6 +179,8 @@ ts_turnon   = $02   ; need to program the PPU mask to turn on rendering
 os_1stfr    = $01   ; first frame of overworld screen
 os_turnon   = $02   ; need to program the PPU mask to turn on rendering
 os_updlvlnm = $04   ; need to update level name
+os_leftmov  = $08   ; level selector moving left
+os_rightmov = $10   ; level selector moving right
 gs_1stfr    = $01   ; first frame of game screen
 gs_vertical = $02   ; is the level vertical?
 gs_scrstodR = $04   ; rightward camera scrolling is disabled
@@ -294,6 +296,8 @@ ow_temp5    = $0025
 ow_temp6    = $0026
 ow_timer    = $0027
 ow_sellvl   = $0028 ; selected level
+ow_iconoff  = $0029
+ow_slidetmr = $002A
 
 ; Game specific addresses
 gamectrl    = $0020 ; game control
@@ -760,7 +764,7 @@ owld_palette:
 	.byte $0f,$0c,$00,$10
 	.byte $0f,$00,$10,$30
 	.byte $0f,$37,$14,$21 ; player sprite colors
-	.byte $0f,$35,$15,$05 ; red/strawberry sprite
+	.byte $0f,$36,$16,$06 ; red/strawberry sprite
 	.byte $0f,$31,$21,$01 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite
 

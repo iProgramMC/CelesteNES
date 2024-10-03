@@ -6,11 +6,12 @@ gamemode_overwd:
 	bit owldctrl
 	bne gamemode_overwd_update
 	
+	lda #3
+	sta ow_sellvl
 	lda #0
 	sta camera_x
 	sta camera_x_hi
 	sta camera_y
-	sta ow_sellvl
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait
 	ldy #(owld_palette - lastpage)
@@ -20,6 +21,7 @@ gamemode_overwd:
 	
 	jsr ow_draw_mtn
 	jsr ow_draw_level_name
+	jsr ow_draw_icon_fadeout
 	;jsr tl_init_snow
 	jsr ppu_rstaddr
 	lda owldctrl
@@ -37,7 +39,8 @@ gamemode_overwd_update:
 	
 	; draw features
 	inc ow_timer
-	jsr ow_switch_level
+	jsr ow_handle_input
+	jsr ow_level_slide
 	jsr ow_draw_player
 	jsr ow_draw_c0_hut
 	jsr ow_draw_c1_city
@@ -46,6 +49,11 @@ gamemode_overwd_update:
 	jsr ow_draw_c4_cliff
 	jsr ow_draw_c5_temple
 	jsr ow_draw_c7_summit
+	jsr ow_draw_icons
+	
+	lda #(os_leftmov | os_rightmov)
+	bit owldctrl
+	bne :+              ; don't handle controller input during a transition
 	
 	lda #(cont_a | cont_start)
 	bit ow_temp5
@@ -63,6 +71,269 @@ gamemode_overwd_update:
 	jmp tl_gameswitch
 	
 :	jmp game_update_return
+
+; ** SUBROUTINE: ow_level_slide
+; desc: Handles left/right slide of the level scroller.
+ow_level_slide:
+	lda #os_leftmov
+	bit owldctrl
+	beq @right
+	
+	; left
+	lda ow_slidetmr
+	bne :+
+	lda ow_sellvl
+	beq @cancel_slide   ; if level is already 0, then cancel!
+:	cmp #24
+	beq @cancel_slide
+	cmp #8
+	beq @left_frame8
+	
+	inc ow_slidetmr
+	inc ow_iconoff
+	rts
+	
+@right:
+	
+	lda #os_rightmov
+	bit owldctrl
+	beq @ret
+	
+	; right
+	lda ow_slidetmr
+	bne :+
+	lda ow_sellvl
+	cmp #ow_maxlvl
+	beq @cancel_slide   ; if level is already max, then cancel!
+:	cmp #24
+	beq @cancel_slide
+	cmp #8
+	beq @right_frame8
+	
+	inc ow_slidetmr
+	dec ow_iconoff
+	rts
+	
+@ret:
+	rts
+
+@left_frame8:
+	inc ow_slidetmr
+	dec ow_sellvl
+	lda #$F0
+	sta ow_iconoff
+	jsr ow_queue_lvlnm_upd
+	rts
+
+@right_frame8:
+	inc ow_slidetmr
+	inc ow_sellvl
+	lda #$10
+	sta ow_iconoff
+	jsr ow_queue_lvlnm_upd
+	rts
+
+@cancel_slide:
+	lda #((os_leftmov | os_rightmov) ^ $FF)
+	and owldctrl
+	sta owldctrl     ; clear the overworld control and return
+	lda #0
+	sta ow_iconoff
+	sta ow_slidetmr
+	rts
+
+; ** SUBROUTINE: ow_draw_level_icon
+; desc: Draws the icon corresponding to a level.
+; params:
+;     x_crd_temp: The X position of the left of the metasprite.
+;     y_crd_temp: The Y position of the top  of the metasprite.
+;     reg A: The level number in question.
+;     reg Y: 
+; clobbers: X, Y
+ow_draw_level_icon:
+	pha
+	tax
+	asl
+	asl
+	clc
+	adc #$60
+	pha
+	tay
+	lda ow_icon_pals, x
+	jsr oam_putsprite
+ow_draw_level_icon_rs_:
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	pla
+	tay
+	iny
+	iny
+	pla
+	tax
+	lda ow_icon_pals, x
+	jmp oam_putsprite
+ow_draw_level_icon_rs:
+	pha
+	tax
+	asl
+	asl
+	clc
+	adc #$60
+	pha
+	jmp ow_draw_level_icon_rs_
+ow_draw_level_icon_ls:
+	tax
+	asl
+	asl
+	clc
+	adc #$60
+	tay
+	lda ow_icon_pals, x
+	jmp oam_putsprite
+
+; ** SUBROUTINE: ow_draw_icon_fadeout
+ow_Xof3A:
+	lda #$3A
+	ldx #12
+:	sta ppu_data
+	dex
+	bne :-
+	rts
+
+ow_draw_icon_fadeout:
+	ldy #0
+:	lda #$20
+	sta ppu_addr
+	tya
+	asl
+	asl
+	asl
+	asl
+	asl
+	clc
+	adc #$40
+	sta ppu_addr
+	; left side
+	jsr ow_Xof3A
+	lda #$FB
+	sta ppu_data
+	; skip a bunch
+	lda #0
+	ldx #6
+:	sta ppu_data
+	dex
+	bne :-
+	; right side
+	lda #$FC
+	sta ppu_data
+	jsr ow_Xof3A
+	iny
+	cpy #2
+	bne :--
+	rts
+
+; ** SUBROUTINE: ow_draw_icons
+; desc: Draws the icons corresponding to the selected level and surrounding
+;       levels to the screen.
+ow_draw_icons:
+	lda #((256-16)/2)
+	clc
+	adc ow_iconoff
+	sta x_crd_temp          ; calculate the center coordinates
+	
+	lda #14                 ; note: ow_draw_level_icon clobbers x_crd_temp.
+	sta y_crd_temp
+	
+	lda ow_sellvl
+	jsr ow_draw_level_icon  ; draws the center icon.
+	
+	ldx ow_sellvl
+	beq :+
+	
+	; draw the previous one
+	lda #(((256-16)/2)-24)
+	clc
+	adc ow_iconoff
+	sta x_crd_temp
+	dex
+	txa
+	jsr ow_draw_level_icon
+	
+	lda ow_iconoff
+	bmi :+
+	beq :+
+	
+	ldx ow_sellvl
+	dex
+	dex
+	bmi :+
+	lda #(((256-16)/2)-24-24)
+	clc
+	adc ow_iconoff
+	sta x_crd_temp
+	txa
+	jsr ow_draw_level_icon_rs
+	
+:	ldx ow_sellvl
+	cpx #ow_maxlvl
+	beq :+
+	
+	; draw the next one
+	lda #(((256-16)/2)+24)
+	clc
+	adc ow_iconoff
+	sta x_crd_temp
+	inx
+	txa
+	jsr ow_draw_level_icon
+	
+	lda ow_iconoff
+	bpl :+
+	
+	ldx ow_sellvl
+	inx
+	inx
+	cpx #ow_maxlvl
+	bcs :+
+	lda #(((256-16)/2)+24+24)
+	clc
+	adc ow_iconoff
+	sta x_crd_temp
+	txa
+	jsr ow_draw_level_icon_ls
+	
+:	; draw the arrows on the current level
+	lda #((256-8)/2)
+	sta x_crd_temp
+	lda #4
+	sta y_crd_temp
+	
+	lda #%00010000
+	bit ow_timer
+	beq :+
+	inc y_crd_temp
+	
+:	lda #1
+	ldy #$1E
+	jsr oam_putsprite
+	
+	lda #((256-8)/2)
+	sta x_crd_temp
+	lda #24
+	sta y_crd_temp
+	
+	lda #%00010000
+	bit ow_timer
+	beq :+
+	dec y_crd_temp
+	
+:	lda #(1 | obj_flipvt)
+	ldy #$1E
+	jsr oam_putsprite
+	
+	rts
 
 ; ** SUBROUTINE: ow_draw_level_name
 ; desc: Draws the new level name.
@@ -88,30 +359,39 @@ ow_draw_level_name:
 	lda #16
 	jmp ppu_wrstring
 
-; ** SUBROUTINE: ow_switch_level
-; desc: Switches the selected level depending on joypad presses.
-ow_switch_level:
-	lda p1_cont
+; ** SUBROUTINE: ow_handle_input
+; desc: Handles input.
+ow_handle_input:
+	lda #(os_leftmov | os_rightmov)
+	bit owldctrl
+	beq :+
+	rts
+	
+:	lda p1_cont
 	eor p1_conto
 	and p1_cont
 	sta ow_temp5
 	
+	lda #0
+	sta ow_slidetmr
+	
 	lda #cont_left
 	bit ow_temp5
 	beq :+
-	lda ow_sellvl
-	beq :+
-	dec ow_sellvl
-	jsr ow_queue_lvlnm_upd
+	
+	lda owldctrl
+	ora #os_leftmov
+	and #(os_rightmov ^ $FF)
+	sta owldctrl
 	
 :	lda #cont_right
 	bit ow_temp5
 	beq :+
-	lda ow_sellvl
-	cmp #ow_maxlvl
-	bcs :+
-	inc ow_sellvl
-	jsr ow_queue_lvlnm_upd
+	
+	lda owldctrl
+	ora #os_rightmov
+	and #(os_leftmov ^ $FF)
+	sta owldctrl
 	
 :	rts
 
@@ -476,3 +756,7 @@ ow_level_names:
 	.byte "   THE SUMMIT   "
 	.byte "    EPILOGUE    "
 	.charmap $20, $20
+
+ow_icon_pals:
+	; note: bit 0x20 SHOULD be set else the level select effect won't work.
+	.byte $21, $23, $21, $21, $22, $21, $22, $23
