@@ -276,11 +276,7 @@ gamemode    = $0017 ; active game mode
 titlectrl   = $0018 ; title control
 camera_x_hi = $0019
 player_x_hi = $001A ; player screen X - alternates between 0 and 1
-camera_rev  = $001B ; revealed pixels - if it goes above 8, request a column to be generated
-plr_spr_l   = $001C ; player sprite left
-plr_spr_r   = $001D ; player sprite right
-plh_spr_l   = $001E ; player hair sprite left
-plh_spr_r   = $001F ; player hair sprite right
+currpal     = $001B ; low byte of current palette's ROM address (offset from lastpage)
 
 ; Title specific addresses
 tl_timer    = $0040
@@ -366,12 +362,12 @@ scrchkhi    = $005E
 lvlyoff     = $005F ; level Y offset when writing name table data
 trantmp1    = $0060 ; temporaries used for transitioning
 trantmp2    = $0061
-;audaddrlo   = $0062
-;audaddrhi   = $0063
-;audrdlo     = $0064
-;audrdhi     = $0065
-;audlock     = $0066 ; lock up the main sequencer for X frames
-;audtemp1    = $0067
+camera_rev  = $0062 ; revealed pixels - if it goes above 8, request a column to be generated
+plr_spr_l   = $0063 ; player sprite left
+plr_spr_r   = $0064 ; player sprite right
+plh_spr_l   = $0065 ; player hair sprite left
+plh_spr_r   = $0066 ; player hair sprite right
+; $0067 spare
 deathtimer  = $0068
 tmp_sprx    = $0069 ; used by gm_draw_entities to calculate the X and Y
 tmp_spry    = $006A
@@ -382,6 +378,12 @@ roombeghi   = $006E
 roombeglo2  = $006F ; beginning of room in tiles.
 plrtrahd    = $0070 ; plr trace head
 plrstrawbs  = $0071 ; strawberries following this player
+;audaddrlo   = $0072
+;audaddrhi   = $0073
+;audrdlo     = $0074
+;audrdhi     = $0075
+;audlock     = $0076 ; lock up the main sequencer for X frames
+;audtemp1    = $0077
 
 ; note: these are used by title, overworld AND MAYBE game too.
 tl_snow_y   = $00D0 ; Y coordinates of the 16 snow particles
