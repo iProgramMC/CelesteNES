@@ -117,10 +117,11 @@
 ;     ...
 ;
 .include "level0.asm"
+.include "level1.asm"
 
 level_table:
 	.word level0
-	.word level0 ; 1
+	.word level1 ; 1
 	.word level0 ; 2
 	.word level0 ; 3
 	.word level0 ; 4

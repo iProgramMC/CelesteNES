@@ -168,3 +168,8 @@ com_game_log:
 	jsr read_cont
 	jsr com_clear_oam
 	rts
+
+; ** IRQ
+; currently blank.
+irq:
+	jmp irq

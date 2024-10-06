@@ -66,6 +66,8 @@ sp_part_chrti = sp_entspec5
 sp_part_chrat = sp_entspec6
 
 ; Entity Types
+; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
+;                 and LEVELEDITOR\MainGame.cs (GetByteFromString)
 e_none      = $00
 e_strawb    = $01
 e_refill    = $02
@@ -782,4 +784,4 @@ logo_iprogram:   .byte $60,$61,$62,$63,$64,$65,$66
 .res $FFFA - *, $FF
 	.word nmi
 	.word reset
-	.word $fff0   ; unused
+	.word irq     ; unused

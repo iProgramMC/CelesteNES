@@ -18,6 +18,7 @@
 .segment "PRG"
 .include "prg.asm"
 
+; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
 .segment "CHR"
 .incbin  "sprites.chr"
 .incbin  "sp_overw.chr"
