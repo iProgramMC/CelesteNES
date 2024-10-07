@@ -740,7 +740,12 @@ gm_applyy:
 	bcc gm_velapplied
 	cpx #1
 	bne gm_killplayer
-gm_velapplied:        ; this is the return label from gm_velminus
+gm_leaveroomU_:
+	jmp gm_leaveroomU
+gm_velapplied:        ; this is the return label from gm_velminus4
+	lda player_y
+	cmp #$F0
+	bcs gm_leaveroomU_
 	lda player_vl_y
 	bmi gm_checkceil
 	jmp gm_checkfloor

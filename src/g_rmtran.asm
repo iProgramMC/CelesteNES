@@ -19,6 +19,8 @@ gm_leave_doframe:
 
 cspeed = 8
 
+; ** SUBROUTINE: gm_leaveroomR
+; desc: Performs a transition, across multiple frames, going right.
 gm_leaveroomR:
 	lda #$F0
 	sta player_x
@@ -77,7 +79,7 @@ gm_roomRtransdone:
 	stx ntwrhead
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
-	ldy #8
+	ldy #4
 gm_roomRtranloopI:
 	sty transtimer
 	jsr h_gener_col_r
@@ -177,3 +179,75 @@ gm_roomRtrangen:
 	sbc #8
 	sta camera_rev
 	jmp gm_roomRtrangenbk
+
+; ** SUBROUTINE: gm_leaveroomU
+; desc: Performs a transition, across multiple frames, going up.
+gm_leaveroomU:
+	; try to leave the room above
+	ldy warp_u
+	cpy #$FF
+	bne :+
+	rts                   ; no warp assigned, continue with normal logic
+:	lda #0
+	sta player_y
+	
+	ldy warp_u
+	jsr gm_set_room
+	
+	lda ntwrhead
+	sec
+	sbc #$24
+	and #$3F
+	sta ntwrhead
+	lda arwrhead
+	sec
+	sbc #$21
+	and #$3F
+	sta arwrhead
+	
+	; load the room beginning pixel
+	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)
+	sta roombeglo2
+	asl
+	asl
+	asl                      ; multiply by 8
+	sta roombeglo
+	
+	clc
+	lda camera_x_pg
+	adc #1
+	sta roombeghi
+	
+	lda #0
+	sta tr_scrnpos
+	
+	; clear the camera stop bits
+	lda gamectrl
+	and #((gs_scrstopR|gs_scrstodR|gs_flstcolR|gs_flstpalR)^$FF)
+	sta gamectrl
+	
+	; pre-generate all metatiles
+	ldy #0
+:	sty transtimer
+	jsr h_gener_ents_r
+	jsr h_gener_mts_r
+	ldy transtimer
+	iny
+	cpy #36
+	bne :-
+	
+	; clear the camera stop bits again
+	lda gamectrl
+	and #((gs_scrstopR|gs_scrstodR|gs_flstcolR|gs_flstpalR)^$FF)
+	sta gamectrl
+	
+	ldy #0
+:	sty transtimer
+	jsr h_gener_col_r
+	jsr gm_leave_doframe
+	ldy transtimer
+	iny
+	cpy #36
+	bne :-
+	
+	rts
