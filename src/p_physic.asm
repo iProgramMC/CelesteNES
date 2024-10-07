@@ -1016,6 +1016,7 @@ gm_scrollnolimit:
 	lda temp1
 	jsr gm_shifttrace
 	pla
+	clc
 	adc camera_rev
 	sta camera_rev
 	cmp #8
