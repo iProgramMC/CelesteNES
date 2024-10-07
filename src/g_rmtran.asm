@@ -73,8 +73,7 @@ gm_roomRtransdone:
 	lda camera_x
 	and #%11111100
 	sta camera_x
-	ldx trntwrhead
-	inx
+	ldx trarwrhead
 	stx arwrhead
 	stx ntwrhead
 	jsr h_gener_ents_r
@@ -201,7 +200,7 @@ gm_leaveroomU:
 	sta ntwrhead
 	lda arwrhead
 	sec
-	sbc #$21
+	sbc #$25
 	and #$3F
 	sta arwrhead
 	
@@ -236,18 +235,49 @@ gm_leaveroomU:
 	cpy #36
 	bne :-
 	
-	; clear the camera stop bits again
+	; preserve the camera stop bits temporarily.
+	; we'll clear them so that h_gener_col_r does its job.
 	lda gamectrl
-	and #((gs_scrstopR|gs_scrstodR|gs_flstcolR|gs_flstpalR)^$FF)
+	and #(gs_scrstopR|gs_scrstodR)
+	sta temp9
+	
+	lda gamectrl
+	and #((gs_flstcolR|gs_flstpalR)^$FF)
+	eor temp9
+	ora #gs_dontgen
 	sta gamectrl
 	
+	; write 32 columns - these are not subject to camera limitations
 	ldy #0
 :	sty transtimer
 	jsr h_gener_col_r
 	jsr gm_leave_doframe
 	ldy transtimer
 	iny
-	cpy #36
+	cpy #32
 	bne :-
+	
+	; restore the camera flags
+	lda gamectrl
+	ora temp9
+	sta gamectrl
+	
+	lda #gs_scrstopR
+	bit gamectrl
+	bne @dontdomore
+	; camera wasn't stopped so draw 4 more cols
+	ldy #0
+:	sty transtimer
+	jsr h_gener_col_r
+	jsr gm_leave_doframe
+	ldy transtimer
+	iny
+	cpy #4
+	bne :-
+	
+@dontdomore:
+	lda gamectrl
+	and #(gs_dontgen ^ $FF)
+	sta gamectrl
 	
 	rts

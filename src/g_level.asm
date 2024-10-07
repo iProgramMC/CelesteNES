@@ -231,9 +231,15 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	lda #gs_flstcolR          ; set the gamectrl gs_flstcolR flag
 	ora gamectrl
 	sta gamectrl
+	
+	lda #gs_dontgen
+	bit gamectrl
+	bne :+
+	
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r         ; generate a new column of meta-tiles and entities
-	lda ntwrhead              ; check if we're writing the 3rd odd column
+	
+:	lda ntwrhead              ; check if we're writing the 3rd odd column
 	and #$03
 	cmp #$03
 	beq :+
@@ -327,8 +333,8 @@ h_genertiles_lvlend:
 	lda #gs_scrstopR
 	ora gamectrl
 	sta gamectrl
-	lda ntwrhead
-	sta trntwrhead
+	lda arwrhead
+	sta trarwrhead
 	lda #0                ; just store 0 as the tile
 	jmp h_gentlsnocheck
 

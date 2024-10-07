@@ -38,8 +38,8 @@ level1_r1_t:
 	.byte $DE,$DE,$DE,$FF
 level1_r1:
 	.byte 0, 0, 0
-	.byte 0, 24
-	.byte 2, 255, 0, 2
+	.byte 0, 20
+	.byte 8, 255, 255, 2
 	.byte 255, 255, 255, 254
 	.byte 0
 	.word level1_r1_t
@@ -181,10 +181,51 @@ level1_r4:
 	.word level1_r4_t
 	.word level1_r4_p
 	.word level1_r4_e
+level1_r5_p:
+	.byte $00,$00,$00,$00,$00,$00,$50,$04
+	.byte $00,$00,$00,$00,$00,$00,$00,$04
+	.byte $00,$00,$00,$00,$00,$00,$05,$05
+	.byte $FE,$FE,$FE,$00,$00,$00,$00,$00
+	.byte $00,$00,$01,$00,$00,$00,$00,$00
+	.byte $00,$50,$01,$FF
+level1_r5_e:
+	.byte $FF
+level1_r5_t:
+	.byte $DA,$01,$00,$00,$00,$DA,$01,$00
+	.byte $00,$00,$DA,$01,$00,$00,$00,$DA
+	.byte $A4,$01,$DE,$DE,$DE,$DC,$3C,$00
+	.byte $D8,$01,$00,$00,$00,$3C,$00,$D8
+	.byte $01,$00,$00,$00,$3C,$00,$D8,$01
+	.byte $00,$00,$00,$3C,$00,$D8,$01,$00
+	.byte $00,$00,$3C,$00,$D8,$01,$00,$00
+	.byte $00,$3C,$00,$D8,$01,$00,$00,$00
+	.byte $3C,$00,$D8,$01,$00,$00,$00,$3C
+	.byte $00,$D8,$01,$00,$00,$00,$3C,$00
+	.byte $D8,$01,$00,$00,$00,$3C,$00,$D8
+	.byte $01,$00,$00,$00,$3C,$00,$D8,$01
+	.byte $00,$00,$00,$3C,$00,$D8,$01,$00
+	.byte $00,$00,$3C,$00,$D8,$01,$00,$00
+	.byte $00,$3C,$00,$D8,$01,$00,$00,$00
+	.byte $3C,$00,$D8,$01,$00,$00,$00,$3C
+	.byte $00,$D8,$01,$00,$00,$00,$3C,$00
+	.byte $DC,$3C,$00,$DE,$DE,$DE,$DA,$A4
+	.byte $01,$DA,$01,$00,$00,$00,$DA,$01
+	.byte $00,$00,$00,$DA,$01,$00,$00,$00
+	.byte $FF
+level1_r5:
+	.byte 0, 0, 0
+	.byte 0, 0
+	.byte 255, 255, 255, 2
+	.byte 0, 0, 0, 254
+	.byte 0
+	.word level1_r5_t
+	.word level1_r5_p
+	.word level1_r5_e
 level1:
 	.byte $04	; environment type
-	.byte $04	; room count
+	.byte $05	; room count
 	.word level1_r1
 	.word level1_r2
 	.word level1_r3
 	.word level1_r4
+	.word level1_r5

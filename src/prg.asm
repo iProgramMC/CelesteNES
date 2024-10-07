@@ -191,6 +191,7 @@ gs_scrstopR = $08   ; there is a camera limit to the right
 gs_flstcolR = $10   ; need to flush generated visual columns to the right
 gs_flstpalR = $20   ; need to flush generated palette columns to the right
 gs_turnon   = $40   ; need to program the PPU mask to turn on rendering
+gs_dontgen  = $80   ; don't generate more tiles
 lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
@@ -280,6 +281,7 @@ titlectrl   = $0018 ; title control
 camera_x_hi = $0019
 player_x_hi = $001A ; player screen X - alternates between 0 and 1
 currpal     = $001B ; low byte of current palette's ROM address (offset from palettepage)
+temp9       = $001C
 
 ; Title specific addresses
 tl_timer    = $0040
@@ -359,7 +361,7 @@ camlimit    = $0058
 camlimithi  = $0059
 transtimer  = $005A
 trantmp3    = $005B
-trntwrhead  = $005C
+trarwrhead  = $005C
 scrchklo    = $005D ; temporaries used for scroll checking
 scrchkhi    = $005E
 lvlyoff     = $005F ; level Y offset when writing name table data
