@@ -26,12 +26,21 @@ gm_game_init:
 	stx ppu_mask      ; disable rendering
 	jsr gm_game_clear_all_wx
 	jsr vblank_wait
-	ldy #(init_palette - lastpage)
+	ldy #(init_palette - palettepage)
 	jsr load_palette  ; load game palette into palette RAM
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
+	
+	lda lvl_ntwrst
+	sta ntwrhead
+	sta arwrhead
+	asl
+	asl
+	asl
+	sta camera_x
+	
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
 	ldy #$00          ; generate tilesahead columns

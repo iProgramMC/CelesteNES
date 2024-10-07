@@ -154,8 +154,9 @@ oam_buf_hi  = $07   ; matches the upper bytes of the address of oam_buf
 obj_fliphz  = $40   ; flip horizontally
 obj_flipvt  = $80   ; flip vertically
 obj_backgd  = $20   ; behind background
+miscdata    = $B000
 leveldata   = $C000
-lastpage    = $FF00
+palettepage = $BF00
 pctl_nmi_on = %10000000
 pctl_adv32  = %00000100
 pctl_sprsz  = %00100000
@@ -278,7 +279,7 @@ gamemode    = $0017 ; active game mode
 titlectrl   = $0018 ; title control
 camera_x_hi = $0019
 player_x_hi = $001A ; player screen X - alternates between 0 and 1
-currpal     = $001B ; low byte of current palette's ROM address (offset from lastpage)
+currpal     = $001B ; low byte of current palette's ROM address (offset from palettepage)
 
 ; Title specific addresses
 tl_timer    = $0040
@@ -315,7 +316,7 @@ lvladdr     = $002D ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   = $002E
 tr_scrnpos  = $002F ; active screen position
 leveldatas1 = $0030 ; 2 spare bytes for room data
-leveldatas2 = $0031
+lvl_ntwrst  = $0031 ; starting nametable write head
 warp_u      = $0032 ; destination warp numbers
 warp_d      = $0033
 warp_l      = $0034
@@ -529,6 +530,24 @@ mmc1_control:
 	sta mmc1_ctrl
 	rts
 
+; ** SUBROUTINE: mmc1_horzarr
+; desc: Sets the MMC1 to a horizontal arrangement (vertical mirroring) of nametables.
+; clobbers: A
+mmc1_horzarr:
+	; bits:
+	; bits 0-1: mirroring (%10 for vert mirr, %11 for horz mirr)
+	; bits 2-3: PRG ROM bank mode. fix last bank at $C000 and switch 16K bank at $8000
+	; bit  4:   CHR ROM bank mode (1: switch two separate 4K banks)
+	lda #%11110
+	jmp mmc1_control
+
+; ** SUBROUTINE: mmc1_vertarr
+; desc: Sets the MMC1 to a vertical arrangement (horizontal mirroring) of nametables.
+; clobbers: A
+mmc1_vertarr:
+	lda #%11111
+	jmp mmc1_control
+
 ; ** SUBROUTINE: oam_putsprite
 ; arguments:
 ;   a - attributes
@@ -567,7 +586,7 @@ load_palette:
 	sta ppu_addr
 	ldx #$00
 load_palette_loop:
-	lda lastpage, y
+	lda palettepage, y
 	sta ppu_data
 	inx
 	iny
@@ -698,11 +717,7 @@ reset_clrmem:
 	lda #$80
 	sta mmc1_ctrl  ; reset mmc1 shift register
 	
-	; bits 0-1 : mirroring (vertical)
-	; bits 2-3 : prg rom bank mode (fix last bank at $C000 and switch 16K bank at $8000)
-	; bit  4   : chr rom bank mode (switch two separate 4kb banks)
-	lda #%11110
-	jsr mmc1_control
+	jsr mmc1_horzarr
 	lda #bank_spr
 	jsr mmc1_selsprbank
 	
@@ -710,7 +725,7 @@ reset_clrmem:
 	
 	jsr vblank_wait  ; second vblank wait
 	
-	ldy #(init_palette - lastpage)
+	ldy #(init_palette - palettepage)
 	jsr load_palette ; move palette to palette RAM
 	
 	lda #$20         ; clear the two nametables
@@ -746,13 +761,12 @@ main_loop:
 
 .include "update.asm"
 .include "audio.asm"
+
+.res miscdata - *, $FF
 .include "o_mtndat.asm"
+.include "t_data.asm"
 
-.res leveldata - *, $FF
-.include "levels.asm"
-.include "metatile.asm"
-
-.res lastpage - *, $FF
+.res palettepage - *, $FF
 init_palette:
 	.byte $0f,$20,$10,$00 ; grey tiles
 	.byte $0f,$37,$16,$06 ; brown tiles
@@ -772,14 +786,9 @@ owld_palette:
 	.byte $0f,$31,$21,$01 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite
 
-; logo data
-logo_row1: .byte $20,$20,$20,$10,$20,$20,$20
-logo_row2: .byte $16,$15,$11,$15,$13,$14,$15
-logo_row3: .byte $17,$18,$1a,$19,$1b,$1c,$19
-logo_row4: .byte $1d,$20,$20,$20,$20,$1e,$1f
-logo_pal:  .byte $aa,$aa,$aa,$aa
-logo_pressstart: .byte "PRESS START"
-logo_iprogram:   .byte $60,$61,$62,$63,$64,$65,$66
+.res leveldata - *, $FF
+.include "levels.asm"
+.include "metatile.asm"
 
 .res $FFFA - *, $FF
 	.word nmi

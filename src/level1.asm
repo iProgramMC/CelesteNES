@@ -25,8 +25,8 @@ level1_r1_t:
 	.byte $DE,$DE,$DE,$DE,$DE,$DE,$DE,$DE
 	.byte $FF
 level1_r1:
-	.byte 1, 0, 12
-	.byte 1, 0
+	.byte 0, 0, 0
+	.byte 0, 24
 	.byte 255, 255, 255, 2
 	.byte 255, 255, 255, 254
 	.byte 0

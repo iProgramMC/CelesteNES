@@ -15,7 +15,7 @@ gamemode_overwd:
 	sta camera_y
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait
-	ldy #(owld_palette - lastpage)
+	ldy #(owld_palette - palettepage)
 	jsr load_palette
 	lda #$20
 	jsr clear_nt
