@@ -112,193 +112,80 @@ h_flush_pal_r:
 	bne @loop
 	rts
 
-; ** SUBROUTINE: h_flush_pal_u_reload
-; desc:    Reloads the PPU address to the offset within the attribute table
-;          from ntwrhead, ntrowhead.
-h_flush_pal_u_reload:
-	lda ntwrhead
-	and #$20
-	lsr
-	lsr
-	lsr
-	clc
-	adc #$23
-	tay
-	
-	; add the Y coordinate
-	lda ntrowhead  ; 000yyyyy [0 - 29]
-	clc
-	adc #4
-	asl            ; 00yyyyy0
-	and #%00111000 ; 00yyy000
-	ora #%11000000 ; $C0
-	sta y_crd_temp
-	
-	; add the X coordinate
-	lda ntwrhead   ; 00sxxxxx
-	lsr            ; 000sxxxx
-	lsr            ; 0000sxxx
-	and #%00000111 ; 00000xxx
-	clc
-	adc y_crd_temp
-	tax
-	
-	jmp ppu_loadaddr
-
 ; ** SUBROUTINE: h_flush_pal_u
 ; desc:    Flushes a generated palette row in temppalH to the screen.
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
 h_flush_pal_u:
-	jsr h_flush_pal_u_reload
+	ldy wrcountHP1
+	beq @dontflushHP1
 	
-	; calculate the boundary where we should reload the address
-	; the equation boils down to 16-temp7, or 8-temp7, where
-	; temp7 is ntwrhead/4
-	lda ntwrhead
-	lsr
-	lsr
-	sta temp7
-	
-	lda #$20
-	bit ntwrhead
-	beq @do8
-	; 16 - temp7
-	lda #16
-	jmp @dodone
-@do8:
-	lda #8
-@dodone:
-	sec
-	sbc temp7
-	sta temp6
-	
-	; temp6 now holds that boundary. we want temp7 to hold the temporary
-	; ntwrhead while reloading the PPU address
-	lda ntwrhead
-	and #$20
-	eor #$20
-	sta temp7
-	
+	lda ppuaddrHP1+1
+	sta ppu_addr
+	lda ppuaddrHP1
+	sta ppu_addr
 	ldy #0
-@loop:
-	lda temppalH, y
+	
+:	lda temppalH1, y
 	sta ppu_data
-	
 	iny
+	cpy wrcountHP1
+	bne :-
 	
-	; check if we should reload the address and do so
-	cpy temp6
-	bne :+
+@dontflushHP1:
+	ldy wrcountHP2
+	beq @dontflushHP2
 	
-	sty temp8
-	lda ntwrhead
-	pha
-	lda temp7
-	sta ntwrhead
-	jsr h_flush_pal_u_reload
-	pla
-	sta ntwrhead
-	ldy temp8
+	lda ppuaddrHP2+1
+	sta ppu_addr
+	lda ppuaddrHP2
+	sta ppu_addr
+	ldy #0
 	
-:	cpy #8
-	bne @loop
-	rts
+:	lda temppalH2, y
+	sta ppu_data
+	iny
+	cpy wrcountHP2
+	bne :-
 	
-; ** SUBROUTINE: h_flush_row_reload
-; desc:    Reloads the PPU address based on the ntwrhead and ntrowhead.
-h_flush_row_reload:
-	; the PPU address we want to start writing to is
-	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32) + ntrowhead * 0x20
-	lda #$00
-	sta tmp_sprx
-	lda #$20
-	sta tmp_spry
-	
-	; (add ntwrhead / 32) * 0x400
-	lda ntwrhead
-	and #$20
-	beq :+
-	lda #$24
-	sta tmp_spry
-:	; add ntwrhead % 32
-	lda ntwrhead
-	and #$1F
-	clc
-	adc tmp_sprx
-	sta tmp_sprx
-	; add (ntrowhead % 8) * 0x20 + (ntrowhead / 8) * 0x100
-	lda ntrowhead
-	lsr
-	lsr
-	lsr
-	sta temp6
-	
-	lda ntrowhead
-	ror
-	ror
-	ror
-	ror
-	and #%11100000
-	clc
-	adc tmp_sprx
-	sta tmp_sprx
-	lda tmp_spry
-	adc temp6
-	sta tmp_spry
-	
-	; done!! now load that address.
-	ldy tmp_spry
-	ldx tmp_sprx
-	jsr ppu_loadaddr
-	
+@dontflushHP2:
 	rts
 
 ; ** SUBROUTINE: h_flush_row_u
 ; desc:    Flushes a generated row in temprow to the screen.
 ; assumes: we're in vblank or rendering is disabled
 h_flush_row_u:
-	jsr h_flush_row_reload
+	ldy wrcountHR1
+	beq @dontflushHR1
 	
-	lda ntwrhead
-	pha
-	
-	; and start writing.
+	lda ppuaddrHR1+1
+	sta ppu_addr
+	lda ppuaddrHR1
+	sta ppu_addr
 	ldy #0
-@loop:
-	lda temprow, y
+	
+:	lda temprow1, y
 	sta ppu_data
-	
 	iny
-	cpy #$20
-	beq @doneloop
+	cpy wrcountHR1
+	bne :-
 	
-	; check if this increment would move us to the next name table
-	tya
-	clc
-	adc ntwrhead
-	and #$20
-	sta temp5
+@dontflushHR1:
+	ldy wrcountHR2
+	beq @dontflushHR2
 	
-	lda ntwrhead
-	and #$20
-	eor temp5
+	lda ppuaddrHR2+1
+	sta ppu_addr
+	lda ppuaddrHR2
+	sta ppu_addr
+	ldy #0
 	
-	; if they're on different name tables, then A != 0
-	beq @loop
+:	lda temprow2, y
+	sta ppu_data
+	iny
+	cpy wrcountHR2
+	bne :-
 	
-	sty temp5
-	lda ntwrhead
-	clc
-	adc temp5
-	sta ntwrhead
-	jsr h_flush_row_reload
-	ldy temp5
-	jmp @loop
-
-@doneloop:
-	
-	pla
-	sta ntwrhead
+@dontflushHR2:
 	
 	; advance the row head but keep it within 30
 	ldx ntrowhead
@@ -385,12 +272,73 @@ h_gen_subyoff:
 ;          metatiles in area space, upwards.
 h_gener_row_u:
 	ldy #0
+	sty wrcountHR1
+	sty wrcountHR2
+	sty wrcountHP1
+	sty wrcountHP2
+	
+	; determine which nametable is the first written to
+	; the PPU address we want to start writing to is
+	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32) + ntrowhead * 0x20
+	lda #$00
+	sta ppuaddrHR1
+	lda #$20
+	sta ppuaddrHR1+1
+	
+	; (add ntwrhead / 32) * 0x400
+	lda ntwrhead
+	and #$20
+	beq :+
+	lda #$24
+	sta ppuaddrHR1+1
+:	; add ntwrhead % 32
+	lda ntwrhead
+	and #$1F
+	clc
+	adc ppuaddrHR1
+	sta ppuaddrHR1
+	; add (ntrowhead % 8) * 0x20 + (ntrowhead / 8) * 0x100
+	lda ntrowhead
+	lsr
+	lsr
+	lsr
+	sta temp6
+	
+	lda ntrowhead
+	ror
+	ror
+	ror
+	ror
+	and #%11100000
+	clc
+	adc ppuaddrHR1
+	sta ppuaddrHR1
+	lda ppuaddrHR1+1
+	adc temp6
+	sta ppuaddrHR1+1
+	
+	; done! ppuaddrHR2 is going to be the other nametable, with X=0
+	lda ppuaddrHR1+1
+	eor #$04
+	sta ppuaddrHR2+1
+	lda ppuaddrHR1
+	and #%11100000
+	sta ppuaddrHR2
+	
+	; determine which half we should be writing to
+	lda ntwrhead
+	and #$1F
+	sta temp2
+	lda #32
+	sec
+	sbc temp2
+	sta temp2
 	
 @loop:
-	sty temp6
+	sty temp1
 	lda ntwrhead
 	clc
-	adc temp6
+	adc temp1
 	and #$3F
 	tax                      ; the X coordinate
 	jsr h_comp_addr
@@ -400,9 +348,21 @@ h_gener_row_u:
 	tax
 	lda metatiles, x
 	
-	ldy temp6
-	sta temprow, y
+	ldy temp1
+	cpy temp2
+	bcc :+
+	ldx wrcountHR2           ; second half
+	sta temprow2, x
+	inx
+	stx wrcountHR2
+	bne @writedone
+:	ldx wrcountHR1           ; first half
+	sta temprow1, x
+	inx
+	stx wrcountHR1
+@writedone:
 	
+	ldy temp1
 	iny
 	cpy #$20
 	bne @loop
@@ -417,6 +377,52 @@ h_gener_row_u:
 	and #$03
 	bne @dontgeneratepal
 	
+	; prepare addresses for palH1 and palH2.
+	lda ntwrhead
+	and #$20
+	lsr
+	lsr
+	lsr
+	clc
+	adc #$23
+	sta ppuaddrHP1+1
+	
+	; add the Y coordinate
+	lda ntrowhead  ; 000yyyyy [0 - 29]
+	asl            ; 00yyyyy0
+	and #%00111000 ; 00yyy000
+	ora #%11000000 ; $C0
+	sta ppuaddrHP1
+	
+	; add the X coordinate
+	lda ntwrhead   ; 00sxxxxx
+	lsr            ; 000sxxxx
+	lsr            ; 0000sxxx
+	and #%00000111 ; 00000xxx
+	clc
+	adc ppuaddrHP1
+	sta ppuaddrHP1
+	
+	; palH2 will be on the same nametable but the X coordinate will be zero
+	lda ppuaddrHP1+1
+	eor #$04
+	sta ppuaddrHP2+1
+	
+	lda ppuaddrHP1
+	and #%11111000
+	sta ppuaddrHP2
+	
+	; calculate the Y threshold at which we need to switch to the other name table.
+	lda ntwrhead
+	and #$1F
+	lsr
+	lsr
+	sta temp2
+	lda #8
+	sec
+	sbc temp2
+	sta temp2
+	
 	; start reading palette data.
 	; palette data is loaded in "loadedpals". Indexing: loadedpals[x * 8 + y].
 	; therefore we'll need to add 8 every load
@@ -428,7 +434,20 @@ h_gener_row_u:
 	pha                  ; push A to restore it later
 	tax                  ; use it as an index into loadedpals.
 	lda loadedpals, x
-	sta temppalH, y      ; store it into temppalH
+	
+	cpy temp2
+	bcc :+
+	ldx wrcountHP2
+	sta temppalH2, x
+	inx
+	stx wrcountHP2
+	bne @writedone1
+:	ldx wrcountHP1
+	sta temppalH1, x
+	inx
+	stx wrcountHP1
+	
+@writedone1:
 	pla                  ; restore A
 	clc
 	adc #8               ; and add 8 to it.

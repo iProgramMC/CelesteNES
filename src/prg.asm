@@ -391,8 +391,16 @@ ntrowhead2  = $0073
 camdst_x    = $0074 ; temporary used by gm_leaveroomU
 camdst_x_pg = $0075 ; temporary used by gm_leaveroomU
 paloffs     = $0076 ; temporary used by gm_leaveroomU
-targetytmp  = $0077 ; temporary used by h_flush_row_u
-targetytmp2 = $0078 ; temporary used by h_flush_row_u
+
+wrcountHP1  = $0077 ; write count for HP1
+ppuaddrHP1  = $0078 ; ppuaddr to write palH1 to
+ppuaddrHP2  = $007A ; ppuaddr to write palH2 to
+ppuaddrHR1  = $007C ; ppuaddr to write row1 to
+ppuaddrHR2  = $007E ; ppuaddr to write row2 to
+wrcountHP2  = $0080 ; write count for HP2
+wrcountHR1  = $0081 ; write count for HR1
+wrcountHR2  = $0082 ; write count for HR2
+
 ;audaddrlo   = $0072
 ;audaddrhi   = $0073
 ;audrdlo     = $0074
@@ -416,11 +424,13 @@ plr_trace_y = $0440
 
 tempcol     = $0500 ; 32 bytes - temporary column to be flushed to the screen
 temppal     = $0520 ; 8 bytes  - temporary palette column to be flushed to the screen
-temppalH    = $0528 ; 8 bytes  - temporary palette row to be flushed to the screen
 allocpals   = $0530 ; 16 bytes - logical to physical palette
 palsallocd  = $0540 ; 16 bytes - physical to logical palette
-temprow     = $0550 ; 32 bytes - temporary row to be flushed to the screen
 
+temppalH1   = $0550 ; 8 bytes - temporary row in nametable 0
+temppalH2   = $0558 ; 8 bytes - temporary row in nametable 1
+temprow1    = $0560 ; 32 bytes - temporary row in nametable 0
+temprow2    = $0580 ; 32 bytes - temporary row in nametable 1
 
 loadedpals  = $05C0 ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 
