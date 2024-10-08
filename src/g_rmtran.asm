@@ -3,7 +3,7 @@
 gm_leave_doframe:
 	jsr gm_draw_player
 	jsr gm_unload_os_ents
-	;jsr gm_draw_entities
+	jsr gm_draw_entities
 	
 	lda #1
 	sta debug           ; end frame
@@ -68,7 +68,6 @@ gm_roomRtransdone:
 	sta lvlyoff
 	lda gamectrl             ; clear the camera stop bits
 	and #((gs_scrstopR|gs_scrstodR)^$FF)
-	;ora #gs_deferpal
 	sta gamectrl
 	lda camera_x
 	and #%11111100
@@ -253,21 +252,21 @@ gm_leaveroomU:
 	adc temp2
 	sta camdst_x_pg
 	
-	; subtract it from the player X
+	; subtract it from the player X to determine the destination player X
 	sec
 	lda player_x
 	sbc temp1
-	sta player_x
+	sta player_x_d
 	
-	; TODO: currently just set the camera position to that
-	lda camdst_x_pg
-	sta camera_x_pg
-	and #1
-	sta camera_x_hi
+	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
+	; scroll the camera
+	jsr @compute_camoff
 	
-	lda camdst_x
-	sta camera_x
+	; shift the entirety of camoff by 3 to allow for a course correction during some frames
+	jsr @compute_camoff2
 	
+	lda #0
+	sta temp7                ; temp7 will now hold the camera's "sub X" position
 	
 	; load the room beginning pixel
 	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)
@@ -380,7 +379,17 @@ gm_leaveroomU:
 	sbc #$10
 :	sta camera_y
 	
-	dec ntrowhead2
+	; add the relevant displacement [camoff_H, camoff_M, camoff_L] to the camera's position...
+	; camoff_H is the low byte, camoff_M is the high byte.
+	jsr @addtocameraX
+	
+	; every some frames, add slightly more to the camera and player X to perform a course correction
+	lda transtimer
+	and #1
+	bne :+
+	jsr @add2ndtocameraX
+	
+:	dec ntrowhead2
 	jsr gm_leave_doframe
 	
 @dontdeccamy:
@@ -399,6 +408,17 @@ gm_leaveroomU:
 	lda gamectrl
 	ora temp9
 	sta gamectrl
+	
+	; snap the camera position properly
+	lda camdst_x
+	sta camera_x
+	lda camdst_x_pg
+	sta camera_x_pg
+	
+	lda player_x_d
+	sta player_x
+	lda #0
+	sta player_sp_x
 	
 	lda #gs_scrstopR
 	bit gamectrl
@@ -430,4 +450,108 @@ gm_leaveroomU:
 	asl
 	asl
 	sta camera_y
+	rts
+
+@addtocameraX:
+	lda camoff_sub
+	clc
+	adc camoff_L
+	sta camoff_sub
+	lda camera_x
+	adc camoff_M
+	sta camera_x
+	lda camera_x_pg
+	adc camoff_H
+	sta camera_x_pg
+	and #1
+	sta camera_x_hi
+	
+	lda player_sp_x
+	sec
+	sbc camoff_L
+	sta player_sp_x
+	lda player_x
+	sbc camoff_M
+	sta player_x
+	rts
+
+@add2ndtocameraX:
+	lda camoff_sub
+	clc
+	adc camoff2_L
+	sta camoff_sub
+	lda camera_x
+	adc camoff2_M
+	sta camera_x
+	lda camera_x_pg
+	adc #0
+	sta camera_x_pg
+	and #1
+	sta camera_x_hi
+	
+	lda player_sp_x
+	sec
+	sbc camoff2_L
+	sta player_sp_x
+	lda player_x
+	sbc camoff2_M
+	sta player_x
+	rts
+
+@compute_camoff:
+	; calculate the difference in [camoff_H, camoff_M] (high to low)
+	lda camdst_x
+	sec
+	sbc camera_x
+	sta camoff_M
+	lda camdst_x_pg
+	sbc camera_x_pg
+	sta camoff_H
+	
+	; divide it by 32. This will make it so that the camera X displacement
+	; is applied smoothly over 32 frames.
+	
+	; eventually, the camera's difference will be stored in [camoff_H, camoff_M, camoff_L] (high to low)
+	; camoff_H    camoff_M
+	; xxxxxxxx yyyyyyyy
+	;   SHALL BECOME:
+	; camoff_H    camoff_M    camoff_L
+	; 00000xxx xxxxxyyy yyyyy000
+	
+	lda camoff_M
+	asl
+	asl
+	asl
+	sta camoff_L
+	
+	lda camoff_M
+	rol
+	rol
+	rol
+	rol
+	and #%00000111
+	sta temp7
+	
+	lda camoff_H
+	asl
+	asl
+	asl
+	ora temp7
+	sta camoff_M
+	
+	lda camoff_H
+	lsr
+	lsr
+	lsr
+	sta camoff_H
+
+@compute_camoff2:
+	; calculate the difference in [camoff_H, camoff_M] (high to low)
+	lda camdst_x
+	sec
+	sbc camera_x
+	sta camoff2_L
+	lda camdst_x_pg
+	sbc camera_x_pg
+	sta camoff2_M
 	rts

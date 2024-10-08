@@ -65,7 +65,7 @@ level1_r1_t:
 	.byte $BA,$1D,$FF
 level1_r1:
 	.byte 0, 0, 0
-	.byte 0, 20
+	.byte 0, 0
 	.byte 2, 255, 255, 2
 	.byte 20, 255, 255, 254
 	.byte 0

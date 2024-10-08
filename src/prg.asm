@@ -391,7 +391,6 @@ ntrowhead2  = $0073
 camdst_x    = $0074 ; temporary used by gm_leaveroomU
 camdst_x_pg = $0075 ; temporary used by gm_leaveroomU
 paloffs     = $0076 ; temporary used by gm_leaveroomU
-
 wrcountHP1  = $0077 ; write count for HP1
 ppuaddrHP1  = $0078 ; ppuaddr to write palH1 to
 ppuaddrHP2  = $007A ; ppuaddr to write palH2 to
@@ -400,6 +399,13 @@ ppuaddrHR2  = $007E ; ppuaddr to write row2 to
 wrcountHP2  = $0080 ; write count for HP2
 wrcountHR1  = $0081 ; write count for HR1
 wrcountHR2  = $0082 ; write count for HR2
+camoff_H    = $0083 ; temporaries used by gm_leaveroomU
+camoff_M    = $0084
+camoff_L    = $0085
+camoff_sub  = $0086
+player_x_d  = $0087
+camoff2_M   = $0088
+camoff2_L   = $0089
 
 ;audaddrlo   = $0072
 ;audaddrhi   = $0073
