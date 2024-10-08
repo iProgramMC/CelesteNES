@@ -209,12 +209,12 @@ gm_leaveroomU:
 	
 	lda ntwrhead
 	sec
-	sbc #$24
+	sbc #$20
 	and #$3F
 	sta ntwrhead
 	lda arwrhead
 	sec
-	sbc #$25
+	sbc #$21
 	and #$3F
 	sta arwrhead
 	
@@ -238,6 +238,8 @@ gm_leaveroomU:
 	asl
 	sta temp1
 	lda temp3
+	lsr
+	lsr
 	lsr
 	lsr
 	lsr
@@ -388,6 +390,13 @@ gm_leaveroomU:
 	lda gamectrl
 	and #(gs_dontgen ^ $FF)
 	sta gamectrl
+	
+	; decrement ntwrhead to avoid a desync
+	ldx ntwrhead
+	dex
+	txa
+	and #$3F
+	sta ntwrhead
 	
 	lda lvlyoff
 	asl
