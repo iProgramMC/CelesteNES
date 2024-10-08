@@ -3,7 +3,7 @@
 gm_leave_doframe:
 	jsr gm_draw_player
 	jsr gm_unload_os_ents
-	jsr gm_draw_entities
+	;jsr gm_draw_entities
 	
 	lda #1
 	sta debug           ; end frame
@@ -220,6 +220,22 @@ gm_leaveroomU:
 	lda #0
 	sta tr_scrnpos
 	
+	; set the player's velocity to jump into the stage.
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	sta dashcount
+	
+	; set the auto jump flag. it'll be cleared when the player lands
+	lda #g2_autojump
+	ora gamectrl2
+	sta gamectrl2
+	
+	lda #(jumpvel ^ $FF + 1)
+	sta player_vl_y
+	lda #(jumpvello ^ $FF + 1)
+	sta player_vs_y
+	
 	; clear the camera stop bits
 	lda gamectrl
 	and #((gs_scrstopR|gs_scrstodR|gs_flstcolR|gs_flstpalR)^$FF)
@@ -249,13 +265,37 @@ gm_leaveroomU:
 	
 	; write 32 columns - these are not subject to camera limitations
 	ldy #0
-:	sty transtimer
+@writeloop:
+	sty transtimer
 	jsr h_gener_col_r
 	jsr gm_leave_doframe
+	
+	; also bring the player down
+	lda player_y
+	clc
+	adc #cspeed
+	cmp #$E0
+	bcc :+
+	lda #$E0
+:	sta player_y
+	
+	; and the camera up
+	lda transtimer
+	and #1
+	ror                  ; puts the last bit of the transition timer into carry
+	lda camera_y
+	sbc #7               ; note: calculated as 7.5. 8 half the time, 7 half the time.
+	cmp #$F0
+	bcc :+
+	sec
+	sbc #$10
+:	sta camera_y
+	
+@dontdeccamy:
 	ldy transtimer
 	iny
 	cpy #32
-	bne :-
+	bne @writeloop
 	
 	; restore the camera flags
 	lda gamectrl
@@ -280,4 +320,9 @@ gm_leaveroomU:
 	and #(gs_dontgen ^ $FF)
 	sta gamectrl
 	
+	lda lvlyoff
+	asl
+	asl
+	asl
+	sta camera_y
 	rts

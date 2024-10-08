@@ -8,6 +8,9 @@ gm_getdownforce:
 	lda #pl_dashed
 	bit playerctrl
 	bne gm_dashgrav     ; if dashed before touching the ground, return the strong gravity
+	lda #g2_autojump
+	bit gamectrl2
+	bne gm_defaultgrav
 	lda #cont_a
 	bit p1_cont
 	bne gm_defaultgrav  ; if A isn't held, then use a stronger gravity force
@@ -27,6 +30,10 @@ gm_gravity:
 	lda #pl_ground
 	bit playerctrl
 	beq gm_apply_gravity
+	
+	lda gamectrl2
+	and #($FF ^ g2_autojump)
+	sta gamectrl2
 	rts
 gm_apply_gravity:
 	jsr gm_getdownforce
