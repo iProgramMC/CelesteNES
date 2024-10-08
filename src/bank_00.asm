@@ -5,3 +5,6 @@
 .res leveldata - *, $FF
 .include "metatile.asm"
 .include "levels.asm"
+
+
+.include "mmc1stub.asm"
