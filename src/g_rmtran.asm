@@ -190,6 +190,9 @@ gm_leaveroomU:
 :	lda #0
 	sta player_y
 	
+	ldy warp_u_x
+	sty temp3
+	
 	ldy warp_u
 	jsr gm_set_room
 	
@@ -214,6 +217,55 @@ gm_leaveroomU:
 	sbc #$25
 	and #$3F
 	sta arwrhead
+	
+	; add the X offset of this room to the name table and area table write heads
+	lda temp3
+	clc
+	adc ntwrhead
+	and #$3F
+	sta ntwrhead
+	
+	lda temp3
+	clc
+	adc arwrhead
+	and #$3F
+	sta arwrhead
+	
+	; add the X offset to the current camera X.
+	lda temp3
+	asl
+	asl
+	asl
+	sta temp1
+	lda temp3
+	lsr
+	lsr
+	lsr
+	sta temp2
+	
+	clc
+	lda camera_x
+	adc temp1
+	sta camdst_x
+	lda camera_x_pg
+	adc temp2
+	sta camdst_x_pg
+	
+	; subtract it from the player X
+	sec
+	lda player_x
+	sbc temp1
+	sta player_x
+	
+	; TODO: currently just set the camera position to that
+	lda camdst_x_pg
+	sta camera_x_pg
+	and #1
+	sta camera_x_hi
+	
+	lda camdst_x
+	sta camera_x
+	
 	
 	; load the room beginning pixel
 	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)

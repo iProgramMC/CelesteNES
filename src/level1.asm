@@ -40,7 +40,7 @@ level1_r1:
 	.byte 0, 0, 0
 	.byte 0, 20
 	.byte 8, 255, 255, 2
-	.byte 255, 255, 255, 254
+	.byte 16, 255, 255, 254
 	.byte 0
 	.word level1_r1_t
 	.word level1_r1_p
