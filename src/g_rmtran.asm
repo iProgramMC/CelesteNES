@@ -5,15 +5,9 @@ gm_leave_doframe:
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities
 	
-	lda #1
-	sta debug           ; end frame
-	
 	jsr ppu_nmi_on
 	jsr nmi_wait
-	jsr ppu_nmi_off	
-	
-	lda #0
-	sta debug           ; start frame
+	jsr ppu_nmi_off
 	
 	jmp com_clear_oam
 
