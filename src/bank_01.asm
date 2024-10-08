@@ -1,8 +1,6 @@
 .org $8000
 
-.byte "suck it", 0
-
-
-
+.include "metatile.asm"
+.include "level1.asm"
 
 .include "mmc1stub.asm"

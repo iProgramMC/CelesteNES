@@ -137,6 +137,11 @@ plr_haflp_r = $42
 plr_hadsh_l = $5C   ; hair dash
 plr_hadsh_r = $5E
 
+; Level Bank Format
+metatiles     = $8000 ; address of metatile character data
+metatile_info = $8100 ; address of metatile information
+level_data    = $8200 ; address of actual level data
+
 ; Constants
 mmc1bk_chr0 = 0     ; X reg in mmc1_selbank
 mmc1bk_chr1 = 1
@@ -154,7 +159,6 @@ obj_fliphz  = $40   ; flip horizontally
 obj_flipvt  = $80   ; flip vertically
 obj_backgd  = $20   ; behind background
 miscdata    = $E000
-leveldata   = $8000
 palettepage = $FF00
 pctl_nmi_on = %10000000
 pctl_adv32  = %00000100

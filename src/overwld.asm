@@ -65,9 +65,7 @@ gamemode_overwd_update:
 	lda #0
 	sta ppu_mask        ; disable rendering to obscure that gm_set_level sets the bank early
 	
-	lda ow_sellvl
-	asl
-	tax
+	ldx ow_sellvl
 	jsr gm_set_level
 	jmp tl_gameswitch
 	

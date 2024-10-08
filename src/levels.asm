@@ -120,5 +120,3 @@
 ; NOTE about level data:
 ; the first screen of a level MAY NOT be smaller than 40 tiles! there are glitches otherwise
 
-.include "level0.asm"
-.include "level1.asm"

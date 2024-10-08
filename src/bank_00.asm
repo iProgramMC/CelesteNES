@@ -2,9 +2,9 @@
 
 .org $8000
 
-.res leveldata - *, $FF
 .include "metatile.asm"
 .include "levels.asm"
 
+.include "level0.asm"
 
 .include "mmc1stub.asm"

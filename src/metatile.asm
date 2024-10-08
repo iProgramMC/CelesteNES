@@ -10,7 +10,7 @@
 ; These are the metatiles for the Intro level.
 ; Eventually the metatile bank will be swappable with different level banks.
 
-metatiles:
+
 	.byte $00 ; Air
 	.byte $60,$64,$70,$74 ; Dirt Corners
 	.byte $61,$62,$63     ; Dirt Tops
@@ -44,7 +44,7 @@ metatiles:
 	.byte $F0,$F1,$A8 ; Bridge 3
 	.byte $E2,$F2,$3E,$2C,$A0,$A1 ; Bridge Pole
 
-metatile_info:
+.res metatile_info - *, $FF
 	.byte ct_none                ; Air
 	.res  28, ct_full            ; Dirt
 	.res  27, ct_full            ; Snow
@@ -57,3 +57,5 @@ metatile_info:
 	.res   2, ct_none            ; Bridge Pole
 	.res   7, ct_full            ; Bridge
 	.res   6, ct_none            ; Bridge Pole
+
+.res level_data - *, $00

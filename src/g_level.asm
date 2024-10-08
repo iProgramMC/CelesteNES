@@ -929,6 +929,13 @@ gm_set_level_1:
 ; args: X - level number
 ; assumes: vblank is off and you're loading a new level
 gm_set_level:
+	lda level_banks, x
+	jsr mmc1_selprgbank
+	
+	txa
+	asl
+	tax
+	
 	lda level_table, x
 	inx
 	ldy level_table, x
