@@ -99,29 +99,36 @@ nmi_camhid:
 nmi_game:
 	lda #gs_turnon
 	bit gamectrl
-	beq nmi_game_trycols
+	beq @trycols
 	lda gamectrl
 	eor #gs_turnon
 	sta gamectrl
 	lda #def_ppu_msk
 	sta ppu_mask
-nmi_game_trycols:
+	
+@trycols:
 	lda #gs_flstcolR
 	bit gamectrl
-	beq nmi_game_trypal
-	lda #gs_flstcolR
+	beq @trypal
 	eor gamectrl
 	sta gamectrl
 	jsr h_flush_col_r
-	;jmp nmi_gamemodeend
-nmi_game_trypal:
+	
+@trypal:
 	lda #gs_flstpalR
 	bit gamectrl
-	beq nmi_gamemodeend
-	lda #gs_flstpalR
+	beq @tryrow
 	eor gamectrl
 	sta gamectrl
 	jsr h_flush_pal_r
+	
+@tryrow:
+	lda #g2_flstrowU
+	bit gamectrl2
+	beq nmi_gamemodeend
+	eor gamectrl2
+	sta gamectrl2
+	jsr h_flush_row_u
 	jmp nmi_gamemodeend
 
 .include "weather.asm"

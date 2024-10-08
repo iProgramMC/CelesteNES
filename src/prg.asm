@@ -386,6 +386,8 @@ roombeghi   = $006E
 roombeglo2  = $006F ; beginning of room in tiles.
 plrtrahd    = $0070 ; plr trace head
 plrstrawbs  = $0071 ; strawberries following this player
+ntrowhead   = $0072
+ntrowhead2  = $0073
 ;audaddrlo   = $0072
 ;audaddrhi   = $0073
 ;audrdlo     = $0074
@@ -412,6 +414,7 @@ temppal     = $0520 ; 8 bytes  - temporary palette column to be flushed to the s
 ; 8 bytes spare here
 allocpals   = $0530 ; 16 bytes - logical to physical palette
 palsallocd  = $0540 ; 16 bytes - physical to logical palette
+temprow     = $0550 ; 32 bytes - temporary row to be flushed to the screen
 
 
 areaspace   = $6000 ; 2048 bytes -- 64 X 32 area, OR 32 X 64 in V mode

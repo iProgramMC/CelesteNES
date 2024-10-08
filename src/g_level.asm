@@ -115,14 +115,116 @@ h_flupal_loop:
 	lda #8
 	sta debug
 	rts
+	
+; ** SUBROUTINE: h_flush_row_reload
+; desc:    Reloads the PPU address based on the ntwrhead and ntrowhead.
+h_flush_row_reload:
+	; the PPU address we want to start writing to is
+	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32) + ntrowhead * 0x20
+	lda #$00
+	sta tmp_sprx
+	lda #$20
+	sta tmp_spry
+	
+	; (add ntwrhead / 32) * 0x400
+	lda ntwrhead
+	and #$20
+	beq :+
+	lda #$24
+	sta tmp_spry
+:	; add ntwrhead % 32
+	lda ntwrhead
+	and #$1F
+	clc
+	adc tmp_sprx
+	sta tmp_sprx
+	; add (ntrowhead % 8) * 0x20 + (ntrowhead / 8) * 0x100
+	lda ntrowhead
+	lsr
+	lsr
+	lsr
+	sta temp6
+	
+	lda ntrowhead
+	ror
+	ror
+	ror
+	ror
+	and #%11100000
+	clc
+	adc tmp_sprx
+	sta tmp_sprx
+	lda tmp_spry
+	adc temp6
+	sta tmp_spry
+	
+	; done!! now load that address.
+	ldy tmp_spry
+	ldx tmp_sprx
+	jsr ppu_loadaddr
+	
+	rts
+
+; ** SUBROUTINE: h_flush_row_u
+; desc:    Flushes a generated row in temprow to the screen.
+; assumes: we're in vblank or rendering is disabled
+h_flush_row_u:
+	jsr h_flush_row_reload
+	
+	lda ntwrhead
+	pha
+	
+	; and start writing.
+	ldy #0
+@loop:
+	lda temprow, y
+	sta ppu_data
+	
+	iny
+	cpy #$20
+	beq @doneloop
+	
+	; check if this increment would move us to the next name table
+	tya
+	clc
+	adc ntwrhead
+	and #$20
+	sta temp5
+	
+	lda ntwrhead
+	and #$20
+	eor temp5
+	
+	; if they're on different name tables, then A != 0
+	beq @loop
+	
+	sty temp5
+	lda ntwrhead
+	clc
+	adc temp5
+	sta ntwrhead
+	jsr h_flush_row_reload
+	ldy temp5
+	jmp @loop
+
+@doneloop:
+	
+	pla
+	sta ntwrhead
+	
+	; advance the row head but keep it within 30
+	ldx ntrowhead
+	bne :+
+	ldx #30
+:	dex
+	stx ntrowhead
+	
+	rts
 
 ; ** SUBROUTINE: h_flush_col_r
 ; desc:    Flushes a generated column in tempcol to the screen
 ; assumes: we're in vblank or rendering is disabled
 h_flush_col_r:
-	lda #5
-	sta debug
-	
 	; set the increment to 32 in PPUCTRL
 	lda ctl_flags
 	ora #pctl_adv32
@@ -164,9 +266,6 @@ h_fls_wrloop:
 	; restore the old PPUCTRL
 	lda ctl_flags
 	sta ppu_ctrl
-	
-	lda #6
-	sta debug
 	rts
 
 h_gen_addyoff:
@@ -193,14 +292,48 @@ h_gen_subyoff:
 	pla
 	rts
 
+; ** SUBROUTINE: h_gener_row_u
+; desc:    Generates a horizontal row of characters corresponding to the respective
+;          metatiles in area space, upwards.
+h_gener_row_u:
+	ldy #0
+	
+@loop:
+	sty temp6
+	lda ntwrhead
+	clc
+	adc temp6
+	and #$3F
+	tax                      ; the X coordinate
+	jsr h_comp_addr
+	
+	ldy ntrowhead2           ; the Y coordinate
+	lda (lvladdr), y
+	tax
+	lda metatiles, x
+	
+	ldy temp6
+	sta temprow, y
+	
+	iny
+	cpy #$20
+	bne @loop
+	
+	; now that the row has been flushed, it's time to set the gamectrl2 flag
+	lda #g2_flstrowU
+	ora gamectrl2
+	sta gamectrl2
+	
+	; TODO: palette generation
+	
+	rts
+	
+
 ; ** SUBROUTINE: h_gener_col_r
 ; desc:    Generates a vertical column of characters corresponding to the respective
 ;          metatiles in area space, on the right side of the scroll seam.  Also
 ;          generates the next column of tiles and the palette if necessary.
-; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts)
 h_gener_col_r:
-	lda #4
-	sta debug
 	lda #gs_scrstopR
 	bit gamectrl
 	beq :+
@@ -211,7 +344,7 @@ h_gener_col_r:
 	sty temp6
 	ldy #0                    ; start writing tiles.
 	sty temp7
-h_gen_wrloop:                 ; each iteration will write 1 character tile for one metatile.
+@loop:                        ; each iteration will write 1 character tile for one metatile.
 	lda (lvladdr), y
 	tax
 	lda metatiles, x
@@ -226,7 +359,7 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	ldy temp7                 ; restore the current y into temp7
 	iny
 	cpy #$1E
-	bne h_gen_wrloop
+	bne @loop
 
 	lda #gs_flstcolR          ; set the gamectrl gs_flstcolR flag
 	ora gamectrl
@@ -245,12 +378,12 @@ h_gen_wrloop:                 ; each iteration will write 1 character tile for o
 	beq :+
 	rts
 :	ldy #0                    ; start reading palette data.
-h_pal_wrloop:
+@ploop:
 	jsr gm_read_pal
 	cmp #$FE
-	beq h_pal_haveFE          ; break out of this loop
+	beq @phaveFE              ; break out of this loop
 	cmp #$FF
-	bne h_pal_noFF
+	bne @pnoFF
 	
 	lda palrdheadlo
 	bne :+
@@ -258,12 +391,12 @@ h_pal_wrloop:
 :	dec palrdheadlo
 	
 	lda #0
-h_pal_noFF:
+@pnoFF:
 	sta temppal,y
 	iny
 	cpy #8
-	bne h_pal_wrloop
-h_pal_haveFE:
+	bne @ploop
+@phaveFE:
 	lda #gs_flstpalR
 	ora gamectrl
 	sta gamectrl

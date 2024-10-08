@@ -193,6 +193,17 @@ gm_leaveroomU:
 	ldy warp_u
 	jsr gm_set_room
 	
+	lda lvlyoff
+	clc
+	adc #29               ; ntrowhead += 20
+	cmp #$1E
+	bcc :+
+	sbc #$1E
+:	sta ntrowhead
+	
+	lda #29
+	sta ntrowhead2
+	
 	lda ntwrhead
 	sec
 	sbc #$24
@@ -263,12 +274,11 @@ gm_leaveroomU:
 	ora #gs_dontgen
 	sta gamectrl
 	
-	; write 32 columns - these are not subject to camera limitations
+	; write 30 rows - these are not subject to camera limitations
 	ldy #0
 @writeloop:
 	sty transtimer
-	jsr h_gener_col_r
-	jsr gm_leave_doframe
+	jsr h_gener_row_u
 	
 	; also bring the player down
 	lda player_y
@@ -280,22 +290,29 @@ gm_leaveroomU:
 :	sta player_y
 	
 	; and the camera up
-	lda transtimer
-	and #1
-	ror                  ; puts the last bit of the transition timer into carry
 	lda camera_y
-	sbc #7               ; note: calculated as 7.5. 8 half the time, 7 half the time.
+	sec
+	sbc #cspeed
 	cmp #$F0
 	bcc :+
 	sec
 	sbc #$10
 :	sta camera_y
 	
+	dec ntrowhead2
+	jsr gm_leave_doframe
+	
 @dontdeccamy:
 	ldy transtimer
 	iny
-	cpy #32
+	cpy #30
 	bne @writeloop
+	
+	; add 32 to the name table write head
+	lda ntwrhead
+	clc
+	adc #32
+	sta ntwrhead
 	
 	; restore the camera flags
 	lda gamectrl
