@@ -1217,3 +1217,31 @@ gm_shifttrace:
 	pla
 	rts
 	
+; ** SUBROUTINE: gm_shifttraceYP
+; desc: Shifts the player Y trace down by an amount of pixels
+; parameters:
+;     A - the amount of pixels to increase the player Y trace by
+; note: The player X trace is capped to $F0. It will not overflow.
+gm_shifttraceYP:
+	pha
+	ldx #0
+	sta temp1
+@loop:
+	lda plr_trace_y, x
+	
+	clc
+	adc temp1
+	
+	bcc :+
+	lda #$F0
+	
+:	cmp #$F0
+	bcc :+
+	lda #$F0
+	
+:	sta plr_trace_y, x
+	inx
+	cpx #$40
+	bne @loop
+	pla
+	rts

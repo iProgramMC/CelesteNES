@@ -104,7 +104,7 @@ gm_roomRtranloop:
 	and #1
 	sta camera_x_hi
 	
-	lda #8
+	lda #cspeed
 	jsr gm_shifttrace
 	
 	lda transoff
@@ -369,6 +369,9 @@ gm_leaveroomU:
 	lda #$E0
 :	sta player_y
 	
+	lda #cspeed
+	jsr gm_shifttraceYP
+	
 	; and the camera up
 	lda camera_y
 	sec
@@ -473,6 +476,10 @@ gm_leaveroomU:
 	lda player_x
 	sbc camoff_M
 	sta player_x
+	
+	lda camoff_M
+	jsr gm_shifttrace
+	
 	rts
 
 @add2ndtocameraX:
@@ -496,6 +503,10 @@ gm_leaveroomU:
 	lda player_x
 	sbc camoff2_M
 	sta player_x
+	
+	lda camoff2_M
+	jsr gm_shifttrace
+	
 	rts
 
 @compute_camoff:
