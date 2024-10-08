@@ -334,6 +334,22 @@ h_gener_row_u:
 	sbc temp2
 	sta temp2
 	
+	; sike! don't use an offset for HR1 either.
+	lda ppuaddrHR1
+	and #%00011111
+	tay
+	eor ppuaddrHR1
+	sta ppuaddrHR1
+	
+	; write a bunch of fillers.
+	lda #0
+:	ldx wrcountHR1
+	sta temprow1, x
+	inx
+	stx wrcountHR1
+	dey
+	bne :-
+	
 @loop:
 	sty temp1
 	lda ntwrhead
@@ -362,6 +378,18 @@ h_gener_row_u:
 	stx wrcountHR1
 @writedone:
 	
+	; pad out hr2 with filler.
+	lda #0
+	ldy wrcountHR2
+	cpy #$20
+	bne @dont
+:	sta temprow2, y
+	iny
+	cpy #$20
+	bne :-
+	sty wrcountHR2
+	
+@dont:
 	ldy temp1
 	iny
 	cpy #$20
