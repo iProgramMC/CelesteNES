@@ -308,13 +308,40 @@ gm_leaveroomU:
 	
 	; pre-generate all metatiles
 	ldy #0
-:	sty transtimer
+@genloop:
+	sty transtimer
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
 	ldy transtimer
 	iny
 	cpy #36
+	bne @genloop
+	
+	; pre-generate all palette data
+	ldy #0
+@palloop:
+	sty temp6
+	jsr h_palette_data_column
+	
+	; an inner loop to copy from temppal to loadedpals
+	lda temp6
+	asl
+	asl
+	asl
+	tax
+	ldy #0
+	
+:	lda temppal, y
+	sta loadedpals, x
+	inx
+	iny
+	cpy #8
 	bne :-
+	
+	ldy temp6
+	iny
+	cpy #8
+	bne @palloop
 	
 	; preserve the camera stop bits temporarily.
 	; we'll clear them so that h_gener_col_r does its job.

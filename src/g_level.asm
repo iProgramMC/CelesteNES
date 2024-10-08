@@ -73,18 +73,16 @@ h_flush_pal_r_cond:
 ; desc:    Flushes a generated palette column in temppal to the screen
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
 h_flush_pal_r:
-	lda #7
-	sta debug
 	clc
 	lda ntwrhead
 	sbc #2
 	and #$20
-	beq h_flupal_high
-	ldx #$27
-	jmp h_flupal_done
-h_flupal_high:
-	ldx #$23
-h_flupal_done:
+	lsr
+	lsr
+	lsr
+	clc
+	adc #$23
+	tax
 	stx y_crd_temp      ; store the high byte of the nametable address there. we'll need it.
 	ldx #$C0
 	stx x_crd_temp
@@ -99,7 +97,7 @@ h_flupal_done:
 	sta x_crd_temp
 	; need to write 8 bytes.
 	ldy #0
-h_flupal_loop:
+@loop:
 	ldx y_crd_temp
 	stx ppu_addr
 	ldx x_crd_temp
@@ -111,9 +109,99 @@ h_flupal_loop:
 	sta x_crd_temp
 	iny
 	cpy #8
-	bne h_flupal_loop
+	bne @loop
+	rts
+
+; ** SUBROUTINE: h_flush_pal_u_reload
+; desc:    Reloads the PPU address to the offset within the attribute table
+;          from ntwrhead, ntrowhead.
+h_flush_pal_u_reload:
+	lda ntwrhead
+	and #$20
+	lsr
+	lsr
+	lsr
+	clc
+	adc #$23
+	tay
+	
+	; add the Y coordinate
+	lda ntrowhead  ; 000yyyyy [0 - 29]
+	clc
+	adc #4
+	asl            ; 00yyyyy0
+	and #%00111000 ; 00yyy000
+	ora #%11000000 ; $C0
+	sta y_crd_temp
+	
+	; add the X coordinate
+	lda ntwrhead   ; 00sxxxxx
+	lsr            ; 000sxxxx
+	lsr            ; 0000sxxx
+	and #%00000111 ; 00000xxx
+	clc
+	adc y_crd_temp
+	tax
+	
+	jmp ppu_loadaddr
+
+; ** SUBROUTINE: h_flush_pal_u
+; desc:    Flushes a generated palette row in temppalH to the screen.
+; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
+h_flush_pal_u:
+	jsr h_flush_pal_u_reload
+	
+	; calculate the boundary where we should reload the address
+	; the equation boils down to 16-temp7, or 8-temp7, where
+	; temp7 is ntwrhead/4
+	lda ntwrhead
+	lsr
+	lsr
+	sta temp7
+	
+	lda #$20
+	bit ntwrhead
+	beq @do8
+	; 16 - temp7
+	lda #16
+	jmp @dodone
+@do8:
 	lda #8
-	sta debug
+@dodone:
+	sec
+	sbc temp7
+	sta temp6
+	
+	; temp6 now holds that boundary. we want temp7 to hold the temporary
+	; ntwrhead while reloading the PPU address
+	lda ntwrhead
+	and #$20
+	eor #$20
+	sta temp7
+	
+	ldy #0
+@loop:
+	lda temppalH, y
+	sta ppu_data
+	
+	iny
+	
+	; check if we should reload the address and do so
+	cpy temp6
+	bne :+
+	
+	sty temp8
+	lda ntwrhead
+	pha
+	lda temp7
+	sta ntwrhead
+	jsr h_flush_pal_u_reload
+	pla
+	sta ntwrhead
+	ldy temp8
+	
+:	cpy #8
+	bne @loop
 	rts
 	
 ; ** SUBROUTINE: h_flush_row_reload
@@ -324,8 +412,35 @@ h_gener_row_u:
 	ora gamectrl2
 	sta gamectrl2
 	
-	; TODO: palette generation
+	; check if (ntrowhead % 4) == 0
+	lda ntrowhead
+	and #$03
+	bne @dontgeneratepal
 	
+	; start reading palette data.
+	; palette data is loaded in "loadedpals". Indexing: loadedpals[x * 8 + y].
+	; therefore we'll need to add 8 every load
+	ldy #0
+	lda ntrowhead
+	lsr                  ; divide by 4. ntrowhead is a tile coordinate. convert to a
+	lsr                  ; palette grid coordinate.
+@ploop:
+	pha                  ; push A to restore it later
+	tax                  ; use it as an index into loadedpals.
+	lda loadedpals, x
+	sta temppalH, y      ; store it into temppalH
+	pla                  ; restore A
+	clc
+	adc #8               ; and add 8 to it.
+	iny
+	cpy #8
+	bne @ploop
+	
+	lda #g2_flstpalU
+	ora gamectrl2
+	sta gamectrl2
+	
+@dontgeneratepal:
 	rts
 	
 
@@ -375,9 +490,14 @@ h_gener_col_r:
 :	lda ntwrhead              ; check if we're writing the 3rd odd column
 	and #$03
 	cmp #$03
-	beq :+
+	beq h_palette_data_column
 	rts
-:	ldy #0                    ; start reading palette data.
+
+; ** SUBROUTINE: h_palette_data_column
+; desc: Reads a single column of palette data.
+; NOTE: sets gs_flstpalR in gamectrl!
+h_palette_data_column:
+	ldy #0                    ; start reading palette data.
 @ploop:
 	jsr gm_read_pal
 	cmp #$FE

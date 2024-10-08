@@ -390,6 +390,9 @@ ntrowhead   = $0072
 ntrowhead2  = $0073
 camdst_x    = $0074 ; temporary used by gm_leaveroomU
 camdst_x_pg = $0075 ; temporary used by gm_leaveroomU
+paloffs     = $0076 ; temporary used by gm_leaveroomU
+targetytmp  = $0077 ; temporary used by h_flush_row_u
+targetytmp2 = $0078 ; temporary used by h_flush_row_u
 ;audaddrlo   = $0072
 ;audaddrhi   = $0073
 ;audrdlo     = $0074
@@ -413,10 +416,13 @@ plr_trace_y = $0440
 
 tempcol     = $0500 ; 32 bytes - temporary column to be flushed to the screen
 temppal     = $0520 ; 8 bytes  - temporary palette column to be flushed to the screen
-; 8 bytes spare here
+temppalH    = $0528 ; 8 bytes  - temporary palette row to be flushed to the screen
 allocpals   = $0530 ; 16 bytes - logical to physical palette
 palsallocd  = $0540 ; 16 bytes - physical to logical palette
 temprow     = $0550 ; 32 bytes - temporary row to be flushed to the screen
+
+
+loadedpals  = $05C0 ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 
 
 areaspace   = $6000 ; 2048 bytes -- 64 X 32 area, OR 32 X 64 in V mode

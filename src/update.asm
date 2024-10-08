@@ -125,10 +125,18 @@ nmi_game:
 @tryrow:
 	lda #g2_flstrowU
 	bit gamectrl2
-	beq nmi_gamemodeend
+	beq @tryhpal
 	eor gamectrl2
 	sta gamectrl2
 	jsr h_flush_row_u
+	
+@tryhpal:
+	lda #g2_flstpalU
+	bit gamectrl2
+	beq nmi_gamemodeend
+	eor gamectrl2
+	sta gamectrl2
+	jsr h_flush_pal_u
 	jmp nmi_gamemodeend
 
 .include "weather.asm"
