@@ -113,8 +113,6 @@ gm_game_clear_wx:
 	stx gamectrl      ; clear game related fields to zero
 	stx ntwrhead
 	stx arwrhead
-	stx player_x
-	stx player_y
 	stx player_sp_x
 	stx player_sp_y
 	stx camera_x
@@ -137,6 +135,9 @@ gm_game_clear_wx:
 	stx jumpcoyote
 	stx wjumpcoyote
 	stx tr_scrnpos
+	dex
+	stx animmode      ; set to 0xFF
+	inx
 	
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
 	; note: ldx #$00 was removed because it's already 0!

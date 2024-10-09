@@ -890,7 +890,7 @@ gm_fetch_room:
 
 gm_fetch_room_loop:
 	lda (roomptrlo),y
-	sta leveldatas1-3,y
+	sta startpx-3,y
 	iny
 	cpy #14
 	bne gm_fetch_room_loop
@@ -949,7 +949,16 @@ gm_set_level:
 	lda #bank_spr
 	jsr mmc1_selsprbank
 	
-	; fallthru
+	jsr gm_set_room
+	
+	; load the player's X coordinate to the pixel coordinates provided,
+	; if this is the first level
+	lda startpx
+	sta player_x
+	lda startpy
+	sta player_y
+	
+	rts
 
 ; ** SUBROUTINE: gm_set_room
 ; args: Y - room number

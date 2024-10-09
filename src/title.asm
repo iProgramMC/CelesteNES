@@ -138,7 +138,6 @@ gamemode_titletr:
 	
 	ldx tl_gametime
 	dex
-	;beq tl_gameswitch
 	beq tl_owldswitch
 	stx tl_gametime
 	

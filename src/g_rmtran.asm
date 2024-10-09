@@ -411,6 +411,8 @@ gm_leaveroomU:
 	sta camera_x
 	lda camdst_x_pg
 	sta camera_x_pg
+	and #1
+	sta camera_x_hi
 	
 	lda player_x_d
 	sta player_x
@@ -430,17 +432,18 @@ gm_leaveroomU:
 	cpy #4
 	bne :-
 	
+	; generate one more column
+	lda #gs_scrstopR
+	bit gamectrl
+	bne @dontdomore
+	
+	jsr h_gener_ents_r
+	jsr h_gener_mts_r
+	
 @dontdomore:
 	lda gamectrl
 	and #(gs_dontgen ^ $FF)
 	sta gamectrl
-	
-	; decrement ntwrhead to avoid a desync
-	ldx ntwrhead
-	dex
-	txa
-	and #$3F
-	sta ntwrhead
 	
 	lda lvlyoff
 	asl
