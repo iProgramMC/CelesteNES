@@ -1,0 +1,7 @@
+Dash Speed        : $0400
+Walk Speed        : $0180
+Jump Speed        : $FE40, sustained for 12 frames of holding the A button
+Max Fall Speed    : $02AA  (160 px/sec)
+Up Dash           : $FC00 (-240 px/sec)
+Wave Dash H Speed : $056A (325 px/sec)
+Wave Dash V Speed : $FF20 (-52.5 px/sec)

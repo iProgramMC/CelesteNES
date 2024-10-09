@@ -1,0 +1,11 @@
+; Copyright (C) 2024 iProgramInCpp
+
+; This file is NOT a source code file, only included for my level editor.
+; This file describes a level and its constituent files.
+
+level0:
+	metatile_path mtile0.asm
+	metapale_path mpale0.txt
+level1:
+	metatile_path mtile1.asm
+	metapale_path mpale1.txt

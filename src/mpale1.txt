@@ -1,0 +1,14 @@
+; Copyright (C) 2024 iProgramInCpp
+
+; note : this file is NOT included for the game! only for my level editor.
+metatile_palette:
+	.byte     $0 ; Air
+	.res  28, $1 ; Dirt
+	.res  27, $2 ; Snow
+	.res   4, $1 ; Dirt
+	.res   3, $1 ; Jump Through
+	.byte     $0 ; Spikes
+	.res   4, $3 ; Grass Decals
+	.res  32, $0 ; Cement
+	.res   4, $0 ; Girder
+	.res   3, $0 ; Spikes

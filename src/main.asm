@@ -1,7 +1,7 @@
 .segment "INES"
 .byte $4E,$45,$53,$1A
 .byte 4         ; size of prg rom in 16kb units
-.byte 4         ; size of chr rom in 8kb units
+.byte 8         ; size of chr rom in 8kb units
 .byte %00010000 ; flags 6 -- switchable nametable mirroring, mapper 1
 .byte %00001000 ; flags 7 -- NES 2.0 header
 .byte %00000000 ; mapper msb / submapper
@@ -36,3 +36,4 @@
 .incbin  "b_title.chr"
 .incbin  "b_overw.chr"
 .incbin  "b_lvl0.chr"
+.incbin  "b_lvl1.chr"

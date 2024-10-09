@@ -5,7 +5,7 @@ MEMORY
 	BANK01: start=$8000, size=$4000, fill=yes, fillval=$FF;
 	BANK02: start=$8000, size=$4000, fill=yes, fillval=$FF;
 	PRG:    start=$C000, size=$4000, fill=yes, fillval=$FF;
-	CHR:    start=$0000, size=$8000, fill=yes, fillval=$FF;
+	CHR:    start=$0000, size=$10000, fill=yes, fillval=$FF;
 }
 
 SEGMENTS
