@@ -929,8 +929,9 @@ gm_set_level_1:
 ; args: X - level number
 ; assumes: vblank is off and you're loading a new level
 gm_set_level:
-	lda level_banks, x
-	jsr mmc1_selprgbank
+	ldy level_banks, x
+	lda #7
+	jsr mmc3_set_bank
 	
 	txa
 	asl
@@ -942,14 +943,33 @@ gm_set_level:
 	tax
 	jsr gm_set_level_ptr
 	
+	; load room 0
+	ldy #0
+	jsr gm_set_room
+	
+	; load the "environment type" field. This specifies the default bank
 	ldy #0
 	lda (lvlptrlo), y
-	jsr mmc1_selcharbank    ; select the character tile bank specified in the level
+	asl
+	asl
+	clc
+	adc #chrb_lvl0           ; The first level's BG bank is #chrb_lvl0.
+	tay
+	lda #0
+	jsr mmc3_set_bank
+	lda #1
+	iny
+	iny
+	jsr mmc3_set_bank
 	
-	lda #bank_spr
-	jsr mmc1_selsprbank
+	;lda #0
+	;ldy #chrb_lvl0
+	;jsr mmc3_set_bank
+	;lda #1
+	;ldy #chrb_lvl0+2
+	;jsr mmc3_set_bank
 	
-	jsr gm_set_room
+	jsr gm_load_generics
 	
 	; load the player's X coordinate to the pixel coordinates provided,
 	; if this is the first level
@@ -968,3 +988,19 @@ gm_set_room:
 	iny
 	jsr gm_fetch_room
 	rts
+
+; ** SUBROUTINE: gm_load_generics
+; desc: Loads the generic sprite sheet banks.  The game may animate them later.
+gm_load_generics:
+	lda #2
+	ldy #chrb_plrsp0
+	jsr mmc3_set_bank
+	lda #3
+	ldy #chrb_gesp00
+	jsr mmc3_set_bank
+	lda #4
+	ldy #chrb_gesp01
+	jsr mmc3_set_bank
+	lda #5
+	ldy #chrb_gesp02
+	jmp mmc3_set_bank

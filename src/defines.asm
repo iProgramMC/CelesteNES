@@ -19,10 +19,14 @@ apu_status  = $4015
 apu_joypad1 = $4016
 apu_joypad2 = $4017
 apu_frctr   = $4017
-mmc1_ctrl   = $8000
-mmc1_chr0   = $A000
-mmc1_chr1   = $C000
-mmc1_prg    = $E000
+mmc3_bsel   = $8000
+mmc3_bdat   = $8001
+mmc3_mirror = $A000
+mmc3_pram   = $A001
+mmc3_irqla  = $C000
+mmc3_irqrl  = $C001
+mmc3_irqdi  = $E000
+mmc3_irqen  = $E001
 
 ; Offsets in Sprite Struct
 
@@ -138,20 +142,65 @@ plr_hadsh_l = $5C   ; hair dash
 plr_hadsh_r = $5E
 
 ; Level Bank Format
-metatiles     = $8000 ; address of metatile character data
-metatile_info = $8100 ; address of metatile information
-level_data    = $8200 ; address of actual level data
+metatiles     = $A000 ; address of metatile character data
+metatile_info = $A100 ; address of metatile information
+level_data    = $A200 ; address of actual level data
+
+; SPRITE BANKS
+chrb_plrsp0 = $00   ; player sprite banks
+chrb_plrsp1 = $04
+chrb_plrsp2 = $08
+chrb_plrsp3 = $0C
+chrb_gesp00 = $01   ; generic sprite 0
+chrb_gesp01 = $05
+chrb_gesp02 = $09
+chrb_gesp03 = $0D
+chrb_gesp10 = $02   ; generic sprite 1
+chrb_gesp11 = $06
+chrb_gesp12 = $0A
+chrb_gesp13 = $0E
+chrb_gesp20 = $03   ; generic sprite 2
+chrb_gesp21 = $07
+chrb_gesp22 = $0B
+chrb_gesp23 = $0F
+chrb_owsp00 = $10   ; sprite banks for Overworld
+chrb_owsp01 = $11
+chrb_owsp02 = $12
+chrb_owsp03 = $13
+; BACKGROUND BANKS
+chrb_bgttl  = $14   ; graphics bank for title screen
+chrb_bgowd  = $18   ; graphics bank for Overworld
+chrb_lvl0   = $1C   ; graphics bank for level 0 "Prologue"
+chrb_lvl1   = $20   ; graphics bank for level 1 "Forsaken City"
+chrb_lvl2   = $24   ; graphics bank for level 2 "Old Site"
+chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
+chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
+chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
+chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
+chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
+chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
+; PRGROM BANKS
+prgb_lvl0   = $00   ; Main level data ($A000)
+prgb_lvl1   = $01
+prgb_lvl2   = $02
+prgb_lvl3   = $03
+prgb_lvl4   = $04
+prgb_lvl5   = $05
+prgb_lvl6   = $06
+prgb_lvl7   = $07
+prgb_lvl8   = $08
+prgb_lvl9   = $09
+prgb_lvla   = $0A   ; Shared level data ($C000)
+prgb_lvlb   = $0B
+prgb_lvlc   = $0C
+prgb_lvld   = $0D
+prgb_game   = $0E   ; bank containing game engine code.  This is fixed at $8000
+prgb_main   = $0F   ; bank containing main code.  This is fixed at $E000
 
 ; Constants
-mmc1bk_chr0 = 0     ; X reg in mmc1_selbank
-mmc1bk_chr1 = 1
-mmc1bk_prg  = 2
-bank_spr    = $00   ; default sprite bank
-bank_sprow  = $01   ; sprite bank for overworld
-bank_title  = $02   ; graphics bank used for title screen
-bank_owld   = $03   ; graphics bank used for overworld
-bank_lvl0   = $04   ; graphics bank used for level 0 "prologue"
-bank_lvl1   = $05   ; graphics bank used for level 1 "ruins"
+def_mmc3_bn = %11000000 ; default mmc3 bank config.
+                        ; two 2K banks at $1000-$1FFF, four 1K banks at $0000-$0FFF
+                        ; PRG ROM fixed at $8000-$9FFF and $E000-$FFFF
 blank_tile  = $00
 apu_irq_off = $40
 oam_buf_hi  = $07   ; matches the upper bytes of the address of oam_buf
@@ -288,6 +337,7 @@ camera_x_hi = $0019
 player_x_hi = $001A ; player screen X - alternates between 0 and 1
 currpal     = $001B ; low byte of current palette's ROM address (offset from palettepage)
 temp9       = $001C
+mmc3_shadow = $001F ; shadow byte for the mmc3 bank select register
 
 ; Title specific addresses
 tl_timer    = $0040

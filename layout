@@ -1,19 +1,94 @@
 MEMORY
 {
-	INES:   start=$0000, size=$0010, fill=yes, fillval=$00;
-	BANK00: start=$8000, size=$4000, fill=yes, fillval=$FF;
-	BANK01: start=$8000, size=$4000, fill=yes, fillval=$FF;
-	BANK02: start=$8000, size=$4000, fill=yes, fillval=$FF;
-	PRG:    start=$C000, size=$4000, fill=yes, fillval=$FF;
-	CHR:    start=$0000, size=$10000, fill=yes, fillval=$FF;
+	# NES 2.0 header.
+	INES:     start=$0000, size=$0010, fill=yes, fillval=$00;
+	
+	# NOTE: It's actually possible to have 64 PRG banks and 32 CHR banks.
+	# Currently we only use 16 banks of PRG space because it's enough.
+	# Once we start work on Farewell it may no longer be enough.
+	
+	##### PRG ROM #####
+	
+	# Main Level Data
+	#
+	# Each chapter gets 8 KB of level data space.
+	PRG_LVL0: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$00;
+	PRG_LVL1: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$01;
+	PRG_LVL2: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$02;
+	PRG_LVL3: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$03;
+	PRG_LVL4: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$04;
+	PRG_LVL5: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$05;
+	PRG_LVL6: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$06;
+	PRG_LVL7: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$07;
+	PRG_LVL8: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$08;
+	PRG_LVL9: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$09;
+	
+	# Data shared between several levels (entity code, etc)
+	#
+	# For 8 chapters, this would comfortably be 4096 bytes per level,
+	# assuming no code sharing is performed.
+	PRG_LVLA: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0A;
+	PRG_LVLB: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0B;
+	PRG_LVLC: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0C;
+	PRG_LVLD: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0D;
+	
+	# Game Engine and Core
+	PRG_GAME: start=$8000, size=$2000, fill=yes, fillval=$00, bank=$0E;
+	PRG_MAIN: start=$E000, size=$2000, fill=yes, fillval=$00, bank=$0F;
+	
+	##### CHR ROM #####
+	## Sprites ##
+	
+	# Player Sprites
+	CHR_SPR00: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$00;
+	CHR_SPR01: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$04;
+	CHR_SPR02: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$08;
+	CHR_SPR03: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$0C;
+	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$10;
+	
+	## Backgrounds ##
+	CHR_BGTTL: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$14;
+	CHR_BGOWD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$18;
+	CHR_BG000: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$1C;
+	CHR_BG001: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$20;
+	CHR_BG002: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$24;
+	CHR_BG003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$28;
+	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
+	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
+	CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
+	CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
+	CHR_BG008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
 }
 
 SEGMENTS
 {
-	INES:   load=INES,   type=ro;
-	BANK00: load=BANK00, type=ro;
-	BANK01: load=BANK01, type=ro;
-	BANK02: load=BANK02, type=ro;
-	PRG:    load=PRG,    type=ro;
-	CHR:    load=CHR,    type=ro;
+	INES:     load = INES,     type = ro;
+	PRG_LVL0: load = PRG_LVL0, type = ro;
+	PRG_LVL1: load = PRG_LVL1, type = ro;
+	PRG_LVL2: load = PRG_LVL2, type = ro;
+	PRG_LVL3: load = PRG_LVL3, type = ro;
+	PRG_LVL4: load = PRG_LVL4, type = ro;
+	PRG_LVL5: load = PRG_LVL5, type = ro;
+	PRG_LVL6: load = PRG_LVL6, type = ro;
+	PRG_LVL7: load = PRG_LVL7, type = ro;
+	PRG_LVL8: load = PRG_LVL8, type = ro;
+	PRG_LVL9: load = PRG_LVL9, type = ro;
+	PRG_LVLA: load = PRG_LVLA, type = ro;
+	PRG_LVLB: load = PRG_LVLB, type = ro;
+	PRG_LVLC: load = PRG_LVLC, type = ro;
+	PRG_LVLD: load = PRG_LVLD, type = ro;
+	PRG_GAME: load = PRG_GAME, type = ro;
+	PRG_MAIN: load = PRG_MAIN, type = ro;
+	CHR_SPR00: load = CHR_SPR00, type = ro;
+	CHR_SPR01: load = CHR_SPR01, type = ro;
+	CHR_SPR02: load = CHR_SPR02, type = ro;
+	CHR_SPR03: load = CHR_SPR03, type = ro;
+	CHR_SPOWD: load = CHR_SPOWD, type = ro;
+	CHR_BGTTL: load = CHR_BGTTL, type = ro;
+	CHR_BGOWD: load = CHR_BGOWD, type = ro;
+	CHR_BG000: load = CHR_BG000, type = ro;
+	CHR_BG001: load = CHR_BG001, type = ro;
+	CHR_BG002: load = CHR_BG002, type = ro;
+	CHR_BG003: load = CHR_BG003, type = ro;
+	CHR_BG004: load = CHR_BG004, type = ro;
 }

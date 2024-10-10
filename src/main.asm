@@ -1,8 +1,8 @@
 .segment "INES"
 .byte $4E,$45,$53,$1A
-.byte 4         ; size of prg rom in 16kb units
+.byte 8         ; size of prg rom in 16kb units
 .byte 8         ; size of chr rom in 8kb units
-.byte %00010000 ; flags 6 -- switchable nametable mirroring, mapper 1
+.byte %01000000 ; flags 6 -- switchable nametable mirroring, mapper 4
 .byte %00001000 ; flags 7 -- NES 2.0 header
 .byte %00000000 ; mapper msb / submapper
 .byte %00000000 ; prg-rom / chr-rom size msb
@@ -17,23 +17,32 @@
 
 .include "defines.asm"
 
-.segment "BANK00"
-.include "bank_00.asm"
+.segment "PRG_LVL0"
+.include "prg_lvl0.asm"
+.segment "PRG_LVL1"
+.include "prg_lvl1.asm"
 
-.segment "BANK01"
-.include "bank_01.asm"
+.segment "PRG_GAME"
+.include "prg_game.asm"
 
-.segment "BANK02"
-.include "bank_02.asm"
-
-.segment "PRG"
-.include "prg.asm"
+.segment "PRG_MAIN"
+.include "prg_main.asm"
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
-.segment "CHR"
+.segment "CHR_SPR00"
 .incbin  "sprites.chr"
-.incbin  "sp_overw.chr"
+
+.segment "CHR_BGTTL"
 .incbin  "b_title.chr"
+
+.segment "CHR_BGOWD"
 .incbin  "b_overw.chr"
+
+.segment "CHR_SPOWD"
+.incbin  "sp_overw.chr"
+
+.segment "CHR_BG000"
 .incbin  "b_lvl0.chr"
+
+.segment "CHR_BG001"
 .incbin  "b_lvl1.chr"

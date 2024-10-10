@@ -310,7 +310,7 @@ level1_r5:
 	.word level1_r5_p
 	.word level1_r5_e
 level1:
-	.byte $05	; environment type
+	.byte $01	; environment type
 	.byte $05	; room count
 	.word level1_r1
 	.word level1_r2

@@ -159,7 +159,30 @@ game_update_return:
 	rts
 
 .include "overwld.asm"
-.include "game.asm"
+
+; ** SUBROUTINE: tl_select_banks
+; desc: Selects the banks required to display the title screen.
+tl_select_banks:
+	lda #0
+	ldy #chrb_bgttl
+	jsr mmc3_set_bank
+	lda #1
+	ldy #chrb_bgttl+2
+	jsr mmc3_set_bank
+	
+	lda #2
+	ldy #chrb_plrsp0
+	jsr mmc3_set_bank
+	lda #3
+	ldy #chrb_gesp00
+	jsr mmc3_set_bank
+	lda #4
+	ldy #chrb_gesp01
+	jsr mmc3_set_bank
+	lda #5
+	ldy #chrb_gesp02
+	jsr mmc3_set_bank
+	rts
 
 ; ** SUBROUTINE: com_clear_oam
 ; arguments: none

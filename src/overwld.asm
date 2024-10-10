@@ -28,10 +28,7 @@ gamemode_overwd:
 	lda owldctrl
 	ora #(os_1stfr | os_turnon)
 	sta owldctrl
-	lda #bank_sprow
-	jsr mmc1_selsprbank
-	lda #bank_owld
-	jsr mmc1_selcharbank
+	jsr ow_select_banks
 	jsr vblank_wait
 	
 gamemode_overwd_update:
@@ -763,3 +760,27 @@ ow_level_names:
 ow_icon_pals:
 	; note: bit 0x20 SHOULD be set else the level select effect won't work.
 	.byte $21, $23, $21, $21, $22, $21, $22, $23
+
+; ** SUBROUTINE: ow_select_banks
+; desc: Selects the banks required to display the title screen.
+ow_select_banks:
+	lda #0
+	ldy #chrb_bgowd
+	jsr mmc3_set_bank
+	lda #1
+	ldy #chrb_bgowd+2
+	jsr mmc3_set_bank
+	
+	lda #2
+	ldy #chrb_owsp00
+	jsr mmc3_set_bank
+	lda #3
+	ldy #chrb_owsp01
+	jsr mmc3_set_bank
+	lda #4
+	ldy #chrb_owsp02
+	jsr mmc3_set_bank
+	lda #5
+	ldy #chrb_owsp03
+	jsr mmc3_set_bank
+	rts

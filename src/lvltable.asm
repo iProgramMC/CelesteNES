@@ -11,4 +11,15 @@ level_table:
 	.word level0 ; 7
 level_table_end:
 
+level_banks:
+	.byte $00
+	.byte $01
+	.byte $00
+	.byte $00
+	.byte $00
+	.byte $00
+	.byte $00
+	.byte $00
+level_banks_end:
+
 level_table_size = level_table_end - level_table

@@ -150,3 +150,4 @@ gm_game_clear:
 	sta $700,x
 	inx
 	bne gm_game_clear
+	rts
