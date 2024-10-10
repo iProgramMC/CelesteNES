@@ -97,12 +97,7 @@ nmi_camhid:
 	rti
 
 nmi_game:
-	; Update the current player sprite bank.
-	lda animtimer
-	and #1
-	tay
-	lda #mmc3bk_spr0
-	jsr mmc3_set_bank_nmi
+	jsr nmi_anims_update
 	
 	; Check game status bits.
 	lda #gs_turnon
@@ -147,6 +142,26 @@ nmi_game:
 	jsr h_flush_pal_u
 	jmp nmi_gamemodeend
 
+nmi_anims_update:
+	; Update the current player sprite bank.
+	lda animtimer
+	and #1
+	tay
+	lda #mmc3bk_spr0
+	jsr mmc3_set_bank_nmi
+	
+	; Update the animated sprite bank.
+	lda framectr
+	lsr
+	lsr
+	lsr
+	and #3
+	tay
+	iny
+	iny
+	lda #mmc3bk_spr3
+	jmp mmc3_set_bank_nmi
+
 .include "weather.asm"
 .include "title.asm"
 
@@ -183,17 +198,17 @@ tl_select_banks:
 	ldy #chrb_plrsp0
 	jsr mmc3_set_bank
 	
-	lda #mmc3bk_spr1
-	ldy #chrb_gesp00
-	jsr mmc3_set_bank
+	;lda #mmc3bk_spr1
+	;ldy #chrb_gensp2
+	;jsr mmc3_set_bank
 	
 	lda #mmc3bk_spr2
-	ldy #chrb_gesp01
+	ldy #chrb_gensp1
 	jsr mmc3_set_bank
 	
-	lda #mmc3bk_spr3
-	ldy #chrb_gesp02
-	jsr mmc3_set_bank
+	;lda #mmc3bk_spr3
+	;ldy #chrb_anisp0
+	;jsr mmc3_set_bank
 	rts
 
 ; ** SUBROUTINE: com_clear_oam

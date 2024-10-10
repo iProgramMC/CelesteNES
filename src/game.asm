@@ -62,6 +62,7 @@ gm_game_init:
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
+	inc framectr
 	lda gamectrl
 	and #gs_1stfr
 	beq gm_game_init

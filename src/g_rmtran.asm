@@ -336,6 +336,14 @@ gm_leaveroomU:
 	cpy #8
 	bne @palloop
 	
+	; now, we will want to wait for vblank. NMIs are disabled at this point
+	; sometimes the code above is too slow so we may end up calling gm_leave_doframe
+	; during vblank, the NMI is fired, but the NMI ends up sending stuff to the
+	; PPU even after vblank.
+	;
+	; this is a HACK.
+	jsr vblank_wait
+	
 	; preserve the camera stop bits temporarily.
 	; we'll clear them so that h_gener_col_r does its job.
 	lda gamectrl

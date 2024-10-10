@@ -990,13 +990,13 @@ gm_load_generics:
 	jsr mmc3_set_bank
 	
 	lda #mmc3bk_spr1
-	ldy #chrb_gesp00
+	ldy #chrb_gensp2
 	jsr mmc3_set_bank
 	
 	lda #mmc3bk_spr2
-	ldy #chrb_gesp01
+	ldy #chrb_gensp1
 	jsr mmc3_set_bank
 	
 	lda #mmc3bk_spr3
-	ldy #chrb_gesp02
+	ldy #chrb_anisp0
 	jmp mmc3_set_bank

@@ -97,9 +97,9 @@ gm_draw_dead_loop:
 	ldy deathtimer
 	cpy #8
 	bcc :+
-	ldy #$72
+	ldy #$96
 	bne :++
-:	ldy #$70
+:	ldy #$94
 :	jsr oam_putsprite
 	ldy temp3
 	

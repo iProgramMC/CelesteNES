@@ -143,14 +143,22 @@ metatile_info = $A100 ; address of metatile information
 level_data    = $A200 ; address of actual level data
 
 ; SPRITE BANKS
-chrb_plrsp0 = $00   ; player sprite banks
-chrb_plrsp1 = $01
-; unused bank 2
-; unused bank 3
-; unused bank 4
-chrb_gesp00 = $05   ; generic sprite 0
-chrb_gesp01 = $06
-chrb_gesp02 = $07
+;
+; notes:
+;   plrsp0 and plrsp1 belong at $0000
+;   anisp0.....anisp3 belong at $0C00
+;   gensp1 and gensp2 belong at $0800 and $0400 respectively.
+
+chrb_plrsp0 = $00   ; player sprite banks  \.
+chrb_plrsp1 = $01   ;                      |  PART OF "sp_player.chr"
+chrb_anisp0 = $02   ; animated sprites     |
+chrb_anisp1 = $03   ;                      /
+chrb_anisp2 = $04   ;                      \.
+chrb_anisp3 = $05   ;                      |  PART OF "sprites.chr"
+chrb_gensp1 = $06   ;                      |
+chrb_gensp2 = $07   ;                      /
+
+; don't know when these will be used.
 chrb_gesp10 = $08   ; generic sprite 1
 chrb_gesp11 = $09
 chrb_gesp12 = $0A
@@ -159,6 +167,7 @@ chrb_gesp20 = $0C   ; generic sprite 2
 chrb_gesp21 = $0D
 chrb_gesp22 = $0E
 chrb_gesp23 = $0F
+
 chrb_owsp00 = $10   ; sprite banks for Overworld
 chrb_owsp01 = $11
 chrb_owsp02 = $12
@@ -335,6 +344,7 @@ camera_x_hi = $0019
 player_x_hi = $001A ; player screen X - alternates between 0 and 1
 currpal     = $001B ; low byte of current palette's ROM address (offset from palettepage)
 temp9       = $001C
+framectr    = $001D ; continuously increasing frame counter
 mmc3_shadow = $001F ; shadow byte for the mmc3 bank select register
 
 ; Title specific addresses
