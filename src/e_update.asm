@@ -152,7 +152,7 @@ gm_update_refill:
 	; player has dashed which means 
 	; break into 4 pieces, destroy, and give the player their dashes back
 	
-	lda #$74
+	lda #$98
 	sta temp4
 	lda #1
 	sta temp5

@@ -930,7 +930,7 @@ gm_set_level_1:
 ; assumes: vblank is off and you're loading a new level
 gm_set_level:
 	ldy level_banks, x
-	lda #7
+	lda #mmc3bk_prg1
 	jsr mmc3_set_bank
 	
 	txa
@@ -955,19 +955,12 @@ gm_set_level:
 	clc
 	adc #chrb_lvl0           ; The first level's BG bank is #chrb_lvl0.
 	tay
-	lda #0
+	lda #mmc3bk_bg0
 	jsr mmc3_set_bank
-	lda #1
+	lda #mmc3bk_bg1
 	iny
 	iny
 	jsr mmc3_set_bank
-	
-	;lda #0
-	;ldy #chrb_lvl0
-	;jsr mmc3_set_bank
-	;lda #1
-	;ldy #chrb_lvl0+2
-	;jsr mmc3_set_bank
 	
 	jsr gm_load_generics
 	
@@ -992,15 +985,18 @@ gm_set_room:
 ; ** SUBROUTINE: gm_load_generics
 ; desc: Loads the generic sprite sheet banks.  The game may animate them later.
 gm_load_generics:
-	lda #2
+	lda #mmc3bk_spr0
 	ldy #chrb_plrsp0
 	jsr mmc3_set_bank
-	lda #3
+	
+	lda #mmc3bk_spr1
 	ldy #chrb_gesp00
 	jsr mmc3_set_bank
-	lda #4
+	
+	lda #mmc3bk_spr2
 	ldy #chrb_gesp01
 	jsr mmc3_set_bank
-	lda #5
+	
+	lda #mmc3bk_spr3
 	ldy #chrb_gesp02
 	jmp mmc3_set_bank

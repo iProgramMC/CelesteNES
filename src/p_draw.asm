@@ -186,32 +186,23 @@ gm_sprxoffdone:
 	jsr gm_draw_2xsprite
 	rts
 
-gm_idletbl:
-	.byte plr_idle1_l, plr_idle1_r
-	.byte plr_idle2_l, plr_idle2_r
 gm_walktbl:
 	.byte plr_walk1_l, plr_walk1_r
+	.byte plr_walk1_l, plr_walk1_r
 	.byte plr_walk2_l, plr_walk2_r
-	.byte plr_walk3_l, plr_walk3_r
-	.byte plr_walk4_l, plr_walk4_r
-gm_pushtbl:
-	.byte plr_push2_l, plr_push2_r
-	.byte plr_push1_l, plr_push1_r
-gm_climtbl:
-	.byte plr_clim1_l, plr_clim1_r
-	.byte plr_clim2_l, plr_clim2_r
+	.byte plr_walk2_l, plr_walk2_r
 
 gm_anim_table:
 	; format: player L, player R, hair L, hair R, hair X off, hair Y off, flags, unused.
-	.byte <gm_idletbl, >gm_idletbl, plr_hasta_l, plr_hasta_r, $00, $00, af_2frame, $00  ; IDLE
+	.byte plr_idle1_l, plr_idle1_r, plr_hasta_l, plr_hasta_r, $00, $00, af_none,   $00  ; IDLE
 	.byte <gm_walktbl, >gm_walktbl, plr_hamvr_l, plr_hamvr_r, $00, $00, af_4frame|af_wlkspd|af_oddryth, $00  ; WALK
-	.byte plr_jump_l,  plr_jump_r,  plr_hamvu_l, plr_hamvu_r, $00, $00, af_none,   $00  ; JUMP
-	.byte plr_fall_l,  plr_fall_r,  plr_hamvd_l, plr_hamvd_r, $00, $00, af_none,   $00  ; FALL
-	.byte <gm_pushtbl, >gm_pushtbl, plr_hasta_l, plr_hasta_r, $01, $00, af_2frame|af_oddryth, $00  ; PUSH
-	.byte <gm_climtbl, >gm_climtbl, plr_hasta_l, plr_hasta_r, $01, $00, af_2frame, $00  ; CLIMB
-	.byte plr_dash_l,  plr_dash_r,  plr_hadsh_l, plr_hadsh_r, $00, $00, af_none,   $00  ; DASH
-	.byte plr_flip_l,  plr_flip_r,  plr_haflp_l, plr_haflp_r, $00, $00, af_none,   $00  ; FLIP
-	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_none,   $00  ; CLIMB IDLE
+	.byte plr_jump_l,  plr_jump_r,  plr_hamvu_l, plr_hamvu_r, $00, $00, af_lock,   $00  ; JUMP
+	.byte plr_fall_l,  plr_fall_r,  plr_hamvd_l, plr_hamvd_r, $00, $00, af_lock,   $00  ; FALL
+	.byte plr_push1_l, plr_push1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_none|af_oddryth, $00  ; PUSH
+	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_none,   $00  ; CLIMB
+	.byte plr_dash_l,  plr_dash_r,  plr_hadsh_l, plr_hadsh_r, $00, $00, af_lock,   $00  ; DASH
+	.byte plr_flip_l,  plr_flip_r,  plr_haflp_l, plr_haflp_r, $00, $00, af_lock,   $00  ; FLIP
+	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_lock,   $00  ; CLIMB IDLE
 
 gm_anim_advwalkL:
 	sec
@@ -294,7 +285,19 @@ gm_sameanim:
 	lda #af_wlkspd
 	bit animflags
 	bne gm_anim_advwalk
-	clc
+	lda #af_lock         ; check if animtimer should be locked to 0
+	bit animflags
+	beq :+
+	lda #0
+	sta animtimer
+	beq gm_donetimer
+:	lda #af_lockto1      ; check if animtimer should be locked to 1
+	bit animflags
+	beq :+
+	lda #1
+	sta animtimer
+	bne gm_donetimer
+:	clc
 	lda #animspd
 	adc animtimersb
 	sta animtimersb

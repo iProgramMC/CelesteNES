@@ -36,11 +36,11 @@ gm_draw_berry:
 	jmp gm_draw_common
 
 gm_draw_refillhold:
-	lda #$01
+	lda #$03
 	sta temp5
-	lda #$41
+	lda #$43
 	sta temp8
-	lda #$76
+	lda #$9A
 	sta temp6
 	sta temp7
 	jsr gm_draw_common
@@ -191,8 +191,7 @@ gm_draw_ent_call:
 	
 	ldx temp1
 	
-	;jmp (lvladdr)
-	rts
+	jmp (lvladdr)
 
 ; TODO: figure out how to avoid defining two tables like this
 gm_entjtable_lo:

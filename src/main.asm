@@ -30,6 +30,8 @@
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
 .segment "CHR_SPR00"
+.incbin  "sp_player.chr"
+.segment "CHR_SPR01"
 .incbin  "sprites.chr"
 
 .segment "CHR_BGTTL"
