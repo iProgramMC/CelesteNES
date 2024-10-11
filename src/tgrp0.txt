@@ -1,0 +1,32 @@
+; BITS:
+; 0 - Up
+; 1 - Down
+; 2 - Left
+; 3 - Right
+; 4 - UpLeft
+; 5 - UpRight
+; 6 - DownLeft
+; 7 - DownRight
+;
+; the bit mask is left to right, so bit 0 corresponds to index 0.
+;
+; - - don't matter
+; 1 - is one
+; 0 - is zero
+;
+; ex. -------- - default mask, -1000000 - up doesn't matter, down must be 1, rest must be zero
+
+group 1
+	name     DIRT
+	color    $37
+	-------- $60
+
+group 2
+	name     SNOW
+	color    $21
+	-------- $80
+
+group 3
+	name     CEMENT
+	color    $20
+	-------- $A0

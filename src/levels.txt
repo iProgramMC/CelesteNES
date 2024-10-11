@@ -6,6 +6,8 @@
 level0:
 	metatile_path mtile0.asm
 	metapale_path mpale0.txt
+	tilegroups_path tgrp0.txt
 level1:
 	metatile_path mtile1.asm
 	metapale_path mpale1.txt
+	tilegroups_path tgrp1.txt
