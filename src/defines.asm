@@ -498,6 +498,7 @@ temppalH1   = $0550 ; 8 bytes - temporary row in nametable 0
 temppalH2   = $0558 ; 8 bytes - temporary row in nametable 1
 temprow1    = $0560 ; 32 bytes - temporary row in nametable 0
 temprow2    = $0580 ; 32 bytes - temporary row in nametable 1
+lastcolumn  = $05A0 ; 30 bytes - temporary storage for the last column, used during decompression
 
 loadedpals  = $05C0 ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 

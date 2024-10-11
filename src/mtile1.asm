@@ -42,6 +42,7 @@
 	.byte $A7,$A8,$B7,$B8 ; Cement Corners
 	.byte $C0,$C1,$C2,$C3 ; Girders
 	.byte $C9,$CA,$CB     ; Spikes
+	.byte $89,$8A,$99     ; Grey Jump Through
 
 .res metatile_info - *, $FF
 	.byte ct_none                ; Air
@@ -54,5 +55,6 @@
 	.res  32, ct_full            ; Cement
 	.res   4, ct_full            ; Girder
 	.res   3, ct_deadly          ; Spikes
+	.res   3, ct_jumpthru        ; Grey Jump Through
 
 .res level_data - *, $00

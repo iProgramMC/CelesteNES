@@ -12,3 +12,4 @@ metatile_palette:
 	.res  32, $0 ; Cement
 	.res   4, $0 ; Girder
 	.res   3, $0 ; Spikes
+	.res   3, $0 ; Grey Jump Through

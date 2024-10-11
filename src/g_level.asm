@@ -594,6 +594,25 @@ h_genertiles_dup:
 	bne :-
 	jmp h_genertiles_cont
 
+; ** FEATURE: h_genertiles_copy
+; desc:    Copies an amount of metatiles from the last column.
+h_genertiles_copy:
+	and #%00011111
+	sta temp1
+	tya                   ; transfer the Y coordinate over to add it to temp1
+	clc
+	adc temp1
+	sta temp1             ; store it in temp1
+	
+:	lda lastcolumn, y
+	sta (lvladdr), y
+	; no need to store to lastcolumn as that's where we got it from in the first place!
+	iny
+	cpy temp1
+	bne :-
+	
+	jmp h_genertiles_cont
+
 ; ** FEATURE: h_genertiles_dupair
 ; desc:    Like h_genertiles_dup but only generates air.
 h_genertiles_dupair:
@@ -606,6 +625,7 @@ h_genertiles_dupair:
 	ldx arwrhead
 	lda #0
 :	sta (lvladdr), y
+	sta lastcolumn, y
 	iny
 	cpy temp1
 	bne :-
@@ -623,7 +643,7 @@ h_genertiles_lvlend:
 	rol
 	rol                   ; rotate that ANDed bit back to bit 0
 	and #1
-	eor #1            ; subtract 256 from it
+	eor #1                ; subtract 256 from it
 	sta camlimithi
 	lda arwrhead
 	asl
@@ -636,7 +656,10 @@ h_genertiles_lvlend:
 	lda arwrhead
 	sta trarwrhead
 	lda #0                ; just store 0 as the tile
-	jmp h_gentlsnocheck
+	sta (lvladdr), y
+	sta lastcolumn, y
+	iny
+	jmp h_genertiles_cont
 
 ; ** SUBROUTINE: h_gener_mts_r
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
@@ -654,22 +677,33 @@ h_genertiles_loop:
 	jsr gm_read_tile
 	cmp #$FF              ; if data == 0xFF, then decrement the pointer
 	beq h_genertiles_lvlend
-	cmp #$A1              ; if data >= 0x21 && data < 0x40, then this is a "duplicate" tile.
-	bcc h_gentlsnocheck
+	
+	cmp #$A1              ; if data >= 0xA1 && data < 0xC0, then this is a "duplicate" tile.
+	bcc :+
 	cmp #$C0
-	bcs h_gentlsnocheck
+	bcs :+
 	jmp h_genertiles_dup
-h_gentlsnocheck:
-	cmp #$C1
+	
+:	cmp #$C1
 	bcc :+
 	cmp #$E0
 	bcs :+
 	jmp h_genertiles_dupair
+	
+:	cmp #$80
+	bcc :+
+	cmp #$9F
+	bcs :+
+	jmp h_genertiles_copy
+	
 :	sta (lvladdr), y
+	sta lastcolumn, y
 	iny
 h_genertiles_cont:
-	cpy #$1E
+	cpy #30
 	bcc h_genertiles_loop
+	
+	; no need to store these in lastcolumn as the bytes are never used.
 	lda #0
 	sta (lvladdr), y
 	iny
