@@ -586,9 +586,8 @@ h_genertiles_dup:
 	sta temp1             ; store it in temp1
 	jsr gm_read_tile      ; read another byte - will be used as our 'brush'
 	ldx arwrhead
-:   pha
-	jsr h_set_tile
-	pla
+:   sta (lvladdr), y
+	sta lastcolumn, y
 	iny
 	cpy temp1             ; check it against the limit
 	bne :-
@@ -690,7 +689,7 @@ h_genertiles_loop:
 	bcs :+
 	jmp h_genertiles_dupair
 	
-:	cmp #$80
+:	cmp #$81
 	bcc :+
 	cmp #$9F
 	bcs :+
