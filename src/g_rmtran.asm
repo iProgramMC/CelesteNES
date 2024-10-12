@@ -293,6 +293,8 @@ gm_leaveroomU:
 	sta player_vl_y
 	lda #(jumpvello ^ $FF + 1)
 	sta player_vs_y
+	lda #jumpsustain
+	sta jcountdown
 	
 	; clear the camera stop bits
 	lda gamectrl

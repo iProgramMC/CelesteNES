@@ -1,32 +1,21 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-; ** SUBROUTINE: gm_getdownforce
-; desc:    Gets the downward force in the A register depending on their state.
-gm_getdownforce:
-	lda player_vl_y
-	bpl gm_defaultgrav
-	lda #pl_dashed
-	bit playerctrl
-	bne gm_dashgrav     ; if dashed before touching the ground, return the strong gravity
-	lda #g2_autojump
-	bit gamectrl2
-	bne gm_defaultgrav
-	lda #cont_a
-	bit p1_cont
-	bne gm_defaultgrav  ; if A isn't held, then use a stronger gravity force
-gm_stronggrav:
-	lda #gravitynoA
-	rts
-gm_dashgrav:
-	lda #$FF
-	rts
-gm_defaultgrav:
-	lda #gravity
-	rts
-	
 ; ** SUBROUTINE: gm_gravity
 ; desc:    If player is not grounded, applies a constant downward force.
 gm_gravity:
+	lda jcountdown
+	beq @nojumpcountdown
+	
+	; jump countdown is active. Check if the A button is still being held.
+	lda #cont_a
+	bit p1_cont
+	beq :+
+	dec jcountdown
+	rts
+	
+:	lda #0
+	sta jcountdown        ; nope, so clear the jump countdown and proceed with gravity as usual
+@nojumpcountdown:
 	lda #pl_ground
 	bit playerctrl
 	beq gm_apply_gravity
@@ -36,7 +25,7 @@ gm_gravity:
 	sta gamectrl2
 	rts
 gm_apply_gravity:
-	jsr gm_getdownforce
+	lda #gravity
 	clc
 	adc player_vs_y
 	sta player_vs_y
@@ -300,6 +289,8 @@ gm_actuallyjump:
 	sta player_vl_y
 	lda #(jumpvello ^ $FF + 1)
 	sta player_vs_y
+	lda #jumpsustain
+	sta jcountdown
 	lda #0
 	sta jumpbuff      ; consume the buffered jump input
 	sta jumpcoyote    ; consume the existing coyote time
@@ -1074,7 +1065,7 @@ gm_superjump:
 	cmp #1
 	bne gm_sj_normal
 	; half the jump height here
-	lda #((jumpvel >> 1) ^ $FF + 1)
+	lda #(((jumpvel >> 1) ^ $FF + 1) & $FF)
 	sta player_vl_y
 	lda #((((jumpvel << 7) | (jumpvello >> 1)) ^ $FF + 1) & $FF)
 	sta player_vs_y
@@ -1098,6 +1089,8 @@ gm_superjumph:
 	lda player_vs_x
 	eor #$FF
 	sta player_vs_x
+	lda #jumpsustain
+	sta jcountdown
 gm_sjret:
 	rts
 
