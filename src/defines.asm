@@ -281,20 +281,23 @@ camspeed    = 4     ; maximum pixels advanced per frame by camera
 maxvelyhi   = $06   ; max Y velocity in pixels
 maxvelxhi   = $06   ; max X velocity in pixels
 gravity     = $40   ; Celeste uses a value of 900 px/s^2, converted it would be about 0.25 spx/fr^2 for us
+lograthresh = $C0   ; if Math.Abs(Speed.Y) <= lograthresh (40f in Celeste), and holding C, then apply half the gravity
 ctrpull     = $18   ; acceleration imposed by player pressing buttons
 scrolllimit = $78   ; around halfway to the screen
-jumpvel     = $02   ; jump velocity
-jumpvello   = $C0   ; the low component of the jump force
 jumpsustain = $0C   ; sustain the max jump velocity for at most twelve frames
 accelhi     = $00   ; acceleration when holding a direction in pixels
-accel       = $10   ; subpixel component of acceleration
+accel       = $47   ; subpixel component of acceleration
+jumpvel     = $01C0 ; jump velocity
+walljump    = $022A ; wall jump velocity
 maxwalk     = $0180 ; max walk speed in pixels
+maxfall     = $02AA ; max fall speed
 plrwidth    = $08   ; player hitbox width - 8 pixels wide
 plrheight   = $0A   ; player hitbox height - 10 pixels wide
 maxdashes   = 1     ; TODO: change to 2
 defdashtime = 12    ; time to perform a dash
 dashchrgtm  = 3     ; time to charge the dash (after this, the dash direction is checked)
 maxwalkad   = $40   ; maximum walk approach delta in subpixels
+dragamount  = $47   ; drag amount per frame (around 17 px/fr^2 in Celeste)
 superjmphhi = $04   ; super jump boost pixel part
 superjmphlo = $80   ; super jump boost subpixel part
 animspd     = $10   ; 256/animspd is the amount of frames per animation up-tick (for 32, it's 8 fr)
@@ -310,10 +313,23 @@ ct_deadly   = $02   ; the tile is UP spike shaped
 ct_jumpthru = $03   ; the tile is a jump through
 ow_maxlvl   = $07   ; maximum level number
 
+maxfallHI   = (maxfall >> 8)
+maxfallLO   = (maxfall & $FF)
+
 maxwalkHI   = (maxwalk >> 8)
 maxwalkLO   = (maxwalk & $FF)
 maxwalkNHI  = (((-maxwalk) >> 8) & $FF)
 maxwalkNLO  = ((-maxwalk) & $FF)
+
+walljumpHI  = (walljump >> 8)
+walljumpLO  = (walljump & $FF)
+walljumpNHI = (((-walljump) >> 8) & $FF)
+walljumpNLO = ((-walljump) & $FF)
+
+jumpvelHI   = (((-jumpvel) >> 8) & $FF)
+jumpvelLO   = ((-jumpvel) & $FF)
+sjumpvelHI  = (((-(jumpvel / 2)) >> 8) & $FF)
+sjumpvelLO  = ((-(jumpvel / 2)) & $FF)
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM

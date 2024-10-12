@@ -2,6 +2,24 @@ Dash Speed        : $0400
 Walk Speed        : $0180
 Jump Speed        : $FE40, sustained for 12 frames of holding the A button
 Max Fall Speed    : $02AA  (160 px/sec)
+Fast Fall Speed   : $0400  (240 px/sec)
 Up Dash           : $FC00 (-240 px/sec)
 Wave Dash H Speed : $056A (325 px/sec)
 Wave Dash V Speed : $FF20 (-52.5 px/sec)
+Wall Jump H Speed : $022A (130 px/sec)
+Gravity:          : 15 px/sec    ---->   64 spx/fr
+Wall Bounce H Spd : $02D5 (170 px/sec)
+Wall Bounce Y Spd : $FD56 (-160 px/sec)
+Dash X/Y Speed    : $0400 (240 px/sec) (lasts 10 seconds)
+Dash X Finish     : $02AA (160 px/sec)
+Dash Y Up Finish  : $FE00 (-120 px/sec)
+Dash Diag Speed   : $02D4 (-169.7056 px/sec)
+Dash FINISH divider: 1/1.5 * dash speed
+Drag:             : 16.66667 px / fr (1000 px/sec)
+Accel             : 16.66667 px / fr
+X Boost At Max Speed When Jumping: $022A (130 px/sec)
+Super Dash X Spd  : $0455 (260 px/sec)
+X Boost At Low Speed When Jumping: $0180 (90 px/sec)
+Neutral Wall Jump : $022A (130 px/sec)
+NeutrWallJumpDecel: 10.8333 px/fr
+NormalWallJmpDecel: 4.33333 px/fr

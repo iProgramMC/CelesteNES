@@ -289,9 +289,9 @@ gm_leaveroomU:
 	ora gamectrl2
 	sta gamectrl2
 	
-	lda #(jumpvel ^ $FF + 1)
+	lda #jumpvelHI
 	sta player_vl_y
-	lda #(jumpvello ^ $FF + 1)
+	lda #jumpvelLO
 	sta player_vs_y
 	lda #jumpsustain
 	sta jcountdown

@@ -1,5 +1,34 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+; ** SUBROUTINE: gm_getdownforce
+; desc:    Gets the down force applied to the player.
+gm_getdownforce:
+	lda #cont_a
+	bit p1_cont
+	beq @normal        ; not holding the A button, use normal gravity
+	
+	lda player_vs_y
+	sta temp1
+	lda player_vl_y
+	bpl @dontinvert
+	eor #$FF
+	pha
+	lda temp1
+	eor #$FF
+	sta temp1
+	pla
+@dontinvert:
+	bne @normal        ; use normal gravity if >= $0100
+	lda temp1
+	cmp #lograthresh
+	bcc @low
+@normal:
+	lda #gravity
+	rts
+@low:
+	lda #(gravity >> 1)
+	rts
+
 ; ** SUBROUTINE: gm_gravity
 ; desc:    If player is not grounded, applies a constant downward force.
 gm_gravity:
@@ -19,91 +48,85 @@ gm_gravity:
 	lda #pl_ground
 	bit playerctrl
 	beq gm_apply_gravity
-	
-	lda gamectrl2
-	and #($FF ^ g2_autojump)
-	sta gamectrl2
 	rts
 gm_apply_gravity:
-	lda #gravity
+	jsr gm_getdownforce
 	clc
 	adc player_vs_y
 	sta player_vs_y
 	lda #0
 	adc player_vl_y
 	sta player_vl_y
+	
+	lda player_vl_y
+	bmi @return
+	cmp #maxfallHI
+	bcc @proceed
+	bne @cap
+	
+	lda player_vs_y
+	cmp #maxfallLO
+	bcc @proceed
+@cap:
+	lda #maxfallHI
+	sta player_vl_y
+	lda #maxfallLO
+	sta player_vs_y
+@proceed:
 	lda #pl_pushing
 	bit playerctrl
-	beq gm_gravityreturn
+	beq @return
 	lda player_vl_y
-	bmi gm_gravityreturn
-	bne gm_gravityslide   ; player_vl_x > 0
+	bne @slide            ; player_vl_x > 0
 	lda player_vs_y
 	cmp #maxslidespd
-	bcc gm_gravityreturn  ; player_vl_x == 0, player_vs_x < maxslidespd
-gm_gravityslide:
+	bcc @return           ; player_vl_x == 0, player_vs_x < maxslidespd
+@slide:
 	lda #maxslidespd
 	sta player_vs_y
 	lda #0
 	sta player_vl_y
-gm_gravityreturn:
-	rts
-
-; ** SUBROUTINE: gm_dragshift
-; desc:    Shifts the 16-bit number at (temp2, temp1) by 1.
-gm_dragshift:
-	clc
-	lda temp2
-	ror
-	sta temp2
-	lda temp1
-	ror
-	sta temp1
+@return:
 	rts
 	
 ; ** SUBROUTINE: gm_drag
 ; desc:    Apply a constant dragging force that makes the X velocity tend to zero.
 gm_drag:
 	lda dashtime
-	bne gm_drag4      ; while dashing, ensure drag doesn't take hold
+	bne @return       ; while dashing, ensure drag doesn't take hold
 	lda #%00000011    ; check if any direction on the D-pad is held
 	bit p1_cont       ; don't apply drag while holding buttons (the
-	bne gm_drag4      ; button routines pull the player towards maxwalk)
+	bne @return       ; button routines pull the player towards maxwalk)
 	lda player_vl_x
-	bne gm_drag5
+	bmi @minus
+	bne @plus
 	lda player_vs_x
-	beq gm_drag4      ; if both vl_x nor vs_x are zero, then return
-gm_drag5:
-	lda player_vl_x   ; perform one shift to the right, this divides by 2
-	clc
-	ror
-	sta temp2
-	lda player_vs_x
-	ror
-	sta temp1
-	jsr gm_dragshift  ; perform another shift to the right
-	lda #%00100000
-	bit temp2         ; check if the high bit of the result is 1
-	beq gm_drag2
-	lda temp2
-	ora #%11000000    ; extend the sign
-	sta temp2
-gm_drag2:
-	ldx temp2
-	bne gm_drag3
-	ldx temp1         ; make sure the diff in question is not zero
-	bne gm_drag3      ; this can't happen with a negative velocity vector
-	inx               ; because it is not null. but it can happen with a
-	stx temp1         ; positive velocity vector less than $00.$04
-gm_drag3:
+	beq @return       ; if both vl_x nor vs_x are zero, then return
+@plus:
 	sec
 	lda player_vs_x
-	sbc temp1
+	sbc #dragamount
 	sta player_vs_x
 	lda player_vl_x
-	sbc temp2
+	sbc #0
 	sta player_vl_x
-gm_drag4:
+	bmi @correct
+	rts
+@minus:
+	clc
+	lda player_vs_x
+	adc #dragamount
+	sta player_vs_x
+	lda player_vl_x
+	adc #0
+	sta player_vl_x
+	bpl @return
+	; we overshot, meaning we need to correct
+@correct:
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+@return:
 	rts
 
 gm_appmaxwalkL:
@@ -161,10 +184,7 @@ gm_pressedleft:
 	bcc @maybeApproach
 
 @normalAccel:
-	lda player_vl_x
-	bmi :+
 	jsr @addvel
-:	jsr @addvel
 	
 	lda #pl_left
 	ora playerctrl
@@ -241,10 +261,7 @@ gm_pressedright:
 	rts
 	
 @normalAccel:
-	lda player_vl_x
-	bpl :+
 	jsr @addvel
-:	jsr @addvel
 	
 	lda #(pl_left ^ $FF)
 	and playerctrl
@@ -319,9 +336,9 @@ gm_normaljump:
 	lda jumpcoyote
 	beq gm_dontjump   ; if no coyote time, then can't jump
 gm_actuallyjump:
-	lda #(jumpvel ^ $FF + 1)
+	lda #jumpvelHI
 	sta player_vl_y
-	lda #(jumpvello ^ $FF + 1)
+	lda #jumpvelLO
 	sta player_vs_y
 	lda #jumpsustain
 	sta jcountdown
@@ -383,12 +400,29 @@ gm_walljump:
 	
 	lda #pl_left
 	bit playerctrl
-	bne gm_walljumpboostL
-	jsr gm_setmaxwalkR; going right, so set vel to +maxwalk
-	jmp gm_actuallyjump
-gm_walljumpboostL:
-	jsr gm_setmaxwalkL; going left, so set vel to -maxwalk
-	jmp gm_actuallyjump
+	bne @walljumpboostL
+	lda #walljumpLO
+	sta player_vs_x
+	lda #walljumpHI
+	sta player_vl_x
+	bne @walljumpvert
+@walljumpboostL:
+	lda #walljumpNLO
+	sta player_vs_x
+	lda #walljumpNHI
+	sta player_vl_x
+@walljumpvert:
+	lda #jumpvelHI
+	sta player_vl_y
+	lda #jumpvelLO
+	sta player_vs_y
+	lda #jumpsustain
+	sta jcountdown
+	lda #0
+	sta jumpbuff      ; consume the buffered jump input
+	sta jumpcoyote    ; consume the existing coyote time
+	sta wjumpcoyote   ; or the wall coyote time
+	rts
 
 ; ** SUBROUTINE: gm_jumpgrace
 ; desc:    Update the jump grace state.  If the A button is held, start buffering a jump.
@@ -1094,29 +1128,29 @@ gm_defaultdir:
 gm_superjump:
 	lda #pl_ground
 	bit playerctrl
-	beq gm_sjret            ; if player wasn't grounded, then ...
+	beq @return            ; if player wasn't grounded, then ...
 	lda dashdiry
 	cmp #1
-	bne gm_sj_normal
+	bne @normal
 	; half the jump height here
-	lda #(((jumpvel >> 1) ^ $FF + 1) & $FF)
+	lda #sjumpvelHI
 	sta player_vl_y
-	lda #((((jumpvel << 7) | (jumpvello >> 1)) ^ $FF + 1) & $FF)
+	lda #sjumpvelLO
 	sta player_vs_y
-	jmp gm_superjumph
-gm_sj_normal:
-	lda #(jumpvel ^ $FF + 1)
+	bne @continue
+@normal:
+	lda #jumpvelHI
 	sta player_vl_y
-	lda #(jumpvello ^ $FF + 1)
+	lda #jumpvelLO
 	sta player_vs_y         ; super jump speed is the same as normal jump speed
-gm_superjumph:
+@continue:
 	lda #superjmphhi
 	sta player_vl_x
 	lda #superjmphlo
 	sta player_vs_x
 	lda #pl_left
 	bit playerctrl
-	beq gm_sjret
+	beq @return
 	lda player_vl_x
 	eor #$FF
 	sta player_vl_x
@@ -1125,7 +1159,7 @@ gm_superjumph:
 	sta player_vs_x
 	lda #jumpsustain
 	sta jcountdown
-gm_sjret:
+@return:
 	rts
 
 gm_dash_update:
