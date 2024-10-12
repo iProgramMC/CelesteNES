@@ -288,8 +288,7 @@ jumpvello   = $C0   ; the low component of the jump force
 jumpsustain = $0C   ; sustain the max jump velocity for at most twelve frames
 accelhi     = $00   ; acceleration when holding a direction in pixels
 accel       = $10   ; subpixel component of acceleration
-maxwalk     = $02   ; max walk speed in pixels
-maxwalklo   = $80   ; max walk speed in sub pixels
+maxwalk     = $0180 ; max walk speed in pixels
 plrwidth    = $08   ; player hitbox width - 8 pixels wide
 plrheight   = $0A   ; player hitbox height - 10 pixels wide
 maxdashes   = 1     ; TODO: change to 2
@@ -310,6 +309,11 @@ ct_full     = $01   ; the entire tile has collision
 ct_deadly   = $02   ; the tile is UP spike shaped
 ct_jumpthru = $03   ; the tile is a jump through
 ow_maxlvl   = $07   ; maximum level number
+
+maxwalkHI   = (maxwalk >> 8)
+maxwalkLO   = (maxwalk & $FF)
+maxwalkNHI  = (((-maxwalk) >> 8) & $FF)
+maxwalkNLO  = ((-maxwalk) & $FF)
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM

@@ -108,12 +108,6 @@ gm_drag4:
 
 gm_appmaxwalkL:
 	; this label was reached because the velocity is < -maxwalk.
-	; if we are on the ground, we need to approach maxwalk.
-	lda #pl_ground
-	bit playerctrl
-	beq gm_appmaxwalkrtsL
-	lda player_vl_x
-	bpl gm_appmaxwalkrtsL  ; If the player's velocity is >= 0, don't perform any adjustments
 	clc
 	lda player_vs_x
 	adc #maxwalkad
@@ -121,26 +115,18 @@ gm_appmaxwalkL:
 	lda player_vl_x
 	adc #0
 	sta player_vl_x
-	cmp #(maxwalk^$FF+1)
-	bcc gm_appmaxwalkrtsL  ; A < -maxwalk, so there's still some approaching to be done
-	beq gm_appmaxwalkrtsL  ; A == -maxwalk
-gm_setmaxwalkL:            ; <--- referenced by gm_walljump
-	lda #(maxwalk^$FF+1)
-	sta player_vl_x
-	lda #0
-	sta player_vs_x
-gm_appmaxwalkrtsL:
-	rts
+	
+	cmp #maxwalkNHI
+	bcc :+                 ; vl_x < maxwalkNHI
+	bne gm_setmaxwalkL_BCS ; vl_x > maxwalkNHI
+	
+	lda player_vl_x
+	cmp #maxwalkNLO
+	bcs gm_setmaxwalkL_BCS ; vs_x >= maxwalkNLO
+:	rts
 
 gm_appmaxwalkR:
 	; this label was reached because the velocity is > maxwalk.
-	; if we are on the ground, we need to approach maxwalk.
-	lda #pl_ground
-	bit playerctrl
-	beq gm_appmaxwalkrtsR
-	lda player_vl_x
-	bmi gm_appmaxwalkrtsR  ; If the player's velocity is negative, don't perform any adjustments
-	beq gm_appmaxwalkrtsR  ; Ditto with zero
 	sec
 	lda player_vs_x
 	sbc #maxwalkad
@@ -148,104 +134,152 @@ gm_appmaxwalkR:
 	lda player_vl_x
 	sbc #0
 	sta player_vl_x
-	cmp #maxwalk
-	bcs gm_appmaxwalkrtsR  ; A >= maxwalk, so there's still some approaching to be done
-gm_setmaxwalkR:            ; <--- referenced by gm_walljump
-	lda #maxwalk
-	sta player_vl_x
-	lda #0
-	sta player_vs_x
-gm_appmaxwalkrtsR:
-	rts
+	
+	cmp #maxwalkHI
+	bcc gm_setmaxwalkR_BCC ; vl_x < maxwalkHI
+	bne :+                 ; vl_x > maxwalkHI
+	
+	lda player_vl_x
+	cmp #maxwalkLO
+	bcc gm_setmaxwalkR_BCC ; vs_x < maxwalkLO
+:	rts
 
-gm_add3xL:
-	beq gm_dontadd3xL
-	sec
-	lda player_vs_x
-	sbc #(accel*3)
-	jmp gm_added3xL
-
-gm_add3xR:
-	cmp #$FF
-	beq gm_dontadd3xR
-	clc
-	lda player_vs_x
-	adc #(accel*3)
-	jmp gm_added3xR
-
-gm_appmaxwalkR_BEQ:
-	beq gm_appmaxwalkR
+gm_appmaxwalkR_BNE:
+	bne gm_appmaxwalkR
+gm_appmaxwalkL_BNE:
+	bne gm_appmaxwalkL
 
 ; ** SUBROUTINE: gm_pressedleft
 gm_pressedleft:
-	ldx #0
 	lda player_vl_x
-	bpl gm_lnomwc
-	cmp #(maxwalk^$FF+1) ; compare it to the max walking speed
-	bcc gm_lnomwc    ; carry clear if A < -maxwalk.
-	ldx #1           ; if it was bigger than the walking speed already,
-gm_lnomwc:           ; then we don't need to check the cap
+	bpl @normalAccel
+	cmp #maxwalkNHI
+	bcc @maybeApproach     ; A < -maxwalk
+	bne @normalAccel       ; A > -maxwalk
+	lda player_vs_x
+	cmp #maxwalkNLO
+	bcc @maybeApproach
+
+@normalAccel:
 	lda player_vl_x
-	bpl gm_add3xL
-gm_dontadd3xL:
+	bmi :+
+	jsr @addvel
+:	jsr @addvel
+	
+	lda #pl_left
+	ora playerctrl
+	sta playerctrl
+	
+	; now compare it to maxwalk
+@capmaxwalkL:
+	lda player_vl_x
+	bpl :+
+	cmp #maxwalkNHI
+	bcc gm_setmaxwalkL        ; if A < -maxwalk, cap
+	bne :+                    ; if A > -maxwalk, return
+	
+	lda player_vs_x
+	cmp #maxwalkNLO
+	bcc gm_setmaxwalkL        ; if A < -maxwalklo, cap
+	
+:	rts
+
+@maybeApproach:
+	; player's velocity is negative and smaller than -maxwalk.
+	;
+	; if the player is on the ground, approach -maxwalk.
+	lda #pl_ground
+	bit playerctrl
+	bne gm_appmaxwalkL_BNE
+	rts
+
+@addvel:
 	sec
 	lda player_vs_x
 	sbc #accel
-gm_added3xL:
 	sta player_vs_x
 	lda player_vl_x
 	sbc #accelhi
 	sta player_vl_x
-	lda #pl_left
-	ora playerctrl
-	sta playerctrl
-	cpx #0           ; check if we need to cap it to -maxwalk
-	beq gm_lnomwc2   ; no, instead, approach -maxwalk
-gm_capmaxwalkL:      ; <-- referenced by gm_jump
-	lda player_vl_x  ; load the player's position
-	cmp #(maxwalk^$FF+1)
-	bcs gm_lnomwc2   ; carry set if A >= -maxwalk meaning we don't need to
-	lda #(maxwalk^$FF+1)
-	sta player_vl_x
-	lda #0
-	sta player_vs_x
-gm_lnomwc2:
 	rts
+
+gm_capmaxwalkL = @capmaxwalkL
+
+gm_setmaxwalkL_BCS:
+	bcs gm_setmaxwalkL
+gm_setmaxwalkR_BCC:
+	bcc gm_setmaxwalkR
+
+gm_setmaxwalkL:
+	lda #maxwalkNHI
+	sta player_vl_x
+	lda #maxwalkNLO
+	sta player_vs_x
+	rts
+
+gm_pressedleft_BNE:
+	bne gm_pressedleft
 
 ; ** SUBROUTINE: gm_pressedright
 gm_pressedright:
-	ldx #0
 	lda player_vl_x
-	bmi gm_rnomwc    ; if the player was moving left a comparison would lead to an overcorrectiom
-	cmp #(maxwalk+1) ; compare it to the max walking speed
-	bcs gm_rnomwc    ; if it was bigger than the walking speed already,
-	ldx #1           ; then we don't need to check the cap
-gm_rnomwc:
+	bmi @normalAccel
+	cmp #maxwalkHI
+	bcc @normalAccel
+	bne :+
+	lda player_vs_x
+	cmp #maxwalkLO
+	bcc @normalAccel
+	
+	; player's velocity is positive and bigger than maxwalk.
+	;
+	; if the player is on the ground, approach maxwalk.
+	; otherwise, return without adding any surplus in velocity.
+:	lda #pl_ground
+	bit playerctrl
+	bne gm_appmaxwalkR_BNE
+	rts
+	
+@normalAccel:
 	lda player_vl_x
-	bmi gm_add3xR    ; A < 0, then add stronger accel
-gm_dontadd3xR:
+	bpl :+
+	jsr @addvel
+:	jsr @addvel
+	
+	lda #(pl_left ^ $FF)
+	and playerctrl
+	sta playerctrl
+	
+	; now compare it to maxwalk
+@capmaxwalkR:
+	lda player_vl_x
+	bmi :+
+	cmp #maxwalkHI
+	bcc :+             ; if A < maxwalk, return
+	bne gm_setmaxwalkR ; if A > maxwalk, cap
+	
+	lda player_vs_x
+	cmp #maxwalkLO
+	bcs gm_setmaxwalkR ; if A >= maxwalklo, cap
+:	rts
+
+@addvel:
 	clc
 	lda player_vs_x
 	adc #accel
-gm_added3xR:
 	sta player_vs_x
 	lda player_vl_x
 	adc #accelhi
 	sta player_vl_x
-	lda #(pl_left ^ $FF)
-	and playerctrl
-	sta playerctrl
-	cpx #0           ; check if we need to cap it to maxwalk
-	beq gm_appmaxwalkR_BEQ ; no, instead, approach maxwalk
-gm_capmaxwalkR:      ; <-- referenced by gm_jump
-	lda player_vl_x  ; load the player's position
-	cmp #maxwalk
-	bcc gm_rnomwc2   ; carry set if A >= maxwalk meaning we don't need to
-	lda #maxwalk     ; cap it at maxwalk
+	rts
+
+gm_capmaxwalkR = @capmaxwalkR
+
+gm_setmaxwalkR:
+	lda #maxwalkHI
 	sta player_vl_x
-	lda #0
+	lda #maxwalkLO
 	sta player_vs_x
-gm_rnomwc2:
 	rts
 
 ; ** SUBROUTINE: gm_controls
@@ -256,7 +290,7 @@ gm_dontdash:
 	bne gm_pressedright
 	lda #cont_left
 	bit p1_cont
-	bne gm_pressedleft
+	bne gm_pressedleft_BNE
 	rts
 gm_controls:
 	lda jumpbuff
@@ -310,11 +344,11 @@ gm_applyjumpboost:
 	bit playerctrl
 	beq gm_jumphboostR
 	sec               ; apply the small jump boost to the right
-	lda #jmphboost
-	sbc player_vs_x
+	lda player_vs_x
+	sbc #jmphboost
 	sta player_vs_x
-	lda #0
-	sbc player_vl_x
+	lda player_vl_x
+	sbc #0
 	sta player_vl_x
 	jsr gm_capmaxwalkL; ensure that it doesn't go over maxwalk
 	jmp gm_dontjump   ; that would be pretty stupid as it would
