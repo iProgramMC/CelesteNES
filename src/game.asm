@@ -89,17 +89,6 @@ gm_titleswitch:
 	sta titlectrl
 	jmp game_update_return
 
-dashX:
-	.byte $00  ; --
-	.byte $04  ; -R
-	.byte $FC  ; L-
-	.byte $FC  ; LR
-dashY:
-	.byte $00  ; --
-	.byte $05  ; -D
-	.byte $FB  ; U-
-	.byte $00  ; UD
-
 ; ** SUBROUTINE: gm_game_clear_all_wx
 ; desc: Clears ALL game variables with the X register.
 ;       Unlike gm_game_clear_all_wx, this clears data that's necessary across,

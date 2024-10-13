@@ -1197,8 +1197,19 @@ gm_dash_lock:
 	stx player_vs_x
 	stx player_vs_y
 	jmp gm_dash_update_done
+
 gm_dash_over:
-	jmp gm_dash_update_done
+	; dash has terminated.
+	
+	; Speed = DashDir * 160f (when begun, it would be DashDir * 240f)
+	jsr gm_rem25pcvel
+	
+	; if (Speed.Y < 0f) Speed.Y *= 0.75f;
+	lda player_vl_y
+	bpl :+
+	jsr gm_rem25pcvelYonly
+	
+:	jmp gm_dash_update_done
 
 gm_defaultdir:
 	ldy #0                  ; player will not be dashing up or down
@@ -1212,9 +1223,9 @@ gm_superjump:
 	lda #pl_ground
 	bit playerctrl
 	beq @return            ; if player wasn't grounded, then ...
-	lda dashdiry
-	cmp #1
-	bne @normal
+	lda #(cont_down << 2)  ; if she was dashing down
+	bit dashdir
+	beq @normal
 	; half the jump height here
 	lda #sjumpvelHI
 	sta player_vl_y
@@ -1233,23 +1244,22 @@ gm_superjump:
 	sta player_vs_x
 	lda #pl_left
 	bit playerctrl
-	beq @return
+	beq :+
 	lda player_vl_x
 	eor #$FF
 	sta player_vl_x
 	lda player_vs_x
 	eor #$FF
 	sta player_vs_x
-	lda #jumpsustain
+:	lda #jumpsustain
 	sta jcountdown
+	lda #0
+	sta dashtime            ; no longer dashing. do this to avoid our speed being taken away.
 @return:
 	rts
 
 gm_dash_update:
-	; NOTE: dashtime is loaded into A
-	sec
-	sbc #1
-	sta dashtime
+	dec dashtime
 	beq gm_dash_over        ; if dashtime is now 0, then finish the dash
 	cmp #(defdashtime-dashchrgtm)
 	beq gm_dash_read_cont   ; if it isn't exactly defdashtime-dashchrgtm, let physics run its course
@@ -1260,28 +1270,31 @@ gm_dash_read_cont:
 	and #%00001111          ; check if holding any direction
 	beq gm_defaultdir       ; if not, determine the dash direction from the facing direction	
 	lda p1_cont
-	and #%00001100          ; get just the up/down flags
-	lsr
-	lsr
-	tay                     ; use them as an index into the dashY table
-	lda p1_cont
-	and #%00000011          ; get just the left/right flags
+	and #%00001111          ; get all directional flags
 	; if horizontal flags are 0, then the vertical flags must NOT be zero, otherwise we ended up in gm_defaultdir
 gm_dash_nodir:
-	tax                     ; this is now an index into the X table
-	stx dashdirx
-	sty dashdiry
-	lda #0
+	asl
+	asl                     ; multiply by four
+	tax                     ; this is now an index into the dash_table
+	stx dashdir
+	; assign all the velocities
+	lda dash_table, x
+	sta player_vl_x
+	pha
+	inx
+	lda dash_table, x
 	sta player_vs_x
-	sta player_vs_y
-	lda dashY, y
+	inx
+	lda dash_table, x
 	sta player_vl_y
-	lda dashX, x
-	bmi gm_leftdash
-	sta player_vl_x
-	jmp gm_dash_update_done
-gm_leftdash:
-	sta player_vl_x
+	inx
+	lda dash_table, x
+	sta player_vs_y
+	inx
+	; we pushed the value of player_vl_x such that it can be quickly loaded and checked
+	pla
+	bpl gm_dash_update_done
+	; dashing left
 	lda playerctrl
 	ora #pl_left
 	sta playerctrl
@@ -1397,3 +1410,60 @@ gm_timercheck:
 	beq :+
 	dec forcemovext
 :	rts
+
+; ** SUBROUTINE: gm_rem25pcvel
+; desc: Removes 25% of the player's velocity.
+; take off 25% of the X velocity
+gm_rem25pcvel:
+	lda player_vl_x
+	sta temp1
+	lda player_vs_x
+	sta temp2
+	
+	lsr temp1
+	ror temp2
+	lsr temp1
+	ror temp2
+	
+	; minor correction
+	lda #%11100000
+	bit temp1
+	beq :+
+	ora temp1
+	sta temp1
+	
+:	sec
+	lda player_vl_x
+	sbc temp1
+	sta player_vl_x
+	lda player_vs_x
+	sbc temp2
+	sta player_vs_x
+	
+gm_rem25pcvelYonly:
+	; take off 25% of the Y velocity
+	lda player_vl_y
+	sta temp1
+	lda player_vs_y
+	sta temp2
+	
+	lsr temp1
+	ror temp2
+	lsr temp1
+	ror temp2
+	
+	; minor correction
+	lda #%11100000
+	bit temp1
+	beq :+
+	ora temp1
+	sta temp1
+	
+:	sec
+	lda player_vl_y
+	sbc temp1
+	sta player_vl_y
+	lda player_vs_y
+	sbc temp2
+	sta player_vs_y
+	rts

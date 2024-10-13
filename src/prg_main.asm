@@ -351,6 +351,29 @@ main_loop:
 .include "update.asm"
 .include "audio.asm"
 
+; I know this belongs in GAME and not in MAIN, but I want to take some load off of GAME.
+;
+; Note: The LR row must match the L row because gm_defaultdir requires it.
+dash_table:
+	.byte $00, $00, $00, $00 ; ----
+	.byte $04, $00, $00, $00 ; ---R
+	.byte $FC, $00, $00, $00 ; --L-
+	.byte $FC, $00, $00, $00 ; --LR
+
+	.byte $00, $00, $04, $00 ; -D--
+	.byte $02, $D4, $02, $D4 ; -D-R
+	.byte $FD, $2C, $02, $D4 ; -DL-
+	.byte $FD, $2C, $02, $D4 ; -DLR
+
+	.byte $00, $00, $FC, $00 ; U---
+	.byte $04, $00, $FD, $24 ; U--R
+	.byte $FD, $24, $FD, $24 ; U-L-
+	.byte $FD, $24, $FD, $24 ; U-LR
+
+	.byte $00, $00, $00, $00 ; UD--
+	.byte $04, $00, $00, $00 ; UD-R
+	.byte $FC, $00, $00, $00 ; UDL-
+	.byte $FC, $00, $00, $00 ; UDLR
 
 .res palettepage - *, $FF
 init_palette:
