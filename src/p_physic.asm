@@ -1,5 +1,250 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+gm_targetsLO:	.byte $00, maxwalkLO, maxwalkNLO
+gm_targetsHI:	.byte $00, maxwalkHI, maxwalkNHI
+gm_targetsign:	.byte $00, $01, $FF
+gm_inversion:   .byte $00, $00, $FF
+gm_addition:	.byte $00, $00, $01
+gm_xaxisfixup:	.byte $00, $01, $02, $00
+
+; ** SUBROUTINE: gm_gettarget
+; desc: Gets the index of the target velocity, based on buttons held on the controller.
+;       The index is used in the arrays: gm_targetsLO, gm_targetsHI.
+gm_gettargetindex:
+	lda forcemovext
+	beq gm_gettargetindexforce
+	lda forcemovex
+	rts
+	
+gm_gettargetindexforce:
+	lda p1_cont
+	and #(cont_left | cont_right)
+	; since cont_left and cont_right are $02 and $01 respectively,
+	; we can simply use them as indices into a table.
+	;
+	; if left and right happen to be pressed at the same time, simply
+	; cancel them out.
+	tax
+	lda gm_xaxisfixup, x
+	rts
+
+; ** SUBROUTINE: gm_velsignbtnshld
+; desc: Checks if the X velocity's sign matches that of the held buttons.
+; result: located in ZERO flag.  If the zero flag is set, the held buttons
+;         match the velocity's sign.
+; clobbers: A, X
+gm_velsignbtnshld:
+	jsr gm_gettargetindex
+	cmp #1
+	bne :+
+	
+	lda player_vl_x     ; it's 1, meaning we're holding right.
+	bmi @different
+	bne @same
+	lda player_vs_x     ; pixel component is 0, so check the subpixel now
+	bne @different
+@same:
+	lda #0
+	rts
+	
+:	cmp #2
+	bne :+
+	lda player_vl_x     ; it's 2, meaning we're holding left.
+	bpl @different      ; if the pixel component is 0 or above, signs don't match
+	bmi @same
+
+:	lda player_vl_x
+	bne @different
+	lda player_vs_x
+	bne @different
+	rts
+@different:
+	lda #1
+	rts
+
+; ** SUBROUTINE: gm_shouldreduce
+; desc: Determines whether accel or accelreduce is used.
+;
+; something like:
+; [Math.Abs(Speed.X) > max  &&  Math.Sign(Speed.X) == moveX] ? RunReduce : RunAccel
+gm_shouldreduce:
+	jsr gm_velsignbtnshld  ; if Math.Sign(Speed.X) != moveX
+	bne @returnNormal      ; then it's simply normal
+	; note: button state index still loaded into X
+	
+	; now compare the absolute of the velocity.
+	clc
+	lda player_vl_x
+	bmi @checkMinus
+	
+	; player velocity is positive.
+	cmp #maxwalkHI
+	bcc @returnNormal      ; SpeedXHigh < maxwalkHI
+	bne @returnReduce      ; SpeedXHigh > maxwalkHI
+	
+	lda player_vs_x
+	cmp #maxwalkLO
+	bcc @returnNormal      ; SpeedXLow < maxwalkHI
+@returnReduce:
+	lda #1
+	rts
+
+@checkMinus:
+	cmp #maxwalkNHI
+	bcc @returnReduce
+	bne @returnNormal
+	
+	lda player_vs_x
+	cmp #maxwalkNLO
+	bcc @returnReduce
+
+@returnNormal:
+	lda #0
+	rts
+
+gm_acceltable:
+	.byte accelair     ; air, no reduce
+	.byte accelredair  ; air, reduce
+	.byte accel        ; ground, no reduce
+	.byte accelred     ; ground, reduce
+
+; ** SUBROUTINE: gm_updatexvel
+; desc:    Makes the 16-bit X velocity approach a value based on the buttons held.
+gm_updatexvel:
+	; we need to calculate two things:
+	; first, the target velocity
+	; second, the thing we want to add to get to the target velocity
+	
+	; check if the velocity should be REDUCED
+	jsr gm_shouldreduce
+	sta temp1
+	sta $F0
+	
+	; note: gm_shouldreduce ALSO placed the index corresponding to
+	; the held buttons in the X register!
+	
+	; determine the facing based on the X register
+	cpx #0
+	beq @donefacing       ; no buttons pressed
+	cpx #1
+	beq @right
+	; facing left
+	lda #pl_left
+	ora playerctrl
+	sta playerctrl
+	bne @donefacing
+
+@right:
+	; facing right
+	lda #(pl_left ^ $FF)
+	and playerctrl
+	sta playerctrl
+
+@donefacing:
+	; determine the thing added to reach the target velocity
+	lda #pl_ground
+	and playerctrl        ; NOTE INVARIANT: pl_ground is $02!
+	ora temp1
+	tay
+	; now Y can be used directly as an index into an array.
+	
+	; check if we should SUBTRACT or ADD to the velocity.
+	lda player_vl_x
+	sec
+	sbc gm_targetsHI, x   ; signed comparison betwene player_vl_x and gm_targetsHI+x
+	bvc :+                ; if V is 0, N eor V = N, otherwse N eor V = N eor 1
+	eor #$80
+:	bmi @shouldAdd        ; player_vl_x < gm_targetsHI+x, so need to add
+	bne @shouldSubtract   ; player_vl_x > gm_targetsHI+x, so need to subtract
+	
+	; now check the low byte
+	lda player_vs_x
+	sec
+	sbc gm_targetsLO, x
+	bvc :+
+	eor #$80
+:	bmi @shouldSubtract   ; player_vs_x < gm_targetsLO+x, so need to add
+
+@shouldAdd:
+	; Add.  If the result is bigger than the target velocity,
+	; set to the target velocity and return.
+	clc
+	lda player_vs_x
+	adc gm_acceltable, y
+	sta player_vs_x
+	lda player_vl_x
+	adc #0
+	sta player_vl_x
+	
+	; check if we overshot.
+	lda gm_targetsHI, x
+	bmi @shouldAdd_targetMinus
+	
+	; target is positive.
+	lda player_vl_x    ; if it's still negative after the addition, return
+	bmi @return
+	cmp gm_targetsHI, x
+	bcc @return
+	bne @setToTarget
+
+@shouldAdd_compareSubpixel:
+	lda player_vs_x
+	cmp gm_targetsLO, x
+	bcs @setToTarget
+
+@return:
+	rts
+
+@shouldAdd_targetMinus:
+	lda player_vl_x
+	bpl @setToTarget   ; it somehow ended up being positive, and target is negative. just set
+	cmp gm_targetsHI, x; ^^ note that we are ADDING, therefore this should never happen
+	beq @shouldAdd_compareSubpixel
+	bcs @setToTarget
+	rts
+
+@shouldSubtract:
+	; Subtract.  If the result is smaller than the target velocity,
+	; set to the target velocity and return.
+	sec
+	lda player_vs_x
+	sbc gm_acceltable, y
+	sta player_vs_x
+	lda player_vl_x
+	sbc #0
+	sta player_vl_x
+	
+	; check if we overshot.
+	lda gm_targetsHI, x
+	bpl @shouldSubtract_targetPlus
+	
+	; target is negative.
+	lda player_vl_x
+	bpl @return        ; if it's still positive after the subtraction, return
+	cmp gm_targetsHI, x
+	bcc @setToTarget
+	bne @return
+
+@shouldSubtract_compareSubpixel:
+	lda player_vs_x
+	cmp gm_targetsLO, x
+	bcc @setToTarget
+	rts
+
+@shouldSubtract_targetPlus:
+	lda player_vl_x
+	bmi @setToTarget   ; it somehow ended up negative, and target is positive. just set.
+	cmp gm_targetsHI, x; ^^ note that we are SUBTRACTING, therefore this should never happen
+	beq @shouldSubtract_compareSubpixel
+	bcc @setToTarget
+	rts
+
+@setToTarget:
+	lda gm_targetsHI, x
+	sta player_vl_x
+	lda gm_targetsLO, x
+	sta player_vs_x
+
 ; ** SUBROUTINE: gm_getdownforce
 ; desc:    Gets the down force applied to the player.
 gm_getdownforce:
@@ -88,211 +333,44 @@ gm_apply_gravity:
 	sta player_vl_y
 @return:
 	rts
-	
-; ** SUBROUTINE: gm_drag
-; desc:    Apply a constant dragging force that makes the X velocity tend to zero.
-gm_drag:
-	lda dashtime
-	bne @return       ; while dashing, ensure drag doesn't take hold
-	lda #%00000011    ; check if any direction on the D-pad is held
-	bit p1_cont       ; don't apply drag while holding buttons (the
-	bne @return       ; button routines pull the player towards maxwalk)
-	lda player_vl_x
-	bmi @minus
-	bne @plus
-	lda player_vs_x
-	beq @return       ; if both vl_x nor vs_x are zero, then return
-@plus:
-	sec
-	lda player_vs_x
-	sbc #dragamount
-	sta player_vs_x
-	lda player_vl_x
-	sbc #0
-	sta player_vl_x
-	bmi @correct
-	rts
-@minus:
-	clc
-	lda player_vs_x
-	adc #dragamount
-	sta player_vs_x
-	lda player_vl_x
-	adc #0
-	sta player_vl_x
-	bpl @return
-	; we overshot, meaning we need to correct
-@correct:
-	lda #0
-	sta player_vl_x
-	sta player_vs_x
-@return:
-	rts
 
-gm_appmaxwalkL:
-	; this label was reached because the velocity is < -maxwalk.
-	clc
-	lda player_vs_x
-	adc #maxwalkad
-	sta player_vs_x
-	lda player_vl_x
-	adc #0
-	sta player_vl_x
-	
-	cmp #maxwalkNHI
-	bcc :+                 ; vl_x < maxwalkNHI
-	bne gm_setmaxwalkL_BCS ; vl_x > maxwalkNHI
-	
-	lda player_vl_x
-	cmp #maxwalkNLO
-	bcs gm_setmaxwalkL_BCS ; vs_x >= maxwalkNLO
-:	rts
-
-gm_appmaxwalkR:
-	; this label was reached because the velocity is > maxwalk.
-	sec
-	lda player_vs_x
-	sbc #maxwalkad
-	sta player_vs_x
-	lda player_vl_x
-	sbc #0
-	sta player_vl_x
-	
-	cmp #maxwalkHI
-	bcc gm_setmaxwalkR_BCC ; vl_x < maxwalkHI
-	bne :+                 ; vl_x > maxwalkHI
-	
-	lda player_vl_x
-	cmp #maxwalkLO
-	bcc gm_setmaxwalkR_BCC ; vs_x < maxwalkLO
-:	rts
-
-gm_appmaxwalkR_BNE:
-	bne gm_appmaxwalkR
-gm_appmaxwalkL_BNE:
-	bne gm_appmaxwalkL
-
-; ** SUBROUTINE: gm_pressedleft
-gm_pressedleft:
-	lda player_vl_x
-	bpl @normalAccel
-	cmp #maxwalkNHI
-	bcc @maybeApproach     ; A < -maxwalk
-	bne @normalAccel       ; A > -maxwalk
-	lda player_vs_x
-	cmp #maxwalkNLO
-	bcc @maybeApproach
-
-@normalAccel:
-	jsr @addvel
-	
-	lda #pl_left
-	ora playerctrl
-	sta playerctrl
-	
-	; now compare it to maxwalk
-@capmaxwalkL:
+; ** SUBROUTINE: gm_capmaxwalkL
+; desc: Ensure that the velocity doesn't reach the minimum walk speed.
+gm_capmaxwalkL:
 	lda player_vl_x
 	bpl :+
 	cmp #maxwalkNHI
-	bcc gm_setmaxwalkL        ; if A < -maxwalk, cap
-	bne :+                    ; if A > -maxwalk, return
+	bcc @setmaxwalkL   ; if A < -maxwalk, cap
+	bne :+             ; if A > -maxwalk, return
 	
 	lda player_vs_x
 	cmp #maxwalkNLO
-	bcc gm_setmaxwalkL        ; if A < -maxwalklo, cap
+	bcc @setmaxwalkL   ; if A < -maxwalklo, cap
 	
 :	rts
 
-@maybeApproach:
-	; player's velocity is negative and smaller than -maxwalk.
-	;
-	; if the player is on the ground, approach -maxwalk.
-	lda #pl_ground
-	bit playerctrl
-	bne gm_appmaxwalkL_BNE
-	rts
-
-@addvel:
-	sec
-	lda player_vs_x
-	sbc #accel
-	sta player_vs_x
-	lda player_vl_x
-	sbc #accelhi
-	sta player_vl_x
-	rts
-
-gm_capmaxwalkL = @capmaxwalkL
-
-gm_setmaxwalkL_BCS:
-	bcs gm_setmaxwalkL
-gm_setmaxwalkR_BCC:
-	bcc gm_setmaxwalkR
-
-gm_setmaxwalkL:
+@setmaxwalkL:
 	lda #maxwalkNHI
 	sta player_vl_x
 	lda #maxwalkNLO
 	sta player_vs_x
 	rts
 
-gm_pressedleft_BNE:
-	bne gm_pressedleft
-
-; ** SUBROUTINE: gm_pressedright
-gm_pressedright:
-	lda player_vl_x
-	bmi @normalAccel
-	cmp #maxwalkHI
-	bcc @normalAccel
-	bne :+
-	lda player_vs_x
-	cmp #maxwalkLO
-	bcc @normalAccel
-	
-	; player's velocity is positive and bigger than maxwalk.
-	;
-	; if the player is on the ground, approach maxwalk.
-	; otherwise, return without adding any surplus in velocity.
-:	lda #pl_ground
-	bit playerctrl
-	bne gm_appmaxwalkR_BNE
-	rts
-	
-@normalAccel:
-	jsr @addvel
-	
-	lda #(pl_left ^ $FF)
-	and playerctrl
-	sta playerctrl
-	
-	; now compare it to maxwalk
-@capmaxwalkR:
+; ** SUBROUTINE: gm_capmaxwalkR
+; desc: Ensure that the velocity doesn't reach the maximum walk speed.
+gm_capmaxwalkR:
 	lda player_vl_x
 	bmi :+
 	cmp #maxwalkHI
-	bcc :+             ; if A < maxwalk, return
-	bne gm_setmaxwalkR ; if A > maxwalk, cap
+	bcc :+            ; if A < maxwalk, return
+	bne @setmaxwalkR  ; if A > maxwalk, cap
 	
 	lda player_vs_x
 	cmp #maxwalkLO
-	bcs gm_setmaxwalkR ; if A >= maxwalklo, cap
+	bcs @setmaxwalkR  ; if A >= maxwalklo, cap
 :	rts
 
-@addvel:
-	clc
-	lda player_vs_x
-	adc #accel
-	sta player_vs_x
-	lda player_vl_x
-	adc #accelhi
-	sta player_vl_x
-	rts
-
-gm_capmaxwalkR = @capmaxwalkR
-
-gm_setmaxwalkR:
+@setmaxwalkR:
 	lda #maxwalkHI
 	sta player_vl_x
 	lda #maxwalkLO
@@ -301,15 +379,8 @@ gm_setmaxwalkR:
 
 ; ** SUBROUTINE: gm_controls
 ; desc:    Check controller input and apply forces based on it.
-gm_dontdash:
-	lda #cont_right
-	bit p1_cont
-	bne gm_pressedright
-	lda #cont_left
-	bit p1_cont
-	bne gm_pressedleft_BNE
-	rts
 gm_controls:
+	jsr gm_updatexvel
 	lda jumpbuff
 	bne gm_jump       ; If player buffered a jump, then try to perform it.
 gm_dontjump:
@@ -327,7 +398,8 @@ gm_dontjump:
 	lda #pl_dashed
 	ora playerctrl
 	sta playerctrl
-	jmp gm_dontdash
+gm_dontdash:
+	rts
 
 gm_jump:
 	lda wjumpcoyote
@@ -367,7 +439,6 @@ gm_applyjumpboost:
 	lda player_vl_x
 	sbc #0
 	sta player_vl_x
-	jsr gm_capmaxwalkL; ensure that it doesn't go over maxwalk
 	jmp gm_dontjump   ; that would be pretty stupid as it would
 gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	clc
@@ -377,7 +448,6 @@ gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	lda #0
 	adc player_vl_x
 	sta player_vl_x
-	jsr gm_capmaxwalkR
 	jmp gm_dontjump
 	
 gm_walljump:
@@ -422,6 +492,18 @@ gm_walljump:
 	sta jumpbuff      ; consume the buffered jump input
 	sta jumpcoyote    ; consume the existing coyote time
 	sta wjumpcoyote   ; or the wall coyote time
+	
+	jsr gm_gettargetindexforce ; check the current move direction
+	beq @return
+	
+	lda playerctrl
+	and #pl_left
+	tax
+	inx               ; 1 - right, 2 - left
+	stx forcemovex
+	lda #wjfxtval
+	sta forcemovext
+@return:
 	rts
 
 ; ** SUBROUTINE: gm_jumpgrace
@@ -846,6 +928,7 @@ gm_snaptoceil:
 	sta player_sp_y
 	sta player_vl_y   ; also clear the velocity
 	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
+	sta jcountdown    ; also clear the jump timer
 	rts
 gm_checkfloor:
 	jsr gm_getbottomy_f
@@ -1236,11 +1319,11 @@ gm_physics:
 	jsr gm_gravity
 	jsr gm_controls
 gm_dash_update_done:
-	jsr gm_drag
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
 	jsr gm_addtrace
+	jsr gm_timercheck
 	jmp gm_checkwjump
 
 gm_addtrace:
@@ -1306,3 +1389,11 @@ gm_shifttraceYP:
 	bne @loop
 	pla
 	rts
+
+; ** SUBROUTINE: gm_timercheck
+; desc: Checks and decreases relevant timers.
+gm_timercheck:
+	lda forcemovext
+	beq :+
+	dec forcemovext
+:	rts
