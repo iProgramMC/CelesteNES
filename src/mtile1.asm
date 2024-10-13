@@ -43,6 +43,15 @@
 	.byte $C0,$C1,$C2,$C3 ; Girders
 	.byte $C9,$CA,$CB     ; Spikes
 	.byte $89,$8A,$99     ; Grey Jump Through
+	.byte $F4,$F5         ; Memorial
+	.byte $F8,$D9,$F9,$E7 ; Memorial
+	.byte $D0,$D1,$D2,$D3 ; Memorial
+	.byte $E0,$E1,$E2,$E3 ; Memorial
+	.byte $F6,$D4,$F7     ; Memorial
+	.byte $F0,$F1,$F2,$F3 ; Memorial
+	.byte $D5,$D6,$D7,$D8 ; Memorial
+	.byte $E4,$E5,$E6,$E8,$E9 ; Memorial
+	.byte $DA,$DB,$DC,$DD ; Campfire
 
 .res metatile_info - *, $FF
 	.byte ct_none                ; Air
@@ -56,5 +65,7 @@
 	.res   4, ct_full            ; Girder
 	.res   3, ct_deadly          ; Spikes
 	.res   3, ct_jumpthru        ; Grey Jump Through
+	.res  30, ct_none            ; Memorial
+	.res   4, ct_none            ; Campfire
 
 .res level_data - *, $00
