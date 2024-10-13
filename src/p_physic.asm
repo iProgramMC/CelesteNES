@@ -1201,7 +1201,11 @@ gm_dash_lock:
 gm_dash_over:
 	; dash has terminated.
 	
-	; Speed = DashDir * 160f (when begun, it would be DashDir * 240f)
+	; if (DashDir.Y <= 0f) Speed = DashDir * 160f (when begun, it would be DashDir * 240f)
+	lda #(cont_down << 2)
+	bit dashdir
+	bne :++
+	
 	jsr gm_rem25pcvel
 	
 	; if (Speed.Y < 0f) Speed.Y *= 0.75f;
@@ -1266,6 +1270,8 @@ gm_dash_update:
 	bcs gm_dash_lock        ; dash hasn't charged
 	jmp gm_dash_after
 gm_dash_read_cont:
+	lda #6
+	sta quaketimer
 	lda p1_cont
 	and #%00001111          ; check if holding any direction
 	beq gm_defaultdir       ; if not, determine the dash direction from the facing direction	
@@ -1273,6 +1279,7 @@ gm_dash_read_cont:
 	and #%00001111          ; get all directional flags
 	; if horizontal flags are 0, then the vertical flags must NOT be zero, otherwise we ended up in gm_defaultdir
 gm_dash_nodir:
+	sta quakeflags
 	asl
 	asl                     ; multiply by four
 	tax                     ; this is now an index into the dash_table

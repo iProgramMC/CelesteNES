@@ -23,3 +23,5 @@ X Boost At Low Speed When Jumping: $0180 (90 px/sec)
 Neutral Wall Jump : $022A (130 px/sec)
 NeutrWallJumpDecel: 10.8333 px/fr
 NormalWallJmpDecel: 4.33333 px/fr
+Spring Y Vel      : $FCEB (-185 px/sec)
+Spring X Vel      : $0400 (240 px/sec)

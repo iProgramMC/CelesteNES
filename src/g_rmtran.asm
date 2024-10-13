@@ -42,6 +42,7 @@ gm_leaveroomR:
 	
 	lda #0
 	sta tr_scrnpos
+	sta quaketimer
 	
 	clc
 	lda transoff
@@ -277,6 +278,7 @@ gm_leaveroomU:
 	
 	lda #0
 	sta tr_scrnpos
+	sta quaketimer
 	
 	; set the player's velocity to jump into the stage.
 	lda #0

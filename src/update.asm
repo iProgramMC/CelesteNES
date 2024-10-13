@@ -64,25 +64,7 @@ nmi:
 	bne nmi_game
 	
 nmi_gamemodeend:
-	
-	ldx camera_x_hi
-	beq nmi_nocamhi
-	lda ctl_flags
-	ora #pctl_highx
-	jmp nmi_camhid
-nmi_nocamhi:
-	lda ctl_flags
-	and #(pctl_highx ^ %11111111)  ; can't do "and #~ctl_highy" for some reason!
-nmi_camhid:
-	sta ctl_flags
-	sta ppu_ctrl
-	
-	;jsr ppu_rstaddr
-	
-	ldx camera_x
-	stx ppu_scroll
-	ldx camera_y
-	stx ppu_scroll
+	jsr nmi_calccamerapos
 	
 	lda #10
 	sta debug
@@ -161,6 +143,163 @@ nmi_anims_update:
 	iny
 	lda #mmc3bk_spr3
 	jmp mmc3_set_bank_nmi
+
+; ** SUBROUTINE: rand_m2_to_p1
+; desc: Gets a random value between [-2, 1]
+rand_m2_to_p1:
+	ldx #0
+	jsr rand
+	and #3
+	sec
+	sbc #2
+	bpl :+
+	ldx #$FF
+:	stx temp5
+	rts
+
+; ** SUBROUTINE: rand_m1_to_p2
+; desc: Gets a random value between [-1, 2]
+rand_m1_to_p2:
+	ldx #0
+	jsr rand
+	and #3
+	sec
+	sbc #1
+	bpl :+
+	ldx #$FF
+:	stx temp5
+	rts
+
+; ** SUBROUTINE: nmi_calccamerapos
+; desc: Calculate and send the PPU the new camera position.
+nmi_calccamerapos:
+	ldx quaketimer
+	bne @doQuake
+	
+	; common fast path
+	lda ctl_flags
+	and #((pctl_highx | pctl_highy) ^ $FF)
+	
+	ldx camera_x_hi
+	beq :+
+	ora #pctl_highx
+:	;ldx camera_y_hi
+	;beq :+
+	;ora #pctl_highy
+;:
+	sta ctl_flags
+	sta ppu_ctrl
+	
+	lda camera_x
+	sta ppu_scroll
+	lda camera_y
+	sta ppu_scroll
+	
+	rts
+	
+@doQuake:
+	lda camera_x
+	sta temp1
+	lda camera_x_hi
+	sta temp2
+	lda camera_y
+	sta temp3
+	; lda camera_y_hi
+	; sta temp4
+	
+	; apply a random quake based on the quake flags
+	lda #cont_up
+	bit quakeflags
+	beq @notUp
+	
+	jsr rand_m2_to_p1
+	ora #%11111100
+	clc
+	adc temp3
+	sta temp3
+	;lda temp4
+	;adc temp5
+	;sta temp4
+
+@notUp:
+	lda #cont_down
+	bit quakeflags
+	beq @notDown
+	
+	jsr rand_m1_to_p2
+	clc
+	adc temp3
+	sta temp3
+	;lda temp4
+	;adc temp5
+	;sta temp4
+
+@notDown:
+	
+	; do some corrections on the Y axis
+	lda temp3
+	cmp #$F0
+	bcc :+
+	sec
+	sbc #$10
+	sta temp3
+	
+:	lda #cont_left
+	bit quakeflags
+	beq @notLeft
+	
+	jsr rand_m2_to_p1
+	clc
+	adc temp1
+	sta temp1
+	lda temp2
+	adc temp5
+	sta temp2
+
+@notLeft:
+	lda #cont_right
+	bit quakeflags
+	beq @notRight
+	
+	jsr rand_m1_to_p2
+	clc
+	adc temp1
+	sta temp1
+	lda temp2
+	adc temp5
+	sta temp2
+	
+@notRight:
+	
+	; now send the info off!
+	;lda temp4
+	;and #1
+	;sta temp4
+	lda temp2
+	and #1
+	sta temp2
+	
+	lda ctl_flags
+	and #((pctl_highx | pctl_highy) ^ $FF)
+	
+	ldx temp2
+	beq :+
+	ora #pctl_highx
+:	;ldx temp4
+	;beq :+
+	;ora #pctl_highy
+;:
+	sta ctl_flags
+	sta ppu_ctrl
+	
+	lda temp1
+	sta ppu_scroll
+	lda temp3
+	sta ppu_scroll
+	
+	dec quaketimer
+	
+	rts
 
 .include "weather.asm"
 .include "title.asm"
