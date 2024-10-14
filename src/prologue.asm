@@ -83,6 +83,12 @@ gamemode_prologue:
 	lda #defcameray
 	sta camera_y
 	
+	lda p1_conto
+	eor #$FF
+	and p1_cont
+	and #cont_start
+	bne @gameswitch  ; allow skipping by pressing START
+	
 	lda pl_state
 	cmp #pls_wrtext
 	beq @writeText
