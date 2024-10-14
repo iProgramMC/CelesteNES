@@ -24,6 +24,7 @@ gm_game_init:
 	stx animmode
 	inx
 	stx ppu_mask      ; disable rendering
+	jsr vblank_wait
 	
 	lda #g2_noclrall
 	bit gamectrl2
@@ -37,14 +38,14 @@ gm_game_init:
 	stx gamectrl2
 	jsr gm_game_clear_all_wx
 	
-@clearDone:
-	jsr vblank_wait
 	ldy #(init_palette - palettepage)
 	jsr load_palette  ; load game palette into palette RAM
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24
 	jsr clear_nt
+	
+@clearDone:
 	
 	lda #0
 	sta ntwrhead
@@ -118,13 +119,13 @@ gm_titleswitch:
 ;       Unlike gm_game_clear_all_wx, this clears data that's necessary across,
 ;       for example, respawn transitions.
 gm_game_clear_all_wx:
-	stx transoff
 	stx lvlyoff
-	stx tr_scrnpos
 
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.
 gm_game_clear_wx:
+	stx transoff
+	stx tr_scrnpos
 	stx gamectrl      ; clear game related fields to zero
 	stx ntwrhead
 	stx arwrhead
@@ -148,12 +149,15 @@ gm_game_clear_wx:
 	stx jumpbuff
 	stx jumpcoyote
 	stx wjumpcoyote
+	stx roombeglo
+	stx roombeghi
 	dex
 	stx animmode      ; set to 0xFF
 	inx
 	
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
 	; note: ldx #$00 was removed because it's already 0!
+	txa
 gm_game_clear:
 	sta $200,x
 	sta $300,x

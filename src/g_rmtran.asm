@@ -457,12 +457,36 @@ gm_leaveroomU:
 	and #(gs_dontgen ^ $FF)
 	sta gamectrl
 	
+	; pranked. we will do one final loop to bring the player Y up to the start
+	lda player_y
+	cmp startpy
+	bcc @finalloopdone
+	
+@finalloop:
+	lda player_y
+	sec
+	sbc #4
+	sta player_y
+	bcc @messedupcase
+	cmp startpy
+	bcc @finalloopdone
+	beq @finalloopdone
+	
+	jsr gm_leave_doframe
+	jmp @finalloop
+	
+@finalloopdone:
 	lda lvlyoff
 	asl
 	asl
 	asl
 	sta camera_y
 	rts
+	
+@messedupcase:
+	lda #0
+	sta player_y
+	beq @finalloopdone
 
 @addtocameraX:
 	lda camoff_sub

@@ -384,6 +384,10 @@ h_gener_row_u:
 	
 	; write a bunch of fillers.
 	lda #0
+	iny
+	dey
+	beq @loop       ; don't actually write anything
+	
 :	ldx wrcountHR1
 	sta temprow1, x
 	inx
@@ -1079,8 +1083,10 @@ gm_load_generics:
 ; ** SUBROUTINE: gm_respawn
 ; desc: Respawns the player.
 gm_respawn:
-	lda camera_x
+	lda camera_x_hi
 	lsr
+	lda camera_x
+	ror
 	lsr
 	lsr
 	sta ntwrhead
