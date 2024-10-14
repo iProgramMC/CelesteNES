@@ -24,7 +24,6 @@ gm_game_init:
 	stx animmode
 	inx
 	stx ppu_mask      ; disable rendering
-	jsr vblank_wait
 	
 	lda #g2_noclrall
 	bit gamectrl2
@@ -38,6 +37,7 @@ gm_game_init:
 	stx gamectrl2
 	jsr gm_game_clear_all_wx
 	
+	jsr vblank_wait
 	ldy #(init_palette - palettepage)
 	jsr load_palette  ; load game palette into palette RAM
 	lda #$20
