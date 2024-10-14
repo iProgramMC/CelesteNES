@@ -247,6 +247,12 @@ os_leftmov  = $08   ; level selector moving left
 os_rightmov = $10   ; level selector moving right
 ps_1stfr    = $01   ; first frame of prologue screen
 ps_turnon   = $02   ; need to program the PPU mask to turn on rendering
+ps_clear    = $04   ; clear 32 bytes of pl_ppuaddr
+ps_dofade   = $08   ; reupload palette to faded version
+pls_ldtext  = $00   ; prologue: load text state
+pls_wrtext  = $01   ; prologue: write text state
+pls_fade    = $02   ; prologue: wait state
+pls_wait    = $03   ; prologue: fade state
 gs_1stfr    = $01   ; first frame of game screen
 gs_vertical = $02   ; is the level vertical?
 gs_scrstodR = $04   ; rightward camera scrolling is disabled
@@ -394,12 +400,14 @@ ow_slidetmr = $002A
 
 ; Prologue specific addresses
 prolctrl    = $0020
-pl_ppuaddr  = $0021
-pl_ppudata  = $0023
-p_textaddr  = $0024 ; current address in text string
-p_textlen   = $0026 ; length of current text string
-p_texttimer = $0027
+pl_state    = $0021 ; 0 - load text, 1 - writing text, 2 - waiting, 3 - fadeout
+pl_ppuaddr  = $0022
+pl_ppudata  = $0024
+p_textaddr  = $0025 ; current address in text string
+p_textlen   = $0027 ; length of current text string
 p_textnum   = $0028
+p_textoffs  = $0029
+p_texttimer = $002A
 
 ; Game specific addresses
 gamectrl    = $0020 ; game control

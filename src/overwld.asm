@@ -66,7 +66,7 @@ gamemode_overwd_update:
 	sta ppu_mask        ; disable rendering to obscure that gm_set_level sets the bank early
 	
 	ldx ow_sellvl
-	;beq @isPrologue
+	beq @isPrologue
 	
 	jmp tl_gameswitch
 

@@ -83,21 +83,43 @@ nmi_gamemodeend:
 	rti
 
 nmi_prologue:
+	lda #ps_clear
+	bit prolctrl
+	beq @noClear
+	
+	eor prolctrl
+	sta prolctrl
+	ldx pl_ppuaddr
+	ldy pl_ppuaddr + 1
+	sty ppu_addr
+	stx ppu_addr
+	
+	lda #0
+	ldy #32
+:	sta ppu_data
+	dey
+	bne :-
+	
+@noClear:
 	lda #ps_turnon
 	bit prolctrl
-	beq :+
+	beq @noTurnOn
 	eor prolctrl
 	sta prolctrl
 	lda #def_ppu_msk
 	sta ppu_mask
-:	ldx pl_ppuaddr
-	beq :+
-	ldy pl_ppuaddr + 1
+
+@noTurnOn:
+	ldx pl_ppuaddr + 1
+	beq @noAddressToWrite
+	ldy pl_ppuaddr
 	stx ppu_addr
 	sty ppu_addr
 	ldx pl_ppudata
 	stx ppu_data
-:	jmp nmi_gamemodeend
+
+@noAddressToWrite:
+	jmp nmi_gamemodeend
 
 nmi_game:
 	jsr nmi_anims_update
@@ -139,11 +161,11 @@ nmi_game:
 @tryhpal:
 	lda #g2_flstpalU
 	bit gamectrl2
-	beq nmi_gamemodeend
+	beq :+
 	eor gamectrl2
 	sta gamectrl2
 	jsr h_flush_pal_u
-	jmp nmi_gamemodeend
+:	jmp nmi_gamemodeend
 
 nmi_anims_update:
 	; Update the current player sprite bank.
