@@ -48,3 +48,13 @@
 
 .segment "CHR_BG001"
 .incbin  "b_lvl1.chr"
+
+; Madeline dialog frames
+.segment "CHR_DMADE"
+.incbin  "d_made.chr"
+; Theo dialog frames
+.segment "CHR_DTHEO"
+.incbin  "d_theo.chr"
+; Granny dialog frames
+.segment "CHR_DGRAN"
+.incbin  "d_gran.chr"

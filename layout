@@ -55,9 +55,14 @@ MEMORY
 	CHR_BG003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$28;
 	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
 	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
-	CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
-	CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
-	CHR_BG008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
+	# CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
+	# CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
+	# CHR_BG008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
+	
+	## Dialog Pattern Tables ##
+	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
+	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
+	CHR_DGRAN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
 }
 
 SEGMENTS
@@ -91,4 +96,7 @@ SEGMENTS
 	CHR_BG002: load = CHR_BG002, type = ro;
 	CHR_BG003: load = CHR_BG003, type = ro;
 	CHR_BG004: load = CHR_BG004, type = ro;
+	CHR_DMADE: load = CHR_DMADE, type = ro;
+	CHR_DTHEO: load = CHR_DTHEO, type = ro;
+	CHR_DGRAN: load = CHR_DGRAN, type = ro;
 }

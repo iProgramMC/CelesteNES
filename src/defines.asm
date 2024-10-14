@@ -225,6 +225,7 @@ gm_game     = $00   ; Game Modes
 gm_title    = $01
 gm_titletra = $02   ; title transition
 gm_overwld  = $03   ; overworld
+gm_prologue = $04
 tm_gametra  = 30    ; frames until the title->game transition ends
 cont_a      = $80
 cont_b      = $40
@@ -385,6 +386,10 @@ ow_timer    = $0027
 ow_sellvl   = $0028 ; selected level
 ow_iconoff  = $0029
 ow_slidetmr = $002A
+
+; Prologue specific addresses
+pl_ppuaddr  = $0020
+pl_ppudata  = $0021
 
 ; Game specific addresses
 gamectrl    = $0020 ; game control

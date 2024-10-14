@@ -1,6 +1,5 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-; ** INTERRUPT HANDLER: nmi
 nmi_titletra:
 	lda tl_timer
 	and #$08
@@ -40,6 +39,17 @@ nmi_overwld:
 	jsr ow_draw_level_name
 :	jmp nmi_gamemodeend
 
+nmi_prologue:
+	ldx pl_ppuaddr
+	beq :+
+	ldy pl_ppuaddr + 1
+	stx ppu_addr
+	sty ppu_addr
+	ldx pl_ppudata
+	stx ppu_data
+:	jmp nmi_gamemodeend
+
+; ** INTERRUPT HANDLER: nmi
 nmi:
 	inc nmicount
 	pha
@@ -61,6 +71,8 @@ nmi:
 	beq nmi_title
 	cpx #gm_overwld
 	beq nmi_overwld
+	cpx #gm_prologue
+	beq nmi_prologue
 	bne nmi_game
 	
 nmi_gamemodeend:
