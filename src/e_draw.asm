@@ -191,7 +191,8 @@ gm_draw_ent_call:
 	
 	ldx temp1
 	
-	jmp (lvladdr)
+	;jmp (lvladdr)
+	rts
 
 ; TODO: figure out how to avoid defining two tables like this
 gm_entjtable_lo:

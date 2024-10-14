@@ -181,9 +181,12 @@ chrb_lvl2   = $24   ; graphics bank for level 2 "Old Site"
 chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
 chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
 chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
-chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
-chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
-chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
+;chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
+;chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
+;chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
+chrb_dmade  = $34   ; graphics bank for dialog with Madeline
+chrb_dtheo  = $38   ; graphics bank for dialog with Theo
+chrb_dgran  = $3C   ; graphics bank for dialog with Granny
 ; PRGROM BANKS
 prgb_lvl0   = $00   ; Main level data ($A000)
 prgb_lvl1   = $01
@@ -242,6 +245,8 @@ os_turnon   = $02   ; need to program the PPU mask to turn on rendering
 os_updlvlnm = $04   ; need to update level name
 os_leftmov  = $08   ; level selector moving left
 os_rightmov = $10   ; level selector moving right
+ps_1stfr    = $01   ; first frame of prologue screen
+ps_turnon   = $02   ; need to program the PPU mask to turn on rendering
 gs_1stfr    = $01   ; first frame of game screen
 gs_vertical = $02   ; is the level vertical?
 gs_scrstodR = $04   ; rightward camera scrolling is disabled
@@ -388,8 +393,13 @@ ow_iconoff  = $0029
 ow_slidetmr = $002A
 
 ; Prologue specific addresses
-pl_ppuaddr  = $0020
-pl_ppudata  = $0021
+prolctrl    = $0020
+pl_ppuaddr  = $0021
+pl_ppudata  = $0023
+p_textaddr  = $0024 ; current address in text string
+p_textlen   = $0026 ; length of current text string
+p_texttimer = $0027
+p_textnum   = $0028
 
 ; Game specific addresses
 gamectrl    = $0020 ; game control

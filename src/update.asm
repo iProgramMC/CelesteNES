@@ -31,22 +31,14 @@ nmi_overwld:
 	lda #os_turnon
 	bit owldctrl
 	beq :+
+	eor owldctrl
+	sta owldctrl
 	lda #def_ppu_msk
 	sta ppu_mask
 :	lda #os_updlvlnm
 	bit owldctrl
 	beq :+
 	jsr ow_draw_level_name
-:	jmp nmi_gamemodeend
-
-nmi_prologue:
-	ldx pl_ppuaddr
-	beq :+
-	ldy pl_ppuaddr + 1
-	stx ppu_addr
-	sty ppu_addr
-	ldx pl_ppudata
-	stx ppu_data
 :	jmp nmi_gamemodeend
 
 ; ** INTERRUPT HANDLER: nmi
@@ -89,6 +81,23 @@ nmi_gamemodeend:
 	tax
 	pla
 	rti
+
+nmi_prologue:
+	lda #ps_turnon
+	bit prolctrl
+	beq :+
+	eor prolctrl
+	sta prolctrl
+	lda #def_ppu_msk
+	sta ppu_mask
+:	ldx pl_ppuaddr
+	beq :+
+	ldy pl_ppuaddr + 1
+	stx ppu_addr
+	sty ppu_addr
+	ldx pl_ppudata
+	stx ppu_data
+:	jmp nmi_gamemodeend
 
 nmi_game:
 	jsr nmi_anims_update
@@ -328,11 +337,17 @@ game_update:
 	beq gamemode_titletr ; title screen transition
 	cpx #gm_overwld
 	beq gamemode_overwd  ; overworld
+	cpx #gm_prologue
+	beq gamemode_prologue_ ; prologue
 	jmp gamemode_game    ; default handling
 game_update_return:
 	rts
 
+gamemode_prologue_:
+	jmp gamemode_prologue
+
 .include "overwld.asm"
+.include "prologue.asm"
 
 ; ** SUBROUTINE: tl_select_banks
 ; desc: Selects the banks required to display the title screen.

@@ -155,13 +155,33 @@ load_palette:
 	lda #$00
 	sta ppu_addr
 	ldx #$00
-load_palette_loop:
+@loop:
 	lda palettepage, y
 	sta ppu_data
 	inx
 	iny
 	cpx #$20
-	bne load_palette_loop
+	bne @loop
+	rts
+
+; ** SUBROUTINE: load_palette_zp
+; arguments:
+;   y - the offset from the zero page where the palette resides
+; clobbers: A, X
+; assumes: PPUCTRL increment bit is zero (+1 instead of +32)
+load_palette_zp:
+	lda #$3F
+	sta ppu_addr
+	lda #$00
+	sta ppu_addr
+	ldx #$00
+@loop:
+	lda $0000, y
+	sta ppu_data
+	inx
+	iny
+	cpx #$20
+	bne @loop
 	rts
 
 ; ** SUBROUTINE: ppu_nmi_off

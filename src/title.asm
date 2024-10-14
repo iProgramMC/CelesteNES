@@ -75,6 +75,14 @@ tl_gameswitch:
 	sta gamemode
 	lda #0
 	sta gamectrl
+	jsr gm_set_level
+	jmp game_update_return
+
+tl_prolswitch:
+	lda #gm_prologue
+	sta gamemode
+	lda #0
+	sta prolctrl
 	jmp game_update_return
 	
 tl_owldswitch:

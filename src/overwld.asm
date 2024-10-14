@@ -6,7 +6,7 @@ gamemode_overwd:
 	bit owldctrl
 	bne gamemode_overwd_update
 	
-	lda #1
+	lda #0
 	sta ow_sellvl
 	
 	lda #0
@@ -51,22 +51,27 @@ gamemode_overwd_update:
 	
 	lda #(os_leftmov | os_rightmov)
 	bit owldctrl
-	bne :+              ; don't handle controller input during a transition
+	bne @return         ; don't handle controller input during a transition
 	
 	lda #(cont_a | cont_start)
 	bit ow_temp5
-	beq :+
+	bne @startGame
+@return:
+	jmp game_update_return
 	
+@startGame:
 	; now enter the game!
 	jsr vblank_wait
 	lda #0
 	sta ppu_mask        ; disable rendering to obscure that gm_set_level sets the bank early
 	
 	ldx ow_sellvl
-	jsr gm_set_level
-	jmp tl_gameswitch
+	;beq @isPrologue
 	
-:	jmp game_update_return
+	jmp tl_gameswitch
+
+@isPrologue:
+	jmp tl_prolswitch
 
 ; ** SUBROUTINE: ow_level_slide
 ; desc: Handles left/right slide of the level scroller.
