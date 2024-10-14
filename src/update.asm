@@ -133,7 +133,7 @@ nmi_game:
 	sta gamectrl
 	lda #def_ppu_msk
 	sta ppu_mask
-	
+
 @trycols:
 	lda #gs_flstcolR
 	bit gamectrl
@@ -141,7 +141,7 @@ nmi_game:
 	eor gamectrl
 	sta gamectrl
 	jsr h_flush_col_r
-	
+
 @trypal:
 	lda #gs_flstpalR
 	bit gamectrl
@@ -149,7 +149,7 @@ nmi_game:
 	eor gamectrl
 	sta gamectrl
 	jsr h_flush_pal_r
-	
+
 @tryrow:
 	lda #g2_flstrowU
 	bit gamectrl2
@@ -157,14 +157,23 @@ nmi_game:
 	eor gamectrl2
 	sta gamectrl2
 	jsr h_flush_row_u
-	
+
 @tryhpal:
 	lda #g2_flstpalU
+	bit gamectrl2
+	beq @tryclear
+	eor gamectrl2
+	sta gamectrl2
+	jsr h_flush_pal_u
+
+@tryclear:
+	lda #g2_clearcol
 	bit gamectrl2
 	beq :+
 	eor gamectrl2
 	sta gamectrl2
-	jsr h_flush_pal_u
+	jsr h_clear_2cols
+
 :	jmp nmi_gamemodeend
 
 nmi_anims_update:
@@ -407,10 +416,10 @@ com_clear_oam:
 	lda #$00
 	ldx #$00
 	sta oam_wrhead
-cgl_clear_loop:
+@loop:
 	sta oam_buf, x
 	inx
-	bne cgl_clear_loop
+	bne @loop
 	rts
 
 ; ** SUBROUTINE: com_game_log

@@ -60,6 +60,25 @@ h_set_tile:
 	sta (lvladdr), y
 	rts
 
+; ** SUBROUTINE: h_ntwr_to_ppuaddr
+; desc: Converts the nametable write head (ntwraddr) to a PPU address.
+h_ntwr_to_ppuaddr:
+	; the PPU address we want to start writing to is
+	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32)
+	lda ntwrhead
+	ldy #$20
+	and #$20
+	beq :+
+	iny
+	iny
+	iny
+	iny
+:	lda ntwrhead
+	and #$1F
+	sty ppu_addr
+	sta ppu_addr
+	rts
+
 ; ** SUBROUTINE: h_flush_pal_r_cond
 ; desc:    Flushes a generated palette column in temppal to the screen if gs_flstpalR is set
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
@@ -196,6 +215,47 @@ h_flush_row_u:
 	
 	rts
 
+; ** SUBROUTINE: h_clear_2cols
+; desc:    Clears two columns with blank.
+; assumes: we're in vblank, or rendering is disabled
+h_clear_2cols:
+	; set the increment to 32 in PPUCTRL
+	lda ctl_flags
+	ora #pctl_adv32
+	sta ppu_ctrl
+	
+	jsr h_ntwr_to_ppuaddr
+	jsr @write30Xblank
+	jsr h_advance_wr_head
+	jsr h_ntwr_to_ppuaddr
+	jsr @write30Xblank
+	jsr h_advance_wr_head
+
+	; restore the old PPUCTRL
+	lda ctl_flags
+	sta ppu_ctrl
+	rts
+
+@write30Xblank:
+	lda #0
+	ldy #0
+:	sta ppu_data
+	iny
+	cpy #$1E
+	bne :-
+	rts
+
+; ** SUBROUTINE: h_advance_wr_head
+; desc:    Advances the name table write head (ntwrhead).
+h_advance_wr_head:
+	; advance the write head but keep it within 64
+	ldx ntwrhead
+	inx
+	txa
+	and #$3F
+	sta ntwrhead
+	rts
+
 ; ** SUBROUTINE: h_flush_col_r
 ; desc:    Flushes a generated column in tempcol to the screen
 ; assumes: we're in vblank or rendering is disabled
@@ -205,21 +265,7 @@ h_flush_col_r:
 	ora #pctl_adv32
 	sta ppu_ctrl
 	
-	; the PPU address we want to start writing to is
-	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32)
-	lda ntwrhead
-	ldy #$20
-	and #$20
-	beq h_dontadd4
-	iny
-	iny
-	iny
-	iny
-h_dontadd4:
-	lda ntwrhead
-	and #$1F
-	tax
-	jsr ppu_loadaddr
+	jsr h_ntwr_to_ppuaddr
 	
 	; start writing tiles.
 	; each iteration will write 2 character tiles for one metatile.
@@ -230,13 +276,8 @@ h_fls_wrloop:
 	iny
 	cpy #$1E
 	bne h_fls_wrloop
-
-	; advance the write head but keep it within 64
-	ldx ntwrhead
-	inx
-	txa
-	and #$3F
-	sta ntwrhead
+	
+	jsr h_advance_wr_head
 	
 	; restore the old PPUCTRL
 	lda ctl_flags
@@ -1038,6 +1079,28 @@ gm_load_generics:
 ; ** SUBROUTINE: gm_respawn
 ; desc: Respawns the player.
 gm_respawn:
+	lda camera_x
+	lsr
+	lsr
+	lsr
+	sta ntwrhead
+	
+	; perform the slide wipe
+	ldy #18
+@loop:
+	sty transtimer
+	
+	lda #g2_clearcol
+	ora gamectrl2
+	sta gamectrl2
+	
+	jsr gm_leave_doframe
+	
+	ldy transtimer
+	dey
+	bne @loop
+	
+	; initiate the transition sequence now.
 	lda #0
 	sta gamectrl
 	
@@ -1048,6 +1111,8 @@ gm_respawn:
 	lda #0
 	sta ppu_mask
 	jsr vblank_wait
+	
+	jsr com_clear_oam
 	
 	ldy currroom
 	jsr gm_set_room

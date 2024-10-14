@@ -77,7 +77,9 @@ gm_game_init:
 	cpy #tilesahead
 	bne :-
 	
-	lda #(gs_1stfr|gs_turnon)
+	lda gamectrl
+	and #(gs_scrstodR|gs_scrstopR)
+	ora #(gs_1stfr|gs_turnon)
 	sta gamectrl
 	jsr vblank_wait
 	jmp gm_game_update

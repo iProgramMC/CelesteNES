@@ -265,6 +265,7 @@ g2_flstrowU = $01   ; flush generated rows up
 g2_flstpalU = $02   ; flush generated palette columns up
 g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything
+g2_clearcol = $10   ; clear two columns at ntwrhead with BLACK.
 lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
