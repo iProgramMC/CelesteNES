@@ -143,7 +143,7 @@ level1_r2_t:
 	.byte $30,$31,$CC,$83,$DB,$9E,$FF
 level1_r2:
 	.byte 1, 0, 12
-	.byte 1, 0
+	.byte 32, 168
 	.byte 4, 255, 255, 255
 	.byte 20, 255, 255, 255
 	.byte 0
@@ -211,7 +211,7 @@ level1_r3_t:
 	.byte $5F,$C7,$8E,$D0,$FF
 level1_r3:
 	.byte 0, 0, 0
-	.byte 0, 0
+	.byte 40, 176
 	.byte 6, 255, 255, 255
 	.byte 20, 0, 0, 0
 	.byte 0
@@ -272,7 +272,7 @@ level1_r4_t:
 	.byte $27,$FF
 level1_r4:
 	.byte 0, 0, 0
-	.byte 0, 0
+	.byte 32, 168
 	.byte 8, 255, 255, 255
 	.byte 8, 0, 0, 0
 	.byte 0
@@ -324,7 +324,7 @@ level1_rEnd_t:
 	.byte $23,$2B,$86,$96,$22,$32,$86,$FF
 level1_rEnd:
 	.byte 0, 0, 0
-	.byte 0, 0
+	.byte 48, 168
 	.byte 255, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0

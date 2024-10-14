@@ -27,12 +27,18 @@ gm_game_init:
 	
 	lda #g2_noclrall
 	bit gamectrl2
-	bne :+
-	jsr gm_game_clear_wx
-	jmp :++
-:	jsr gm_game_clear_all_wx
+	beq @clearAll
 	
-:	jsr vblank_wait
+	stx gamectrl2
+	jsr gm_game_clear_wx
+	jmp @clearDone
+	
+@clearAll:
+	stx gamectrl2
+	jsr gm_game_clear_all_wx
+	
+@clearDone:
+	jsr vblank_wait
 	ldy #(init_palette - palettepage)
 	jsr load_palette  ; load game palette into palette RAM
 	lda #$20
@@ -40,13 +46,22 @@ gm_game_init:
 	lda #$24
 	jsr clear_nt
 	
-	lda lvl_ntwrst
+	lda #0
 	sta ntwrhead
 	sta arwrhead
 	asl
 	asl
 	asl
 	sta camera_x
+	
+	lda rm_paloffs
+	asl
+	asl
+	sta lvlyoff
+	asl
+	asl
+	asl
+	sta camera_y
 	
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
@@ -103,6 +118,7 @@ gm_titleswitch:
 gm_game_clear_all_wx:
 	stx transoff
 	stx lvlyoff
+	stx tr_scrnpos
 
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.
@@ -117,7 +133,6 @@ gm_game_clear_wx:
 	stx camera_x_hi
 	stx camera_x_pg
 	stx player_x_hi
-	stx tr_scrnpos
 	stx lvladdr
 	stx lvladdrhi
 	stx playerctrl
@@ -131,8 +146,6 @@ gm_game_clear_wx:
 	stx jumpbuff
 	stx jumpcoyote
 	stx wjumpcoyote
-	stx tr_scrnpos
-	stx lvlyoff
 	dex
 	stx animmode      ; set to 0xFF
 	inx
