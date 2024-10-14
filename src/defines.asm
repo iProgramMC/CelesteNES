@@ -264,6 +264,7 @@ gs_dontgen  = $80   ; don't generate more tiles
 g2_flstrowU = $01   ; flush generated rows up
 g2_flstpalU = $02   ; flush generated palette columns up
 g2_autojump = $04   ; pretend the jump button is being held until landing
+g2_noclrall = $08   ; don't clear everything
 lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
@@ -446,7 +447,7 @@ plh_attrs   = $0040 ; player hair attributes
 dashtime    = $0041
 dashcount   = $0042 ; times player has dashed
 dashdir     = $0043 ; dash direction X (controller inputs at time of dash SHIFTED LEFT by 2)
-; $0044 spare
+currroom    = $0044 ; current room
 spryoff     = $0045 ; hair sprite Y offset
 animmode    = $0046 ; current animation mode
 animtimer   = $0047 ; current animation timer. It has a subunitary component because

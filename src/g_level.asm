@@ -1010,6 +1010,7 @@ gm_set_level:
 ; args: Y - room number
 ; assumes: you're loading a new level
 gm_set_room:
+	sty currroom
 	iny
 	iny
 	jsr gm_fetch_room
@@ -1033,3 +1034,29 @@ gm_load_generics:
 	lda #mmc3bk_spr3
 	ldy #chrb_anisp0
 	jmp mmc3_set_bank
+
+; ** SUBROUTINE: gm_respawn
+; desc: Respawns the player.
+gm_respawn:
+	lda #0
+	sta gamectrl
+	
+	lda #g2_noclrall
+	sta gamectrl2
+	
+	; disable rendering
+	lda #0
+	sta ppu_mask
+	jsr vblank_wait
+	
+	ldy currroom
+	jsr gm_set_room
+	
+	; load the player's X coordinate to the pixel coordinates provided,
+	; if this is the first level
+	lda startpx
+	sta player_x
+	lda startpy
+	sta player_y
+	
+	rts

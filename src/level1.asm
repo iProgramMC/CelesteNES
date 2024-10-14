@@ -333,7 +333,7 @@ level1_rEnd:
 	.word level1_rEnd_e
 level1:
 	.byte $01	; environment type
-	.byte $06	; room count
+	.byte $05	; room count
 	.word level1_r1
 	.word level1_r2
 	.word level1_r3

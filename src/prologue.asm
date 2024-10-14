@@ -191,7 +191,6 @@ gamemode_prologue:
 	ldx #0              ; select level zero
 	jmp tl_gameswitch
 
-
 p_text0:	.byte "      THIS IS IT, MADELINE.     "
 p_text1:	.byte "          JUST BREATHE.         "
 p_text2:	.byte "     WHY ARE YOU SO NERVOUS?    "

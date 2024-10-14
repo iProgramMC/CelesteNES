@@ -24,8 +24,15 @@ gm_game_init:
 	stx animmode
 	inx
 	stx ppu_mask      ; disable rendering
-	jsr gm_game_clear_all_wx
-	jsr vblank_wait
+	
+	lda #g2_noclrall
+	bit gamectrl2
+	bne :+
+	jsr gm_game_clear_wx
+	jmp :++
+:	jsr gm_game_clear_all_wx
+	
+:	jsr vblank_wait
 	ldy #(init_palette - palettepage)
 	jsr load_palette  ; load game palette into palette RAM
 	lda #$20
@@ -70,11 +77,11 @@ gm_game_update:
 	jsr gm_physics
 	jsr gm_anim_player
 	jsr gm_draw_player
-	jsr gm_draw_dead
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities
 	jsr gm_allocate_palettes
 	jsr gm_update_ptstimer
+	jsr gm_draw_dead
 	
 	lda #cont_select
 	bit p1_cont

@@ -112,18 +112,9 @@ gm_draw_dead_done:
 	ldx deathtimer
 	inx
 	cpx #16
-	beq gm_respawn
-	stx deathtimer
-	rts
-
-gm_respawn:
-	lda #pl_dead
-	eor playerctrl
-	sta playerctrl
-	
-	lda #0
-	sta player_y
-	
+	bne :+
+	jsr gm_respawn
+:	stx deathtimer
 	rts
 
 ; ** SUBROUTINE: gm_draw_player
