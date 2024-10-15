@@ -206,8 +206,8 @@ prgb_game   = $0E   ; bank containing game engine code.  This is fixed at $8000
 prgb_main   = $0F   ; bank containing main code.  This is fixed at $E000
 
 ; Constants
-def_mmc3_bn = %11000000 ; default mmc3 bank config.
-                        ; two 2K banks at $1000-$1FFF, four 1K banks at $0000-$0FFF
+def_mmc3_bn = %01000000 ; default mmc3 bank config.
+                        ; two 2K banks at $0000-$0FFF, four 1K banks at $1000-$1FFF
                         ; PRG ROM fixed at $8000-$9FFF and $E000-$FFFF
 blank_tile  = $00
 apu_irq_off = $40
@@ -221,6 +221,7 @@ pctl_nmi_on = %10000000
 pctl_adv32  = %00000100
 pctl_sprsz  = %00100000
 pctl_bgpat  = %00010000
+pctl_sppat  = %00001000
 pctl_highx  = %00000001 ; +256 to screen scroll
 pctl_highy  = %00000010 ; +240 to screen scroll
 def_ppu_msk = %00011110

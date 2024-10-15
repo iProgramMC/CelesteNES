@@ -133,6 +133,7 @@ oam_putsprite:
 	sta oam_buf, x
 	inx
 	tya
+	eor #$01        ; flip bit 1 as most sprites are now located at $1000
 	sta oam_buf, x  ; store the attributes into OAM
 	inx
 	pla
@@ -345,7 +346,7 @@ reset_clrmem:
 	
 	ldy #def_ppu_msk ; show background & sprites
 	sty ppu_mask     ; set the ppu mask
-	ldy #(pctl_sprsz | pctl_bgpat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable
+	ldy #(pctl_sprsz | pctl_sppat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable
 	sty ctl_flags
 	sty ppu_ctrl
 	

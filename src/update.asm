@@ -413,9 +413,9 @@ tl_select_banks:
 ; clobbers:  A, X
 ; desc:      clears CPU's copy of OAM
 com_clear_oam:
-	lda #$00
+	lda #$FF
 	ldx #$00
-	sta oam_wrhead
+	stx oam_wrhead
 @loop:
 	sta oam_buf, x
 	inx
@@ -434,4 +434,34 @@ com_game_log:
 ; ** IRQ
 ; currently blank.
 irq:
-	jmp irq
+	pha
+	txa
+	pha
+	tya
+	pha
+	
+	; disable rendering
+	lda #0
+	sta ppu_mask
+	
+	; wait a bit
+	ldy #0
+:	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	dey
+	bne :-
+	
+	; re-enable rendering
+	lda #def_ppu_msk
+	sta ppu_mask
+	
+	pla
+	tay
+	pla
+	tax
+	pla
+	rti
