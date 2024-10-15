@@ -30,31 +30,31 @@
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
 .segment "CHR_SPR00"
-.incbin  "sp_player.chr"
+.incbin  "chr/sp_player.chr"
 .segment "CHR_SPR01"
-.incbin  "sprites.chr"
+.incbin  "chr/sprites.chr"
 
 .segment "CHR_BGTTL"
-.incbin  "b_title.chr"
+.incbin  "chr/b_title.chr"
 
 .segment "CHR_BGOWD"
-.incbin  "b_overw.chr"
+.incbin  "chr/b_overw.chr"
 
 .segment "CHR_SPOWD"
-.incbin  "sp_overw.chr"
+.incbin  "chr/sp_overw.chr"
 
 .segment "CHR_BG000"
-.incbin  "b_lvl0.chr"
+.incbin  "chr/b_lvl0.chr"
 
 .segment "CHR_BG001"
-.incbin  "b_lvl1.chr"
+.incbin  "chr/b_lvl1.chr"
 
 ; Madeline dialog frames
 .segment "CHR_DMADE"
-.incbin  "d_made.chr"
+.incbin  "chr/d_made.chr"
 ; Theo dialog frames
 .segment "CHR_DTHEO"
-.incbin  "d_theo.chr"
+.incbin  "chr/d_theo.chr"
 ; Granny dialog frames
 .segment "CHR_DGRAN"
-.incbin  "d_gran.chr"
+.incbin  "chr/d_gran.chr"

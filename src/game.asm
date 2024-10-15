@@ -151,6 +151,8 @@ gm_game_clear_wx:
 	stx wjumpcoyote
 	stx roombeglo
 	stx roombeghi
+	stx plrtrahd
+	stx plrstrawbs
 	dex
 	stx animmode      ; set to 0xFF
 	inx
