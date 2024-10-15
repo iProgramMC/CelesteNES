@@ -18,9 +18,9 @@
 .include "defines.asm"
 
 .segment "PRG_LVL0"
-.include "prg_lvl0.asm"
+.include "level0/bank_0.asm"
 .segment "PRG_LVL1"
-.include "prg_lvl1.asm"
+.include "level1/bank_0.asm"
 
 .segment "PRG_GAME"
 .include "prg_game.asm"
