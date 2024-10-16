@@ -888,8 +888,10 @@ gm_applyy:
 	bcc gm_velapplied
 	cpx #1
 	bne gm_killplayer
+
 gm_leaveroomU_:
 	jmp gm_leaveroomU
+
 gm_velapplied:        ; this is the return label from gm_velminus4
 	lda player_y
 	cmp #$F0
@@ -897,11 +899,13 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	lda player_vl_y
 	bmi gm_checkceil
 	jmp gm_checkfloor
+
 gm_fellout:           ; if the player fell out of the world
 	sta player_y
 	lda player_vl_y
 	bpl gm_killplayer
 	rts
+
 gm_checkceil:
 	jsr gm_gettopy
 	tay
@@ -909,14 +913,15 @@ gm_checkceil:
 	ldx temp1         ; check block 1
 	lda #gc_ceil
 	jsr gm_collide
-	bne gm_snaptoceil
+	bne @snapToCeil
 	ldy y_crd_temp    ; check block 2
 	ldx temp2
 	lda #gc_ceil
 	jsr gm_collide
-	bne gm_snaptoceil
+	bne @snapToCeil
 	rts
-gm_snaptoceil:
+
+@snapToCeil:
 	clc
 	lda y_crd_temp    ; load the y position of the tile that was collided with
 	asl
@@ -930,30 +935,32 @@ gm_snaptoceil:
 	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
 	sta jcountdown    ; also clear the jump timer
 	rts
+
 gm_checkfloor:
 	jsr gm_getbottomy_f
 	tay               ; keep the Y position into the Y register
 	sty y_crd_temp
-gm_checkgdfloor:
+	
 	ldx temp1         ; check block 1
 	lda #gc_floor
 	jsr gm_collide
-	bne gm_snaptofloor
+	bne @snapToFloor
 	ldy y_crd_temp    ; check block 2
 	ldx temp2
 	lda #gc_floor
 	jsr gm_collide
-	bne gm_snaptofloor
+	bne @snapToFloor
 	rts
-gm_snaptofloor:
+	
+@snapToFloor:
 	lda #%11111000    ; round player's position to lower multiple of 8
 	and player_y
 	sta player_y
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
 	lda dashtime
-	cmp #(defdashtime-dashchrgtm-2)
-	bcs gm_sfloordone ; until the player has started their dash, exempt from ground check
+	cmp #(defdashtime-dashgrndtm)
+	bcs @done         ; until the player has started their dash, exempt from ground check
 	lda #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
 	ora playerctrl
 	and #(pl_dashed^$FF) ; clear the dashed flag
@@ -965,7 +972,7 @@ gm_snaptofloor:
 	sta player_vl_y
 	sta player_vs_y
 	sta dashcount
-gm_sfloordone:
+@done:
 	rts
 
 gm_leaveroomR_:

@@ -865,8 +865,6 @@ h_generents_cont:
 	lda tr_scrnpos
 	adc roombeghi
 	sta sprspace+sp_x_pg, x
-	and #1
-	sta sprspace+sp_x_hi, x
 	
 	rts
 

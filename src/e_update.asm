@@ -112,8 +112,6 @@ gm_update_berry:
 	lda camera_x_pg
 	adc #0
 	sta sprspace+sp_x_pg, x
-	and #1
-	sta sprspace+sp_x_hi, x
 	
 	lda temp3
 	sta sprspace+sp_y, x
@@ -216,8 +214,6 @@ gm_update_particle:
 	lda sprspace+sp_x_pg, x
 	adc temp7
 	sta sprspace+sp_x_pg, x
-	and #1
-	sta sprspace+sp_x_hi, x
 	
 	clc
 	lda sprspace+sp_y, x

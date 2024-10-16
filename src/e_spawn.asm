@@ -37,8 +37,6 @@ gm_spawn_particle:
 	lda sprspace+sp_x_pg, x
 	adc #0
 	sta sprspace+sp_x_pg, y
-	and #1
-	sta sprspace+sp_x_hi, y
 	
 	clc
 	lda sprspace+sp_y, x
@@ -106,8 +104,6 @@ gm_spawn_points:
 	lda camera_x_pg
 	adc #0
 	sta sprspace+sp_x_pg, y
-	and #1
-	sta sprspace+sp_x_hi, y
 	
 	lda player_y
 	sta sprspace+sp_y, y

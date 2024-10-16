@@ -48,7 +48,7 @@ sp_max      = $10   ; maximum of 16 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
 sp_x        = (sp_max * 1)   ; X coordinate within a page
-sp_x_hi     = (sp_max * 2)   ; X coordinate on the loaded game world
+;sp_x_hi     = (sp_max * 2)   ; X coordinate on the loaded game world
 sp_x_lo     = (sp_max * 3)   ; X coordinate subpixels (used for things like crystal hearts for smooth bounceback)
 sp_y        = (sp_max * 4)   ; Y coordinate
 sp_y_lo     = (sp_max * 5)   ; Y coordinate subpixels
@@ -322,6 +322,7 @@ plrheight   = $0A   ; player hitbox height - 10 pixels wide
 maxdashes   = 1     ; TODO: change to 2
 defdashtime = 12    ; time to perform a dash
 dashchrgtm  = 2     ; time to charge the dash (after this, the dash direction is checked)
+dashgrndtm  = 6     ; time to wait until the grounded check should be performed
 maxwalkad   = $40   ; maximum walk approach delta in subpixels
 dragamount  = $47   ; drag amount per frame (around 17 px/fr^2 in Celeste)
 superjmphhi = $04   ; super jump boost pixel part
