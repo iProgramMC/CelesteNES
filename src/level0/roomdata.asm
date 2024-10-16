@@ -14,12 +14,12 @@ level0_r1_p:
 	.byte $01,$00,$00,$00,$00,$00,$5F,$55
 	.byte $04,$FF
 level0_r1_e:
-	.byte $00,$80,$01
-	.byte $40,$80,$01
-	.byte $60,$80,$FF
-	.byte $80,$80,$03
+	.byte $70,$70,$09
+	.byte $C0,$98,$01
+	.byte $D0,$40,$FF
 	.byte $FE
 	.byte $00,$40,$08
+	.byte $60,$98,$03
 	.byte $FF
 level0_r1_t:
 	.byte $D3,$40,$05,$13,$C8,$93,$41,$05

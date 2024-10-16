@@ -229,3 +229,7 @@ gm_update_particle:
 	lda #0
 	sta sprspace+sp_kind, x
 :	rts
+
+gm_update_box:
+	; TODO: Update bounding box information here.
+	rts

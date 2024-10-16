@@ -76,6 +76,17 @@ gm_draw_key:
 	lda #$DE
 	sta temp7
 	jmp gm_draw_common
+
+gm_draw_box:
+	jsr gm_update_box
+	lda #$02
+	sta temp5
+	sta temp8
+	lda #$D4
+	sta temp6
+	lda #$D6
+	sta temp7
+	jmp gm_draw_common
 	
 gm_draw_points:
 	lda #$02
@@ -204,6 +215,7 @@ gm_entjtable_lo:
 	.byte <gm_draw_refillhold
 	.byte <gm_draw_points
 	.byte <level0_intro_crusher
+	.byte <gm_draw_box
 
 gm_entjtable_hi:
 	.byte $00
@@ -215,6 +227,7 @@ gm_entjtable_hi:
 	.byte >gm_draw_refillhold
 	.byte >gm_draw_points
 	.byte >level0_intro_crusher
+	.byte >gm_draw_box
 
 gm_allocate_palettes:
 	; clear the memory related to palette allocation.

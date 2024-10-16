@@ -89,10 +89,11 @@ e_strawb    = $01
 e_refill    = $02
 e_spring    = $03
 e_key       = $04
-e_particle  = $05
-e_refillhd  = $06
-e_points    = $07
-e_l0introcr = $08
+e_particle  = $05 ; INTERNAL: shatter particle
+e_refillhd  = $06 ; INTERNAL: place holder for refill
+e_points    = $07 ; INTERNAL: points when a strawberry is collected
+e_l0introcr = $08 ; level 0 intro crusher
+e_box       = $09 ; box with collision against the player
 
 ; Entity types that turn into other entities on load
 e_rerefill  = $FF ; refill with respawn flag set
