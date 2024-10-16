@@ -27,6 +27,10 @@ gm_leaveroomR:
 	rts                      ; no warp was assigned there so return
 :	jsr gm_set_room
 	
+	lda trarwrhead
+	sta arwrhead
+	sta ntwrhead
+	
 	; load the room beginning pixel
 	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)
 	sta roombeglo2
@@ -67,9 +71,6 @@ gm_roomRtransdone:
 	lda camera_x
 	and #%11111100
 	sta camera_x
-	ldx trarwrhead
-	stx arwrhead
-	stx ntwrhead
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
 	ldy #4

@@ -203,6 +203,7 @@ gm_entjtable_lo:
 	.byte <gm_draw_particle
 	.byte <gm_draw_refillhold
 	.byte <gm_draw_points
+	.byte <level0_intro_crusher
 
 gm_entjtable_hi:
 	.byte $00
@@ -213,6 +214,7 @@ gm_entjtable_hi:
 	.byte >gm_draw_particle
 	.byte >gm_draw_refillhold
 	.byte >gm_draw_points
+	.byte >level0_intro_crusher
 
 gm_allocate_palettes:
 	; clear the memory related to palette allocation.
@@ -334,8 +336,27 @@ gm_unload_os_ents:
 ; ** SUBROUTINE: gm_draw_entities
 ; desc: Draws visible entities to the screen.
 gm_draw_entities:
+	lda #1
+	bit framectr
+	
+	beq @evenFrame
+	
+	; odd frame
+	ldx #15
+@loopOdd:
+	lda sprspace+sp_kind, x
+	beq :+             ; this is an empty entity slot. waste no time
+	stx temp1
+	jsr gm_draw_ent_call
+	ldx temp1
+:	dex
+	cpx #$FF
+	bne @loopOdd
+	rts
+	
+@evenFrame:
 	ldx #0
-gm_draw_ents_loop:
+@loopEven:
 	lda sprspace+sp_kind, x
 	beq :+             ; this is an empty entity slot. waste no time
 	stx temp1
@@ -343,7 +364,7 @@ gm_draw_ents_loop:
 	ldx temp1
 :	inx
 	cpx #sp_max
-	bne gm_draw_ents_loop
+	bne @loopEven
 	rts
 
 ; List of entity palette IDs

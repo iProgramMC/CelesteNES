@@ -4,3 +4,4 @@
 
 .include "metatile.asm"
 .include "roomdata.asm"
+.include "entity.asm"

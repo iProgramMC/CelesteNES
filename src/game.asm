@@ -151,6 +151,7 @@ gm_game_clear_wx:
 	stx wjumpcoyote
 	stx roombeglo
 	stx roombeghi
+	stx roombeglo2
 	stx plrtrahd
 	stx plrstrawbs
 	dex

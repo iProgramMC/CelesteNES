@@ -76,6 +76,11 @@ sp_part_timer = sp_entspec4
 sp_part_chrti = sp_entspec5
 sp_part_chrat = sp_entspec6
 
+sp_l0ic_state = sp_entspec1  ; 0 - hanging, 1 - falling, 2 - fallen
+sp_l0ic_timer = sp_entspec2
+sp_l0ic_vel_y = sp_entspec3
+sp_l0ic_vsu_y = sp_entspec4
+
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
 ;                 and LEVELEDITOR\MainGame.cs (GetByteFromString)
@@ -87,6 +92,7 @@ e_key       = $04
 e_particle  = $05
 e_refillhd  = $06
 e_points    = $07
+e_l0introcr = $08
 
 ; Entity types that turn into other entities on load
 e_rerefill  = $FF ; refill with respawn flag set
@@ -266,7 +272,9 @@ g2_flstrowU = $01   ; flush generated rows up
 g2_flstpalU = $02   ; flush generated palette columns up
 g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything
-g2_clearcol = $10   ; clear two columns at ntwrhead with BLACK.
+g2_clearcol = $10   ; clear two columns at ntwrhead with blank.
+g2_clrcru   = $20   ; clear the intro crusher's tiles to blank (entity index in l0crshidx)
+g2_setcru   = $40   ; set the intro crusher's tiles (entity index in l0crshidx)
 lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
@@ -520,6 +528,9 @@ forcemovext = $008B
 forcemovex  = $008C
 quaketimer  = $008D
 quakeflags  = $008E ; same as controller flags btw
+l0crshidx   = $008F
+l0crshpalo  = $0090 ; level 0 crusher ppu address low
+l0crshpahi  = $0091 ; level 0 crusher ppu address high
 
 ;audaddrlo   = $0072
 ;audaddrhi   = $0073

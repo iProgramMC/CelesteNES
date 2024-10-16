@@ -14,6 +14,7 @@ metatile_palette:
 	.res   2, $1 ; Bridge Pole
 	.res   7, $0 ; Bridge
 	.res   6, $1 ; Bridge Pole
+	.res   1, $2 ; Blank Tile for Intro Crusher
 
 ; this is only used for the level editor
 ;

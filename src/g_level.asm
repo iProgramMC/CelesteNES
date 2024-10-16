@@ -1,6 +1,5 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-
 ; ** SUBROUTINE: h_comp_addr
 ; desc:    Computes the address of the 64 byte row of tiles into lvladdr.
 ; arguments:

@@ -40,11 +40,12 @@
 	.byte $F3,$F4,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FD,$CD,$CE ; House Layer 5
 	.byte $01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F ; House Layer 6
 	.byte $2F,$2D,$2E,$14,$15,$16,$17,$18,$19,$1A,$1B,$1C,$1D,$1E,$1F ; House Layer 7
-	.byte $CB,$BB ; House Addenda
+	.byte $CB,$BB         ; House Addenda
 	.byte $10,$11,$12,$13,$24,$25,$26,$27,$28,$29,$2A,$2B ; Bridge 1
 	.byte $3C,$3D,$7E,$7F,$BE,$BF,$CF,$D2,$D0,$D1,$E0,$E1 ; Bridge 2
-	.byte $F0,$F1,$A8 ; Bridge 3
+	.byte $F0,$F1,$A8     ; Bridge 3
 	.byte $E2,$F2,$3E,$2C,$A0,$A1 ; Bridge Pole
+	.byte $00             ; Blank Tile for Intro Crusher
 
 .res metatile_info - *, $FF
 	.byte ct_none                ; Air
@@ -59,5 +60,6 @@
 	.res   2, ct_none            ; Bridge Pole
 	.res   7, ct_full            ; Bridge
 	.res   6, ct_none            ; Bridge Pole
+	.res   1, ct_none            ; Blank Tile for Intro Crusher
 
 .res level_data - *, $00

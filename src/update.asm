@@ -169,12 +169,29 @@ nmi_game:
 @tryclear:
 	lda #g2_clearcol
 	bit gamectrl2
-	beq :+
+	beq @tryclricr
 	eor gamectrl2
 	sta gamectrl2
 	jsr h_clear_2cols
+	
+@tryclricr:
+	lda #g2_clrcru
+	bit gamectrl2
+	beq @tryseticr
+	eor gamectrl2
+	sta gamectrl2
+	jsr level0_nmi_clear_icr
+	
+@tryseticr:
+	lda #g2_setcru
+	bit gamectrl2
+	beq @end
+	eor gamectrl2
+	sta gamectrl2
+	jsr level0_nmi_set_icr
 
-:	jmp nmi_gamemodeend
+@end:
+	jmp nmi_gamemodeend
 
 nmi_anims_update:
 	; Update the current player sprite bank.
