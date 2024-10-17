@@ -47,18 +47,20 @@ mmc3bk_prg1 = 7   ; prg1 controls $A000-$BFFF
 sp_max      = $10   ; maximum of 16 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
-sp_x        = (sp_max * 1)   ; X coordinate within a page
-;sp_x_hi     = (sp_max * 2)   ; X coordinate on the loaded game world
+sp_flags    = (sp_max * 1)   ; flags
+sp_x        = (sp_max * 2)   ; X coordinate within a page
 sp_x_lo     = (sp_max * 3)   ; X coordinate subpixels (used for things like crystal hearts for smooth bounceback)
 sp_y        = (sp_max * 4)   ; Y coordinate
 sp_y_lo     = (sp_max * 5)   ; Y coordinate subpixels
 sp_x_pg     = (sp_max * 6)   ; X coordinate in pages
-sp_entspec1 = (sp_max * 7)   ; entity specific 1
-sp_entspec2 = (sp_max * 8)   ; entity specific 2
-sp_entspec3 = (sp_max * 9)   ; entity specific 3
-sp_entspec4 = (sp_max *10)   ; entity specific 4
-sp_entspec5 = (sp_max *11)   ; entity specific 5
-sp_entspec6 = (sp_max *12)   ; entity specific 6
+sp_wid      = (sp_max * 7)   ; sprite hit box width / entity specific
+sp_hei      = (sp_max * 8)   ; sprite hit box height / entity specific
+sp_entspec1 = (sp_max * 9)   ; entity specific 1
+sp_entspec2 = (sp_max *10)   ; entity specific 2
+sp_entspec3 = (sp_max *11)   ; entity specific 3
+sp_entspec4 = (sp_max *12)   ; entity specific 4
+sp_entspec5 = (sp_max *13)   ; entity specific 5
+sp_entspec6 = (sp_max *14)   ; entity specific 6
 
 ; synonyms for entspec fields
 sp_oscill_timer = sp_entspec1
@@ -80,6 +82,9 @@ sp_l0ic_state = sp_entspec1  ; 0 - hanging, 1 - falling, 2 - fallen
 sp_l0ic_timer = sp_entspec2
 sp_l0ic_vel_y = sp_entspec3
 sp_l0ic_vsu_y = sp_entspec4
+
+; entity flags
+ef_collidable = $01
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
@@ -533,6 +538,14 @@ quakeflags  = $008E ; same as controller flags btw
 l0crshidx   = $008F
 l0crshpalo  = $0090 ; level 0 crusher ppu address low
 l0crshpahi  = $0091 ; level 0 crusher ppu address high
+
+; todo: replace with regular temps.
+plattemp1   = $0092
+plattemp2   = $0093
+plattemp3   = $0094
+plattemp4   = $0095
+plattemp5   = $0096
+plattemp6   = $0097
 
 ;audaddrlo   = $0072
 ;audaddrhi   = $0073

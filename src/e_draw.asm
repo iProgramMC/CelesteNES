@@ -79,9 +79,11 @@ gm_draw_key:
 
 gm_draw_box:
 	jsr gm_update_box
-	lda #$02
+	lda $F6
 	sta temp5
 	sta temp8
+	lda #0
+	sta $F6
 	lda #$D4
 	sta temp6
 	lda #$D6
@@ -282,7 +284,7 @@ gm_allocpal_loop:
 ; desc:     Checks if an entity is off of the screen.
 ; parms:    Y - entity index
 ; returns:  ZF - entity is off-screen
-; clobbers: A, X. not Y
+; clobbers: A, X, temp3, temp4. not Y
 gm_check_ent_onscreen:
 	sec
 	lda sprspace+sp_x, x

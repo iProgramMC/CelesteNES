@@ -907,18 +907,24 @@ gm_fellout:           ; if the player fell out of the world
 	rts
 
 gm_checkceil:
+	jsr gm_collentceil
+	bne @snapToCeilArbitrary
+	
 	jsr gm_gettopy
 	tay
 	sty y_crd_temp
+	
 	ldx temp1         ; check block 1
 	lda #gc_ceil
 	jsr gm_collide
 	bne @snapToCeil
+	
 	ldy y_crd_temp    ; check block 2
 	ldx temp2
 	lda #gc_ceil
 	jsr gm_collide
 	bne @snapToCeil
+	
 	rts
 
 @snapToCeil:
@@ -927,6 +933,8 @@ gm_checkceil:
 	asl
 	asl
 	asl               ; turn it into a screen coordinate
+
+@snapToCeilArbitrary: ; snap to a ceiling whose position is arbitrary (
 	adc #(8-(16-plrheight)) ; add the height of the tile, minus the top Y offset of the player hitbox
 	sta player_y
 	lda #0            ; set the subpixel to zero
@@ -937,6 +945,9 @@ gm_checkceil:
 	rts
 
 gm_checkfloor:
+	jsr gm_collentfloor
+	bne @snapToFloorArbitrary
+	
 	jsr gm_getbottomy_f
 	tay               ; keep the Y position into the Y register
 	sty y_crd_temp
@@ -945,6 +956,7 @@ gm_checkfloor:
 	lda #gc_floor
 	jsr gm_collide
 	bne @snapToFloor
+	
 	ldy y_crd_temp    ; check block 2
 	ldx temp2
 	lda #gc_floor
@@ -955,6 +967,8 @@ gm_checkfloor:
 @snapToFloor:
 	lda #%11111000    ; round player's position to lower multiple of 8
 	and player_y
+	
+@snapToFloorArbitrary:; snap to floor where the 
 	sta player_y
 	lda #0            ; set the subpixel to zero
 	sta player_sp_y
@@ -1196,6 +1210,127 @@ gm_camxlimited:
 	ora gamectrl
 	sta gamectrl
 :	rts
+
+; ** SUBROUTINE: gm_collentfloor
+; desc: Checks collision with entities on the ceiling.
+; note: can't use: temp1, temp2
+; note: Currently this only detects the first sprite the player has collided with,
+;       not the closest.
+; returns: ZF - the player has collided (BNE). A - the Y position of the floor minus 16
+gm_collentfloor:
+	ldy #0
+@loop:
+	lda #ef_collidable
+	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
+	beq @noHitBox
+	
+	; also check the type
+	lda sprspace+sp_kind, y
+	beq @noHitBox
+	
+	; check if the bottom of the player's hit box is between the top and bottom of this platform.
+	lda player_y
+	clc
+	adc #$10
+	sta temp4
+	
+	lda sprspace+sp_y, y
+	cmp temp4
+	bcc :+                    ; sprites[y].y <= player_y + $10
+	beq :+
+	bne @noHitBox
+
+:	clc
+	adc sprspace+sp_hei, y
+	cmp temp4
+	bcc @noHitBox             ; sprites[y].y + sprites[y].height <= player_y + $10
+	
+	; transform the X position into a screen coordinate
+	; The operation:
+	; (spriteX + spriteWidth - cameraX - playerX)
+	
+	; goal is to obtain a range (0, spriteWidth) from spriteX, playerX, cameraX.
+	
+	; plattemp1 : left edge.
+	; plattemp2 : right edge
+	
+	; TODO: Needs more testing, like, a lot more testing.
+	
+	; LEFT edge.
+	lda sprspace+sp_x, y
+	sbc camera_x
+	sta plattemp1
+	
+	lda sprspace+sp_x_pg, y
+	sbc camera_x_pg
+	sta temp4
+	bmi @isMinus              ; the difference is <0, therefore partly offscreen. set left pos to 0.
+	bne @noHitBox             ; the difference is >0, therefore off screen.
+	beq @isNotMinus           ; the difference is =0. Skip the code below. I dislike that I have to do this.
+	
+@isMinus:
+	lda #0
+	sta plattemp1
+@isNotMinus:
+	
+	; RIGHT edge.
+	lda sprspace+sp_x, y
+	clc
+	adc sprspace+sp_wid, y
+	sta plattemp2
+	
+	lda sprspace+sp_x_pg, y
+	adc #0
+	sta temp4
+	; do I need to correct anything here?!
+	
+	lda plattemp2
+	sec
+	sbc camera_x
+	sta plattemp2
+	
+	lda temp4
+	sbc camera_x_pg
+	bmi @noHitBox            ; the entire hitbox went over the left edge, therefore entirely off screen.
+	beq @dontSetMax
+	lda #$FF
+	sta plattemp2
+	
+@dontSetMax:
+	
+	; ok. now do the checks themselves.
+	lda player_x
+	clc
+	adc #(8+plrwidth/2)
+	cmp plattemp1
+	bcc @noHitBox            ; playerX + 8 + plrWidth/2 < platformLeftEdge
+	
+	lda player_x
+	sec
+	adc #(8-plrwidth/2)
+	cmp plattemp2
+	bcc @haveHitBox          ; playerX + 8 - plrWidth/2 + 1 >= platformRightEdge
+	
+@noHitBox:
+	iny
+	cpy #sp_max
+	bne @loop
+	; note: here, the zero flag is set. Means there was no collision
+	rts
+
+@haveHitBox:
+	; Have a hitbox!
+	lda sprspace+sp_y, y
+	sec
+	sbc #$10
+	ldx #1                   ; load X to 1 to clear the zero flag. probably superfluous
+	rts
+
+; ** SUBROUTINE: gm_collentceil
+
+gm_collentceil:
+	lda #0
+	rts
 
 gm_dash_lock:
 	ldx #0

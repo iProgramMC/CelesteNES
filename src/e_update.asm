@@ -227,5 +227,16 @@ gm_update_particle:
 :	rts
 
 gm_update_box:
-	; TODO: Update bounding box information here.
+	ldx temp1
+	
+	; set the collidable flag
+	lda #ef_collidable
+	ora sprspace+sp_flags, x
+	sta sprspace+sp_flags, x
+	
+	; and now the width / height
+	lda #32
+	sta sprspace+sp_wid, x
+	sta sprspace+sp_hei, x
+	
 	rts

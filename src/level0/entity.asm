@@ -118,7 +118,7 @@ level0_intro_crusher:
 	sta sprspace+sp_y, x
 	inc sprspace+sp_l0ic_state, x
 	
-	lda #$F
+	lda #$7
 	sta quakeflags
 	sta quaketimer
 	
