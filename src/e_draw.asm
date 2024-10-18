@@ -79,11 +79,9 @@ gm_draw_key:
 
 gm_draw_box:
 	jsr gm_update_box
-	lda $F6
+	lda #3
 	sta temp5
 	sta temp8
-	lda #0
-	sta $F6
 	lda #$D4
 	sta temp6
 	lda #$D6

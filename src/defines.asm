@@ -55,12 +55,13 @@ sp_y_lo     = (sp_max * 5)   ; Y coordinate subpixels
 sp_x_pg     = (sp_max * 6)   ; X coordinate in pages
 sp_wid      = (sp_max * 7)   ; sprite hit box width / entity specific
 sp_hei      = (sp_max * 8)   ; sprite hit box height / entity specific
-sp_entspec1 = (sp_max * 9)   ; entity specific 1
-sp_entspec2 = (sp_max *10)   ; entity specific 2
-sp_entspec3 = (sp_max *11)   ; entity specific 3
-sp_entspec4 = (sp_max *12)   ; entity specific 4
-sp_entspec5 = (sp_max *13)   ; entity specific 5
-sp_entspec6 = (sp_max *14)   ; entity specific 6
+sp_vel_x    = (sp_max * 9)   ; sprite velocity X / entity specific (used by gm_ent_move_x)
+sp_vel_y    = (sp_max *10)   ; sprite velocity Y / entity specific (used by gm_ent_move_y)
+sp_vel_x_lo = (sp_max *11)   ; sprite velocity X low / entity specific (used by gm_ent_move_x)
+sp_vel_y_lo = (sp_max *12)   ; sprite velocity X low / entity specific (used by gm_ent_move_y)
+sp_entspec1 = (sp_max *13)   ; entity specific 1
+sp_entspec2 = (sp_max *14)   ; entity specific 2
+sp_entspec3 = (sp_max *15)   ; entity specific 3
 
 ; synonyms for entspec fields
 sp_oscill_timer = sp_entspec1
@@ -72,16 +73,16 @@ sp_points_count = sp_entspec1
 sp_points_timer = sp_entspec2
 
 sp_part_entty = sp_entspec1
-sp_part_vel_x = sp_entspec2
-sp_part_vel_y = sp_entspec3
-sp_part_timer = sp_entspec4
-sp_part_chrti = sp_entspec5
-sp_part_chrat = sp_entspec6
+sp_part_vel_x = sp_vel_x
+sp_part_vel_y = sp_vel_y
+sp_part_timer = sp_entspec2
+sp_part_chrti = sp_wid
+sp_part_chrat = sp_hei
 
 sp_l0ic_state = sp_entspec1  ; 0 - hanging, 1 - falling, 2 - fallen
 sp_l0ic_timer = sp_entspec2
-sp_l0ic_vel_y = sp_entspec3
-sp_l0ic_vsu_y = sp_entspec4
+sp_l0ic_vel_y = sp_vel_y
+sp_l0ic_vsu_y = sp_vel_y_lo
 
 ; entity flags
 ef_collidable = $01
@@ -542,10 +543,7 @@ l0crshpahi  = $0091 ; level 0 crusher ppu address high
 ; todo: replace with regular temps.
 plattemp1   = $0092
 plattemp2   = $0093
-plattemp3   = $0094
-plattemp4   = $0095
-plattemp5   = $0096
-plattemp6   = $0097
+entground   = $0094 ; Entity ID the player is standing on.
 
 ;audaddrlo   = $0072
 ;audaddrhi   = $0073

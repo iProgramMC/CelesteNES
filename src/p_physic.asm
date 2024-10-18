@@ -997,6 +997,7 @@ gm_leaveroomR_:
 gm_applyx:
 	lda player_x
 	sta player_xo
+	
 	clc
 	lda player_vl_x
 	rol                      ; store the upper bit in carry
@@ -1004,46 +1005,53 @@ gm_applyx:
 	adc #0                   ; add the carry bit if needed
 	eor #$FF                 ; flip it because we need the reverse
 	tay                      ; This is the "screenfuls" part that we need to add to the player position
+	
 	lda playerctrl
 	and #(pl_pushing^$FF)
 	sta playerctrl           ; clear the pushing flag - it will be set on collision
+	
 	clc
 	lda player_vs_x
 	adc player_sp_x
 	sta player_sp_x
 	lda player_vl_x
 	adc player_x
-	bcs gm_nocheckoffs       ; If the addition didn't overflow, we need to detour.
+	
+	bcs @dontCheckOffs       ; If the addition didn't overflow, we need to detour.
 	ldx player_vl_x          ; check if the velocity was positive
-	bpl gm_nocheckoffs       ; yeah, of course it wouldn't overflow, it's positive!
+	bpl @dontCheckOffs       ; yeah, of course it wouldn't overflow, it's positive!
 	lda #0                   ; we have an underflow, means the player is trying to leave the screen
 	ldy #0                   ; through the left side. we can't let that happen!
 	clc                      ; zero out the player's new position
-gm_nocheckoffs:
+@dontCheckOffs:
 	sta player_x
 	jsr gm_gettopy
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
 	sta temp2                ; temp2 - bottom Y
 	lda player_vl_x
-	bmi gm_checkleft
-gm_checkright:
+	bmi @checkLeft
+
+@checkRight:
 	lda player_x
 	cmp #$F0
 	bcs gm_leaveroomR_       ; try to leave the room
+	jsr gm_collentright
+	bne @collidedRight
 	jsr gm_getrightx
 	tax
 	stx y_crd_temp           ; note: x_crd_temp is clobbered by gm_collide!
 	ldy temp1
 	lda #gc_right
 	jsr gm_collide
-	bne gm_collright         ; if collided, move a pixel back and try again
+	bne @collidedRight       ; if collided, move a pixel back and try again
 	ldy temp2                ;  snapping to the nearest tile is a BIT more complicated so
 	ldx y_crd_temp           ;  I will not bother
 	lda #gc_right
 	jsr gm_collide
-	beq gm_checkdone
-gm_collright:
+	beq @checkDone
+
+@collidedRight:
 	ldx #0                   ; set the velocity to a minuscule value to
 	stx player_vl_x          ; ensure the player doesn't look idle
 	inx
@@ -1055,26 +1063,28 @@ gm_collright:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
-	beq gm_checkdone         ; if the player X is zero... we're stuck inside a wall
+	beq @checkDone           ; if the player X is zero... we're stuck inside a wall
 	dex
 	stx player_x
 	ldx #$FF                 ; set the subpixel to $FF.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp gm_checkright        ; !! note: in case of a potential clip, this might cause lag frames!
-gm_checkleft:
+	jmp @checkRight          ; !! note: in case of a potential clip, this might cause lag frames!
+
+@checkLeft:
 	jsr gm_getleftx
 	tax
 	stx y_crd_temp
 	ldy temp1
 	lda #gc_left
 	jsr gm_collide
-	bne gm_collleft          ; if collided, move a pixel to the right & try again
+	bne @collidedLeft        ; if collided, move a pixel to the right & try again
 	ldy temp2
 	ldx y_crd_temp
 	lda #gc_left
 	jsr gm_collide
-	beq gm_checkdone
-gm_collleft:
+	beq @checkDone
+
+@collidedLeft:
 	ldx #$FF                 ; set the velocity to a minuscule value to
 	stx player_vl_x          ; ensure the player doesn't look idle
 	stx player_vs_x
@@ -1086,13 +1096,14 @@ gm_collleft:
 	sta wjumpcoyote
 	ldx player_x
 	cpx #$F0                 ; compare to [screenWidth-16]
-	bcs gm_checkdone         ; if bigger or equal, just bail, we might be stuck in a wall
+	bcs @checkDone           ; if bigger or equal, just bail, we might be stuck in a wall
 	inx
 	stx player_x
 	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp gm_checkleft
-gm_checkdone:
+	jmp @checkLeft
+
+@checkDone:
 	lda player_vl_x
 	bpl gm_scroll_r_cond    ; if moving positively, scroll if needed
 	rts
@@ -1211,49 +1222,12 @@ gm_camxlimited:
 	sta gamectrl
 :	rts
 
-; ** SUBROUTINE: gm_collentfloor
-; desc: Checks collision with entities on the ceiling.
-; note: can't use: temp1, temp2
-; note: Currently this only detects the first sprite the player has collided with,
-;       not the closest.
-; returns: ZF - the player has collided (BNE). A - the Y position of the floor minus 16
-gm_collentfloor:
-	ldy #0
-@loop:
-	lda #ef_collidable
-	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
-	beq @noHitBox
-	
-	; also check the type
-	lda sprspace+sp_kind, y
-	beq @noHitBox
-	
-	; check if the bottom of the player's hit box is between the top and bottom of this platform.
-	lda player_y
-	clc
-	adc #$10
-	sta temp4
-	
-	lda sprspace+sp_y, y
-	cmp temp4
-	bcc :+                    ; sprites[y].y <= player_y + $10
-	beq :+
-	bne @noHitBox
-
-:	clc
-	adc sprspace+sp_hei, y
-	cmp temp4
-	bcc @noHitBox             ; sprites[y].y + sprites[y].height <= player_y + $10
-	
-	; transform the X position into a screen coordinate
-	; The operation:
-	; (spriteX + spriteWidth - cameraX - playerX)
-	
-	; goal is to obtain a range (0, spriteWidth) from spriteX, playerX, cameraX.
-	
-	; plattemp1 : left edge.
-	; plattemp2 : right edge
-	
+; ** SUBROUTINE: gm_calchorzplat
+; desc: Calculates the edges of a platform entity in plattemp1, plattemp2, screen coordinates.
+;       These can be used to check whether the player is standing on a platform.
+; arguments: Y register - the index of the Entity
+; returns:   plattemp1 - Left edge, plattemp2 - Right edge, ZF - Are they valid
+gm_calchorzplat:
 	; TODO: Needs more testing, like, a lot more testing.
 	
 	; LEFT edge.
@@ -1282,7 +1256,6 @@ gm_collentfloor:
 	lda sprspace+sp_x_pg, y
 	adc #0
 	sta temp4
-	; do I need to correct anything here?!
 	
 	lda plattemp2
 	sec
@@ -1292,16 +1265,59 @@ gm_collentfloor:
 	lda temp4
 	sbc camera_x_pg
 	bmi @noHitBox            ; the entire hitbox went over the left edge, therefore entirely off screen.
-	beq @dontSetMax
+	beq :+                   ; if it's >0, means the edge wrapped over to outside the screen, therefore load the max
 	lda #$FF
 	sta plattemp2
+:	lda #1
+	rts
 	
-@dontSetMax:
+@noHitBox:
+	lda #0
+	rts
+
+; ** SUBROUTINE: gm_collentfloor
+; desc: Checks ground collision with entities.
+; note: can't use: temp1, temp2
+; note: Currently this only detects the first sprite the player has collided with,
+;       not the closest.
+; returns: ZF - the player has collided (BNE). A - the Y position of the floor minus 16
+gm_collentfloor:
+	ldy #$FF
+	sty entground
+	iny
+@loop:
+	lda #ef_collidable
+	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
+	beq @noHitBox
+	
+	; also check the type
+	lda sprspace+sp_kind, y
+	beq @noHitBox
+	
+	; check if the bottom of the player's hit box is between the top and bottom of this platform.
+	lda player_y
+	clc
+	adc #$10
+	sta temp4
+	
+	lda sprspace+sp_y, y
+	cmp temp4
+	bcc :+                    ; sprites[y].y <= player_y + $10
+	beq :+
+	bne @noHitBox
+
+:	clc
+	adc sprspace+sp_hei, y
+	cmp temp4
+	bcc @noHitBox             ; sprites[y].y + sprites[y].height <= player_y + $10
+	
+	jsr gm_calchorzplat
+	beq @noHitBox
 	
 	; ok. now do the checks themselves.
 	lda player_x
 	clc
-	adc #(8+plrwidth/2)
+	adc #(7+plrwidth/2)
 	cmp plattemp1
 	bcc @noHitBox            ; playerX + 8 + plrWidth/2 < platformLeftEdge
 	
@@ -1320,6 +1336,7 @@ gm_collentfloor:
 
 @haveHitBox:
 	; Have a hitbox!
+	sty entground
 	lda sprspace+sp_y, y
 	sec
 	sbc #$10
@@ -1327,8 +1344,82 @@ gm_collentfloor:
 	rts
 
 ; ** SUBROUTINE: gm_collentceil
-
+; desc: Checks ceiling collision with entities.
+; note: can't use: temp1, temp2
+; note: Currently this only detects the first sprite the player has collided with,
+;       not the closest.
+; returns: ZF - the player has collided (BNE). A - ceilingY + entityHeight - 8
 gm_collentceil:
+	ldy #$FF
+	sty entground
+	iny
+@loop:
+	lda #ef_collidable
+	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
+	beq @noHitBox
+	
+	; also check the type
+	lda sprspace+sp_kind, y
+	beq @noHitBox
+	
+	; check if the top of the player's hit box is between the top and bottom of this platform.
+	lda player_y
+	clc
+	adc #(16-plrheight)
+	sta temp4
+	
+	lda sprspace+sp_y, y
+	cmp temp4
+	bcc :+                    ; sprites[y].y <= player_y
+	beq :+
+	bne @noHitBox
+
+:	clc
+	adc sprspace+sp_hei, y
+	cmp temp4
+	bcc @noHitBox             ; sprites[y].y + sprites[y].height <= player_y
+	
+	jsr gm_calchorzplat
+	beq @noHitBox
+	
+	; ok. now do the checks themselves.
+	lda player_x
+	clc
+	adc #(7+plrwidth/2)
+	cmp plattemp1
+	bcc @noHitBox            ; playerX + 8 + plrWidth/2 < platformLeftEdge
+	
+	lda player_x
+	sec
+	adc #(8-plrwidth/2)
+	cmp plattemp2
+	bcc @haveHitBox          ; playerX + 8 - plrWidth/2 + 1 >= platformRightEdge
+	
+@noHitBox:
+	iny
+	cpy #sp_max
+	bne @loop
+	; note: here, the zero flag is set. Means there was no collision
+	rts
+
+@haveHitBox:
+	; Have a hitbox!
+	sty entground
+	lda sprspace+sp_y, y
+	clc
+	adc sprspace+sp_hei, y
+	sec
+	sbc #$8
+	ldx #1                   ; load X to 1 to clear the zero flag. probably superfluous
+	rts
+
+; ** SUBROUTINE: gm_collentright
+; desc: Checks ceiling collision with entities.
+; note: can't use: temp1, temp2
+; note: Currently this only detects the first sprite the player has collided with,
+;       not the closest.
+; returns: ZF - the player has collided (BNE). A - ceilingY + entityHeight - 8
+gm_collentright:
 	lda #0
 	rts
 

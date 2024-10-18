@@ -26,6 +26,17 @@ level0_intro_crusher:
 	lda #0
 	sta temp7
 	ldx temp1
+	
+	; This sprite is collidable at all times.
+	;lda #ef_collidable
+	;ora sprspace+sp_flags, x
+	;sta sprspace+sp_flags, x
+	;
+	;lda #56
+	;sta sprspace+sp_wid, x
+	;lda #32
+	;sta sprspace+sp_hei, x
+	
 	lda sprspace+sp_l0ic_state, x
 	; cmp #1
 	; bne @returnEarly
@@ -303,6 +314,9 @@ level0_intro_crusher:
 	cpx #7
 	bne @loop
 	
+	; need to restore X since we proceed to use it after calling this func
+	ldx l0crshidx
+	
 	rts
 
 @setTilesForIC:
@@ -339,6 +353,8 @@ level0_intro_crusher:
 	inx
 	cpx #7
 	bne @loop1
+	
+	; no need to restore X as there's a return immediately after
 	
 	rts
 

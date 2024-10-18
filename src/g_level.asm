@@ -835,11 +835,15 @@ h_generents_spotfound:
 	sta sprspace+sp_entspec1, x
 	sta sprspace+sp_entspec2, x
 	sta sprspace+sp_entspec3, x
-	sta sprspace+sp_entspec4, x
-	sta sprspace+sp_entspec5, x
-	sta sprspace+sp_entspec6, x
 	sta sprspace+sp_x_lo, x
 	sta sprspace+sp_y_lo, x
+	sta sprspace+sp_wid, x
+	sta sprspace+sp_hei, x
+	sta sprspace+sp_vel_x, x
+	sta sprspace+sp_vel_y, x
+	sta sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_flags, x
 	
 	lda temp3
 	cmp #e_rerefill
