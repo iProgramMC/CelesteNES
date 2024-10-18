@@ -101,6 +101,9 @@ gm_spawn_points:
 	lda #e_points
 	sta sprspace+sp_kind, y
 	
+	lda #0
+	sta sprspace+sp_flags, y
+	
 	clc
 	lda player_x
 	adc camera_x
