@@ -25,6 +25,11 @@ gm_spawn_particle:
 	lda #e_particle
 	sta sprspace+sp_kind, y
 	
+	lda #0
+	sta sprspace+sp_flags, y
+	sta sprspace+sp_wid, y
+	sta sprspace+sp_hei, y
+	
 	ldx temp1
 	lda sprspace+sp_kind, x
 	sta sprspace+sp_part_entty, y

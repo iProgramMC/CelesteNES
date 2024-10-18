@@ -1033,11 +1033,20 @@ gm_applyx:
 	bmi @checkLeft
 
 @checkRight:
+	lda #(maxvelxhi+2)
+	sta temp7
+
+@checkRightLoop:
+	dec temp7
+	beq @checkDone           ; nope, out of here with your stupid games
+	
 	lda player_x
 	cmp #$F0
 	bcs gm_leaveroomR_       ; try to leave the room
+	
 	jsr gm_collentright
 	bne @collidedRight
+	
 	jsr gm_getrightx
 	tax
 	stx y_crd_temp           ; note: x_crd_temp is clobbered by gm_collide!
@@ -1045,6 +1054,7 @@ gm_applyx:
 	lda #gc_right
 	jsr gm_collide
 	bne @collidedRight       ; if collided, move a pixel back and try again
+	
 	ldy temp2                ;  snapping to the nearest tile is a BIT more complicated so
 	ldx y_crd_temp           ;  I will not bother
 	lda #gc_right
@@ -1056,21 +1066,38 @@ gm_applyx:
 	stx player_vl_x          ; ensure the player doesn't look idle
 	inx
 	stx player_vs_x
+	
 	lda playerctrl
 	ora #pl_pushing
 	and #(pl_wallleft^$FF)   ; the wall wasn't found on the left.
 	sta playerctrl
+	
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
 	beq @checkDone           ; if the player X is zero... we're stuck inside a wall
+	
 	dex
 	stx player_x
 	ldx #$FF                 ; set the subpixel to $FF.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp @checkRight          ; !! note: in case of a potential clip, this might cause lag frames!
+	jmp @checkRightLoop      ; !! note: in case of a potential clip, this might cause lag frames!
+	                         ; loops will be used to avoid this unfortunate case as much as possible.
+;
+
+@checkDone:
+	lda player_vl_x
+	bpl gm_scroll_r_cond    ; if moving positively, scroll if needed
+	rts
 
 @checkLeft:
+	lda #(maxvelxhi+2)
+	sta temp7
+
+@checkLeftLoop:
+	dec temp7
+	beq @checkDone           ; nope, out of here with your stupid games
+	
 	jsr gm_getleftx
 	tax
 	stx y_crd_temp
@@ -1088,10 +1115,11 @@ gm_applyx:
 	ldx #$FF                 ; set the velocity to a minuscule value to
 	stx player_vl_x          ; ensure the player doesn't look idle
 	stx player_vs_x
+	
 	lda playerctrl
-	ora #pl_pushing
-	ora #pl_wallleft         ; the wall was found on the left.
+	ora #(pl_pushing | pl_wallleft) ; the wall was found on the left.
 	sta playerctrl
+	
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
@@ -1101,19 +1129,14 @@ gm_applyx:
 	stx player_x
 	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp @checkLeft
-
-@checkDone:
-	lda player_vl_x
-	bpl gm_scroll_r_cond    ; if moving positively, scroll if needed
-	rts
+	jmp @checkLeftLoop
 
 ; ** SUBROUTINE: gm_checkwjump
 ; desc: Assigns coyote time if wall is detected near the player.
 gm_checkwjump:
 	lda #pl_ground
 	bit playerctrl
-	bne gm_dontsetwcoyote    ; if player is grounded, simply return
+	bne @dontSet             ; if player is grounded, simply return
 	jsr gm_getmidy
 	tay
 	sty y_crd_temp
@@ -1121,26 +1144,26 @@ gm_checkwjump:
 	tax
 	lda #gc_left
 	jsr gm_collide
-	bne gm_setwcoyoteL
+	bne @setL
 	ldy y_crd_temp
 	jsr gm_getrightwjx       ; and now the right tile
 	tax
 	lda #gc_right
 	jsr gm_collide
-	beq gm_dontsetwcoyote
+	beq @dontSet
 	lda playerctrl
 	and #(pl_wallleft^$FF)
 	sta playerctrl           ; set that a wall was found on the RIGHT side
-gm_setwcoyote:
+@set:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
-gm_dontsetwcoyote:
+@dontSet:
 	rts
-gm_setwcoyoteL:
+@setL:
 	lda playerctrl
 	ora #pl_wallleft
 	sta playerctrl           ; set that a wall was found on the LEFT side
-	jmp gm_setwcoyote
+	jmp @set
 
 ; ** SUBROUTINE: gm_scroll_r_cond
 gm_scroll_r_cond:
@@ -1415,7 +1438,7 @@ gm_collentceil:
 
 ; ** SUBROUTINE: gm_collentright
 ; desc: Checks ceiling collision with entities.
-; note: can't use: temp1, temp2
+; note: can't use: temp1, temp2, temp7
 ; note: Currently this only detects the first sprite the player has collided with,
 ;       not the closest.
 ; returns: ZF - the player has collided (BNE). A - ceilingY + entityHeight - 8
