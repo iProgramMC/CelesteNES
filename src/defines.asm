@@ -346,6 +346,7 @@ ct_full     = $01   ; the entire tile has collision
 ct_deadly   = $02   ; the tile is UP spike shaped
 ct_jumpthru = $03   ; the tile is a jump through
 ow_maxlvl   = $07   ; maximum level number
+jtheight       = 3  ; height of jump through blocks
 
 maxfallHI   = (maxfall >> 8)
 maxfallLO   = (maxfall & $FF)
@@ -364,6 +365,16 @@ jumpvelHI   = (((-jumpvel) >> 8) & $FF)
 jumpvelLO   = ((-jumpvel) & $FF)
 sjumpvelHI  = (((-(jumpvel / 2)) >> 8) & $FF)
 sjumpvelLO  = ((-(jumpvel / 2)) & $FF)
+
+; player proportions
+plr_y_bot      = 16
+plr_y_bot_wall = 14 ; for wall checking
+plr_y_top      = (plr_y_bot - plrheight)
+plr_y_mid      = (plr_y_bot_wall - plrheight / 2)
+plr_x_left     = (8 - plrwidth / 2)
+plr_x_right    = (15 - plrwidth / 2)
+plr_x_wj_left  = (plr_x_left  - wjgrace)
+plr_x_wj_right = (plr_x_right + wjgrace)
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM

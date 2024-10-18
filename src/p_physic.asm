@@ -588,7 +588,7 @@ gm_negvely:
 gm_getleftx:
 	clc
 	lda player_x
-	adc #(8-plrwidth/2); determine leftmost hitbox position
+	adc #plr_x_left   ; determine leftmost hitbox position
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -598,8 +598,7 @@ gm_getleftx:
 	lda x_crd_temp
 	ror               ; rotate it into the low position
 	lsr
-	lsr
-	;lsr               ; finish dividing by the tile size
+	lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_getrightx
@@ -610,7 +609,7 @@ gm_getleftx:
 gm_getrightx:
 	clc
 	lda player_x
-	adc #(15-plrwidth/2); determine right hitbox position
+	adc #plr_x_right ; determine right hitbox position
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -630,7 +629,7 @@ gm_getrightx:
 gm_getleftwjx:
 	clc
 	lda player_x
-	adc #(8-plrwidth/2-wjgrace); determine leftmost hitbox position
+	adc #plr_x_wj_left ; determine leftmost hitbox position
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -650,7 +649,7 @@ gm_getleftwjx:
 gm_getrightwjx:
 	clc
 	lda player_x
-	adc #(15+wjgrace-plrwidth/2); determine right hitbox position
+	adc #plr_x_wj_right ; determine right hitbox position
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -670,11 +669,10 @@ gm_getrightwjx:
 gm_gettopy:
 	clc
 	lda player_y
-	adc #(16-plrheight)
+	adc #plr_y_top
 	lsr
 	lsr
 	lsr
-	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_w
@@ -687,25 +685,10 @@ gm_gettopy:
 gm_getbottomy_w:
 	clc
 	lda player_y
-	adc #14
+	adc #plr_y_bot_wall
 	lsr
 	lsr
 	lsr
-	;lsr
-	rts
-
-; ** SUBROUTINE: gm_getbottomy_g
-; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
-;           when checking for collision with ground objects.
-; returns:  A - the Y coordinate
-gm_getbottomy_g:
-	clc
-	lda player_y
-	adc #15
-	lsr
-	lsr
-	lsr
-	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_getmidy
@@ -714,11 +697,10 @@ gm_getbottomy_g:
 gm_getmidy:
 	clc
 	lda player_y
-	adc #(14-plrheight/2)
+	adc #plr_y_mid
 	lsr
 	lsr
 	lsr
-	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_f
@@ -731,11 +713,10 @@ gm_getmidy:
 gm_getbottomy_f:
 	clc
 	lda player_y
-	adc #$10
+	adc #plr_y_bot
 	lsr
 	lsr
 	lsr
-	;lsr
 	rts
 
 ; ** SUBROUTINE: gm_collide
@@ -788,7 +769,7 @@ gm_collidejthru:
 	asl
 	asl               ; it's a pixel position now
 	sec
-	sbc #(16-3)
+	sbc #(plr_y_bot - jtheight)
 	sta temp3
 	ldx player_yo
 	cpx player_y
@@ -1098,6 +1079,9 @@ gm_applyx:
 	dec temp7
 	beq @checkDone           ; nope, out of here with your stupid games
 	
+	jsr gm_collentleft
+	bne @collidedLeft
+	
 	jsr gm_getleftx
 	tax
 	stx y_crd_temp
@@ -1130,40 +1114,6 @@ gm_applyx:
 	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
 	jmp @checkLeftLoop
-
-; ** SUBROUTINE: gm_checkwjump
-; desc: Assigns coyote time if wall is detected near the player.
-gm_checkwjump:
-	lda #pl_ground
-	bit playerctrl
-	bne @dontSet             ; if player is grounded, simply return
-	jsr gm_getmidy
-	tay
-	sty y_crd_temp
-	jsr gm_getleftwjx        ; handle the left tile
-	tax
-	lda #gc_left
-	jsr gm_collide
-	bne @setL
-	ldy y_crd_temp
-	jsr gm_getrightwjx       ; and now the right tile
-	tax
-	lda #gc_right
-	jsr gm_collide
-	beq @dontSet
-	lda playerctrl
-	and #(pl_wallleft^$FF)
-	sta playerctrl           ; set that a wall was found on the RIGHT side
-@set:
-	lda #defwjmpcoyo
-	sta wjumpcoyote
-@dontSet:
-	rts
-@setL:
-	lda playerctrl
-	ora #pl_wallleft
-	sta playerctrl           ; set that a wall was found on the LEFT side
-	jmp @set
 
 ; ** SUBROUTINE: gm_scroll_r_cond
 gm_scroll_r_cond:
@@ -1244,6 +1194,49 @@ gm_camxlimited:
 	ora gamectrl
 	sta gamectrl
 :	rts
+
+; ** SUBROUTINE: gm_checkwjump
+; desc: Assigns coyote time if wall is detected near the player.
+gm_checkwjump:
+	lda #pl_ground
+	bit playerctrl
+	bne @dontSet             ; if player is grounded, simply return
+	jsr gm_getmidy
+	tay
+	sty y_crd_temp
+	
+	; left side
+	jsr gm_wjckentleft
+	bne @setL
+	jsr gm_getleftwjx
+	tax
+	lda #gc_left
+	jsr gm_collide
+	bne @setL
+	ldy y_crd_temp
+	
+	; right side
+	jsr gm_wjckentright
+	bne @set
+	jsr gm_getrightwjx
+	tax
+	lda #gc_right
+	jsr gm_collide
+	beq @dontSet
+	
+	lda playerctrl
+	and #(pl_wallleft^$FF)
+	sta playerctrl           ; set that a wall was found on the RIGHT side
+@set:
+	lda #defwjmpcoyo
+	sta wjumpcoyote
+@dontSet:
+	rts
+@setL:
+	lda playerctrl
+	ora #pl_wallleft
+	sta playerctrl           ; set that a wall was found on the LEFT side
+	jmp @set
 
 ; ** SUBROUTINE: gm_calchorzplat
 ; desc: Calculates the edges of a platform entity in plattemp1, plattemp2, screen coordinates.
@@ -1436,13 +1429,142 @@ gm_collentceil:
 	ldx #1                   ; load X to 1 to clear the zero flag. probably superfluous
 	rts
 
+; ** SUBROUTINE: gm_collentleft
 ; ** SUBROUTINE: gm_collentright
-; desc: Checks ceiling collision with entities.
+; ** SUBROUTINE: gm_wjckentleft
+; ** SUBROUTINE: gm_wjckentright
+; desc: Wrappers for gm_collentside.
+;       gm_coll* check regular collision, gm_wjck* check for wall jump ability.
+; clobbers: temp5, temp6, temp7
+gm_collentleft:
+	lda #plr_x_left
+	sta temp5
+	lda #plr_y_top
+	sta temp6
+	lda #plr_y_bot_wall
+	sta temp7
+	jmp gm_collentside
+
+gm_collentright:
+	lda #plr_x_right
+	sta temp5
+	lda #plr_y_top
+	sta temp6
+	lda #plr_y_bot_wall
+	sta temp7
+	jmp gm_collentside
+
+gm_wjckentleft:
+	lda #plr_x_wj_left
+	sta temp5
+	lda #plr_y_mid
+	sta temp6
+	lda #plr_y_mid ; TODO: why can't we just pass a negative value here.
+	sta temp7
+	jmp gm_collentside
+
+gm_wjckentright:
+	lda #plr_x_wj_right
+	sta temp5
+	lda #plr_y_mid
+	sta temp6
+	lda #plr_y_mid ; TODO: why can't we just pass a negative value here.
+	sta temp7
+	jmp gm_collentside
+
+; ** SUBROUTINE: gm_collentside
+; desc: Checks rightward collision with entities.
 ; note: can't use: temp1, temp2, temp7
 ; note: Currently this only detects the first sprite the player has collided with,
 ;       not the closest.
-; returns: ZF - the player has collided (BNE). A - ceilingY + entityHeight - 8
-gm_collentright:
+; parameters: temp5 (offset for player X), temp6 (offset for player Y), temp7 (second offset for player Y)
+; returns: ZF - the player has collided (BNE)
+gm_collentside:
+	ldy #0
+@loop:
+	lda #ef_collidable
+	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
+	beq @noHitBox
+	
+	; also check the type
+	lda sprspace+sp_kind, y
+	beq @noHitBox
+	
+	; do we touch the wall with EITHER top or bottom?
+	lda player_y
+	clc
+	adc temp6
+	jsr gm_checkthisenty
+	bne @isHitting
+	
+	lda temp7
+	bmi @isHitting
+	
+	lda player_y
+	clc
+	adc temp7
+	jsr gm_checkthisenty
+	beq @noHitBox
+	
+@isHitting:
+	lda sprspace+sp_x, y
+	sec
+	sbc camera_x
+	sta temp4
+	
+	lda sprspace+sp_x_pg, y
+	sbc camera_x_pg
+	bne @noHitBox
+	
+	lda player_x
+	clc
+	adc temp5
+	cmp temp4
+	bcc @noHitBox
+	
+	pha
+	lda temp4
+	clc
+	adc sprspace+sp_wid, y
+	bcc :+
+	lda #$FF
+:	sta temp4
+	
+	pla
+	cmp temp4
+	bcc @haveHitBox
+	
+@noHitBox:
+	iny
+	cpy #sp_max
+	bne @loop
+	; note: here, the zero flag is set. Means there was no collision
+	rts
+
+@haveHitBox:
+	ldx #1                   ; load X to 1 to clear the zero flag. probably superfluous
+	rts
+
+; ** SUBROUTINE: gm_checkthisenty
+; desc:       Checks if the Y value provided in the A register is inside of the current entity.
+; parameters: A register - the Y value to check, Y register - the index of the entity.
+; returns:    ZF - is inside the entity (BNE).
+; clobbers:   A, temp4
+gm_checkthisenty:
+	cmp sprspace+sp_y, y
+	bcc @noHitBox
+	sta temp4
+	
+	lda sprspace+sp_y, y
+	clc
+	adc sprspace+sp_hei, y
+	cmp temp4
+	bcc @noHitBox             ; sprites[y].y + sprites[y].height <= player_y + $10
+	
+	lda #1
+	rts
+	
+@noHitBox:
 	lda #0
 	rts
 
