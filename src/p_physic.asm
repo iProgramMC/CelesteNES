@@ -948,11 +948,13 @@ gm_checkfloor:
 @snapToFloor:
 	lda #%11111000    ; round player's position to lower multiple of 8
 	and player_y
+	pha
+	lda #0            ; set the subpixel to zero
+	sta player_sp_y
+	pla
 	
 @snapToFloorArbitrary:; snap to floor where the 
 	sta player_y
-	lda #0            ; set the subpixel to zero
-	sta player_sp_y
 	lda dashtime
 	cmp #(defdashtime-dashgrndtm)
 	bcs @done         ; until the player has started their dash, exempt from ground check
@@ -1353,6 +1355,8 @@ gm_collentfloor:
 @haveHitBox:
 	; Have a hitbox!
 	sty entground
+	lda sprspace+sp_y_lo, y
+	sta player_sp_y
 	lda sprspace+sp_y, y
 	sec
 	sbc #$10

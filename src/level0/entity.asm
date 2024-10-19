@@ -28,14 +28,14 @@ level0_intro_crusher:
 	ldx temp1
 	
 	; This sprite is collidable at all times.
-	;lda #ef_collidable
-	;ora sprspace+sp_flags, x
-	;sta sprspace+sp_flags, x
-	;
-	;lda #56
-	;sta sprspace+sp_wid, x
-	;lda #32
-	;sta sprspace+sp_hei, x
+	lda #ef_collidable
+	ora sprspace+sp_flags, x
+	sta sprspace+sp_flags, x
+	
+	lda #56
+	sta sprspace+sp_wid, x
+	lda #32
+	sta sprspace+sp_hei, x
 	
 	lda sprspace+sp_l0ic_state, x
 	; cmp #1
@@ -113,14 +113,11 @@ level0_intro_crusher:
 	inc sprspace+sp_l0ic_vel_y, x
 
 	; pull
-:	clc
-	lda sprspace+sp_y_lo, x
-	adc sprspace+sp_l0ic_vsu_y, x
-	sta sprspace+sp_y_lo, x
-	lda sprspace+sp_y, x
-	adc sprspace+sp_l0ic_vel_y, x
-	sta sprspace+sp_y, x
+:	txa
+	tay
+	jsr gm_ent_move_y
 	
+	lda sprspace+sp_y, x
 	cmp #l0ic_maxy
 	bcc @drawSprite
 	
