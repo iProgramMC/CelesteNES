@@ -113,10 +113,25 @@ level0_intro_crusher:
 	inc sprspace+sp_l0ic_vel_y, x
 
 	; pull
-:	txa
+:	lda temp1
+	pha
+	lda temp2
+	pha
+	lda temp3
+	pha
+	
+	txa
 	tay
 	jsr gm_ent_move_y
 	
+	pla
+	sta temp3
+	pla
+	sta temp2
+	pla
+	sta temp1
+	
+	ldx temp1
 	lda sprspace+sp_y, x
 	cmp #l0ic_maxy
 	bcc @drawSprite

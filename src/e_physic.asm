@@ -102,4 +102,46 @@ gm_ent_move_y:
 	
 @notStanding:
 	
+	; Check for a squish. First, determine the direction of the platform.
+	lda sprspace+sp_vel_y, y
+	bmi @checkSquishUP
+	
+	; Platform is falling, so check that the player wasn't placed inside a floor.
+	; TODO: don't call the whole of gm_collentceil, just the one for this Y
+	jsr gm_collentceil
+	bne :+
+	
+	; no collision here!
+	rts
+
+:	; Platform has collided with player. It has returned a Y position, so snap the player there.
+	clc
+	adc #(8-(16-plrheight)) ; add the height of the tile, minus the top Y offset of the player hitbox
+	sta player_y
+	
+	; Ok, now check if a floor is here
+	jsr gm_getmidx
+	tax
+	jsr gm_getbottomy_f
+	tay
+	lda #gc_floor
+	jsr gm_collide
+	beq :+
+	
+	; Collided with a floor also!
+	lda #%11111000
+	and player_y
+	sta player_y
+	
+	; one more collision check for good measure
+	jsr gm_collentceil
+	beq :+
+	
+	; ok, we know for SURE the player was squished in between this platform and the ground. Die :(
+	jsr gm_killplayer
+:	rts
+	
+@checkSquishUP:
+	; TODO
+	
 	rts

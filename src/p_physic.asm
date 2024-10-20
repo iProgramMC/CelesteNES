@@ -703,6 +703,18 @@ gm_getmidy:
 	lsr
 	rts
 
+; ** SUBROUTINE: gm_getmidx
+; desc:     Gets the tile X position at the middle of the player's hitbox, used for squish checking
+; returns:  A - the X coordinate
+gm_getmidx:
+	clc
+	lda player_x
+	adc #plr_x_mid
+	lsr
+	lsr
+	lsr
+	rts
+
 ; ** SUBROUTINE: gm_getbottomy_f
 ; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
 ;           when checking for collision with floors.
@@ -909,13 +921,13 @@ gm_checkceil:
 	rts
 
 @snapToCeil:
-	clc
 	lda y_crd_temp    ; load the y position of the tile that was collided with
 	asl
 	asl
 	asl               ; turn it into a screen coordinate
 
-@snapToCeilArbitrary: ; snap to a ceiling whose position is arbitrary (
+@snapToCeilArbitrary: ; snap to a ceiling whose position is arbitrary
+	clc
 	adc #(8-(16-plrheight)) ; add the height of the tile, minus the top Y offset of the player hitbox
 	sta player_y
 	lda #0            ; set the subpixel to zero
@@ -1203,13 +1215,15 @@ gm_checkwjump:
 	lda #pl_ground
 	bit playerctrl
 	bne @dontSet             ; if player is grounded, simply return
+	
 	jsr gm_getmidy
-	tay
-	sty y_crd_temp
+	sta y_crd_temp
 	
 	; left side
 	jsr gm_wjckentleft
 	bne @setL
+	
+	ldy y_crd_temp
 	jsr gm_getleftwjx
 	tax
 	lda #gc_left
@@ -1220,6 +1234,8 @@ gm_checkwjump:
 	; right side
 	jsr gm_wjckentright
 	bne @set
+	
+	ldy y_crd_temp
 	jsr gm_getrightwjx
 	tax
 	lda #gc_right
@@ -1398,6 +1414,7 @@ gm_collentceil:
 	adc sprspace+sp_hei, y
 	cmp temp4
 	bcc @noHitBox             ; sprites[y].y + sprites[y].height <= player_y
+	beq @noHitBox
 	
 	jsr gm_calchorzplat
 	beq @noHitBox
@@ -1461,20 +1478,20 @@ gm_collentright:
 gm_wjckentleft:
 	lda #plr_x_wj_left
 	sta temp5
-	lda #plr_y_mid
+	lda #plr_y_top
 	sta temp6
-	lda #plr_y_mid ; TODO: why can't we just pass a negative value here.
+	lda #plr_y_bot_wall
 	sta temp7
 	jmp gm_collentside
 
 gm_wjckentright:
 	lda #plr_x_wj_right
 	sta temp5
-	lda #plr_y_mid
+	lda #plr_y_top
 	sta temp6
-	lda #plr_y_mid ; TODO: why can't we just pass a negative value here.
+	lda #plr_y_bot_wall
 	sta temp7
-	jmp gm_collentside
+	;jmp gm_collentside
 
 ; ** SUBROUTINE: gm_collentside
 ; desc: Checks rightward collision with entities.
@@ -1500,9 +1517,6 @@ gm_collentside:
 	adc temp6
 	jsr gm_checkthisenty
 	bne @isHitting
-	
-	lda temp7
-	bmi @isHitting
 	
 	lda player_y
 	clc

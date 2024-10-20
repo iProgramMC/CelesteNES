@@ -340,13 +340,14 @@ defjmpbuff  = $04   ; 4 frames of buffering a jump
 defjmpcoyot = $06   ; 6 frames of coyote time
 defwjmpcoyo = $03   ; 3 frames of wall coyote time
 jmphboost   = 170   ; boost applied to the player's jump when running
-wjgrace     = 2     ; walls are checked this many pixels away from the hitbox for a wall jump
+wjgrace     = 3     ; walls are checked this many pixels away from the hitbox for a wall jump. Celeste uses 3 here
 ct_none     = $00   ; no collision
 ct_full     = $01   ; the entire tile has collision
 ct_deadly   = $02   ; the tile is UP spike shaped
 ct_jumpthru = $03   ; the tile is a jump through
 ow_maxlvl   = $07   ; maximum level number
-jtheight       = 3  ; height of jump through blocks
+jtheight    = 3     ; height of jump through blocks
+swjgrace    = 5     ; grace time for a super wall jump TODO
 
 maxfallHI   = (maxfall >> 8)
 maxfallLO   = (maxfall & $FF)
@@ -375,6 +376,7 @@ plr_x_left     = (8 - plrwidth / 2)
 plr_x_right    = (15 - plrwidth / 2)
 plr_x_wj_left  = (plr_x_left  - wjgrace)
 plr_x_wj_right = (plr_x_right + wjgrace)
+plr_x_mid      = 8
 
 ; Variables (RAM: 0x0000 - 0x0800)
 oam_buf     = $0700 ; OAM buffer, flushed every vblank to PPU OAM
