@@ -77,7 +77,8 @@ gm_update_berry:
 	ldx temp1
 	lda sprspace+sp_strawb_flags, x
 	and #esb_picked
-	beq :++
+	beq @floatingMode
+	
 	; trailing behind player mode
 	lda sprspace+sp_strawb_colid, x
 	asl
@@ -116,13 +117,15 @@ gm_update_berry:
 	lda temp3
 	sta sprspace+sp_y, x
 	
-	jmp :++
-:	
+	rts
+
+@floatingMode:	
 	; floating mode
 	jsr gm_check_player_bb
-	beq :+
+	bne :+
+	rts
 	
-	; collided, set to picked up mode
+:	; collided, set to picked up mode
 	lda sprspace+sp_strawb_flags, x
 	ora #esb_picked
 	sta sprspace+sp_strawb_flags, x
@@ -131,20 +134,18 @@ gm_update_berry:
 	lda plrstrawbs
 	sta sprspace+sp_strawb_colid, x
 	
-	jsr gm_give_points
-	
-:	rts
+	jmp gm_give_points
 
 gm_update_refill:
 	jsr gm_ent_oscillate
 	
 	jsr gm_check_player_bb
-	beq :++
+	beq @return
 	
 	; collided!
 	; check if the dash count is non zero.
 	lda dashcount
-	beq :++
+	beq @return
 	; todo: check stamina too
 	
 	; player has dashed which means 
@@ -167,7 +168,7 @@ gm_update_refill:
 	ldx temp1
 	lda sprspace+sp_refill_flags, x
 	and #erf_regen
-	beq :+
+	beq @setKind
 	
 	lda sprspace+sp_oscill_timer, x
 	sta sprspace+sp_refill_oldos, x
@@ -175,12 +176,15 @@ gm_update_refill:
 	lda #$F0
 	sta sprspace+sp_oscill_timer, x
 	lda #e_refillhd
-:	sta sprspace+sp_kind, x
+	
+@setKind:
+	sta sprspace+sp_kind, x
 	
 	lda #0
 	sta dashcount
 	
-:	rts
+@return:
+	rts
 
 gm_update_refillhold:
 	ldx temp1

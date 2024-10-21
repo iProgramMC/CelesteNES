@@ -10,12 +10,15 @@
 gm_draw_particle:
 	lda temp2
 	cmp #$F8
-	bcc :++
+	bcc @dontCheckOffScreen
+	
 	lda temp4
 	bpl :+
 	rts
 :	lda temp2
-:	sta x_crd_temp
+
+@dontCheckOffScreen:
+	sta x_crd_temp
 	lda temp3
 	sta y_crd_temp
 	ldy sprspace+sp_part_chrti, x
@@ -102,28 +105,35 @@ gm_draw_points:
 	
 	lda sprspace+sp_y, x
 	sbc #0
-	beq :+
+	beq @clearKind
 	sta sprspace+sp_y, x
 	
 	lda sprspace+sp_points_timer, x
 	sec
 	sbc #1
-	bne :++
-:	sta sprspace+sp_kind, x
-:	sta sprspace+sp_points_timer, x
+	bne @skipClearKind
+@clearKind:
+	sta sprspace+sp_kind, x
+@skipClearKind:
+	sta sprspace+sp_points_timer, x
 	
 	lda sprspace+sp_points_count, x
 	pha
 	cmp #6
-	bne :+
+	bne @no1UpMode
+	
 	; 1 up mode
 	lda #$8E
 	sta temp7
-	bne :++
+	bne @done
+	
+@no1UpMode:
 	; normal points mode
-:	lda #$80
+	lda #$80
 	sta temp7
-:	pla
+	
+@done:
+	pla
 	asl
 	clc
 	adc #$80
@@ -144,22 +154,24 @@ gm_draw_common:
 	; left of the screen (so fraudulently got there via overflow), or
 	; legitimately to the right
 	lda temp4
-	bmi :++                  ; X high coord < $00, don't draw that part
+	bmi @skipLeftSprite      ; X high coord < $00, don't draw that part
 	lda temp2
+	
 :	sta x_crd_temp
 	
 	lda temp5
 	ldy temp6
 	jsr oam_putsprite
 	
-:	; draw the right sprite
+@skipLeftSprite:
+	; draw the right sprite
 	lda temp4
-	bmi gm_draw_temp4neg
+	bmi @temp4neg
 	lda temp2
 	clc
 	adc #8
 	bcs :+                   ; if it overflew while computing the coord,
-gm_draw_temp4negd:
+@temp4negd:
 	sta x_crd_temp           ; then it need not render
 	
 	lda temp8
@@ -168,12 +180,12 @@ gm_draw_temp4negd:
 	
 :	rts
 
-gm_draw_temp4neg:
+@temp4neg:
 	lda temp2
 	clc
 	adc #8
-	bcs gm_draw_temp4negd
-	bcc gm_draw_temp4negd
+	bcs @temp4negd
+	bcc @temp4negd
 
 ; ** SUBROUTINE: gm_draw_ent_call
 ; desc: Calls the relevant entity draw function.
@@ -244,14 +256,14 @@ gm_allocate_palettes:
 	ldy #0
 gm_allocpal_loop:
 	lda sprspace+sp_kind,y   ; load the entity's kind
-	beq :++                  ; if empty, don't update
+	beq @loopBreak           ; if empty, don't update
 	cmp #e_particle
 	bne :+
 	lda sprspace+sp_part_entty
 :	tya
 	tax
 	jsr gm_check_ent_onscreen
-	beq :+                   ; if entity is off screen, jump to 
+	beq @loopBreak           ; if entity is off screen, jump to 
 	tax
 	lda ent_palettes,x       ; and now the palettes
 	
@@ -259,7 +271,7 @@ gm_allocpal_loop:
 	tax
 	lda allocpals,x
 	cmp #$FF
-	bne :+                   ; palette was already allocated.
+	bne @loopBreak           ; palette was already allocated.
 	
 	; need to allocate this palette.
 	lda palallochd
@@ -271,7 +283,8 @@ gm_allocpal_loop:
 	inc palallochd
 	
 	sta palsallocd, x
-:
+
+@loopBreak:
 	iny
 	cpy #sp_max
 	bne gm_allocpal_loop
@@ -297,20 +310,21 @@ gm_check_ent_onscreen:
 	; result < 0: sprite went off the left side.
 	; result = 0: sprite is in view.
 	; result > 0: sprite is to the right.
-	bmi gm_ceos_left
-	bne gm_ceos_rt0
+	bmi @checkLeft
+	bne @returnZero
 	
 	; result is 0.
-gm_ceos_rt1:
+@returnOne:
 	lda #1
 	rts
 	
-gm_ceos_left:
+@checkLeft:
 	; result is different from 0. we should check if the low byte is > $F8
 	lda temp2
 	cmp #$F8
-	bcs gm_ceos_rt1
-gm_ceos_rt0:
+	bcs @returnOne
+	
+@returnZero:
 	lda #0
 	rts
 
