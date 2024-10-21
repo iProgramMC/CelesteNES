@@ -118,7 +118,6 @@ gm_updatexvel:
 	; check if the velocity should be REDUCED
 	jsr gm_shouldreduce
 	sta temp1
-	sta $F0
 	
 	; note: gm_shouldreduce ALSO placed the index corresponding to
 	; the held buttons in the X register!

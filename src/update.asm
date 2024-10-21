@@ -52,7 +52,7 @@ nmi:
 	
 	lda #0
 	sta oam_addr
-	lda #oam_buf_hi   ; load the high byte of the OAM DMA address
+	lda #>oam_buf     ; load the high byte of the OAM DMA address
 	sta apu_oam_dma   ; and perform the DMA!
 	
 	ldx gamemode

@@ -16,6 +16,7 @@
 ; mapper 1 -- MMC1
 
 .include "defines.asm"
+.include "globals.asm"
 
 .segment "PRG_LVL0"
 .include "level0/bank_0.asm"

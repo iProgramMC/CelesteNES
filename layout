@@ -3,6 +3,18 @@ MEMORY
 	# NES 2.0 header.
 	INES:     start=$0000, size=$0010, fill=yes, fillval=$00;
 	
+	# RAM
+	ZEROPAGE: start=$0000, size=$0100, type=rw, file="";
+	OAMBUF:   start=$0200, size=$0100, type=rw, file="";
+	ENTITIES: start=$0300, size=$0100, type=rw, file="";
+	PLTRACES: start=$0400, size=$0080, type=rw, file="";
+	# $80 bytes spare
+	DRAWTEMP: start=$0500, size=$0100, type=rw, file="";
+	# $600 PAGE spare
+	# $700 PAGE spare
+	
+	CARTWRAM: start=$6000, size=$0800, type=rw, file="";
+	
 	# NOTE: It's actually possible to have 64 PRG banks and 32 CHR banks.
 	# Currently we only use 16 banks of PRG space because it's enough.
 	# Once we start work on Farewell it may no longer be enough.
@@ -68,6 +80,12 @@ MEMORY
 SEGMENTS
 {
 	INES:     load = INES,     type = ro;
+	ZEROPAGE: load = ZEROPAGE, type = zp;
+	OAMBUF:   load = OAMBUF,   type = bss, align = $100;
+	ENTITIES: load = ENTITIES, type = bss, align = $100;
+	PLTRACES: load = PLTRACES, type = bss;
+	DRAWTEMP: load = DRAWTEMP, type = bss;
+	CARTWRAM: load = CARTWRAM, type = bss;
 	PRG_LVL0: load = PRG_LVL0, type = ro;
 	PRG_LVL1: load = PRG_LVL1, type = ro;
 	PRG_LVL2: load = PRG_LVL2, type = ro;

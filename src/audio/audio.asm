@@ -1,5 +1,7 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+;.include "famistudio.asm"
+
 ; ** SUBROUTINE: aud_run
 ; desc: Run a 1/60 tick of the audio engine.
 aud_run:

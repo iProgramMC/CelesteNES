@@ -370,7 +370,7 @@ main_loop:
 	jmp main_loop
 
 .include "update.asm"
-.include "audio.asm"
+.include "audio/audio.asm"
 
 ; I know this belongs in GAME and not in MAIN, but I want to take some load off of GAME.
 ;
