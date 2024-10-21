@@ -18,15 +18,11 @@
 .include "defines.asm"
 .include "globals.asm"
 
-.segment "PRG_LVL0"
 .include "level0/bank_0.asm"
-.segment "PRG_LVL1"
 .include "level1/bank_0.asm"
 
-.segment "PRG_GAME"
 .include "prg_game.asm"
 
-.segment "PRG_MAIN"
 .include "prg_main.asm"
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])

@@ -1,6 +1,5 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-.org $A000
-
+.segment "PRG_LVL1"
 .include "metatile.asm"
 .include "roomdata.asm"

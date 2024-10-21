@@ -1,6 +1,7 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-.org $8000
+.segment "PRG_GAME"
+
 .include "game.asm"
 .include "lvltable.asm"
 .include "o_mtndat.asm"

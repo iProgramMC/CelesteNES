@@ -13,6 +13,7 @@
 ; Eventually the metatile bank will be swappable with different level banks.
 
 ;metatiles:
+.align $100
 	.byte $00 ; Air
 	.byte $60,$64,$70,$74 ; Dirt Corners
 	.byte $61,$62,$63     ; Dirt Tops
@@ -53,7 +54,8 @@
 	.byte $E4,$E5,$E6,$E8,$E9 ; Memorial
 	.byte $DA,$DB,$DC,$DD ; Campfire
 
-.res metatile_info - *, $FF
+;metatile_info:
+.align $100
 	.byte ct_none                ; Air
 	.res  28, ct_full            ; Dirt
 	.res  27, ct_full            ; Snow
@@ -68,4 +70,4 @@
 	.res  30, ct_none            ; Memorial
 	.res   4, ct_none            ; Campfire
 
-.res level_data - *, $00
+.align $100

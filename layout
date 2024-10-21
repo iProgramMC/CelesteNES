@@ -46,7 +46,9 @@ MEMORY
 	
 	# Game Engine and Core
 	PRG_GAME: start=$8000, size=$2000, fill=yes, fillval=$00, bank=$0E;
-	PRG_MAIN: start=$E000, size=$2000, fill=yes, fillval=$00, bank=$0F;
+	PRG_MAIN: start=$E000, size=$1F00, fill=yes, fillval=$00, bank=$0F;
+	PRG_PALS: start=$FF00, size=$00FA, fill=yes, fillval=$00, bank=$0F;
+	PRG_VECS: start=$FFFA, size=$0006, fill=yes, fillval=$00, bank=$0F;
 	
 	##### CHR ROM #####
 	## Sprites ##
@@ -86,22 +88,24 @@ SEGMENTS
 	PLTRACES: load = PLTRACES, type = bss;
 	DRAWTEMP: load = DRAWTEMP, type = bss;
 	CARTWRAM: load = CARTWRAM, type = bss;
-	PRG_LVL0: load = PRG_LVL0, type = ro;
-	PRG_LVL1: load = PRG_LVL1, type = ro;
-	PRG_LVL2: load = PRG_LVL2, type = ro;
-	PRG_LVL3: load = PRG_LVL3, type = ro;
-	PRG_LVL4: load = PRG_LVL4, type = ro;
-	PRG_LVL5: load = PRG_LVL5, type = ro;
-	PRG_LVL6: load = PRG_LVL6, type = ro;
-	PRG_LVL7: load = PRG_LVL7, type = ro;
-	PRG_LVL8: load = PRG_LVL8, type = ro;
-	PRG_LVL9: load = PRG_LVL9, type = ro;
-	PRG_LVLA: load = PRG_LVLA, type = ro;
-	PRG_LVLB: load = PRG_LVLB, type = ro;
-	PRG_LVLC: load = PRG_LVLC, type = ro;
-	PRG_LVLD: load = PRG_LVLD, type = ro;
+	PRG_LVL0: load = PRG_LVL0, type = ro, align=$100;
+	PRG_LVL1: load = PRG_LVL1, type = ro, align=$100;
+	PRG_LVL2: load = PRG_LVL2, type = ro, align=$100;
+	PRG_LVL3: load = PRG_LVL3, type = ro, align=$100;
+	PRG_LVL4: load = PRG_LVL4, type = ro, align=$100;
+	PRG_LVL5: load = PRG_LVL5, type = ro, align=$100;
+	PRG_LVL6: load = PRG_LVL6, type = ro, align=$100;
+	PRG_LVL7: load = PRG_LVL7, type = ro, align=$100;
+	PRG_LVL8: load = PRG_LVL8, type = ro, align=$100;
+	PRG_LVL9: load = PRG_LVL9, type = ro, align=$100;
+	PRG_LVLA: load = PRG_LVLA, type = ro, align=$100;
+	PRG_LVLB: load = PRG_LVLB, type = ro, align=$100;
+	PRG_LVLC: load = PRG_LVLC, type = ro, align=$100;
+	PRG_LVLD: load = PRG_LVLD, type = ro, align=$100;
 	PRG_GAME: load = PRG_GAME, type = ro;
 	PRG_MAIN: load = PRG_MAIN, type = ro;
+	PRG_PALS: load = PRG_PALS, type = ro;
+	PRG_VECS: load = PRG_VECS, type = ro;
 	CHR_SPR00: load = CHR_SPR00, type = ro;
 	CHR_SPR01: load = CHR_SPR01, type = ro;
 	CHR_SPR02: load = CHR_SPR02, type = ro;

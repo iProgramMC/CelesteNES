@@ -13,6 +13,7 @@
 ; Eventually the metatile bank will be swappable with different level banks.
 
 ;metatiles:
+.align $100
 	.byte $00 ; Air
 	.byte $60,$64,$70,$74 ; Dirt Corners
 	.byte $61,$62,$63     ; Dirt Tops
@@ -47,7 +48,8 @@
 	.byte $E2,$F2,$3E,$2C,$A0,$A1 ; Bridge Pole
 	.byte $00             ; Blank Tile for Intro Crusher
 
-.res metatile_info - *, $FF
+;metatile_info:
+.align $100
 	.byte ct_none                ; Air
 	.res  28, ct_full            ; Dirt
 	.res  27, ct_full            ; Snow
@@ -62,4 +64,4 @@
 	.res   6, ct_none            ; Bridge Pole
 	.res   1, ct_none            ; Blank Tile for Intro Crusher
 
-.res level_data - *, $00
+.align $100

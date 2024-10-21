@@ -1,6 +1,6 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-.org $E000
+.segment "PRG_MAIN"
 
 ; ** SUBROUTINE: mmc3_set_bank
 ; arguments:
@@ -336,7 +336,7 @@ reset_clrmem:
 	
 	jsr vblank_wait  ; second vblank wait
 	
-	ldy #(init_palette - palettepage)
+	ldy #<init_palette
 	jsr load_palette ; move palette to palette RAM
 	
 	lda #$20         ; clear the two nametables
@@ -396,7 +396,7 @@ dash_table:
 	.byte $FC, $00, $00, $00 ; UDL-
 	.byte $FC, $00, $00, $00 ; UDLR
 
-.res palettepage - *, $FF
+.segment "PRG_PALS"
 init_palette:
 	.byte $0f,$20,$10,$00 ; grey tiles
 	.byte $0f,$37,$16,$06 ; brown tiles
@@ -416,7 +416,7 @@ owld_palette:
 	.byte $0f,$31,$21,$01 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite
 
-.res $FFFA - *, $FF
+.segment "PRG_VECS"
 	.word nmi
 	.word reset
 	.word irq
