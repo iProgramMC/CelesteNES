@@ -1600,7 +1600,7 @@ gm_dash_over:
 	; if (DashDir.Y <= 0f) Speed = DashDir * 160f (when begun, it would be DashDir * 240f)
 	lda #(cont_down << 2)
 	bit dashdir
-	bne :++
+	bne :+
 	
 	jsr gm_rem25pcvel
 	

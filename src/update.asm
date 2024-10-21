@@ -50,9 +50,8 @@ nmi:
 	tya
 	pha
 	
-	lda #9
-	sta debug
-	
+	lda #0
+	sta oam_addr
 	lda #oam_buf_hi   ; load the high byte of the OAM DMA address
 	sta apu_oam_dma   ; and perform the DMA!
 	
@@ -69,9 +68,6 @@ nmi:
 	
 nmi_gamemodeend:
 	jsr nmi_calccamerapos
-	
-	lda #10
-	sta debug
 	
 	jsr aud_run
 	
