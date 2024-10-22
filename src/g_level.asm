@@ -1017,12 +1017,19 @@ gm_on_level_init:
 	lda musicdiff
 	beq @dontReloadMusic
 	
-	ldx musictable
-	ldy musictable+1
-	lda #1 ; NTSC
+	ldy #0
+	lda (musictable), y
+	tax
+	iny
+	
+	lda (musictable), y
+	tay
+	
+	lda #1
 	jsr famistudio_init
 	
-	lda #0
+	ldy #2
+	lda (musictable, x)
 	jsr famistudio_music_play
 	
 @dontReloadMusic:

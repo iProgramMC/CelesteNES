@@ -75,6 +75,8 @@ tl_gameswitch:
 	sta gamemode
 	lda #0
 	sta gamectrl
+	sta musictable
+	sta musictable+1
 	jsr gm_set_level
 	jmp game_update_return
 

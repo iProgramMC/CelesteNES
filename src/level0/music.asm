@@ -1,7 +1,7 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-; SFX from the FamiStudio Demo
-.include "shatterhand.asm"
+.include "testmusic.asm"
 
 level0_music:
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.word music_data_prologue ; song list
+	.byte $00                 ; default song

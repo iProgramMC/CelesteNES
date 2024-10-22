@@ -332,7 +332,7 @@ level1_rEnd:
 	.word level1_rEnd_p
 	.word level1_rEnd_e
 level1:
-	.word music_data_silver_surfer_c_stephen_ruddy ; music table
+	.word level1_music ; music table
 	.byte $01	; environment type
 	.byte $05	; room count
 	.word level1_r1

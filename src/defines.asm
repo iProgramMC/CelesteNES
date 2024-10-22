@@ -377,3 +377,5 @@ plr_x_right    = (15 - plrwidth / 2)
 plr_x_wj_left  = (plr_x_left  - wjgrace)
 plr_x_wj_right = (plr_x_right + wjgrace)
 plr_x_mid      = 8
+
+FAMISTUDIO_CFG_C_BINDINGS = 0
