@@ -51,7 +51,7 @@ nmi:
 	pha
 	
 	lda nmienable
-	beq nmi_gamemodeend ; if NMIs are softly disabled, then ONLY run audio
+	beq @onlyAudioPlease ; if NMIs are softly disabled, then ONLY run audio
 	
 	lda #0
 	sta oam_addr
@@ -69,9 +69,10 @@ nmi:
 	beq nmi_prologue
 	bne nmi_game
 	
-nmi_gamemodeend:
+@gamemode_end:
 	jsr nmi_calccamerapos
 	
+@onlyAudioPlease:
 	jsr aud_run
 	
 	pla
@@ -80,6 +81,7 @@ nmi_gamemodeend:
 	tax
 	pla
 	rti
+nmi_gamemodeend = @gamemode_end
 
 nmi_prologue:
 	lda #ps_clear

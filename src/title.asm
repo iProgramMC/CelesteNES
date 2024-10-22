@@ -104,6 +104,7 @@ gamemode_title:
 	lda #ts_1stfr
 	bit titlectrl    ; might need to update the screen buffer
 	bne gamemode_title_update 
+	
 	lda #$00
 	sta camera_x     ; clear some fields
 	sta camera_x_hi

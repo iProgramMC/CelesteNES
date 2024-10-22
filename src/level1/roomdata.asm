@@ -231,6 +231,7 @@ level1_r4_p:
 	.byte $00,$A2,$88,$88,$88,$88,$88,$08
 	.byte $FF
 level1_r4_e:
+	.byte $90,$B0,$09
 	.byte $FF
 level1_r4_t:
 	.byte $D1,$2E,$2D,$2F,$32,$C9,$88,$2D
@@ -273,7 +274,7 @@ level1_r4_t:
 level1_r4:
 	.byte 0, 0, 0
 	.byte 32, 168
-	.byte 8, 255, 255, 255
+	.byte 8, 255, 255, 8
 	.byte 8, 0, 0, 0
 	.byte 0
 	.word level1_r4_t
