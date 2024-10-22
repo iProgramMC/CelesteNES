@@ -1029,7 +1029,7 @@ gm_on_level_init:
 	jsr famistudio_init
 	
 	ldy #2
-	lda (musictable, x)
+	lda (musictable), y
 	jsr famistudio_music_play
 	
 @dontReloadMusic:
