@@ -1004,11 +1004,39 @@ gm_set_level_1:
 	ldx #0
 	; fallthru
 
+; ** SUBROUTINE: gm_on_level_init
+; desc: Called on level initialization.
+gm_on_level_init:
+	; load the player's X coordinate to the pixel coordinates provided,
+	; if this is the first level
+	lda startpx
+	sta player_x
+	lda startpy
+	sta player_y
+	
+	lda musicdiff
+	beq @dontReloadMusic
+	
+	ldx musictable
+	ldy musictable+1
+	lda #1 ; NTSC
+	jsr famistudio_init
+	
+	lda #0
+	jsr famistudio_music_play
+	
+@dontReloadMusic:
+	rts
+
 ; ** SUBROUTINE: gm_set_level
 ; args: X - level number
 ; assumes: vblank is off and you're loading a new level
 gm_set_level:
+	lda musicbank
+	pha
+	
 	ldy level_banks, x
+	sty musicbank
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank
 	
@@ -1022,8 +1050,39 @@ gm_set_level:
 	tax
 	jsr gm_set_level_ptr
 	
-	; load room 0
+	; load the music table
+	lda musictable
+	pha
+	lda musictable+1
+	pha
+	
 	ldy #0
+	lda (lvlptrlo), y
+	sta musictable
+	inc lvlptrlo
+	
+	lda (lvlptrlo), y
+	sta musictable+1
+	inc lvlptrlo
+	
+	; check if any details changed
+	lda #0
+	sta musicdiff
+	
+	pla
+	cmp musictable+1
+	beq :+
+	inc musicdiff
+:	pla
+	cmp musictable
+	beq :+
+	inc musicdiff
+:	pla
+	cmp musicbank
+	beq :+
+	inc musicdiff
+
+:	; load room 0
 	jsr gm_set_room
 	
 	; load the "environment type" field. This specifies the default bank
@@ -1043,14 +1102,7 @@ gm_set_level:
 	
 	jsr gm_load_generics
 	
-	; load the player's X coordinate to the pixel coordinates provided,
-	; if this is the first level
-	lda startpx
-	sta player_x
-	lda startpy
-	sta player_y
-	
-	rts
+	jmp gm_on_level_init
 
 ; ** SUBROUTINE: gm_set_room
 ; args: Y - room number
@@ -1124,11 +1176,7 @@ gm_respawn:
 	ldy currroom
 	jsr gm_set_room
 	
-	; load the player's X coordinate to the pixel coordinates provided,
-	; if this is the first level
-	lda startpx
-	sta player_x
-	lda startpy
-	sta player_y
+	lda #0
+	sta musicdiff   ; no difference in music
 	
-	rts
+	jmp gm_on_level_init

@@ -284,6 +284,7 @@ level0_r4:
 	.word level0_r4_p
 	.word level0_r4_e
 level0:
+	.word music_data_shatterhand ; music table
 	.byte $00	; environment type
 	.byte $04	; room count
 	.word level0_r1

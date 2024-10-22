@@ -359,6 +359,9 @@ reset_clrmem:
 	sty rng_state    ; initialize rng seed
 	
 	jsr vblank_wait  ; one final vblank wait
+	
+	jsr aud_load_sfx
+	
 	cli
 	
 ; ** MAIN LOOP

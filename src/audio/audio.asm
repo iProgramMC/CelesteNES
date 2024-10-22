@@ -1,13 +1,49 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-;.include "famistudio.asm"
+; Define an external config for FamiStudio
+FAMISTUDIO_CFG_EXTERNAL = 1
+
+.define FAMISTUDIO_CA65_ZP_SEGMENT   ZEROPAGE
+.define FAMISTUDIO_CA65_RAM_SEGMENT  FMSRAM
+.define FAMISTUDIO_CA65_CODE_SEGMENT PRG_MAIN
+
+FAMISTUDIO_CFG_NTSC_SUPPORT   = 1 ; no PAL support yet
+FAMISTUDIO_CFG_DPCM_SUPPORT   = 1
+FAMISTUDIO_CFG_THREAD         = 1 ; to be able to call FamiStudio SFX routines from main thread
+
+; things defined by the demo. I don't care about most of these
+FAMISTUDIO_CFG_SFX_SUPPORT    = 1 
+FAMISTUDIO_CFG_SFX_STREAMS    = 2
+FAMISTUDIO_CFG_EQUALIZER      = 1
+FAMISTUDIO_USE_VOLUME_TRACK   = 1
+FAMISTUDIO_USE_PITCH_TRACK    = 1
+FAMISTUDIO_USE_SLIDE_NOTES    = 1
+FAMISTUDIO_USE_VIBRATO        = 1
+FAMISTUDIO_USE_ARPEGGIO       = 1
+FAMISTUDIO_CFG_SMOOTH_VIBRATO = 1
+FAMISTUDIO_USE_RELEASE_NOTES  = 1
+FAMISTUDIO_DPCM_OFF           = $e000
+
+.include "famistudio.asm"
+
+; SFX from the FamiStudio Demo
+.include "sfx.asm"
 
 ; ** SUBROUTINE: aud_run
 ; desc: Run a 1/60 tick of the audio engine.
-aud_run:
-	rts
+aud_run = famistudio_update
 
 ; ** SUBROUTINE: aud_init
 ; desc: Initializes the audio engine.
 aud_init:
-	rts
+	lda #1 ; NTSC
+	ldx #0 ; no music data yet
+	ldy #0
+	jmp famistudio_init
+
+; ** SUBROUTINE: aud_load_sfx
+; desc: Loads the sound effect table.
+aud_load_sfx:
+	ldx #<game_sfx
+	ldy #>game_sfx
+	jmp famistudio_sfx_init

@@ -407,6 +407,7 @@ gm_normaljump:
 	lda jumpcoyote
 	beq gm_dontjump   ; if no coyote time, then can't jump
 gm_actuallyjump:
+	jsr gm_jump_sfx
 	lda #jumpvelHI
 	sta player_vl_y
 	lda #jumpvelLO
@@ -450,6 +451,7 @@ gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	jmp gm_dontjump
 	
 gm_walljump:
+	jsr gm_jump_sfx
 	lda #pl_ground
 	bit playerctrl
 	bne gm_normaljump ; if player is grounded, ALWAYS perform a standard jump
@@ -834,6 +836,7 @@ gm_collidespkw:
 ; ** SUBROUTINE: gm_killplayer
 ; desc:     Initiates the player death sequence.
 gm_killplayer:
+	jsr gm_death_sfx
 	lda #pl_dead
 	ora playerctrl
 	sta playerctrl
@@ -1665,6 +1668,7 @@ gm_dash_update:
 	bcs gm_dash_lock        ; dash hasn't charged
 	jmp gm_dash_after
 gm_dash_read_cont:
+	jsr gm_dash_sfx
 	lda #6
 	sta quaketimer
 	lda p1_cont

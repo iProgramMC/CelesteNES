@@ -8,6 +8,7 @@
 .include "e_spawn.asm"
 .include "p_draw.asm"
 .include "p_physic.asm"
+.include "g_sfx.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer
 gm_update_ptstimer:
@@ -167,7 +168,6 @@ gm_game_clear:
 	sta $300,x
 	sta $400,x
 	sta $500,x
-	sta $600,x
 	sta $700,x
 	inx
 	bne gm_game_clear
