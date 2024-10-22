@@ -4,4 +4,4 @@
 
 level1_music:
 	.word music_data_ch3 ; song list
-	.byte $00            ; default song
+	.byte $01            ; default song

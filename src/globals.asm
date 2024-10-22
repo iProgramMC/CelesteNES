@@ -16,6 +16,7 @@ temp10      : .res 1 ; NEW
 gamemode    : .res 1 ; active game mode
 framectr    : .res 1 ; continuously increasing frame counter
 nmicount    : .res 1
+nmienable   : .res 1
 ctl_flags   : .res 1 ; copied into ppuctrl
 gamestate   : .res 1 ; reused by every game mode
 	titlectrl = gamestate

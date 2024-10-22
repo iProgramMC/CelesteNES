@@ -207,6 +207,24 @@ ppu_nmi_on:
 	sta ppu_ctrl
 	rts
 
+; ** SUBROUTINE: soft_nmi_on
+; desc: Enable racey NMIs in software.
+; purpose: Most of the NMI routine is racey against the main thread. However, we want to run
+;          audio every frame regardless of lag. This is why we block racey NMIs in software.
+; clobbers: A
+soft_nmi_on:
+	lda #1
+	sta nmienable
+	rts
+
+; ** SUBROUTINE: soft_nmi_off
+; desc: Disable racey NMIs in software.
+; clobbers: A
+soft_nmi_off:
+	lda #0
+	sta nmienable
+	rts
+
 ; ** SUBROUTINE: ppu_rstaddr
 ; arguments: none
 ; clobbers:  A
@@ -362,13 +380,14 @@ reset_clrmem:
 	
 	jsr aud_load_sfx
 	
+	jsr ppu_nmi_on
 	cli
 	
 ; ** MAIN LOOP
 main_loop:
-	jsr ppu_nmi_off
+	jsr soft_nmi_off
 	jsr game_update
-	jsr ppu_nmi_on
+	jsr soft_nmi_on
 	jsr nmi_wait
 	jmp main_loop
 

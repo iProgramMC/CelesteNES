@@ -50,6 +50,9 @@ nmi:
 	tya
 	pha
 	
+	lda nmienable
+	beq nmi_gamemodeend ; if NMIs are softly disabled, then ONLY run audio
+	
 	lda #0
 	sta oam_addr
 	lda #>oam_buf     ; load the high byte of the OAM DMA address
