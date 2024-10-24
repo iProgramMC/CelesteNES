@@ -1,6 +1,7 @@
 keep/*
 *.dbg
 *.deb
+*.map
 *.dep
 *.o
 *.nes
