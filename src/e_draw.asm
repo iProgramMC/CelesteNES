@@ -13,9 +13,8 @@ gm_draw_particle:
 	bcc @dontCheckOffScreen
 	
 	lda temp4
-	bpl :+
-	rts
-:	lda temp2
+	bmi @returnEarly
+	lda temp2
 
 @dontCheckOffScreen:
 	sta x_crd_temp
@@ -24,6 +23,8 @@ gm_draw_particle:
 	ldy sprspace+sp_part_chrti, x
 	lda sprspace+sp_part_chrat, x
 	jsr oam_putsprite
+
+@returnEarly:
 	jsr gm_update_particle
 	rts
 
@@ -196,11 +197,21 @@ gm_draw_common:
 gm_draw_ent_call:
 	pha
 	jsr gm_check_ent_onscreen
-	bne :+
+	bne @notOffScreen
+	
 	pla
+	cmp #e_particle
+	bne @notParticle
+	
+	; particle went off screen HAHA, destroy it
+	lda #0
+	sta sprspace+sp_kind, x
+	
+@notParticle:
 	rts
 	
-:	; note: gm_check_ent_onscreen already calculated the x coordinate for us
+@notOffScreen:
+	; note: gm_check_ent_onscreen already calculated the x coordinate for us
 	
 	lda sprspace+sp_y, x
 	sta temp3

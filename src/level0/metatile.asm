@@ -60,9 +60,13 @@
 	.byte ct_deadly              ; Spikes
 	.res   4, ct_none            ; Grass Decals
 	.res  96, ct_none            ; House Decal
-	.res  18, ct_full            ; Bridge
+	;.res  18, ct_full            ; Bridge
+	.byte ct_jumpthru, ct_none, ct_jumpthru, ct_none, ct_jumpthru, ct_none, ct_jumpthru, ct_none
+	.byte ct_jumpthru, ct_none, ct_jumpthru, ct_none, ct_jumpthru, ct_none, ct_jumpthru, ct_none
+	.byte ct_jumpthru, ct_none
 	.res   2, ct_none            ; Bridge Pole
-	.res   7, ct_full            ; Bridge
+	;.res   7, ct_full            ; Bridge
+	.byte ct_jumpthru, ct_none, ct_jumpthru, ct_none, ct_jumpthru, ct_none, ct_none
 	.res   6, ct_none            ; Bridge Pole
 	.res   1, ct_none            ; Blank Tile for Intro Crusher
 	.res   4, ct_none            ; Bridge Pole (Gray)

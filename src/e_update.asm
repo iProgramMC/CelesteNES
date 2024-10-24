@@ -152,18 +152,23 @@ gm_update_refill:
 	; break into 4 pieces, destroy, and give the player their dashes back
 	
 	lda #$98
-	sta temp4
-	lda #1
-	sta temp5
+	sta temp4   ; character tile
+	lda #3
+	sta temp5   ; tile attributes
+	
+	lda #8
+	sta temp9   ; lifetime
+	lda #0
+	sta temp8   ; gravity
 	
 	ldx #0
-	jsr gm_spawn_particle
+	jsr gm_spawn_particle_at_ent
 	inx
-	jsr gm_spawn_particle
+	jsr gm_spawn_particle_at_ent
 	inx
-	jsr gm_spawn_particle
+	jsr gm_spawn_particle_at_ent
 	inx
-	jsr gm_spawn_particle
+	jsr gm_spawn_particle_at_ent
 	
 	ldx temp1
 	lda sprspace+sp_refill_flags, x
@@ -208,10 +213,8 @@ gm_update_particle:
 	bpl :+
 	lda #$FF
 	sta temp7
-:	lda sprspace+sp_part_vel_y, x
-	sta temp6
 	
-	clc
+:	clc
 	lda sprspace+sp_x, x
 	adc temp5
 	sta sprspace+sp_x, x
@@ -219,11 +222,40 @@ gm_update_particle:
 	adc temp7
 	sta sprspace+sp_x_pg, x
 	
+	lda sprspace+sp_vel_y_lo, x
 	clc
-	lda sprspace+sp_y, x
-	adc temp6
+	adc sprspace+sp_y_lo, x
+	sta sprspace+sp_y_lo, x
+	
+	lda sprspace+sp_part_vel_y, x
+	bmi @velMinus
+	
+	; velocity is positive. that means that a SET carry determines overflow
+	adc sprspace+sp_y, x
+	bcc @setY
+	
+	lda #0
+	sta sprspace+sp_kind, x  ; particle went off screen, actually!
+	lda #$F0
+	bne @setY
+	
+@velMinus:
+	; velocity is negative. means that a CLEAR carry determines overflow
+	adc sprspace+sp_y, x
+	bcs @setY
+	lda #$00
+@setY:
 	sta sprspace+sp_y, x
 	
+	; gravity
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc sprspace+sp_part_gravi, x
+	sta sprspace+sp_vel_y_lo, x
+	
+	bcc @done
+	inc sprspace+sp_vel_y, x
+@done:
 	dec sprspace+sp_part_timer, x
 	bne :+
 	lda #0

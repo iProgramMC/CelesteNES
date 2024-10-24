@@ -201,6 +201,8 @@ level0_bridge_manager:
 
 l0bm_block_widths:
 	.byte 2,0,1,1,1,1,1,1,1,1,2,0,1
+l0bs_sprites:
+	.byte $10,$12,$24,$26,$28,$2A,$3C,$7E,$BE,$24,$D0,$E0,$F0
 
 ; ** ENTITY: level0_intro_crusher
 ; desc: The intro crusher from the Prologue.
