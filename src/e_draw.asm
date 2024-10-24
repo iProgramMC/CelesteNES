@@ -228,6 +228,7 @@ gm_entjtable_lo:
 	.byte <gm_draw_points
 	.byte <level0_intro_crusher
 	.byte <gm_draw_box
+	.byte <level0_bridge_manager
 
 gm_entjtable_hi:
 	.byte $00
@@ -240,6 +241,7 @@ gm_entjtable_hi:
 	.byte >gm_draw_points
 	.byte >level0_intro_crusher
 	.byte >gm_draw_box
+	.byte >level0_bridge_manager
 
 gm_allocate_palettes:
 	; clear the memory related to palette allocation.

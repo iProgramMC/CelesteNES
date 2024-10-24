@@ -35,6 +35,7 @@ gm_gettargetindexforce:
 ; clobbers: A, X
 gm_velsignbtnshld:
 	jsr gm_gettargetindex
+	tax
 	cmp #1
 	bne :+
 	

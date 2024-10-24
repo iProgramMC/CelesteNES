@@ -179,14 +179,16 @@ forcemovex  : .res 1
 quaketimer  : .res 1
 quakeflags  : .res 1 ; directions are the same as controller flags
 l0crshidx   : .res 1
-l0crshpalo  : .res 1 ; level 0 crusher ppu address low
-l0crshpahi  : .res 1 ; level 0 crusher ppu address high
 plattemp1   : .res 1 ; TODO: replace with a regular temp
 plattemp2   : .res 1 ; TODO: replace with a regular temp
 entground   : .res 1 ; entity ID the player is standing on
 musicbank   : .res 1 ; music is active in this bank
 musictable  : .res 2 ; currently active table of songs
 musicdiff   : .res 1 ; should the music be re-initialized?
+clearpalo   : .res 1 ; enqueued name table clear, ppu address low
+clearpahi   : .res 1 ; enqueued name table clear, ppu address high
+clearsizex  : .res 1 ; enqueued name table clear, size X
+clearsizey  : .res 1 ; enqueued name table clear, size Y
 
 tl_snow_y   : .res 16
 tl_snow_x   : .res 16

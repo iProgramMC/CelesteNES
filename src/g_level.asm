@@ -214,6 +214,142 @@ h_flush_row_u:
 	
 	rts
 
+; ** SUBROUTINE: h_enqueued_clear
+; desc: Clears the places in a nametable that the IntroCrusher occupies.
+; assumes: running inside an NMI or rendering is disabled.
+h_enqueued_clear:
+	lda clearpahi
+	sta ppu_addr
+	lda clearpalo
+	sta ppu_addr
+	
+	ldx #0
+@loop:
+	stx temp2
+	
+	ldx #0
+	lda #0
+:	sta ppu_data
+	inx
+	cpx clearsizex
+	bne :-
+	
+	lda clearpalo
+	clc
+	adc #$20
+	sta clearpalo
+	bcc :+
+	inc clearpahi
+:	lda clearpahi
+	sta ppu_addr
+	lda clearpalo
+	sta ppu_addr
+	
+	ldx temp2
+	inx
+	cpx clearsizey
+	bne @loop
+	rts
+	
+level0_nmi_set_icr:
+	lda clearpahi
+	sta ppu_addr
+	lda clearpalo
+	sta ppu_addr
+	
+	ldx #0
+	ldy #0
+@loop:
+	stx temp2
+	
+	ldx #0
+:	lda l0ic_chardata, y
+	sta ppu_data
+	iny
+	inx
+	cpx #7
+	bne :-
+	
+	lda clearpalo
+	clc
+	adc #$20
+	sta clearpalo
+	bcc :+
+	inc clearpahi
+	
+:	lda clearpahi
+	sta ppu_addr
+	lda clearpalo
+	sta ppu_addr
+	
+	ldx temp2
+	inx
+	cpx #4
+	bne @loop
+	rts
+
+; ** SUBROUTINE: h_calcppuaddr
+; desc: Calculates the PPU address for the tile position stored at [temp2 (x), temp3 (y)].
+;       Returns the results in clearpalo, clearpahi.  These are then used by
+;       the NMI handler.
+h_calcppuaddr:
+	; add the level Y offset.
+	lda temp3
+	pha
+	
+	clc
+	adc lvlyoff
+	cmp #$1E
+	bcc :+
+	sbc #$1E
+:	sta temp3
+	
+	; the nametable the IC is a part of.
+	;
+	; note: the IC may not wrap across nametables! Tiles will be written to the
+	; wrong place if it does!
+	lda #%00100000
+	bit temp2
+	bne @do24
+	lda #$20
+	bne @done
+@do24:
+	lda #$24
+@done:
+	sta clearpalo
+	
+	; then, part of the Y coordinate.
+	; between $2000 and $2100 there are 8 tile rows.
+	lda temp3
+	lsr
+	lsr
+	lsr
+	clc
+	adc clearpalo
+	tay         ; high address in Y
+	
+	; 0010 0XYY YYYX XXXX
+	
+	lda temp3
+	ror
+	ror
+	ror
+	ror
+	and #%11100000
+	sta clearpalo
+	
+	lda temp2
+	and #%00011111
+	ora clearpalo
+	
+	; temp5 - high byte, temp4 - low byte
+	sta clearpalo
+	sty clearpahi
+	
+	pla
+	sta temp3
+	rts
+
 ; ** SUBROUTINE: h_clear_2cols
 ; desc:    Clears two columns with blank.
 ; assumes: we're in vblank, or rendering is disabled

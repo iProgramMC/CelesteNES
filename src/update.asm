@@ -181,7 +181,7 @@ nmi_game:
 	beq @tryseticr
 	eor gamectrl2
 	sta gamectrl2
-	jsr level0_nmi_clear_icr
+	jsr h_enqueued_clear
 	
 @tryseticr:
 	lda #g2_setcru

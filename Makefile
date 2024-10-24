@@ -12,7 +12,7 @@ build: main.nes
 	$(AS) -g --create-dep "$@.dep" --debug-info $< -o $@
 
 main.nes: layout main.o
-	$(LD) --dbgfile $@.dbg -C $^ -o $@
+	$(LD) --dbgfile $@.dbg -C $^ -o $@ -m $@.map
 
 clean:
 	rm -f main.nes *.dep *.o *.dbg

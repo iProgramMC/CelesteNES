@@ -84,6 +84,9 @@ sp_l0ic_state = sp_entspec1  ; 0 - hanging, 1 - falling, 2 - fallen
 sp_l0ic_timer = sp_entspec2
 sp_l0ic_vel_y = sp_vel_y
 sp_l0ic_vsu_y = sp_vel_y_lo
+sp_l0bm_state = sp_entspec1  ; 0 - waiting, 1 - falling
+sp_l0bm_blidx = sp_entspec2  ; index of block to trigger to fall
+sp_l0bm_timer = sp_entspec3
 
 ; entity flags
 ef_collidable = $01
@@ -99,8 +102,9 @@ e_key       = $04
 e_particle  = $05 ; INTERNAL: shatter particle
 e_refillhd  = $06 ; INTERNAL: place holder for refill
 e_points    = $07 ; INTERNAL: points when a strawberry is collected
-e_l0introcr = $08 ; level 0 intro crusher
+e_l0introcr = $08 ; LEVEL 0: intro crusher
 e_box       = $09 ; box with collision against the player
+e_l0bridge  = $0A ; LEVEL 0: bridge manager
 
 ; Entity types that turn into other entities on load
 e_rerefill  = $FF ; refill with respawn flag set
@@ -333,7 +337,7 @@ maxwalkad   = $40   ; maximum walk approach delta in subpixels
 dragamount  = $47   ; drag amount per frame (around 17 px/fr^2 in Celeste)
 superjmphhi = $04   ; super jump boost pixel part
 superjmphlo = $55   ; super jump boost subpixel part
-wjfxtval    = $0A   ; wall jump force X timer value. in Celeste this is 0.16f which is about ten frames.
+wjfxtval    = $0B   ; wall jump force X timer value. in Celeste this is 0.16f which is about ten frames.
 animspd     = $10   ; 256/animspd is the amount of frames per animation up-tick (for 32, it's 8 fr)
 maxslidespd = $80   ; maximum slide speed in subpixels
 defjmpbuff  = $04   ; 4 frames of buffering a jump

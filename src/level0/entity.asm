@@ -8,6 +8,148 @@
 ;   temp3 - Y Screen Position
 ;   temp4 - X High Position
 
+; ** ENTITY: level0_bridge_manager
+; desc: This entity manages a single bridge instance  (13 tiles wide) and
+;       initiates the fall sequence for each.
+level0_bridge_manager:
+	lda sprspace+sp_l0bm_state, x
+	beq @state_Idle
+	
+	; Falling state. If the timer is zero, determine which block to fall, and
+	; make it fall.
+	
+	; TODO: if player somehow outruns the default rhythm, speed up!
+	
+	dec sprspace+sp_l0bm_timer, x
+	bne @drawSprite_Bne
+	
+	; falling !
+	lda sprspace+sp_x_pg, x
+	lsr                      ; shift bit 1 in the carry
+	lda sprspace+sp_x, x
+	ror                      ; shift sp_x right by 1, and shift the carry in
+	lsr
+	lsr                      ; finish the division by eight
+	
+	; OK. Now load the block index to overwrite
+	clc
+	adc sprspace+sp_l0bm_blidx, x
+	sta temp2
+	
+	ldy sprspace+sp_l0bm_blidx, x
+	lda l0bm_block_widths, y
+	sta temp8
+	sta clearsizex
+	lda #8
+	sta clearsizey
+	
+	lda sprspace+sp_y, x
+	lsr
+	lsr
+	lsr
+	sta temp3
+	
+	jsr h_calcppuaddr
+	
+	; clear the tiles
+	ldx #0
+@loop:
+	stx temp7
+	
+	ldy temp3
+	ldx temp2
+	jsr h_comp_addr
+	inx
+	stx temp2
+	
+	ldx #3
+	lda #0
+:	sta (lvladdr), y
+	iny
+	dex
+	bne :-
+	
+	ldx temp7
+	inx
+	cpx temp8
+	bne @loop
+	
+	lda #g2_clrcru
+	ora gamectrl2
+	sta gamectrl2
+	
+	ldx temp1
+	
+	; done. Now advance and set a timer
+	lda #60
+	sta sprspace+sp_l0bm_timer, x
+	
+	ldy sprspace+sp_l0bm_blidx, x
+	lda l0bm_block_widths, y
+	
+	clc
+	adc sprspace+sp_l0bm_blidx, x
+	sta sprspace+sp_l0bm_blidx, x
+	
+	cmp #13   ; the maximum tile index
+	bcc @returnEarly
+	
+	; ok. so despawn the Entity
+	lda #0
+	sta sprspace+sp_kind, x
+
+@returnEarly:
+	rts
+
+@drawSprite_Bne:
+	bne @drawSprite
+
+@state_Idle:
+	; idle state. Check if the player has approached this entity's position
+	lda player_x
+	clc
+	adc camera_x
+	sta temp5
+	
+	lda camera_x_pg
+	adc #0
+	sta temp6
+	
+	; check if that X position exceeds the bridge manager's
+	lda temp6
+	cmp sprspace+sp_x_pg, x
+	
+	bcc @noFallInit   ; player X <<< bman X
+	bne @forceFall    ; player X >>> bman X
+	
+	lda temp5
+	cmp sprspace+sp_x, x
+	bcc @noFallInit
+
+@forceFall:
+	; start falling immediately
+	lda #$1
+	sta sprspace+sp_l0bm_state, x
+	; set the timer to 1 so that when the first frame in that state is run, the
+	; timer goes to 0.
+	sta sprspace+sp_l0bm_timer, x
+
+@noFallInit:
+	lda #0
+	jmp @drawSprite
+
+@drawSprite:
+	sta temp5
+	sta temp8
+	lda #$F4
+	sta temp6
+	lda #$F6
+	sta temp7
+	jmp gm_draw_common
+
+l0bm_block_widths:
+	.byte 2,0,1,1,1,1,1,1,1,1,2,0,1
+
 ; ** ENTITY: level0_intro_crusher
 ; desc: The intro crusher from the Prologue.
 ;       Draws itself in two halves which alternate their order every frame.
@@ -296,13 +438,19 @@ level0_intro_crusher:
 	; Set the flags that will clear the crusher's nametable visually.
 	stx l0crshidx
 	
+	; Enqueue a clear for the size of the intro crusher..
 	lda #g2_clrcru
 	ora gamectrl2
 	sta gamectrl2
 	
+	lda #7
+	sta clearsizex
+	lda #4
+	sta clearsizey
+	
 	; Initiate the clearing process.
-	jsr level0_ic_calcpos         ; calculate tile pos in (temp2, temp3)
-	jsr level0_ic_calcppuaddr     ; use said tile pos to prepare for the g2_clrcru NMI.
+	jsr level0_ic_calcpos ; calculate tile pos in (temp2, temp3)
+	jsr h_calcppuaddr     ; use said tile pos to prepare for the g2_clrcru NMI.
 	
 	ldx #0
 @loop:
@@ -340,8 +488,8 @@ level0_intro_crusher:
 	sta gamectrl2
 	
 	; Initiate the setting process.
-	jsr level0_ic_calcpos         ; calculate tile pos in (temp2, temp3)
-	jsr level0_ic_calcppuaddr     ; use said tile pos to prepare for the g2_setcru NMI.
+	jsr level0_ic_calcpos ; calculate tile pos in (temp2, temp3)
+	jsr h_calcppuaddr     ; use said tile pos to prepare for the g2_setcru NMI.
 	
 	ldx #0
 	stx temp6
@@ -370,80 +518,6 @@ level0_intro_crusher:
 	
 	rts
 
-; ** SUBROUTINE: level0_nmi_clear_icr
-; desc: Clears the places in a nametable that the IntroCrusher occupies.
-; assumes: running inside an NMI or rendering is disabled.
-level0_nmi_clear_icr:
-	lda l0crshpahi
-	sta ppu_addr
-	lda l0crshpalo
-	sta ppu_addr
-	
-	ldx #0
-@loop:
-	stx temp2
-	
-	ldx #0
-	lda #0
-:	sta ppu_data
-	inx
-	cpx #7
-	bne :-
-	
-	lda l0crshpalo
-	clc
-	adc #$20
-	sta l0crshpalo
-	bcc :+
-	inc l0crshpahi
-:	lda l0crshpahi
-	sta ppu_addr
-	lda l0crshpalo
-	sta ppu_addr
-	
-	ldx temp2
-	inx
-	cpx #4
-	bne @loop
-	rts
-	
-level0_nmi_set_icr:
-	lda l0crshpahi
-	sta ppu_addr
-	lda l0crshpalo
-	sta ppu_addr
-	
-	ldx #0
-	ldy #0
-@loop:
-	stx temp2
-	
-	ldx #0
-:	lda l0ic_chardata, y
-	sta ppu_data
-	iny
-	inx
-	cpx #7
-	bne :-
-	
-	lda l0crshpalo
-	clc
-	adc #$20
-	sta l0crshpalo
-	bcc :+
-	inc l0crshpahi
-	
-:	lda l0crshpahi
-	sta ppu_addr
-	lda l0crshpalo
-	sta ppu_addr
-	
-	ldx temp2
-	inx
-	cpx #4
-	bne @loop
-	rts
-
 ; ** SUBROUTINE: level0_ic_calcpos
 ; desc: Calculates the tile position of the IntroCrusher into [temp2, temp3].
 level0_ic_calcpos:
@@ -470,68 +544,6 @@ level0_ic_calcpos:
 	ora temp2
 	sta temp2
 	
-	rts
-
-; desc: Calculates the PPU address of the current IntroCrusher position, stored
-;       at [temp2 (x), temp3 (y)].
-;       Returns the results in l0crshpalo, l0crshpahi.  These are then used by
-;       the NMI handler.
-level0_ic_calcppuaddr:
-	; add the level Y offset.
-	lda temp3
-	pha
-	
-	clc
-	adc lvlyoff
-	cmp #$1E
-	bcc :+
-	sbc #$1E
-:	sta temp3
-	
-	; the nametable the IC is a part of.
-	;
-	; note: the IC may not wrap across nametables! Tiles will be written to the
-	; wrong place if it does!
-	lda #%00100000
-	bit temp2
-	bne @do24
-	lda #$20
-	bne @done
-@do24:
-	lda #$24
-@done:
-	sta l0crshpalo
-	
-	; then, part of the Y coordinate.
-	; between $2000 and $2100 there are 8 tile rows.
-	lda temp3
-	lsr
-	lsr
-	lsr
-	clc
-	adc l0crshpalo
-	tay         ; high address in Y
-	
-	; 0010 0XYY YYYX XXXX
-	
-	lda temp3
-	ror
-	ror
-	ror
-	ror
-	and #%11100000
-	sta l0crshpalo
-	
-	lda temp2
-	and #%00011111
-	ora l0crshpalo
-	
-	; temp5 - high byte, temp4 - low byte
-	sta l0crshpalo
-	sty l0crshpahi
-	
-	pla
-	sta temp3
 	rts
 
 l0ic_dataFHU:	.byte $81, $89, $8B, $8D

@@ -47,6 +47,8 @@
 	.byte $F0,$F1,$A8     ; Bridge 3
 	.byte $E2,$F2,$3E,$2C,$A0,$A1 ; Bridge Pole
 	.byte $00             ; Blank Tile for Intro Crusher
+	.byte $CF,$D2,$E2,$F2 ; Bridge Pole (Gray)
+	.byte $60,$67         ; Dirt (Gray)
 
 ;metatile_info:
 .align $100
@@ -63,5 +65,7 @@
 	.res   7, ct_full            ; Bridge
 	.res   6, ct_none            ; Bridge Pole
 	.res   1, ct_none            ; Blank Tile for Intro Crusher
+	.res   4, ct_none            ; Bridge Pole (Gray)
+	.res   2, ct_full            ; Dirt (Gray)
 
 .align $100
