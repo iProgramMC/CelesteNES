@@ -274,8 +274,17 @@ level0_r4_p:
 	.byte $00,$00,$FF
 level0_r4_e:
 	.byte $40,$80,$01
+	.byte $40,$B0,$0A
+	.byte $A8,$B0,$0A
 	.byte $FE
+	.byte $10,$B0,$0A
 	.byte $78,$B0,$0A
+	.byte $E0,$B0,$0A
+	.byte $FE
+	.byte $48,$B0,$0A
+	.byte $B0,$B0,$0A
+	.byte $FE
+	.byte $18,$B0,$0A
 	.byte $FF
 level0_r4_t:
 	.byte $D6,$06,$13,$C6,$96,$05,$14,$86

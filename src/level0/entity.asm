@@ -49,6 +49,18 @@ level0_bridge_manager:
 	lsr
 	sta temp3
 	
+	; check if a clear is already enqueued.
+	lda #g2_clrcru
+	bit gamectrl2
+	beq :+
+	
+	; clear is already enqueued. Simply wait one more frame
+	inc sprspace+sp_l0bm_timer, x
+	bne @drawSprite_Bne
+	
+:	ora gamectrl2
+	sta gamectrl2
+	
 	jsr h_calcppuaddr
 	
 	; clear the tiles
@@ -73,10 +85,6 @@ level0_bridge_manager:
 	inx
 	cpx temp8
 	bne @loop
-	
-	lda #g2_clrcru
-	ora gamectrl2
-	sta gamectrl2
 	
 	ldx temp1
 	
