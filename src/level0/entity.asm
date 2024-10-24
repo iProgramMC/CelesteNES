@@ -13,15 +13,92 @@
 ;       initiates the fall sequence for each.
 level0_bridge_manager:
 	lda sprspace+sp_l0bm_state, x
-	beq @state_Idle
+	bne @state_Falling
 	
+	; idle state. Check if the player has approached this entity's position
+	lda player_x
+	clc
+	adc camera_x
+	sta temp5
+	
+	lda camera_x_pg
+	adc #0
+	sta temp6
+	
+	; check if that X position exceeds the bridge manager's
+	lda temp6
+	cmp sprspace+sp_x_pg, x
+	
+	bcc @noFallInit   ; player X <<< bman X
+	bne @forceFall    ; player X >>> bman X
+	
+	lda temp5
+	cmp sprspace+sp_x, x
+	bcc @noFallInit
+
+@forceFall:
+	; start falling immediately
+	lda #1
+	sta sprspace+sp_l0bm_state, x
+	lda #20
+	sta sprspace+sp_l0bm_timer, x
+
+@noFallInit:
+	lda #0
+	rts
+	;jmp @drawSprite
+	
+@state_Falling:
 	; Falling state. If the timer is zero, determine which block to fall, and
 	; make it fall.
 	
-	; TODO: if player somehow outruns the default rhythm, speed up!
+	; if player somehow outruns the default rhythm, just set the timer to zero.
+	lda sprspace+sp_l0bm_blidx, x
+	asl
+	asl
+	asl
+	clc
+	adc sprspace+sp_x, x
+	sta temp7
 	
+	lda sprspace+sp_x_pg, x
+	adc #0
+	sta temp8
+	
+	lda #24
+	adc temp7
+	sta temp7
+	bcc :+
+	inc temp8
+	
+:	lda player_x
+	clc
+	adc camera_x
+	sta temp5
+	
+	lda camera_x_pg
+	adc #0
+	sta temp6
+	
+	lda temp6
+	bmi @noSpeedUp
+	cmp temp8
+	
+	bcc @noSpeedUp
+	bne @forceNow
+	
+	lda temp5
+	cmp temp7
+	bcc @noSpeedUp
+
+@forceNow:
+	lda #1
+	sta sprspace+sp_l0bm_timer, x
+	
+@noSpeedUp:
 	dec sprspace+sp_l0bm_timer, x
-	bne @drawSprite_Bne
+	bne @returnEarly
+	;bne @drawSprite_Bne
 	
 	; falling !
 	lda sprspace+sp_x_pg, x
@@ -56,7 +133,8 @@ level0_bridge_manager:
 	
 	; clear is already enqueued. Simply wait one more frame
 	inc sprspace+sp_l0bm_timer, x
-	bne @drawSprite_Bne
+	bne @returnEarly
+	;bne @drawSprite_Bne
 	
 :	ora gamectrl2
 	sta gamectrl2
@@ -89,7 +167,7 @@ level0_bridge_manager:
 	ldx temp1
 	
 	; done. Now advance and set a timer
-	lda #60
+	lda #20
 	sta sprspace+sp_l0bm_timer, x
 	
 	ldy sprspace+sp_l0bm_blidx, x
@@ -109,51 +187,17 @@ level0_bridge_manager:
 @returnEarly:
 	rts
 
-@drawSprite_Bne:
-	bne @drawSprite
+;@drawSprite_Bne:
+;	bne @drawSprite
 
-@state_Idle:
-	; idle state. Check if the player has approached this entity's position
-	lda player_x
-	clc
-	adc camera_x
-	sta temp5
-	
-	lda camera_x_pg
-	adc #0
-	sta temp6
-	
-	; check if that X position exceeds the bridge manager's
-	lda temp6
-	cmp sprspace+sp_x_pg, x
-	
-	bcc @noFallInit   ; player X <<< bman X
-	bne @forceFall    ; player X >>> bman X
-	
-	lda temp5
-	cmp sprspace+sp_x, x
-	bcc @noFallInit
-
-@forceFall:
-	; start falling immediately
-	lda #$1
-	sta sprspace+sp_l0bm_state, x
-	; set the timer to 1 so that when the first frame in that state is run, the
-	; timer goes to 0.
-	sta sprspace+sp_l0bm_timer, x
-
-@noFallInit:
-	lda #0
-	jmp @drawSprite
-
-@drawSprite:
-	sta temp5
-	sta temp8
-	lda #$F4
-	sta temp6
-	lda #$F6
-	sta temp7
-	jmp gm_draw_common
+;@drawSprite:
+;	sta temp5
+;	sta temp8
+;	lda #$F4
+;	sta temp6
+;	lda #$F6
+;	sta temp7
+;	jmp gm_draw_common
 
 l0bm_block_widths:
 	.byte 2,0,1,1,1,1,1,1,1,1,2,0,1

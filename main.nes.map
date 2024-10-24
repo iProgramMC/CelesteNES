@@ -8,9 +8,9 @@ main.o:
     PLTRACES          Offs=000000  Size=000080  Align=00001  Fill=0000
     DRAWTEMP          Offs=000000  Size=000100  Align=00001  Fill=0000
     CARTWRAM          Offs=000000  Size=000800  Align=00001  Fill=0000
-    PRG_LVL0          Offs=000000  Size=0012E1  Align=00100  Fill=0000
+    PRG_LVL0          Offs=000000  Size=00130F  Align=00100  Fill=0000
     PRG_LVL1          Offs=000000  Size=000FAC  Align=00100  Fill=0000
-    PRG_GAME          Offs=000000  Size=001F08  Align=00001  Fill=0000
+    PRG_GAME          Offs=000000  Size=001F1F  Align=00001  Fill=0000
     PRG_MAIN          Offs=000000  Size=0015C0  Align=00001  Fill=0000
     FMSRAM            Offs=000000  Size=0000A8  Align=00001  Fill=0000
     PRG_PALS          Offs=000000  Size=000040  Align=00001  Fill=0000
@@ -49,8 +49,8 @@ CHR_DGRAN             001000  001FFF  001000  00001
 CHR_DMADE             001000  001FFF  001000  00001
 CHR_DTHEO             001000  001FFF  001000  00001
 CARTWRAM              006000  0067FF  000800  00001
-PRG_GAME              008000  009F07  001F08  00001
-PRG_LVL0              00A000  00B2E0  0012E1  00100
+PRG_GAME              008000  009F1E  001F1F  00001
+PRG_LVL0              00A000  00B30E  00130F  00100
 PRG_LVL1              00A000  00AFAB  000FAC  00100
 PRG_MAIN              00E000  00F5BF  0015C0  00001
 PRG_PALS              00FF00  00FF3F  000040  00001

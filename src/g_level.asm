@@ -218,37 +218,67 @@ h_flush_row_u:
 ; desc: Clears the places in a nametable that the IntroCrusher occupies.
 ; assumes: running inside an NMI or rendering is disabled.
 h_enqueued_clear:
+	; set the increment to 32 in the PPUCTRL
+	lda ctl_flags
+	ora #pctl_adv32
+	sta ppu_ctrl
+	
+	ldy #0
+@loop:
+	sty temp2
+	
+	; load the ppu address to start writing the column
 	lda clearpahi
 	sta ppu_addr
 	lda clearpalo
 	sta ppu_addr
 	
-	ldx #0
-@loop:
-	stx temp2
-	
-	ldx #0
+	; flush one column
 	lda #0
-:	sta ppu_data
-	inx
-	cpx clearsizex
-	bne :-
-	
-	lda clearpalo
-	clc
-	adc #$20
-	sta clearpalo
-	bcc :+
-	inc clearpahi
-:	lda clearpahi
-	sta ppu_addr
-	lda clearpalo
-	sta ppu_addr
-	
-	ldx temp2
+	ldx #0
+:	; TODO: somehow ensure that the PPUDATA is reloaded properly from the top
+    ; when vertically overflowing a nametable?? or something??
+	sta ppu_data
 	inx
 	cpx clearsizey
+	bne :-
+	
+	; keep part of the old row number in a temporary so we can check it later
+	lda clearpalo
+	and #%11100000
+	sta temp3
+	
+	; increment the PPU address, for the next column
+	inc clearpalo
+	beq @haveOverFlow  ; in case of this type of overflow, the row was definitely overflown
+	
+	; check for regular cases of overflow
+	lda clearpalo
+	and #%11100000
+	cmp temp3
+	beq @noOverFlow    ; if the row number stayed the same, then no overflow
+	
+@haveOverFlow:
+	; we have overflow! reset the row number to default and increase the name table number
+	lda clearpalo
+	and #%00011111
+	ora temp3
+	sta clearpalo
+	
+	lda clearpahi
+	eor #$04
+	sta clearpahi
+
+@noOverFlow:
+	ldy temp2
+	iny
+	cpy clearsizex
 	bne @loop
+	
+	; restore the old PPUCTRL
+	lda ctl_flags
+	sta ppu_ctrl
+	
 	rts
 	
 level0_nmi_set_icr:
