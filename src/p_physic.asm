@@ -594,8 +594,8 @@ gm_getleftx:
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda player_x_hi
-	adc camera_x_hi
+	lda camera_x_hi
+	adc #0
 	ror               ; rotate it into carry
 	lda x_crd_temp
 	ror               ; rotate it into the low position
@@ -615,14 +615,13 @@ gm_getrightx:
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda player_x_hi
-	adc camera_x_hi
+	lda camera_x_hi
+	adc #0
 	ror               ; rotate it into carry
 	lda x_crd_temp
 	ror               ; rotate it into the low position
 	lsr
-	lsr
-	;lsr               ; finish dividing by the tile size
+	lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_getleftwjx
@@ -635,14 +634,13 @@ gm_getleftwjx:
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda player_x_hi
-	adc camera_x_hi
+	lda camera_x_hi
+	adc #0
 	ror               ; rotate it into carry
 	lda x_crd_temp
 	ror               ; rotate it into the low position
 	lsr
-	lsr
-	;lsr               ; finish dividing by the tile size
+	lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_getrightwjx
@@ -655,14 +653,13 @@ gm_getrightwjx:
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda player_x_hi
-	adc camera_x_hi
+	lda camera_x_hi
+	adc #0
 	ror               ; rotate it into carry
 	lda x_crd_temp
 	ror               ; rotate it into the low position
 	lsr
-	lsr
-	;lsr               ; finish dividing by the tile size
+	lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_gettopy
@@ -1037,11 +1034,12 @@ gm_applyx:
 @checkRightLoop:
 	dec temp7
 	beq @checkDone           ; nope, out of here with your stupid games
-	
+	               ; if a right camera limit was set and reached, only then can we leave the room
 	lda player_x
 	cmp #$F0
-	bcs gm_leaveroomR_       ; try to leave the room
+	bcs @callLeaveRoomR      ; try to leave the room
 	
+@doneLeavingRoom:
 	jsr gm_collentright
 	bne @collidedRight
 	
@@ -1084,8 +1082,13 @@ gm_applyx:
 ;
 
 @checkDone:
-	lda player_vl_x
+	;lda player_vl_x
 	bpl gm_scroll_r_cond    ; if moving positively, scroll if needed
+	rts
+
+@callLeaveRoomR:
+	jsr gm_leaveroomR
+	bne @doneLeavingRoom
 	rts
 
 @checkLeft:
@@ -1180,7 +1183,10 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	bmi gm_camxlimited
 	sta scrchkhi
 gm_scrollnolimit:
-	lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
+	;lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
+	lda player_x
+	sec
+	sbc temp1
 	sta player_x
 	txa               ; restore the delta to add to camera_rev
 	pha

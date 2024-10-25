@@ -137,7 +137,6 @@ gm_game_clear_wx:
 	stx camera_y
 	stx camera_x_hi
 	stx camera_x_pg
-	stx player_x_hi
 	stx lvladdr
 	stx lvladdrhi
 	stx playerctrl

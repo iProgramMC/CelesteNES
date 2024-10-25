@@ -43,7 +43,7 @@ player_sp_y : .res 1 ; subpixel memory Y
 camera_x    : .res 1
 camera_y    : .res 1
 camera_x_hi : .res 1
-player_x_hi : .res 1 ; player screen X - alternates between 0 and 1
+camera_y_hi : .res 1
 
 ; TODO: Merge These Into Each Other
 ; title

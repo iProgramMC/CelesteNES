@@ -253,11 +253,10 @@ nmi_calccamerapos:
 	ldx camera_x_hi
 	beq :+
 	ora #pctl_highx
-:	;ldx camera_y_hi
-	;beq :+
-	;ora #pctl_highy
-;:
-	sta ctl_flags
+:	ldx camera_y_hi
+	beq :+
+	ora #pctl_highy
+:	sta ctl_flags
 	sta ppu_ctrl
 	
 	lda camera_x
@@ -274,8 +273,8 @@ nmi_calccamerapos:
 	sta temp2
 	lda camera_y
 	sta temp3
-	; lda camera_y_hi
-	; sta temp4
+	lda camera_y_hi
+	sta temp4
 	
 	; apply a random quake based on the quake flags
 	lda #cont_up
@@ -287,9 +286,9 @@ nmi_calccamerapos:
 	clc
 	adc temp3
 	sta temp3
-	;lda temp4
-	;adc temp5
-	;sta temp4
+	lda temp4
+	adc temp5
+	sta temp4
 
 @notUp:
 	lda #cont_down
@@ -300,9 +299,9 @@ nmi_calccamerapos:
 	clc
 	adc temp3
 	sta temp3
-	;lda temp4
-	;adc temp5
-	;sta temp4
+	lda temp4
+	adc temp5
+	sta temp4
 
 @notDown:
 	

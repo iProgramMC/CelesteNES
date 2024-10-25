@@ -18,14 +18,24 @@ cspeed = 8
 gm_leaveroomR:
 	lda #$F0
 	sta player_x
+	
+	; If the rightward camera limit wasn't reached yet then we have no reason to leave
+	lda #gs_scrstodR
+	bit gamectrl
+	beq @returnEarly
+	
 	; now leave the room through the right side
 	ldy warp_r_y
 	sty transoff
 	ldy warp_r
 	cpy #$FF
-	bne :+
+	bne @actuallyTransition
+	
+@returnEarly:
+	lda #1
 	rts                      ; no warp was assigned there so return
-:	jsr gm_set_room
+@actuallyTransition:
+	jsr gm_set_room
 	
 	lda trarwrhead
 	sta arwrhead
@@ -164,6 +174,7 @@ gm_roomRtrangenbk:
 	asl
 	asl
 	sta camera_y
+	lda #0
 	rts
 
 gm_roomRtrangen:
