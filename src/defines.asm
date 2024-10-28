@@ -91,6 +91,7 @@ sp_l0bm_timer = sp_entspec3
 
 ; entity flags
 ef_collidable = $01
+ef_oddroom    = $02 ; 
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
@@ -287,6 +288,11 @@ g2_noclrall = $08   ; don't clear everything
 g2_clearcol = $10   ; clear two columns at ntwrhead with blank.
 g2_clrcru   = $20   ; clear the intro crusher's tiles to blank (entity index in l0crshidx)
 g2_setcru   = $40   ; set the intro crusher's tiles (entity index in l0crshidx)
+g3_transitR = $01   ; is in a RIGHT transition
+g3_transitU = $02   ; is in an UP transition
+g3_transitL = $04   ; is in a LEFT transition
+g3_transitD = $08   ; is in a DOWN transition
+	g3_transitA = $0F ; all transition types, for checking whether any kind of transition is active
 lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded

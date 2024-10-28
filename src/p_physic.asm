@@ -1029,12 +1029,11 @@ gm_applyx:
 
 @checkRight:
 	lda #(maxvelxhi+2)
-	sta temp7
+	sta temp10
 
 @checkRightLoop:
-	dec temp7
+	dec temp10
 	beq @checkDone           ; nope, out of here with your stupid games
-	               ; if a right camera limit was set and reached, only then can we leave the room
 	lda player_x
 	cmp #$F0
 	bcs @callLeaveRoomR      ; try to leave the room
@@ -1082,9 +1081,9 @@ gm_applyx:
 ;
 
 @checkDone:
-	;lda player_vl_x
+	lda player_vl_x
 	bpl gm_scroll_r_cond    ; if moving positively, scroll if needed
-	rts
+	jmp gm_scroll_l_cond
 
 @callLeaveRoomR:
 	jsr gm_leaveroomR
@@ -1093,10 +1092,10 @@ gm_applyx:
 
 @checkLeft:
 	lda #(maxvelxhi+2)
-	sta temp7
+	sta temp10
 
 @checkLeftLoop:
-	dec temp7
+	dec temp10
 	beq @checkDone           ; nope, out of here with your stupid games
 	
 	jsr gm_collentleft
@@ -1139,15 +1138,14 @@ gm_applyx:
 gm_scroll_r_cond:
 	lda player_x
 	cmp #scrolllimit
-	bcc gm_scroll_ret ; A < scrolllimit
-	beq gm_scroll_ret ; A = scrolllimit
-gm_scroll_do:
+	bcc @scrollRet    ; A < scrolllimit
+	beq @scrollRet    ; A = scrolllimit
 	sec
 	sbc #scrolllimit
 	cmp #camspeed     ; see the difference we need to scroll
-	bcc gm_scr_nofix  ; A < camspeed
+	bcc @noFix        ; A < camspeed
 	lda #camspeed
-gm_scr_nofix:         ; A now contains the delta we need to scroll by
+@noFix:               ; A now contains the delta we need to scroll by
 	sta temp1
 	clc
 	tax               ; save the delta as we'll need it later
@@ -1160,7 +1158,8 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	sta camera_x_hi
 	lda #gs_scrstopR  ; check if we overstepped the camera boundary, if needed
 	bit gamectrl
-	beq gm_scrollnolimit
+	beq @noLimit
+	
 	lda camlimit
 	sta scrchklo
 	lda camlimithi
@@ -1180,9 +1179,10 @@ gm_scr_nofix:         ; A now contains the delta we need to scroll by
 	sta scrchklo
 	lda scrchkhi
 	sbc camera_x_hi
-	bmi gm_camxlimited
-	sta scrchkhi
-gm_scrollnolimit:
+	bmi @camXLimited
+	;sta scrchkhi
+	
+@noLimit:
 	;lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
 	lda player_x
 	sec
@@ -1197,16 +1197,16 @@ gm_scrollnolimit:
 	adc camera_rev
 	sta camera_rev
 	cmp #8
-	bcs gm_go_generate; if camera_rev+diff < 8 return
-gm_scroll_ret:
+	bcs @goGenerate   ; if camera_rev+diff < 8 return
+@scrollRet:
 	rts
-gm_go_generate:
+@goGenerate:
 	lda camera_rev    ; subtract 8 from camera_rev
 	sec
 	sbc #8
 	sta camera_rev
 	jmp h_gener_col_r
-gm_camxlimited:
+@camXLimited:
 	lda camlimithi
 	sta camera_x_hi
 	lda camlimit
@@ -1217,6 +1217,77 @@ gm_camxlimited:
 	ora gamectrl
 	sta gamectrl
 :	rts
+
+; ** SUBROUTINE: gm_scroll_l_cond
+gm_scroll_l_cond:
+	lda roomsize
+	beq @scrollRet    ; if this is a "long" room, then we CANNOT scroll left.
+	
+	lda player_x
+	cmp #scrolllimit
+	bcs @scrollRet
+	;bcc @scrollRet
+	
+	lda #scrolllimit
+	sec
+	sbc player_x
+	cmp #camspeed     ; see the difference we need to scroll
+	bcc @noFix
+	lda #camspeed
+@noFix:
+	sta temp1
+	
+	lda #(gs_scrstodR^$FF)
+	and gamectrl
+	sta gamectrl
+	
+	sec
+	lda camera_x
+	tax               ; save the delta as we'll need it later
+	sbc temp1         ; take the delta from the camera X
+	sta camera_x
+	lda camera_x_pg
+	sbc #0
+	bmi @limit
+	
+	sta camera_x_pg
+	and #1
+	sta camera_x_hi
+	
+	lda roombeglo
+	sta scrchklo
+	lda roombeghi
+	sta scrchkhi
+	
+	lda roombeghi     ; check if [roombeghi, roombeglo] < [camera_x_pg, camera_x]
+	cmp camera_x_pg
+	bne :+
+	lda roombeglo
+	cmp camera_x
+:	; if roombeg > cameraX then limit
+	bcs @limit
+	
+	; no limitation. also move the PLAYER's x coordinate
+@shouldNotLimit:
+	lda player_x
+	clc
+	adc temp1
+	sta player_x
+	
+	lda temp1
+	jsr gm_shiftrighttrace
+	
+@scrollRet:
+	rts
+	
+@limit:
+	lda roombeglo
+	sta camera_x
+	lda roombeghi
+	sta camera_x_pg
+	and #1
+	sta camera_x_hi
+	rts
 
 ; ** SUBROUTINE: gm_checkwjump
 ; desc: Assigns coyote time if wall is detected near the player.
@@ -1770,7 +1841,7 @@ gm_addtrace:
 ; desc: Shifts the player X trace left by an amount of pixels.
 ; parameters:
 ;     A - the amount of pixels to decrease the player X trace by
-; note: The player X trace is capped to 0. It will not overflow.
+; note: The player X trace is capped to 0. It will never overflow.
 gm_shifttrace:
 	pha
 	ldx #0
@@ -1786,12 +1857,33 @@ gm_shifttrace:
 	bne :--
 	pla
 	rts
+
+; ** SUBROUTINE: gm_shiftrighttrace
+; desc: Shifts the player X trace right by an amount of pixels.
+; parameters:
+;     A - the amount of pixels to increase the player X trace by
+; note: The player X trace is capped to $FF. It will never overflow.
+gm_shiftrighttrace:
+	pha
+	ldx #0
+	sta temp1
+:	lda plr_trace_x, x
+	clc
+	adc temp1
+	bcc :+
+	lda #$FF
+:	sta plr_trace_x, x
+	inx
+	cpx #$40
+	bne :--
+	pla
+	rts
 	
 ; ** SUBROUTINE: gm_shifttraceYP
 ; desc: Shifts the player Y trace down by an amount of pixels
 ; parameters:
 ;     A - the amount of pixels to increase the player Y trace by
-; note: The player X trace is capped to $F0. It will not overflow.
+; note: The player X trace is capped to $F0. It will never overflow.
 gm_shifttraceYP:
 	pha
 	ldx #0

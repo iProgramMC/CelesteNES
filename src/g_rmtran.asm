@@ -37,6 +37,12 @@ gm_leaveroomR:
 @actuallyTransition:
 	jsr gm_set_room
 	
+	inc roomnumber
+	
+	lda #g3_transitR
+	ora gamectrl3
+	sta gamectrl3
+	
 	lda trarwrhead
 	sta arwrhead
 	sta ntwrhead
@@ -174,6 +180,15 @@ gm_roomRtrangenbk:
 	asl
 	asl
 	sta camera_y
+	
+	lda #(g3_transitR ^ $FF)
+	and gamectrl3
+	sta gamectrl3
+	
+	lda roomnumber
+	eor #1
+	jsr gm_unload_ents_room
+	
 	lda #0
 	rts
 
@@ -201,6 +216,12 @@ gm_leaveroomU:
 	
 	ldy warp_u
 	jsr gm_set_room
+	
+	inc roomnumber
+	
+	lda #g3_transitU
+	ora gamectrl3
+	sta gamectrl3
 	
 	lda lvlyoff
 	clc
@@ -259,6 +280,15 @@ gm_leaveroomU:
 	adc temp2
 	sta camdst_x_pg
 	
+	lda camdst_x
+	clc
+	adc #7
+	and #%11111000   ; add the remainder to get a multiple of eight.
+	sta camdst_x
+	bcc :+
+	inc camdst_x_pg
+:
+	
 	; subtract it from the player X to determine the destination player X
 	sec
 	lda player_x
@@ -272,21 +302,24 @@ gm_leaveroomU:
 	; shift the entirety of camoff by 3 to allow for a course correction during some frames
 	jsr @compute_camoff2
 	
+	lda camdst_x
+	sta roombeglo
+	lsr
+	lsr
+	lsr
+	sta roombeglo2
+	lda camdst_x_pg
+	sta roombeghi
+	ror
+	ror
+	ror
+	ror
+	and #%11100000
+	ora roombeglo2
+	sta roombeglo2
+	
 	lda #0
 	sta temp7                ; temp7 will now hold the camera's "sub X" position
-	
-	; load the room beginning pixel
-	lda ntwrhead             ; NOTE: assumes arwrhead in [0, 64)
-	sta roombeglo2
-	asl
-	asl
-	asl                      ; multiply by 8
-	sta roombeglo
-	
-	clc
-	lda camera_x_pg
-	adc #1
-	sta roombeghi
 	
 	lda #0
 	sta tr_scrnpos
@@ -438,6 +471,11 @@ gm_leaveroomU:
 	and #1
 	sta camera_x_hi
 	
+	lda camera_x
+	sta roombeglo
+	lda camera_x_pg
+	sta roombeghi
+	
 	lda player_x_d
 	sta player_x
 	lda #0
@@ -493,6 +531,15 @@ gm_leaveroomU:
 	asl
 	asl
 	sta camera_y
+	
+	lda #(g3_transitU ^ $FF)
+	and gamectrl3
+	sta gamectrl3
+	
+	lda roomnumber
+	eor #1
+	jsr gm_unload_ents_room
+	
 	rts
 	
 @messedupcase:

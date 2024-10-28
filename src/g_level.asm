@@ -1,5 +1,8 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+; NOTE NOTE NOTE
+; These functions are declared in the MAIN segment. Not the GAME segment.
+
 ; ** SUBROUTINE: h_comp_addr
 ; desc:    Computes the address of the 64 byte row of tiles into lvladdr.
 ; arguments:
@@ -1023,6 +1026,11 @@ h_generents_spotfound:
 	; some more exceptional entity IDs here...
 	sta sprspace+sp_kind, x
 h_generents_cont:
+	lda roomnumber
+	and #1
+	asl
+	sta sprspace+sp_flags, x
+	
 	lda temp2
 	sta sprspace+sp_y, x
 	

@@ -341,9 +341,58 @@ gm_check_ent_onscreen:
 	lda #0
 	rts
 
+; ** SUBROUTINE: gm_unload_ents_room
+; desc: Unloads all entities with a specific room number.
+; arguments: A - the room number to unload entities from.
+; note: Can only be used to unload entities from the previous room.
+gm_unload_ents_room:
+	and #1
+	asl     ; set the ef_oddroom flag, depending on the parity of the room number.
+	sta temp1
+	
+	ldx #0
+@loop:
+	lda sprspace+sp_kind, x
+	beq @skipThisObject
+	
+	lda sprspace+sp_flags, x
+	and #ef_oddroom
+	cmp temp1
+	bne @skipThisObject
+	
+	; check if entity is a strawberry. we do not unload strawberries
+	lda #e_strawb
+	cmp sprspace+sp_kind, x
+	beq @isStrawBerry
+	
+@isStrawBerryRemoveAnyway:
+	lda #0
+	sta sprspace+sp_kind, x
+	
+@skipThisObject:
+	inx
+	cpx #sp_max
+	bne @loop
+	rts
+	
+@isStrawBerry:
+	; check if the berry was collected
+	lda sprspace+sp_strawb_flags, x
+	and #esb_picked
+	beq @isStrawBerryRemoveAnyway
+	bne @skipThisObject
+
 ; ** SUBROUTINE: gm_unload_os_ents
 ; desc: Unloads entities that went off the left side of the screen.
 gm_unload_os_ents:
+	lda #g3_transitA
+	bit gamectrl3
+	bne @forceUnLoad  ; as long as a room transition is going on, unload any off-screen entities.
+	
+	lda roomsize
+	bne @earlyReturn  ; if the level may scroll back left, don't unload any off-screen entities.
+	
+@forceUnLoad:
 	ldx #0
 :	lda sprspace+sp_kind, x
 	beq :+
@@ -371,6 +420,8 @@ gm_unload_os_ents:
 :	inx
 	cpx #sp_max
 	bne :--
+
+@earlyReturn:
 	rts
 
 ; ** SUBROUTINE: gm_draw_entities

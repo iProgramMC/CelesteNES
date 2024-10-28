@@ -73,6 +73,8 @@ p_textoffs  : .res 1
 p_texttimer : .res 1
 
 ; Game specific addresses
+gamectrl2   : .res 1 ; second game control flags
+gamectrl3   : .res 1 ; third game control flags
 ntwrhead    : .res 1 ; name table write head (up to 64 columns)
 arwrhead    : .res 1 ; area space write head (up to 32 columns)
 camera_x_pg : .res 1
@@ -132,7 +134,6 @@ plr_spr_l   : .res 1 ; player sprite left
 plr_spr_r   : .res 1 ; player sprite right
 plh_spr_l   : .res 1 ; player hair sprite left
 plh_spr_r   : .res 1 ; player hair sprite right
-gamectrl2   : .res 1 ; second game control flags
 deathtimer  : .res 1
 tmp_sprx    : .res 1 ; used by gm_draw_entities to calculate the X and Y
 tmp_spry    : .res 1
@@ -179,6 +180,7 @@ clearpalo   : .res 1 ; enqueued name table clear, ppu address low
 clearpahi   : .res 1 ; enqueued name table clear, ppu address high
 clearsizex  : .res 1 ; enqueued name table clear, size X
 clearsizey  : .res 1 ; enqueued name table clear, size Y
+roomnumber  : .res 1 ; incremented every time a room transition happens
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.

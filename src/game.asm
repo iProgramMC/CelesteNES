@@ -1,10 +1,10 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 .include "g_level.asm"
-.include "g_rmtran.asm"
+;.include "g_rmtran.asm"
 .include "e_draw.asm"
 .include "e_update.asm"
-.include "e_physic.asm"
+;.include "e_physic.asm"
 .include "e_spawn.asm"
 .include "p_draw.asm"
 .include "p_physic.asm"

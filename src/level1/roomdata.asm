@@ -86,6 +86,7 @@ level1_r2_p:
 	.byte $00,$FF
 level1_r2_e:
 	.byte $68,$58,$01
+	.byte $F8,$58,$01
 	.byte $FF
 level1_r2_t:
 	.byte $DE,$8E,$5B,$5C,$5D,$5E,$5F,$5D

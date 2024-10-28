@@ -25,8 +25,12 @@ gm_spawn_particle:
 	lda #e_particle
 	sta sprspace+sp_kind, y
 	
-	lda #0
+	lda roomnumber
+	and #1
+	asl
 	sta sprspace+sp_flags, y
+	
+	lda #0
 	sta sprspace+sp_wid, y
 	sta sprspace+sp_hei, y
 	sta sprspace+sp_vel_x_lo, y
@@ -87,8 +91,12 @@ gm_spawn_particle_at_ent:
 	lda #e_particle
 	sta sprspace+sp_kind, y
 	
-	lda #0
+	lda roomnumber
+	and #1
+	asl
 	sta sprspace+sp_flags, y
+	
+	lda #0
 	sta sprspace+sp_wid, y
 	sta sprspace+sp_hei, y
 	sta sprspace+sp_vel_x_lo, y
@@ -169,7 +177,9 @@ gm_spawn_points:
 	lda #e_points
 	sta sprspace+sp_kind, y
 	
-	lda #0
+	lda roomnumber
+	and #1
+	asl
 	sta sprspace+sp_flags, y
 	
 	clc
