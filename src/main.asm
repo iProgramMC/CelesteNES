@@ -20,6 +20,7 @@
 
 .include "level0/bank_0.asm"
 .include "level1/bank_0.asm"
+.include "level1/bank_1.asm"
 
 .include "prg_game.asm"
 

@@ -1214,6 +1214,11 @@ gm_set_level:
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank
 	
+	ldy level_banks2, x
+	sty musicbank2
+	lda #mmc3bk_prg0
+	jsr mmc3_set_bank
+	
 	txa
 	asl
 	tax

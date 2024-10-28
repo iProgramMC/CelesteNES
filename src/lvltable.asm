@@ -22,4 +22,15 @@ level_banks:
 	.byte $00
 level_banks_end:
 
+level_banks2:
+	.byte $00
+	.byte $0A  ; level 1 has a special DPCM bank (check level1/bank_1.asm)
+	.byte $00
+	.byte $00
+	.byte $00
+	.byte $00
+	.byte $00
+	.byte $00
+level_banks2_end:
+
 level_table_size = level_table_end - level_table
