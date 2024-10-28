@@ -1423,7 +1423,7 @@ gm_collentceil:
 	adc sprspace+sp_hei, y
 	cmp temp4
 	bcc @noHitBox             ; sprites[y].y + sprites[y].height <= player_y
-	beq @noHitBox
+	;beq @noHitBox
 	
 	jsr gm_calchorzplat
 	beq @noHitBox
@@ -1455,7 +1455,7 @@ gm_collentceil:
 	clc
 	adc sprspace+sp_hei, y
 	sec
-	sbc #$8
+	sbc #$7
 	ldx #1                   ; load X to 1 to clear the zero flag. probably superfluous
 	rts
 
