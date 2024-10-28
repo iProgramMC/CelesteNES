@@ -88,17 +88,6 @@ tr_regsto   : .res 1
 lvladdr     : .res 1 ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   : .res 1
 tr_scrnpos  : .res 1 ; active screen position
-startpx     : .res 1 ; starting player X position
-startpy     : .res 1 ; starting player Y position
-warp_u      : .res 1 ; destination warp numbers
-warp_d      : .res 1
-warp_l      : .res 1
-warp_r      : .res 1
-warp_u_x    : .res 1 ; destination X or Y coordinates depending on warp side
-warp_d_x    : .res 1
-warp_l_y    : .res 1
-warp_r_y    : .res 1
-rm_paloffs  : .res 1
 playerctrl  : .res 1
 player_vl_x : .res 1 ; velocity X, pixels
 player_vs_x : .res 1 ; velocity X, subpixels
@@ -189,6 +178,25 @@ clearpalo   : .res 1 ; enqueued name table clear, ppu address low
 clearpahi   : .res 1 ; enqueued name table clear, ppu address high
 clearsizex  : .res 1 ; enqueued name table clear, size X
 clearsizey  : .res 1 ; enqueued name table clear, size Y
+
+; this is where the room header is copied, when a room is loaded.
+roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
+roomspare2  : .res 1 ; spare bytes
+roomspare3  : .res 1 ; spare bytes
+startpx     : .res 1 ; starting player X position
+startpy     : .res 1 ; starting player Y position
+warp_u      : .res 1 ; destination warp numbers
+warp_d      : .res 1
+warp_l      : .res 1
+warp_r      : .res 1
+warp_u_x    : .res 1 ; destination X or Y coordinates depending on warp side
+warp_d_x    : .res 1
+warp_l_y    : .res 1
+warp_r_y    : .res 1
+rm_paloffs  : .res 1
+
+roomhdrfirst = roomsize
+roomhdrlast  = rm_paloffs + 1
 
 tl_snow_y   : .res 16
 tl_snow_x   : .res 16

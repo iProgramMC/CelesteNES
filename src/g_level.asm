@@ -1131,13 +1131,14 @@ gm_fetch_room:
 	lda (lvlptrlo),y
 	tay
 	jsr gm_set_room_ptr
-	ldy #3
+	
+	ldy #0
 
 gm_fetch_room_loop:
 	lda (roomptrlo),y
-	sta startpx-3,y
+	sta roomhdrfirst,y
 	iny
-	cpy #14
+	cpy #<(roomhdrlast-roomhdrfirst)
 	bne gm_fetch_room_loop
 	
 	; load tile pointer from room pointer, Y=10
