@@ -40,8 +40,13 @@ gm_game_init:
 	jsr gm_game_clear_all_wx
 	
 	jsr vblank_wait
+	
 	ldy #<init_palette
+	sty paladdr
+	ldy #>init_palette
+	sty paladdr+1
 	jsr load_palette  ; load game palette into palette RAM
+	
 	lda #$20
 	jsr clear_nt      ; clear the two nametables the game uses
 	lda #$24

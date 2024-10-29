@@ -213,7 +213,17 @@ gm_draw_ent_call:
 @notOffScreen:
 	; note: gm_check_ent_onscreen already calculated the x coordinate for us
 	
+	lda lvlyoff
+	asl
+	asl
+	asl
+	sta temp3
 	lda sprspace+sp_y, x
+	clc
+	adc temp3
+	sta temp3
+	sec
+	sbc camera_y
 	sta temp3
 	
 	pla

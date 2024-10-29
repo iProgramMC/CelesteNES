@@ -55,3 +55,13 @@ aud_load_sfx:
 	ldx #<game_sfx
 	ldy #>game_sfx
 	jmp famistudio_sfx_init
+
+; ** SUBROUTINE: aud_reset
+; desc: Removes all music from playback.
+aud_reset:
+	ldx #<music_data_blank
+	ldy #>music_data_blank
+	lda #1
+	jmp famistudio_init
+
+.include "blank.asm"

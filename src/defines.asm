@@ -221,7 +221,7 @@ prgb_lvl9   = $09
 prgb_lvla   = $0A   ; Shared level data ($C000)
 prgb_lvlb   = $0B
 prgb_lvlc   = $0C
-prgb_lvld   = $0D
+prgb_ttle   = $0D
 prgb_game   = $0E   ; bank containing game engine code.  This is fixed at $8000
 prgb_main   = $0F   ; bank containing main code.  This is fixed at $E000
 

@@ -2,7 +2,7 @@
 
 ; ** SUBROUTINE: print_logo
 ; clobbers: a, x, y
-; assumes:  video output disabled
+; assumes:  video oxutput disabled
 print_logo_pal:
 	ldx #<logo_pal
 	ldy #>logo_pal
@@ -10,42 +10,33 @@ print_logo_pal:
 	jsr ppu_wrstring
 	rts
 print_logo:
-	; write the actual logo
-	ldy #$21
-	ldx #$4C
+	; write the actual logo, in 4 parts.
+	ldy #$20
+	ldx #$00
 	jsr ppu_loadaddr
-	ldx #<logo_row1
-	ldy #>logo_row1
-	lda #7
+	ldx #<(tscr_canvas + $0000)
+	ldy #>(tscr_canvas + $0000)
+	lda #0
 	jsr ppu_wrstring
 	
-	ldy #$21
-	ldx #$6C
-	jsr ppu_loadaddr
-	ldx #<logo_row2
-	ldy #>logo_row2
-	lda #7
+	ldx #<(tscr_canvas + $0100)
+	ldy #>(tscr_canvas + $0100)
+	lda #0
 	jsr ppu_wrstring
 	
-	ldy #$21
-	ldx #$8C
-	jsr ppu_loadaddr
-	ldx #<logo_row3
-	ldy #>logo_row3
-	lda #7
+	ldx #<(tscr_canvas + $0200)
+	ldy #>(tscr_canvas + $0200)
+	lda #0
 	jsr ppu_wrstring
 	
-	ldy #$21
-	ldx #$AC
-	jsr ppu_loadaddr
-	ldx #<logo_row4
-	ldy #>logo_row4
-	lda #7
+	ldx #<(tscr_canvas + $0300)
+	ldy #>(tscr_canvas + $0300)
+	lda #0
 	jsr ppu_wrstring
 	
 	; write the "PRESS START" text
 	ldy #$22
-	ldx #$8A
+	ldx #$EA
 	jsr ppu_loadaddr
 	ldx #<logo_pressstart
 	ldy #>logo_pressstart
@@ -54,20 +45,20 @@ print_logo:
 	
 	; write iProgramInCpp's name
 	ldy #$23
-	ldx #$0C
+	ldx #$4C
 	jsr ppu_loadaddr
 	ldx #<logo_iprogram
 	ldy #>logo_iprogram
 	lda #7
 	jsr ppu_wrstring
-	
-	; write the palette
-	ldy #$23
-	ldx #$D2
-	jsr ppu_loadaddr
-	jsr print_logo_pal
-	jsr print_logo_pal
-	jsr print_logo_pal
+	;
+	;; write the palette
+	;ldy #$23
+	;ldx #$D2
+	;jsr ppu_loadaddr
+	;jsr print_logo_pal
+	;jsr print_logo_pal
+	;jsr print_logo_pal
 	rts
 
 tl_gameswitch:
@@ -110,8 +101,27 @@ gamemode_title:
 	sta camera_x_hi
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait  ; wait for vblank
+	
+	; have to reset audio data because DPCM samples are loaded in at $C000
+	; and we want to use that bank for title screen and overworld data.
+	; We have 8K at our disposal.
+	jsr aud_reset
+	
+	; Load said bank.
+	lda #mmc3bk_prg0
+	ldy #prgb_ttle
+	jsr mmc3_set_bank
+	
+	; Also load the title screen palette.
+	lda #<title_palette
+	sta paladdr
+	lda #>title_palette
+	sta paladdr+1
+	jsr load_palette
+	
 	lda #$20
 	jsr clear_nt     ; clear the screen
+	
 	jsr print_logo   ; print the logo and the "PRESS BUTTON" text
 	jsr tl_init_snow ; initialize snow
 	jsr ppu_rstaddr  ; reset PPUADDR

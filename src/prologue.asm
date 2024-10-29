@@ -63,8 +63,13 @@ gamemode_prologue:
 	sta camera_x_hi
 	sta camera_y
 	jsr vblank_wait
+	
 	ldy #<init_palette
+	sty paladdr
+	ldy #>init_palette
+	sty paladdr+1
 	jsr load_palette
+	
 	lda #$20
 	jsr clear_nt
 	jsr pl_select_banks

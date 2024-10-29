@@ -35,6 +35,7 @@ tr_bufidx   : .res 1 ; alias to y_crd_temp
 rng_state   : .res 1
 p1_cont     : .res 1
 p1_conto    : .res 1
+paladdr     : .res 2 ; currently loaded palette address.
 
 player_x    : .res 1 ; offset by the camera's position!
 player_y    : .res 1

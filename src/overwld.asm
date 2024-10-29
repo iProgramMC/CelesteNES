@@ -6,6 +6,8 @@ gamemode_overwd:
 	bit owldctrl
 	bne gamemode_overwd_update
 	
+	jsr aud_reset
+	
 	lda #0
 	sta ow_sellvl
 	
@@ -13,10 +15,16 @@ gamemode_overwd:
 	sta camera_x
 	sta camera_x_hi
 	sta camera_y
+	sta camera_y_hi
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait
+	
 	ldy #<owld_palette
+	sty paladdr
+	ldy #>owld_palette
+	sty paladdr+1
 	jsr load_palette
+	
 	lda #$20
 	jsr clear_nt
 	

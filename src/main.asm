@@ -23,8 +23,8 @@
 .include "level1/bank_1.asm"
 
 .include "prg_game.asm"
-
 .include "prg_main.asm"
+.include "prg_ttle.asm"
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
 .segment "CHR_SPR00"

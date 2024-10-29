@@ -42,12 +42,11 @@ MEMORY
 	PRG_LVLA: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0A;
 	PRG_LVLB: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	PRG_LVLC: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0C;
-	PRG_LVLD: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0D;
+	PRG_TTLE: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0D;
 	
 	# Game Engine and Core
 	PRG_GAME: start=$8000, size=$2000, fill=yes, fillval=$00, bank=$0E;
-	PRG_MAIN: start=$E000, size=$1F00, fill=yes, fillval=$00, bank=$0F;
-	PRG_PALS: start=$FF00, size=$00FA, fill=yes, fillval=$00, bank=$0F;
+	PRG_MAIN: start=$E000, size=$1FFA, fill=yes, fillval=$00, bank=$0F;
 	PRG_VECS: start=$FFFA, size=$0006, fill=yes, fillval=$00, bank=$0F;
 	
 	##### CHR ROM #####
@@ -102,10 +101,9 @@ SEGMENTS
 	PRG_LVLA: load = PRG_LVLA, type = ro, align=$100;
 	PRG_LVLB: load = PRG_LVLB, type = ro, align=$100;
 	PRG_LVLC: load = PRG_LVLC, type = ro, align=$100;
-	PRG_LVLD: load = PRG_LVLD, type = ro, align=$100;
+	PRG_TTLE: load = PRG_TTLE, type = ro, align=$100;
 	PRG_GAME: load = PRG_GAME, type = ro;
 	PRG_MAIN: load = PRG_MAIN, type = ro;
-	PRG_PALS: load = PRG_PALS, type = ro;
 	PRG_VECS: load = PRG_VECS, type = ro;
 	CHR_SPR00: load = CHR_SPR00, type = ro;
 	CHR_SPR01: load = CHR_SPR01, type = ro;

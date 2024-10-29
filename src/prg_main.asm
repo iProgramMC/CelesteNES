@@ -147,7 +147,7 @@ oam_putsprite:
 
 ; ** SUBROUTINE: load_palette
 ; arguments:
-;   y - the offset from the last page where the palette resides
+;   paladdr[0, 1] -- the address of the palette to upload
 ; clobbers: A, X
 ; assumes: PPUCTRL increment bit is zero (+1 instead of +32)
 load_palette:
@@ -155,33 +155,12 @@ load_palette:
 	sta ppu_addr
 	lda #$00
 	sta ppu_addr
-	ldx #$00
+	ldy #$00
 @loop:
-	lda palettepage, y
+	lda (paladdr), y
 	sta ppu_data
-	inx
 	iny
-	cpx #$20
-	bne @loop
-	rts
-
-; ** SUBROUTINE: load_palette_zp
-; arguments:
-;   y - the offset from the zero page where the palette resides
-; clobbers: A, X
-; assumes: PPUCTRL increment bit is zero (+1 instead of +32)
-load_palette_zp:
-	lda #$3F
-	sta ppu_addr
-	lda #$00
-	sta ppu_addr
-	ldx #$00
-@loop:
-	lda $0000, y
-	sta ppu_data
-	inx
-	iny
-	cpx #$20
+	cpy #$20
 	bne @loop
 	rts
 
@@ -419,7 +398,6 @@ dash_table:
 	.byte $FC, $00, $00, $00 ; UDL-
 	.byte $FC, $00, $00, $00 ; UDLR
 
-.segment "PRG_PALS"
 init_palette:
 	.byte $0f,$20,$10,$00 ; grey tiles
 	.byte $0f,$37,$16,$06 ; brown tiles
