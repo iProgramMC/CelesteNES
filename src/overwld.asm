@@ -11,6 +11,11 @@ gamemode_overwd:
 	lda #0
 	sta ow_sellvl
 	
+	; Load said bank.
+	lda #mmc3bk_prg0
+	ldy #prgb_ttle
+	jsr mmc3_set_bank
+	
 	lda #0
 	sta camera_x
 	sta camera_x_hi

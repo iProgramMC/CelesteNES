@@ -2,6 +2,55 @@
 
 .segment "PRG_MAIN"
 
+; ** SUBROUTINE: oam_dma_and_read_cont
+; desc: Performs OAM DMA, and reads the player 1 controller.
+; This is done to avoid the DMC DMA process corrupting controller reads.
+;
+; note: This must all be located inside of one page. There is a one cycle
+; cost associated with page boundary crosses, which is important because
+; it will desync our read process.
+oam_dma_and_read_cont:
+	; back up old controller state
+	lda p1_cont
+	sta p1_conto
+	
+	lda #$01
+	sta apu_joypad1
+	; while the strobe bit is set, buttons will be continuously reloaded.
+	; this means that reading from joypad1 will always return the state
+	; of the A button, the first button.
+	sta p1_cont
+	lsr             ; A = 0 now
+	; stop the strobe by clearing joypad1. now we can start reading
+	sta apu_joypad1
+	
+	; but before reading, perform OAM DMA to align ourselves on a proper cycle
+	lda #0
+	sta oam_addr
+	lda #>oam_buf     ; load the high byte of the OAM DMA address
+	sta apu_oam_dma   ; and perform the DMA!
+	
+	; thanks NESDEV wiki! :D
+	ldx #1             ; get put          <- strobe code must take an odd number of cycles total
+	stx p1_cont        ; get put get      <- buttons must be in the zeropage
+	stx apu_joypad1    ; put get put get
+	dex                ; put get
+	stx apu_joypad1    ; put get put get
+@loop:
+	
+	; adjustment: do NOT read the second joypad.
+	;lda $4017          ; put get put GET  <- loop code must take an even number of cycles total
+	;and #3             ; put get
+	;cmp #1             ; put get
+	;rol p2_cont, x     ; put get put get put get (X = 0; waste 1 cycle for alignment)
+	
+	lda apu_joypad1    ; put get put GET
+	and #3             ; put get
+	cmp #1             ; put get
+	rol p1_cont        ; put get put get put
+	bcc @loop          ; get put [get]    <- this branch must not be allowed to cross a page
+	rts
+
 ; ** SUBROUTINE: mmc3_set_bank
 ; arguments:
 ;     A - the bank index to switch
@@ -84,24 +133,25 @@ nmi_wait:
 ; arguments: none
 ; clobbers:  A
 ; desc:      reads controller input from the player 1 port
-read_cont:
-	lda p1_cont
-	sta p1_conto
-	lda #$01
-	sta apu_joypad1
-	; while the strobe bit is set, buttons will be continuously reloaded.
-	; this means that reading from joypad1 will always return the state
-	; of the A button, the first button.
-	sta p1_cont
-	lsr             ; A = 0 now
-	; stop the strobe by clearing joypad1. now we can start reading
-	sta apu_joypad1
-read_loop:
-	lda apu_joypad1
-	lsr a           ; bit 0 -> carry
-	rol p1_cont     ; carry -> bit 0, bit 7 -> carry
-	bcc read_loop
-	rts
+; NOTE: deprecated, Controller inputs are now read inside of NMI.
+;read_cont:
+;	lda p1_cont
+;	sta p1_conto
+;	lda #$01
+;	sta apu_joypad1
+;	; while the strobe bit is set, buttons will be continuously reloaded.
+;	; this means that reading from joypad1 will always return the state
+;	; of the A button, the first button.
+;	sta p1_cont
+;	lsr             ; A = 0 now
+;	; stop the strobe by clearing joypad1. now we can start reading
+;	sta apu_joypad1
+;read_loop:
+;	lda apu_joypad1
+;	lsr a           ; bit 0 -> carry
+;	rol p1_cont     ; carry -> bit 0, bit 7 -> carry
+;	bcc read_loop
+;	rts
 
 ; ** SUBROUTINE: rand
 ; arguments: none

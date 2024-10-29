@@ -213,6 +213,18 @@ gm_draw_ent_call:
 @notOffScreen:
 	; note: gm_check_ent_onscreen already calculated the x coordinate for us
 	
+	lda #e_strawb
+	cmp sprspace+sp_kind, x
+	bne @forceAddingCamY
+	
+	lda sprspace+sp_y, x
+	sta temp3
+	
+	lda sprspace+sp_strawb_flags, x
+	and #esb_picked    ; picked sprites do not need cameraY added to them
+	bne @doNotAddCamY
+	
+@forceAddingCamY:
 	lda lvlyoff
 	asl
 	asl
@@ -226,6 +238,7 @@ gm_draw_ent_call:
 	sbc camera_y
 	sta temp3
 	
+@doNotAddCamY:
 	pla
 	tax
 	lda gm_entjtable_lo, x

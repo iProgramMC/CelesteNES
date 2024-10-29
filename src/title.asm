@@ -2,13 +2,7 @@
 
 ; ** SUBROUTINE: print_logo
 ; clobbers: a, x, y
-; assumes:  video oxutput disabled
-print_logo_pal:
-	ldx #<logo_pal
-	ldy #>logo_pal
-	lda #$4
-	jsr ppu_wrstring
-	rts
+; assumes:  video output disabled
 print_logo:
 	; write the actual logo, in 4 parts.
 	ldy #$20
@@ -51,14 +45,6 @@ print_logo:
 	ldy #>logo_iprogram
 	lda #7
 	jsr ppu_wrstring
-	;
-	;; write the palette
-	;ldy #$23
-	;ldx #$D2
-	;jsr ppu_loadaddr
-	;jsr print_logo_pal
-	;jsr print_logo_pal
-	;jsr print_logo_pal
 	rts
 
 tl_gameswitch:
@@ -100,7 +86,6 @@ gamemode_title:
 	sta camera_x     ; clear some fields
 	sta camera_x_hi
 	sta ppu_mask     ; disable rendering
-	jsr vblank_wait  ; wait for vblank
 	
 	; have to reset audio data because DPCM samples are loaded in at $C000
 	; and we want to use that bank for title screen and overworld data.
@@ -111,6 +96,8 @@ gamemode_title:
 	lda #mmc3bk_prg0
 	ldy #prgb_ttle
 	jsr mmc3_set_bank
+	
+	jsr vblank_wait  ; wait for vblank
 	
 	; Also load the title screen palette.
 	lda #<title_palette

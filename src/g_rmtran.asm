@@ -517,6 +517,7 @@ gm_leaveroomU:
 	sec
 	sbc #4
 	sta player_y
+	jsr gm_addtrace
 	bcc @messedupcase
 	cmp startpy
 	bcc @finalloopdone

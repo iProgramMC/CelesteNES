@@ -53,11 +53,6 @@ nmi:
 	lda nmienable
 	beq @onlyAudioPlease ; if NMIs are softly disabled, then ONLY run audio
 	
-	lda #0
-	sta oam_addr
-	lda #>oam_buf     ; load the high byte of the OAM DMA address
-	sta apu_oam_dma   ; and perform the DMA!
-	
 	ldx gamemode
 	cpx #gm_titletra
 	beq nmi_titletra
@@ -71,6 +66,7 @@ nmi:
 	
 @gamemode_end:
 	jsr nmi_calccamerapos
+	jsr oam_dma_and_read_cont
 	
 @onlyAudioPlease:
 	jsr aud_run
@@ -444,7 +440,6 @@ com_clear_oam:
 ; clobbers:  all registers
 ; desc:      handles common game logic such as clearing OAM
 com_game_log:
-	jsr read_cont
 	jsr com_clear_oam
 	rts
 
