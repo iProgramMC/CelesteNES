@@ -26,7 +26,6 @@ gamestate   : .res 1 ; reused by every game mode
 
 mmc3_shadow : .res 1
 currA000bank: .res 1 ; current bank index loaded at $A000-$BFFF.
-oam_offset  : .res 1
 oam_wrhead  : .res 1 ; OAM buffer write head
 wr_str_temp : .res 2 ; address of current character of string
 x_crd_temp  : .res 1 ; used by oam_putsprite and h_get_tile, MUST be x before y!
@@ -36,7 +35,6 @@ scroll_x    : .res 1
 scroll_y    : .res 1
 scroll_flags: .res 1 ; the FLAGS for the scroll split part of PPUCTRL
 
-tr_bufidx   : .res 1 ; alias to y_crd_temp
 rng_state   : .res 1
 p1_cont     : .res 1
 p1_conto    : .res 1
@@ -62,7 +60,6 @@ ow_temp2    : .res 1
 ow_temp3    : .res 1
 ow_temp4    : .res 1
 ow_temp5    : .res 1
-ow_temp6    : .res 1
 ow_timer    : .res 1
 ow_sellvl   : .res 1 ; selected level
 ow_iconoff  : .res 1
@@ -92,7 +89,6 @@ arrdheadlo  : .res 1 ; area read head
 arrdheadhi  : .res 1
 entrdheadlo : .res 1 ; entity read head
 entrdheadhi : .res 1
-tr_regsto   : .res 1
 lvladdr     : .res 1 ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   : .res 1
 tr_scrnpos  : .res 1 ; active screen position
@@ -141,8 +137,6 @@ plr_spr_r   : .res 1 ; player sprite right
 plh_spr_l   : .res 1 ; player hair sprite left
 plh_spr_r   : .res 1 ; player hair sprite right
 deathtimer  : .res 1
-tmp_sprx    : .res 1 ; used by gm_draw_entities to calculate the X and Y
-tmp_spry    : .res 1
 palallochd  : .res 1
 roombeglo   : .res 1 ; beginning of room in pixels.  Used for entity placement
 roombeghi   : .res 1
@@ -153,7 +147,6 @@ ntrowhead   : .res 1
 ntrowhead2  : .res 1
 camdst_x    : .res 1 ; temporary used by gm_leaveroomU
 camdst_x_pg : .res 1 ; temporary used by gm_leaveroomU
-paloffs     : .res 1 ; temporary used by gm_leaveroomU
 wrcountHP1  : .res 1 ; write count for HP1
 ppuaddrHP1  : .res 2 ; ppuaddr to write palH1 to
 ppuaddrHP2  : .res 2 ; ppuaddr to write palH2 to
@@ -209,8 +202,6 @@ roomhdrlast  = rm_paloffs + 1
 
 tl_snow_y   : .res 16
 tl_snow_x   : .res 16
-debug       : .res 1
-debug2      : .res 1
 
 .segment "OAMBUF"
 oam_buf     : .res $100

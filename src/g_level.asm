@@ -55,12 +55,12 @@ h_get_tile:
 ;     y - Y coordinate
 ;     a - Tile value
 ; clobbers: a
-h_set_tile:
-	pha
-	jsr h_comp_addr
-	pla
-	sta (lvladdr), y
-	rts
+;h_set_tile:
+;	pha
+;	jsr h_comp_addr
+;	pla
+;	sta (lvladdr), y
+;	rts
 
 ; ** SUBROUTINE: h_ntwr_to_ppuaddr
 ; desc: Converts the nametable write head (ntwraddr) to a PPU address.
@@ -450,30 +450,6 @@ h_fls_wrloop:
 	; restore the old PPUCTRL
 	lda ctl_flags
 	sta ppu_ctrl
-	rts
-
-h_gen_addyoff:
-	pha
-	tya
-	clc
-	adc lvlyoff
-	cmp #$1E
-	bcc :+
-	sec
-	sbc #$1E
-:	tay
-	pla
-	rts
-h_gen_subyoff:
-	pha
-	tya
-	sec
-	sbc lvlyoff
-	bpl :+
-	clc
-	adc #$1E
-:	tay
-	pla
 	rts
 
 ; ** SUBROUTINE: h_gener_row_u
@@ -929,13 +905,6 @@ h_genertiles_cont:
 	sta arwrhead
 	rts
 
-h_generents_lvlend:
-	lda entrdheadlo       ; decrement the stream pointer...
-	bne :+
-	dec entrdheadhi
-:	dec entrdheadlo       ; and return
-	rts
-
 h_generents_scrnext:
 	jsr gm_adv_ent        ; advance the entity stream
 	clc
@@ -1086,20 +1055,20 @@ gm_set_ent_head:
 ; advance the pointer.
 ; returns: a - the byte of data read in
 ; clobbers: x
-gm_read_tile_na:
-	ldx #0
-	lda (arrdheadlo,x)
-	rts
+;gm_read_tile_na:
+;	ldx #0
+;	lda (arrdheadlo,x)
+;	rts
 
 gm_read_ent_na:
 	ldx #0
 	lda (entrdheadlo,x)
 	rts
 
-gm_read_pal_na:
-	ldx #0
-	lda (palrdheadlo,x)
-	rts
+;gm_read_pal_na:
+;	ldx #0
+;	lda (palrdheadlo,x)
+;	rts
 
 gm_read_tile:
 	ldx #0
@@ -1173,11 +1142,6 @@ gm_fetch_room_loop:
 	iny
 	jsr gm_set_ent_head
 	rts
-
-; ** SUBROUTINE: gm_set_level_1
-gm_set_level_1:
-	ldx #0
-	; fallthru
 
 ; ** SUBROUTINE: gm_on_level_init
 ; desc: Called on level initialization.

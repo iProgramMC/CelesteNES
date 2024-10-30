@@ -2,9 +2,6 @@
 
 gm_targetsLO:	.byte $00, maxwalkLO, maxwalkNLO
 gm_targetsHI:	.byte $00, maxwalkHI, maxwalkNHI
-gm_targetsign:	.byte $00, $01, $FF
-gm_inversion:   .byte $00, $00, $FF
-gm_addition:	.byte $00, $00, $01
 gm_xaxisfixup:	.byte $00, $01, $02, $00
 
 ; ** SUBROUTINE: gm_gettarget
@@ -334,49 +331,6 @@ gm_apply_gravity:
 @return:
 	rts
 
-; ** SUBROUTINE: gm_capmaxwalkL
-; desc: Ensure that the velocity doesn't reach the minimum walk speed.
-gm_capmaxwalkL:
-	lda player_vl_x
-	bpl :+
-	cmp #maxwalkNHI
-	bcc @setmaxwalkL   ; if A < -maxwalk, cap
-	bne :+             ; if A > -maxwalk, return
-	
-	lda player_vs_x
-	cmp #maxwalkNLO
-	bcc @setmaxwalkL   ; if A < -maxwalklo, cap
-	
-:	rts
-
-@setmaxwalkL:
-	lda #maxwalkNHI
-	sta player_vl_x
-	lda #maxwalkNLO
-	sta player_vs_x
-	rts
-
-; ** SUBROUTINE: gm_capmaxwalkR
-; desc: Ensure that the velocity doesn't reach the maximum walk speed.
-gm_capmaxwalkR:
-	lda player_vl_x
-	bmi :+
-	cmp #maxwalkHI
-	bcc :+            ; if A < maxwalk, return
-	bne @setmaxwalkR  ; if A > maxwalk, cap
-	
-	lda player_vs_x
-	cmp #maxwalkLO
-	bcs @setmaxwalkR  ; if A >= maxwalklo, cap
-:	rts
-
-@setmaxwalkR:
-	lda #maxwalkHI
-	sta player_vl_x
-	lda #maxwalkLO
-	sta player_vs_x
-	rts
-
 ; ** SUBROUTINE: gm_controls
 ; desc:    Check controller input and apply forces based on it.
 gm_controls:
@@ -407,7 +361,6 @@ gm_jump:
 gm_normaljump:
 	lda jumpcoyote
 	beq gm_dontjump   ; if no coyote time, then can't jump
-gm_actuallyjump:
 	jsr gm_jump_sfx
 	lda #jumpvelHI
 	sta player_vl_y
@@ -983,9 +936,6 @@ gm_checkfloor:
 	sta dashcount
 @done:
 	rts
-
-gm_leaveroomR_:
-	jmp gm_leaveroomR
 
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 

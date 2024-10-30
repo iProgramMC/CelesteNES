@@ -138,10 +138,10 @@ mmc3_horzarr:
 ; ** SUBROUTINE: mmc3_vertarr
 ; desc: Sets the MMC1 to a vertical arrangement (horizontal mirroring) of nametables.
 ; clobbers: A
-mmc3_vertarr:
-	lda #1
-	sta mmc3_mirror
-	rts
+;mmc3_vertarr:
+;	lda #1
+;	sta mmc3_mirror
+;	rts
 
 ; ** SUBROUTINE: vblank_wait
 ; arguments: none
@@ -193,9 +193,9 @@ nmi_wait:
 rand:
 	lda rng_state
 	asl
-	bcc no_feedback
+	bcc @no_feedback
 	eor #$21
-no_feedback:
+@no_feedback:
 	sta rng_state
 	lda rng_state
 	rts
@@ -249,13 +249,13 @@ load_palette:
 ; ** SUBROUTINE: ppu_nmi_off
 ; arguments: none
 ; clobbers: A
-ppu_nmi_off:
-	lda ctl_flags
-	and #(pctl_nmi_on ^ $FF)
-	sta ctl_flags
-	
-	sta ppu_ctrl
-	rts
+;ppu_nmi_off:
+;	lda ctl_flags
+;	and #(pctl_nmi_on ^ $FF)
+;	sta ctl_flags
+;	
+;	sta ppu_ctrl
+;	rts
 
 ; ** SUBROUTINE: ppu_nmi_on
 ; arguments: none
