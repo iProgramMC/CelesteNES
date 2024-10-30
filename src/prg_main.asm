@@ -51,6 +51,34 @@ oam_dma_and_read_cont:
 	bcc @loop          ; get put [get]    <- this branch must not be allowed to cross a page
 	rts
 
+; ** SUBROUTINE: far_call
+; arguments:
+;     Y - the bank index this code resides in
+;     (temp2, temp1) - address of the function at hand.
+; desc: Calls a function residing in a bank at $A000-$BFFF.  Cannot call functions residing
+;       in other banks.
+far_call:
+	lda currA000bank
+	pha                ; push the current bank number
+	
+	; change the bank
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank
+	
+	; bank switched, now call
+	jsr @doTheCall
+	
+	; change the bank back
+	pla
+	tay
+	lda #mmc3bk_prg1
+	jmp mmc3_set_bank
+
+@doTheCall:
+	; redirect execution to (temp2, temp1)
+	; this function SHOULD return. this is why we do the jsr indirection
+	jmp (temp1)
+
 ; ** SUBROUTINE: mmc3_set_bank
 ; arguments:
 ;     A - the bank index to switch
@@ -61,7 +89,11 @@ oam_dma_and_read_cont:
 ;          switch during an NMI, use mmc3_set_bank_nmi.
 
 mmc3_set_bank:
-	ora #def_mmc3_bn  ; OR the default MMC3 configuration.
+	; note: I don't think we will switch the $A000-$BFFF bank during an NMI.
+	cmp #mmc3bk_prg1
+	bne :+
+	sty currA000bank
+:	ora #def_mmc3_bn  ; OR the default MMC3 configuration.
 	sta mmc3_shadow   ; Store to the MMC3 shadow global variable.
 	sta mmc3_bsel     ; Write this selector to the MMC3 chip.
 	sty mmc3_bdat     ; Write the specified bank index to the MMC3 chip.

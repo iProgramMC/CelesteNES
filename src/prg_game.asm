@@ -4,3 +4,4 @@
 
 .include "game.asm"
 .include "lvltable.asm"
+.include "dialogif.asm"

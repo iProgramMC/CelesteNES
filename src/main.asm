@@ -25,6 +25,7 @@
 .include "prg_game.asm"
 .include "prg_main.asm"
 .include "prg_ttle.asm"
+.include "prg_dial.asm"
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
 .segment "CHR_SPR00"

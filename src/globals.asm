@@ -25,6 +25,7 @@ gamestate   : .res 1 ; reused by every game mode
 	prolctrl  = gamestate
 
 mmc3_shadow : .res 1
+currA000bank: .res 1 ; current bank index loaded at $A000-$BFFF.
 oam_offset  : .res 1
 oam_wrhead  : .res 1 ; OAM buffer write head
 wr_str_temp : .res 2 ; address of current character of string
