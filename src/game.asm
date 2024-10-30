@@ -94,12 +94,16 @@ gm_game_init:
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
+	jsr test
 	inc framectr
 	lda gamectrl
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	jsr gm_physics
+	lda scrollsplit
+	beq :+
+	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
+:	jsr gm_physics
 	jsr gm_anim_player
 	jsr gm_draw_player
 	jsr gm_unload_os_ents
@@ -108,18 +112,48 @@ gm_game_update:
 	jsr gm_update_ptstimer
 	jsr gm_draw_dead
 	
-	lda #cont_select
-	bit p1_cont
-	bne gm_titleswitch
+	; note: at this point, camera positioning should have been calculated.
+	; calculate the position of the camera so that the NMI can pick it up
+	; if scrollsplit is not zero then it was already calculated for the IRQ
+	lda scrollsplit
+	bne :+
+	jsr gm_calc_camera_nosplit
+:
+
+;	lda #cont_select
+;	bit p1_cont
+;	bne gm_titleswitch
 	jmp game_update_return
 
-; ** SUBROUTINE: gm_titleswitch
-gm_titleswitch:
-	lda #gm_title
-	sta gamemode
-	lda #0
-	sta titlectrl
-	jmp game_update_return
+test:
+	lda #cont_select
+	bit p1_cont
+	beq :+
+	
+	bit p1_conto
+	bne :+
+	
+	lda scrollsplit
+	eor #64
+	sta scrollsplit
+
+:	rts
+
+;; ** SUBROUTINE: gm_titleswitch
+;gm_titleswitch:
+;	bit p1_conto
+;	bne @earlyReturn
+;	
+;	lda scrollsplit
+;	eor #80
+;	sta scrollsplit
+;
+;	lda #gm_title
+;	sta gamemode
+;	lda #0
+;	sta titlectrl
+;@earlyReturn:
+;	jmp game_update_return
 
 ; ** SUBROUTINE: gm_game_clear_all_wx
 ; desc: Clears ALL game variables with the X register.
@@ -160,6 +194,7 @@ gm_game_clear_wx:
 	stx roombeglo2
 	stx plrtrahd
 	stx plrstrawbs
+	stx scrollsplit
 	dex
 	stx animmode      ; set to 0xFF
 	inx
@@ -176,3 +211,79 @@ gm_game_clear:
 	inx
 	bne gm_game_clear
 	rts
+
+; ** SUBROUTINE: gm_calc_camera_nosplit
+; desc: Calculate the quake scroll offsets, and adds them to cameraX/cameraY.
+;       Then calculates the cameraX/cameraY and prepares it for upload to the PPU.
+; note: Does not handle scroll splits.
+gm_calc_camera_nosplit:
+	lda camera_x
+	sta scroll_x
+	lda camera_y
+	sta scroll_y
+	lda #0
+	ldx camera_x_hi
+	beq :+
+	ora #pctl_highx
+:	ldx camera_y_hi
+	beq :+
+	ora #pctl_highy
+:	sta scroll_flags
+	rts
+
+; ** SUBROUTINE: gm_calc_camera
+; desc: Calculates the cameraX/cameraY and prepares it for upload to the PPU.
+; note: Does not calculate quake offsets.
+gm_calc_camera_split:
+	lda camera_x
+	sta scroll_x
+	lda camera_y
+	sta scroll_y
+	lda camera_x_hi
+	sta temp1
+	lda camera_y_hi
+	sta temp2
+	
+	; add the scroll split offset if needed.
+	lda scrollsplit
+	beq @doneAdding
+	
+	sec
+	adc scroll_y
+	sta scroll_y
+	bcs @carryIsSet
+	
+	; carry clear, just check if >$F0
+	cmp #$F0
+	bcc @doneAdding
+	
+	sec
+	sbc #$F0
+	sta scroll_y
+	
+@flipHighBitAndDone:
+	lda temp2
+	eor #1
+	sta temp2
+
+@doneAdding:
+	lda #0
+	ldx temp1
+	beq :+
+	ora #pctl_highx
+	
+:	ldx temp2
+	beq :+
+	ora #pctl_highy
+	
+:	sta scroll_flags
+	rts
+	
+@carryIsSet:
+	; carry was set
+	adc #$0F   ; add +$10
+	sta scroll_y
+	; TODO: carry might be set again. I don't think it matters right now
+	; but if you set scrolllimit to > like 80, then look here first.
+	jmp @flipHighBitAndDone
+	

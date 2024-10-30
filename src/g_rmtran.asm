@@ -4,7 +4,7 @@ gm_leave_doframe:
 	jsr gm_draw_player
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities
-	
+	jsr gm_calc_camera_nosplit
 	jsr soft_nmi_on
 	jsr nmi_wait
 	jsr soft_nmi_off

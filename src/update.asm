@@ -44,6 +44,7 @@ nmi_overwld:
 ; ** INTERRUPT HANDLER: nmi
 nmi:
 	inc nmicount
+	sta mmc3_irqdi  ; disable IRQ for this frame
 	pha
 	txa
 	pha
@@ -65,8 +66,8 @@ nmi:
 	bne nmi_game
 	
 @gamemode_end:
-	jsr nmi_calccamerapos
 	jsr oam_dma_and_read_cont
+	jsr nmi_scrollsplit
 	
 @onlyAudioPlease:
 	jsr aud_run
@@ -236,136 +237,6 @@ rand_m1_to_p2:
 :	stx temp5
 	rts
 
-; ** SUBROUTINE: nmi_calccamerapos
-; desc: Calculate and send the PPU the new camera position.
-nmi_calccamerapos:
-	ldx quaketimer
-	bne @doQuake
-	
-	; common fast path
-	lda ctl_flags
-	and #((pctl_highx | pctl_highy) ^ $FF)
-	
-	ldx camera_x_hi
-	beq :+
-	ora #pctl_highx
-:	ldx camera_y_hi
-	beq :+
-	ora #pctl_highy
-:	sta ctl_flags
-	sta ppu_ctrl
-	
-	lda camera_x
-	sta ppu_scroll
-	lda camera_y
-	sta ppu_scroll
-	
-	rts
-	
-@doQuake:
-	lda camera_x
-	sta temp1
-	lda camera_x_hi
-	sta temp2
-	lda camera_y
-	sta temp3
-	lda camera_y_hi
-	sta temp4
-	
-	; apply a random quake based on the quake flags
-	lda #cont_up
-	bit quakeflags
-	beq @notUp
-	
-	jsr rand_m2_to_p1
-	ora #%11111100
-	clc
-	adc temp3
-	sta temp3
-	lda temp4
-	adc temp5
-	sta temp4
-
-@notUp:
-	lda #cont_down
-	bit quakeflags
-	beq @notDown
-	
-	jsr rand_m1_to_p2
-	clc
-	adc temp3
-	sta temp3
-	lda temp4
-	adc temp5
-	sta temp4
-
-@notDown:
-	
-	; do some corrections on the Y axis
-	lda temp3
-	cmp #$F0
-	bcc :+
-	sec
-	sbc #$10
-	sta temp3
-	
-:	lda #cont_left
-	bit quakeflags
-	beq @notLeft
-	
-	jsr rand_m2_to_p1
-	clc
-	adc temp1
-	sta temp1
-	lda temp2
-	adc temp5
-	sta temp2
-
-@notLeft:
-	lda #cont_right
-	bit quakeflags
-	beq @notRight
-	
-	jsr rand_m1_to_p2
-	clc
-	adc temp1
-	sta temp1
-	lda temp2
-	adc temp5
-	sta temp2
-	
-@notRight:
-	
-	; now send the info off!
-	;lda temp4
-	;and #1
-	;sta temp4
-	lda temp2
-	and #1
-	sta temp2
-	
-	lda ctl_flags
-	and #((pctl_highx | pctl_highy) ^ $FF)
-	
-	ldx temp2
-	beq :+
-	ora #pctl_highx
-:	;ldx temp4
-	;beq :+
-	;ora #pctl_highy
-;:
-	sta ctl_flags
-	sta ppu_ctrl
-	
-	lda temp1
-	sta ppu_scroll
-	lda temp3
-	sta ppu_scroll
-	
-	dec quaketimer
-	
-	rts
-
 .include "weather.asm"
 .include "title.asm"
 
@@ -373,7 +244,9 @@ nmi_calccamerapos:
 ; arguments: none
 ; clobbers: all registers
 game_update:
-	jsr com_game_log
+	jsr com_clear_oam    ; clear OAM
+	
+	; determine which mode we should operate in
 	ldx gamemode
 	cpx #gm_title
 	beq gamemode_title   ; title screen
@@ -383,15 +256,49 @@ game_update:
 	beq gamemode_overwd  ; overworld
 	cpx #gm_prologue
 	beq gamemode_prologue_ ; prologue
+	
 	jmp gamemode_game    ; default handling
+	
 game_update_return:
-	rts
+	jmp com_calc_camera  ; calculate the visual camera position
 
 gamemode_prologue_:
 	jmp gamemode_prologue
 
 .include "overwld.asm"
 .include "prologue.asm"
+
+; ** SUBROUTINE: nmi_scrollsplit
+; desc: Determines if the scroll should be split.
+; NOTE NOTE NOTE: AVOID LAG AT ALL COSTS WHILE A SCROLL SPLIT TAKES PLACE!
+; ELSE YOU WILL SEE GRAPHICS GLITCHES!
+nmi_scrollsplit:
+	lda scrollsplit
+	beq @normalScrolling
+	
+	lda ctl_flags
+	sta ppu_ctrl   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
+	lda #0
+	sta ppu_scroll
+	sta ppu_scroll
+	
+	sta mmc3_irqdi  ; disable IRQ
+	lda scrollsplit
+	sta mmc3_irqla  ; latch
+	sta mmc3_irqrl  ; reload
+	sta mmc3_irqen  ; enable IRQs!
+	rts
+	
+@normalScrolling:
+	lda scroll_flags
+	ora ctl_flags
+	sta ppu_ctrl
+	lda scroll_x
+	sta ppu_scroll
+	lda scroll_y
+	sta ppu_scroll
+	sta mmc3_irqdi  ; disable IRQ for this frame
+	rts
 
 ; ** SUBROUTINE: tl_select_banks
 ; desc: Selects the banks required to display the title screen.
@@ -435,41 +342,73 @@ com_clear_oam:
 	bne @loop
 	rts
 
-; ** SUBROUTINE: com_game_log
-; arguments: none
-; clobbers:  all registers
-; desc:      handles common game logic such as clearing OAM
-com_game_log:
-	jsr com_clear_oam
+; ** SUBROUTINE: com_calc_camera
+; desc: Calculate the default scroll X/Y to cameraX/cameraY.
+;       This routine is called on every game mode that isn't gm_game.
+com_calc_camera:
+	lda gamemode
+	cmp #gm_game
+	beq @return
+	
+	lda camera_x
+	sta scroll_x
+	lda camera_y
+	sta scroll_y
+	lda #0
+	ldx camera_x_hi
+	beq :+
+	ora #pctl_highx
+:	ldx camera_y_hi
+	beq :+
+	ora #pctl_highy
+:	sta scroll_flags
+@return:
 	rts
 
 ; ** IRQ
-; currently blank.
+; thanks NESDev Wiki for providing an example of loopy's scroll method
 irq:
 	pha
 	txa
 	pha
 	tya
 	pha
+	sta mmc3_irqdi
 	
-	; disable rendering
-	lda #0
-	sta ppu_mask
+	lda scroll_flags   ; bits 0 and 1 control the high name table address
+	asl
+	asl
+	sta ppu_addr       ; nametable number << 2 to ppu_addr.
 	
-	; wait a bit
-	ldy #0
-:	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	dey
+	; push the Y position to the ppu_scroll
+	lda scroll_y
+	sta ppu_scroll
+	
+	; prepare the 2 latter writes. we reuse scroll_x to hold (y & $f8) << 2.
+	and #%11111000
+	asl
+	asl
+	ldx scroll_x
+	sta scroll_x
+	
+	; ((y & $f8) << 2) | (x >> 3) in A for ppu_addr later
+	txa
+	lsr
+	lsr
+	lsr
+	ora scroll_x
+	
+	; carefully timed code!
+	ldy #$9
+:	dey
 	bne :-
 	
-	; re-enable rendering
-	lda #def_ppu_msk
-	sta ppu_mask
+	; the last two ppu writes MUST happen during horizontal blank
+	stx ppu_scroll
+	sta ppu_addr
+	
+	; restore scroll_x. not sure if this is needed
+	stx scroll_x
 	
 	pla
 	tay
