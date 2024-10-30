@@ -3,15 +3,18 @@ MEMORY
 	# NES 2.0 header.
 	INES:     start=$0000, size=$0010, fill=yes, fillval=$00;
 	
-	# RAM
+	# System WRAM
+	#
+	# NOTE: DLGTEMP and DRAWTEMP are stored in the same place because DRAWTEMP is not being
+	# used while DLGTEMP is being used.
 	ZEROPAGE: start=$0000, size=$0100, type=rw, file="";
 	OAMBUF:   start=$0200, size=$0100, type=rw, file="";
 	ENTITIES: start=$0300, size=$0100, type=rw, file="";
 	PLTRACES: start=$0400, size=$0080, type=rw, file="";
-	# $80 bytes spare
-	DRAWTEMP: start=$0500, size=$0100, type=rw, file="";
-	FMSRAM:   start=$0600, size=$0100, type=rw, file="";
-	# $700 PAGE spare
+	DLGRAM:   start=$0480, size=$0080, type=rw, file="";
+	DRAWTEMP: start=$0500, size=$0200, type=rw, file="";
+	DLGTEMP:  start=$0500, size=$0200, type=rw, file="";
+	FMSRAM:   start=$0700, size=$0100, type=rw, file="";
 	
 	CARTWRAM: start=$6000, size=$0800, type=rw, file="";
 	
@@ -82,7 +85,9 @@ SEGMENTS
 	OAMBUF:   load = OAMBUF,   type = bss, align = $100;
 	ENTITIES: load = ENTITIES, type = bss, align = $100;
 	PLTRACES: load = PLTRACES, type = bss;
+	DLGRAM:   load = DLGRAM,   type = bss;
 	DRAWTEMP: load = DRAWTEMP, type = bss;
+	DLGTEMP:  load = DLGTEMP,  type = bss;
 	FMSRAM:   load = FMSRAM,   type = bss;
 	CARTWRAM: load = CARTWRAM, type = bss;
 	PRG_LVL0: load = PRG_LVL0, type = ro, align=$100;
