@@ -47,11 +47,6 @@ gm_game_init:
 	sty paladdr+1
 	jsr load_palette  ; load game palette into palette RAM
 	
-	lda #$20
-	jsr clear_nt      ; clear the two nametables the game uses
-	lda #$24
-	jsr clear_nt
-	
 @clearDone:
 	
 	lda #0
@@ -207,7 +202,7 @@ gm_game_clear:
 	sta $300,x
 	sta $400,x
 	sta $500,x
-	sta $700,x
+	sta $600,x
 	inx
 	bne gm_game_clear
 	rts

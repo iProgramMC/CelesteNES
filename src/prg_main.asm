@@ -418,11 +418,6 @@ reset_clrmem:
 	ldy #<init_palette
 	jsr load_palette ; move palette to palette RAM
 	
-	lda #$20         ; clear the two nametables
-	jsr clear_nt
-	lda #$24
-	jsr clear_nt
-	
 	ldy #def_ppu_msk ; show background & sprites
 	sty ppu_mask     ; set the ppu mask
 	ldy #(pctl_sprsz | pctl_sppat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable
