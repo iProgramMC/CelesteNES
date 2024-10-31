@@ -48,6 +48,9 @@
 .segment "CHR_BG001"
 .incbin  "chr/b_lvl1.chr"
 
+; Main dialog tiles
+.segment "CHR_DMAIN"
+.incbin  "chr/d_main.chr"
 ; Madeline dialog frames
 .segment "CHR_DMADE"
 .incbin  "chr/d_made.chr"

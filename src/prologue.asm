@@ -44,7 +44,7 @@ pl_select_banks:
 	jsr mmc3_set_bank
 	
 	lda #mmc3bk_bg0
-	ldy #chrb_dmade
+	ldy #chrb_dmain
 	jmp mmc3_set_bank
 
 gamemode_prologue:
@@ -196,9 +196,9 @@ gamemode_prologue:
 	ldx #0              ; select level zero
 	jmp tl_gameswitch
 
-p_text0:	.byte "      THIS IS IT, MADELINE.     "
-p_text1:	.byte "          JUST BREATHE.         "
-p_text2:	.byte "     WHY ARE YOU SO NERVOUS?    "
+p_text0:	.byte "      This is it, Made{ne.      "
+p_text1:	.byte "          Just breathe.         "
+p_text2:	.byte "     Why are you so nervous?    "
 p_texttable:
 	.word p_text0
 	.word p_text1
