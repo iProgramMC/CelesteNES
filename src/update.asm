@@ -12,6 +12,10 @@ nmi_titletra:
 	tay
 	lda alt_colors, y
 	sta ppu_data
+	lda alt_colors+2, y
+	sta ppu_data
+	lda alt_colors+4, y
+	sta ppu_data
 	jmp nmi_gamemodeend
 
 nmi_title:

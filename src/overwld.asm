@@ -763,17 +763,48 @@ ow_waypoints_y:
 
 ; note: each space is 16 bytes wide
 ow_level_names:
+	.pushcharmap
 	.charmap $20, $00
-	.byte "    PROLOGUE    "
-	.byte "  FORSAKEN CITY "
-	.byte "    OLD SITE    "
-	.byte "CELESTIAL RESORT"
-	.byte "  GOLDEN RIDGE  "
-	.byte " MIRROR  TEMPLE "
-	.byte "   REFLECTION   "
-	.byte "   THE SUMMIT   "
-	.byte "    EPILOGUE    "
-	.charmap $20, $20
+	.charmap $61, $41 ; a
+	.charmap $63, $42 ; c
+	.charmap $64, $43 ; d
+	.charmap $65, $44 ; e
+	.charmap $67, $46 ; g
+	.charmap $68, $47 ; h
+	.charmap $69, $48 ; i
+	.charmap $6B, $49 ; k
+	.charmap $6C, $4A ; l
+	.charmap $6D, $4B ; m
+	.charmap $6E, $4C ; n
+	.charmap $6F, $4D ; o
+	.charmap $70, $4E ; p
+	.charmap $72, $4F ; r
+	.charmap $73, $50 ; s
+	.charmap $74, $51 ; t
+	.charmap $75, $52 ; u
+	.charmap $79, $53 ; y
+	.charmap $43, $54 ; C
+	.charmap $45, $55 ; E
+	.charmap $46, $56 ; F
+	.charmap $47, $57 ; G
+	.charmap $4D, $58 ; M
+	.charmap $4F, $59 ; O
+	.charmap $50, $5A ; P
+	.charmap $52, $30 ; R
+	.charmap $53, $31 ; S
+	.charmap $54, $32 ; T
+	
+	.byte "    Prologue    "
+	.byte "  Forsaken C3y  "
+	.byte "     O9 S3e     "
+	.byte " C56s7al Resort "
+	.byte "  Golden Ridge  "
+	.byte "  M4ror Temple  "
+	.byte "    Re8ec7on    "
+	.byte "   The Summit   "
+	.byte "    Epilogue    "
+	
+	.popcharmap
 
 ow_icon_pals:
 	; note: bit 0x20 SHOULD be set else the level select effect won't work.
