@@ -47,6 +47,11 @@ gm_game_init:
 	sty paladdr+1
 	jsr load_palette  ; load game palette into palette RAM
 	
+	lda #$20
+	jsr clear_nt
+	lda #$24
+	jsr clear_nt
+	
 @clearDone:
 	
 	lda #0
