@@ -117,7 +117,7 @@ gamemode_prologue:
 	inc p_textnum
 	
 	inc pl_state
-	jmp game_update_return
+	rts
 
 @fade:
 	lda p_texttimer
@@ -160,7 +160,7 @@ gamemode_prologue:
 	; increment state
 	inc pl_state
 @updateReturn:
-	jmp game_update_return
+	rts
 	
 :	inc p_texttimer
 	lda p_texttimer
@@ -188,8 +188,7 @@ gamemode_prologue:
 	sta pl_ppuaddr + 1
 	
 	inc p_textoffs
-	
-	jmp game_update_return
+	rts
 
 @gameswitch:
 	jsr vblank_wait

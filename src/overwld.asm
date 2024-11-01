@@ -76,7 +76,7 @@ gamemode_overwd_update:
 	bit ow_temp5
 	bne @startGame
 @return:
-	jmp game_update_return
+	rts
 	
 @startGame:
 	; now enter the game!

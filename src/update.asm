@@ -1,5 +1,28 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+gamemodes_LO:
+	.byte <gamemode_game
+	.byte <gamemode_title
+	.byte <gamemode_titletr
+	.byte <gamemode_overwd
+	.byte <gamemode_prologue
+	
+gamemodes_HI:
+	.byte >gamemode_game
+	.byte >gamemode_title
+	.byte >gamemode_titletr
+	.byte >gamemode_overwd
+	.byte >gamemode_prologue
+
+; ** SUBROUTINE: jump_engine
+; desc: Jumps to the address corresponding to the current game mode.
+jump_engine:
+	ldx gamemode
+	lda gamemodes_LO, x
+	sta temp1
+	lda gamemodes_HI, x
+	sta temp1+1
+	jmp (temp1)
 
 ; ** SUBROUTINE: rand_m2_to_p1
 ; desc: Gets a random value between [-2, 1]
@@ -29,35 +52,16 @@ rand_m1_to_p2:
 
 .include "weather.asm"
 .include "title.asm"
+.include "overwld.asm"
+.include "prologue.asm"
 
 ; ** SUBROUTINE: game_update
 ; arguments: none
 ; clobbers: all registers
 game_update:
 	jsr com_clear_oam    ; clear OAM
-	
-	; determine which mode we should operate in
-	ldx gamemode
-	cpx #gm_title
-	beq gamemode_title_  ; title screen
-	cpx #gm_titletra
-	beq gamemode_titletr ; title screen transition
-	cpx #gm_overwld
-	beq gamemode_overwd  ; overworld
-	cpx #gm_prologue
-	beq gamemode_prologue_ ; prologue
-	
-	jmp gamemode_game    ; default handling
-	
-game_update_return:
+	jsr jump_engine      ; jump to the corresponding game mode
 	jmp com_calc_camera  ; calculate the visual camera position
-
-gamemode_prologue_:
-	jmp gamemode_prologue
-
-.include "overwld.asm"
-.include "prologue.asm"
-
 
 ; ** SUBROUTINE: tl_select_banks
 ; desc: Selects the banks required to display the title screen.

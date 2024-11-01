@@ -55,14 +55,14 @@ tl_gameswitch:
 	sta musictable
 	sta musictable+1
 	jsr gm_set_level
-	jmp game_update_return
+	rts
 
 tl_prolswitch:
 	lda #gm_prologue
 	sta gamemode
 	lda #0
 	sta prolctrl
-	jmp game_update_return
+	rts
 	
 tl_owldswitch:
 	lda #gm_overwld
@@ -73,8 +73,7 @@ tl_owldswitch:
 	jsr vblank_wait
 	lda #0
 	sta ppu_mask        ; disable rendering
-	
-	jmp game_update_return
+	rts
 
 ; ** GAMEMODE: gamemode_title
 gamemode_title:
@@ -137,8 +136,7 @@ gamemode_title_update:
 	lda #tm_gametra
 	sta tl_gametime
 tl_no_transition:
-	
-	jmp game_update_return
+	rts
 
 gamemode_titletr:
 	jsr tl_update_snow
@@ -148,8 +146,7 @@ gamemode_titletr:
 	dex
 	beq tl_owldswitch
 	stx tl_gametime
-	
-	jmp game_update_return
+	rts
 
 alt_colors:
 	.byte $27, $29

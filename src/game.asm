@@ -129,7 +129,7 @@ gm_game_update:
 ;	lda #cont_select
 ;	bit p1_cont
 ;	bne gm_titleswitch
-	jmp game_update_return
+	rts
 
 test:
 	lda #cont_select
@@ -159,7 +159,7 @@ test:
 ;	lda #0
 ;	sta titlectrl
 ;@earlyReturn:
-;	jmp game_update_return
+;	rts
 
 ; ** SUBROUTINE: gm_game_clear_all_wx
 ; desc: Clears ALL game variables with the X register.
