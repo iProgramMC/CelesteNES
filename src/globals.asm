@@ -181,6 +181,13 @@ clearsizex  : .res 1 ; enqueued name table clear, size X
 clearsizey  : .res 1 ; enqueued name table clear, size Y
 roomnumber  : .res 1 ; incremented every time a room transition happens
 
+spr0_bknum  : .res 1
+spr1_bknum  : .res 1
+spr2_bknum  : .res 1
+spr3_bknum  : .res 1
+bg0_bknum   : .res 1
+bg1_bknum   : .res 1
+
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
 roomspare2  : .res 1 ; spare bytes

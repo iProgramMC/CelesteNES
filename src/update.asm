@@ -59,6 +59,7 @@ nmi:
 	beq @onlyAudioPlease ; if NMIs are softly disabled, then ONLY run audio
 	
 	ldx gamemode
+	beq nmi_game
 	cpx #gm_titletra
 	beq nmi_titletra
 	cpx #gm_title
@@ -67,7 +68,6 @@ nmi:
 	beq nmi_overwld
 	cpx #gm_prologue
 	beq nmi_prologue
-	bne nmi_game
 	
 @gamemode_end:
 	jsr oam_dma_and_read_cont
