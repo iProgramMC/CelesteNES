@@ -450,6 +450,7 @@ main_loop:
 .include "update.asm"
 .include "gam_main.asm"
 .include "audio/audio.asm"
+.include "nmi.asm"
 
 ; I know this belongs in GAME and not in MAIN, but I want to take some load off of GAME.
 ;
@@ -495,6 +496,6 @@ owld_palette:
 	.byte $0f,$30,$29,$09 ; green/refill sprite
 
 .segment "PRG_VECS"
-	.word nmi
+	.word nmi_
 	.word reset
 	.word irq

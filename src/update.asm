@@ -1,49 +1,36 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-nmi_titletra:
-	lda tl_timer
-	and #$08
-	lsr
-	lsr
-	lsr
-	ldy #$3F
-	ldx #$01
-	jsr ppu_loadaddr
-	tay
-	lda alt_colors, y
-	sta ppu_data
-	lda alt_colors+2, y
-	sta ppu_data
-	lda alt_colors+4, y
-	sta ppu_data
-	jmp nmi_gamemodeend
+;nmi_titletra:
+;	lda tl_timer
+;	and #$08
+;	lsr
+;	lsr
+;	lsr
+;	ldy #$3F
+;	ldx #$01
+;	jsr ppu_loadaddr
+;	tay
+;	lda alt_colors, y
+;	sta ppu_data
+;	lda alt_colors+2, y
+;	sta ppu_data
+;	lda alt_colors+4, y
+;	sta ppu_data
+;	jmp nmi_gamemodeend
 
-nmi_title:
-	lda #ts_turnon
-	bit titlectrl
-	bne nmi_title_turnon
-	beq nmi_gamemodeend
-nmi_title_turnon:
-	lda titlectrl
-	eor #ts_turnon
-	sta titlectrl
-	lda #def_ppu_msk
-	sta ppu_mask
-	beq nmi_gamemodeend
-
-nmi_overwld:
-	lda #os_turnon
-	bit owldctrl
-	beq :+
-	eor owldctrl
-	sta owldctrl
-	lda #def_ppu_msk
-	sta ppu_mask
-:	lda #os_updlvlnm
-	bit owldctrl
-	beq :+
-	jsr ow_draw_level_name
-:	jmp nmi_gamemodeend
+;nmi_overwld:
+;	;lda #os_turnon
+;	bit owldctrl
+;	beq :+
+;	eor owldctrl
+;	sta owldctrl
+;	lda #def_ppu_msk
+;	sta ppu_mask
+;:	;lda #os_updlvlnm
+;	bit owldctrl
+;	beq :+
+;	jsr ow_draw_level_name
+;:	jmp nmi_gamemodeend
 
 ; ** INTERRUPT HANDLER: nmi
 nmi:
@@ -61,11 +48,11 @@ nmi:
 	ldx gamemode
 	beq nmi_game
 	cpx #gm_titletra
-	beq nmi_titletra
+	;beq nmi_titletra
 	cpx #gm_title
-	beq nmi_title
+	;beq nmi_title
 	cpx #gm_overwld
-	beq nmi_overwld
+	;beq nmi_overwld
 	cpx #gm_prologue
 	beq nmi_prologue
 	
@@ -103,7 +90,7 @@ nmi_prologue:
 	bne :-
 	
 @noClear:
-	lda #ps_turnon
+	;lda #ps_turnon
 	bit prolctrl
 	beq @noTurnOn
 	eor prolctrl
@@ -124,73 +111,73 @@ nmi_prologue:
 	jmp nmi_gamemodeend
 
 nmi_game:
-	jsr nmi_anims_update
-	
-	; Check game status bits.
-	lda #gs_turnon
-	bit gamectrl
-	beq @trycols
-	lda gamectrl
-	eor #gs_turnon
-	sta gamectrl
-	lda #def_ppu_msk
-	sta ppu_mask
-
-@trycols:
-	lda #gs_flstcolR
-	bit gamectrl
-	beq @trypal
-	eor gamectrl
-	sta gamectrl
-	jsr h_flush_col_r
-
-@trypal:
-	lda #gs_flstpalR
-	bit gamectrl
-	beq @tryrow
-	eor gamectrl
-	sta gamectrl
-	jsr h_flush_pal_r
-
-@tryrow:
-	lda #g2_flstrowU
-	bit gamectrl2
-	beq @tryhpal
-	eor gamectrl2
-	sta gamectrl2
-	jsr h_flush_row_u
-
-@tryhpal:
-	lda #g2_flstpalU
-	bit gamectrl2
-	beq @tryclear
-	eor gamectrl2
-	sta gamectrl2
-	jsr h_flush_pal_u
-
-@tryclear:
-	lda #g2_clearcol
-	bit gamectrl2
-	beq @tryclricr
-	eor gamectrl2
-	sta gamectrl2
-	jsr h_clear_2cols
-	
-@tryclricr:
-	lda #g2_clrcru
-	bit gamectrl2
-	beq @tryseticr
-	eor gamectrl2
-	sta gamectrl2
-	jsr h_enqueued_clear
-	
-@tryseticr:
-	lda #g2_setcru
-	bit gamectrl2
-	beq @end
-	eor gamectrl2
-	sta gamectrl2
-	jsr level0_nmi_set_icr
+;	jsr nmi_anims_update
+;	
+;	; Check game status bits.
+;	;lda #gs_turnon
+;	bit gamectrl
+;	beq @trycols
+;	lda gamectrl
+;	;eor #gs_turnon
+;	sta gamectrl
+;	lda #def_ppu_msk
+;	sta ppu_mask
+;
+;@trycols:
+;	lda #gs_flstcolR
+;	bit gamectrl
+;	beq @trypal
+;	eor gamectrl
+;	sta gamectrl
+;	jsr h_flush_col_r
+;
+;@trypal:
+;	lda #gs_flstpalR
+;	bit gamectrl
+;	beq @tryrow
+;	eor gamectrl
+;	sta gamectrl
+;	jsr h_flush_pal_r
+;
+;@tryrow:
+;	lda #g2_flstrowU
+;	bit gamectrl2
+;	beq @tryhpal
+;	eor gamectrl2
+;	sta gamectrl2
+;	jsr h_flush_row_u
+;
+;@tryhpal:
+;	lda #g2_flstpalU
+;	bit gamectrl2
+;	beq @tryclear
+;	eor gamectrl2
+;	sta gamectrl2
+;	jsr h_flush_pal_u
+;
+;@tryclear:
+;	lda #g2_clearcol
+;	bit gamectrl2
+;	beq @tryclricr
+;	eor gamectrl2
+;	sta gamectrl2
+;	jsr h_clear_2cols
+;	
+;@tryclricr:
+;	lda #g2_clrcru
+;	bit gamectrl2
+;	beq @tryseticr
+;	eor gamectrl2
+;	sta gamectrl2
+;	jsr h_enqueued_clear
+;	
+;@tryseticr:
+;	lda #g2_setcru
+;	bit gamectrl2
+;	beq @end
+;	eor gamectrl2
+;	sta gamectrl2
+;	jsr level0_nmi_set_icr
 
 @end:
 	jmp nmi_gamemodeend
@@ -253,7 +240,7 @@ game_update:
 	; determine which mode we should operate in
 	ldx gamemode
 	cpx #gm_title
-	beq gamemode_title   ; title screen
+	beq gamemode_title_  ; title screen
 	cpx #gm_titletra
 	beq gamemode_titletr ; title screen transition
 	cpx #gm_overwld

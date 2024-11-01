@@ -345,8 +345,12 @@ gm_leaveroomU:
 	
 	; clear the camera stop bits
 	lda gamectrl
-	and #((gs_scrstopR|gs_scrstodR|gs_flstcolR|gs_flstpalR)^$FF)
+	and #((gs_scrstopR|gs_scrstodR)^$FF)
 	sta gamectrl
+	
+	lda nmictrl
+	and #((nc_flushcol|nc_flshpalv)^$FF)
+	sta nmictrl
 	
 	; pre-generate all metatiles
 	ldy #0
@@ -399,9 +403,10 @@ gm_leaveroomU:
 	and #(gs_scrstopR|gs_scrstodR)
 	sta temp9
 	
-	lda gamectrl
-	and #((gs_flstcolR|gs_flstpalR)^$FF)
-	eor temp9
+	lda nmictrl
+	and #((nc_flushcol|nc_flshpalv)^$FF)
+	sta nmictrl
+	
 	ora #gs_dontgen
 	sta gamectrl
 	

@@ -87,19 +87,24 @@ gm_game_init:
 	
 	lda gamectrl
 	and #(gs_scrstodR|gs_scrstopR)
-	ora #(gs_1stfr|gs_turnon)
+	ora #gs_1stfr
 	sta gamectrl
+	
+	lda nmictrl
+	ora #nc_turnon
+	sta nmictrl
+	
 	jsr vblank_wait
 	jmp gm_game_update
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
-	jsr test
 	inc framectr
 	lda gamectrl
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	jsr test
 	lda scrollsplit
 	beq :+
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up

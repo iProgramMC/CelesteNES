@@ -82,11 +82,11 @@ h_ntwr_to_ppuaddr:
 	rts
 
 ; ** SUBROUTINE: h_flush_pal_r_cond
-; desc:    Flushes a generated palette column in temppal to the screen if gs_flstpalR is set
+; desc:    Flushes a generated palette column in temppal to the screen if nc_flshpalv is set
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
 h_flush_pal_r_cond:
-	lda #gs_flstpalR
-	bit gamectrl
+	lda #nc_flshpalv
+	bit nmictrl
 	bne h_flush_pal_r
 	rts
 
@@ -584,10 +584,10 @@ h_gener_row_u:
 	cpy #$20
 	bne @loop
 	
-	; now that the row has been flushed, it's time to set the gamectrl2 flag
-	lda #g2_flstrowU
-	ora gamectrl2
-	sta gamectrl2
+	; now that the row has been flushed, it's time to set the nmictrl flag
+	lda #nc_flushrow
+	ora nmictrl
+	sta nmictrl
 	
 	; check if (ntrowhead % 4) == 0
 	lda ntrowhead
@@ -672,9 +672,9 @@ h_gener_row_u:
 	cpy #8
 	bne @ploop
 	
-	lda #g2_flstpalU
-	ora gamectrl2
-	sta gamectrl2
+	lda #nc_flushpal
+	ora nmictrl
+	sta nmictrl
 	
 @dontgeneratepal:
 	rts
@@ -712,9 +712,9 @@ h_gener_col_r:
 	cpy #$1E
 	bne @loop
 
-	lda #gs_flstcolR          ; set the gamectrl gs_flstcolR flag
-	ora gamectrl
-	sta gamectrl
+	lda #nc_flushcol          ; set the nmictrl nc_flushcol flag
+	ora nmictrl
+	sta nmictrl
 	
 	lda #gs_dontgen
 	bit gamectrl
@@ -731,7 +731,7 @@ h_gener_col_r:
 
 ; ** SUBROUTINE: h_palette_data_column
 ; desc: Reads a single column of palette data.
-; NOTE: sets gs_flstpalR in gamectrl!
+; NOTE: sets nc_flshpalv in nmictrl!
 h_palette_data_column:
 	ldy #0                    ; start reading palette data.
 @ploop:
@@ -753,9 +753,9 @@ h_palette_data_column:
 	cpy #8
 	bne @ploop
 @phaveFE:
-	lda #gs_flstpalR
-	ora gamectrl
-	sta gamectrl
+	lda #nc_flshpalv
+	ora nmictrl
+	sta nmictrl
 	rts
 ; significance of palette combinations:
 ; $FE - Re-use the same palette data as the previous column
@@ -1300,9 +1300,9 @@ gm_respawn:
 @loop:
 	sty transtimer
 	
-	lda #g2_clearcol
-	ora gamectrl2
-	sta gamectrl2
+	lda #nc2_clrcol
+	ora nmictrl2
+	sta nmictrl2
 	
 	jsr gm_leave_doframe
 	

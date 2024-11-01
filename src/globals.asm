@@ -24,6 +24,9 @@ gamestate   : .res 1 ; reused by every game mode
 	owldctrl  = gamestate
 	prolctrl  = gamestate
 
+nmictrl     : .res 1 ; nc_*
+nmictrl2    : .res 1 ; nc2_*
+
 mmc3_shadow : .res 1
 currA000bank: .res 1 ; current bank index loaded at $A000-$BFFF.
 oam_wrhead  : .res 1 ; OAM buffer write head

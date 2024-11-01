@@ -112,9 +112,14 @@ gamemode_title:
 	jsr print_logo   ; print the logo and the "PRESS BUTTON" text
 	jsr tl_init_snow ; initialize snow
 	jsr ppu_rstaddr  ; reset PPUADDR
+	
 	lda titlectrl
-	ora #(ts_1stfr|ts_turnon)
+	ora #ts_1stfr
 	sta titlectrl
+	lda nmictrl
+	ora #nc_turnon
+	sta nmictrl
+	
 	jsr tl_select_banks
 	jsr vblank_wait
 	
@@ -135,11 +140,6 @@ tl_no_transition:
 	
 	jmp game_update_return
 
-alt_colors:
-	.byte $27, $29
-	.byte $17, $19
-	.byte $07, $09
-
 gamemode_titletr:
 	jsr tl_update_snow
 	jsr tl_render_snow
@@ -150,3 +150,12 @@ gamemode_titletr:
 	stx tl_gametime
 	
 	jmp game_update_return
+
+alt_colors:
+	.byte $27, $29
+	.byte $17, $19
+	.byte $07, $09
+
+; TODO: PLACEHOLDER
+gamemode_title_:
+	beq gamemode_title

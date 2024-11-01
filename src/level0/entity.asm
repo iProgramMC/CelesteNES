@@ -127,8 +127,8 @@ level0_bridge_manager:
 	sta temp3
 	
 	; check if a clear is already enqueued.
-	lda #g2_clrcru
-	bit gamectrl2
+	lda #nc_clearenq
+	bit nmictrl
 	beq :+
 	
 	; clear is already enqueued. Simply wait one more frame
@@ -493,9 +493,9 @@ level0_intro_crusher:
 	stx l0crshidx
 	
 	; Enqueue a clear for the size of the intro crusher..
-	lda #g2_clrcru
-	ora gamectrl2
-	sta gamectrl2
+	lda #nc_clearenq
+	ora nmictrl
+	sta nmictrl
 	
 	lda #7
 	sta clearsizex
@@ -537,13 +537,13 @@ level0_intro_crusher:
 	; Set the flags that will clear the crusher's nametable visually.
 	stx l0crshidx
 	
-	lda #g2_setcru
-	ora gamectrl2
-	sta gamectrl2
+	lda #nc2_setl0ic
+	ora nmictrl2
+	sta nmictrl2
 	
 	; Initiate the setting process.
 	jsr level0_ic_calcpos ; calculate tile pos in (temp2, temp3)
-	jsr h_calcppuaddr     ; use said tile pos to prepare for the g2_setcru NMI.
+	jsr h_calcppuaddr     ; use said tile pos to prepare for the n2_setl0ic NMI.
 	
 	ldx #0
 	stx temp6

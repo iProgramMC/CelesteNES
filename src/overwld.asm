@@ -39,8 +39,14 @@ gamemode_overwd:
 	;jsr tl_init_snow
 	jsr ppu_rstaddr
 	lda owldctrl
-	ora #(os_1stfr | os_turnon)
+	ora #os_1stfr
 	sta owldctrl
+	
+	; request a turn-on
+	lda nmictrl
+	ora #nc_turnon
+	sta nmictrl
+	
 	jsr ow_select_banks
 	jsr vblank_wait
 	
@@ -414,9 +420,9 @@ ow_handle_input:
 :	rts
 
 ow_queue_lvlnm_upd:
-	lda #os_updlvlnm
-	ora owldctrl
-	sta owldctrl
+	lda #nc_updlvlnm
+	ora nmictrl
+	sta nmictrl
 	rts
 
 ; ** SUBROUTINE: ow_anim_frame

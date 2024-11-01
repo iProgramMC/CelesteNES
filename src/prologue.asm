@@ -76,8 +76,13 @@ gamemode_prologue:
 	jsr tl_init_snow
 	
 	lda prolctrl
-	ora #(ps_1stfr | ps_turnon)
+	ora #ps_1stfr
 	sta prolctrl
+	
+	lda nmictrl
+	ora #nc_turnon
+	sta nmictrl
+	
 	jsr vblank_wait
 	
 @noinitsequence:
