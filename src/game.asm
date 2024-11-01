@@ -91,6 +91,7 @@ gm_game_init:
 	sta gamectrl
 	
 	lda nmictrl
+	and #((nc_flushcol|nc_flshpalv|nc_flushrow|nc_flushpal)^$FF)
 	ora #nc_turnon
 	sta nmictrl
 	
@@ -99,11 +100,11 @@ gm_game_init:
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
-	inc framectr
 	lda gamectrl
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	inc framectr
 	jsr test
 	lda scrollsplit
 	beq :+

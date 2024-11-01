@@ -1,5 +1,6 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+; ** NMI
 nmi_:
 	inc nmicount
 	sta mmc3_irqdi  ; disable IRQ for this frame
@@ -15,8 +16,9 @@ nmi_:
 	jsr nmi_check_flags
 	jsr nmi_check_gamemodes
 	
-	jsr oam_dma_and_read_cont
 	jsr nmi_scrollsplit
+	jsr oam_dma_and_read_cont
+	jsr nmi_anims_update
 	
 @onlyAudioPlease:
 	jsr aud_run
@@ -169,4 +171,59 @@ nmi_check_gamemodes:
 	lda alt_colors+4, y
 	sta ppu_data
 	rts
+
+; ** SUBROUTINE: nmi_anims_update
+; desc: Selects the correct graphics banks during gameplay.
+nmi_anims_update:
+	lda gamemode
+	bne (nmi_anims_update - 1) ; branch to the rts above
 	
+	; Update the current player sprite bank.
+	lda animtimer
+	and #1
+	tay
+	lda #mmc3bk_spr0
+	jsr mmc3_set_bank_nmi
+	
+	; Update the animated sprite bank.
+	lda framectr
+	lsr
+	lsr
+	lsr
+	and #3
+	tay
+	iny
+	iny
+	lda #mmc3bk_spr3
+	jmp mmc3_set_bank_nmi
+; ** SUBROUTINE: nmi_scrollsplit
+; desc: Determines if the scroll should be split.
+; NOTE NOTE NOTE: AVOID LAG AT ALL COSTS WHILE A SCROLL SPLIT TAKES PLACE!
+; ELSE YOU WILL SEE GRAPHICS GLITCHES!
+nmi_scrollsplit:
+	lda scrollsplit
+	beq @normalScrolling
+	
+	lda ctl_flags
+	sta ppu_ctrl   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
+	lda #0
+	sta ppu_scroll
+	sta ppu_scroll
+	
+	sta mmc3_irqdi  ; disable IRQ
+	lda scrollsplit
+	sta mmc3_irqla  ; latch
+	sta mmc3_irqrl  ; reload
+	sta mmc3_irqen  ; enable IRQs!
+	rts
+	
+@normalScrolling:
+	lda scroll_flags
+	ora ctl_flags
+	sta ppu_ctrl
+	lda scroll_x
+	sta ppu_scroll
+	lda scroll_y
+	sta ppu_scroll
+	sta mmc3_irqdi  ; disable IRQ for this frame
+	rts

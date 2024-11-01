@@ -407,6 +407,8 @@ gm_leaveroomU:
 	and #((nc_flushcol|nc_flshpalv)^$FF)
 	sta nmictrl
 	
+	lda gamectrl
+	eor temp9
 	ora #gs_dontgen
 	sta gamectrl
 	
