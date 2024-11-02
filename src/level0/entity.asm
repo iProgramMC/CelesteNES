@@ -136,8 +136,8 @@ level0_bridge_manager:
 	bne @returnEarly
 	;bne @drawSprite_Bne
 	
-:	ora gamectrl2
-	sta gamectrl2
+:	ora nmictrl
+	sta nmictrl
 	
 	jsr h_calcppuaddr
 	
