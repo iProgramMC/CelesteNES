@@ -3,5 +3,6 @@ keep/*
 *.deb
 *.map
 *.dep
+*.lst
 *.o
 *.nes

@@ -1,5 +1,10 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+; Notes about some variables:
+;
+; (1) -- If dialogsplit is non zero, it is applied instead of scrollsplit, and then scrollsplit
+;        is only used to calculate the camera offset in game.
+
 .segment "ZEROPAGE"
 
 temp1       : .res 1
@@ -11,7 +16,13 @@ temp6       : .res 1
 temp7       : .res 1
 temp8       : .res 1
 temp9       : .res 1
-temp10      : .res 1 ; NEW
+temp10      : .res 1
+
+; temporaries ONLY touchable in the IRQ!
+irqtmp1     : .res 1
+irqtmp2     : .res 1
+irqtmp3     : .res 1
+irqtmp4     : .res 1
 
 gamemode    : .res 1 ; active game mode
 framectr    : .res 1 ; continuously increasing frame counter
@@ -48,6 +59,7 @@ wr_str_temp : .res 2 ; address of current character of string
 x_crd_temp  : .res 1 ; used by oam_putsprite and h_get_tile, MUST be x before y!
 y_crd_temp  : .res 1 ; used by oam_putsprite
 scrollsplit : .res 1 ; Y position of the scroll split
+dialogsplit : .res 1 ; Y position of the dialog split (1)
 scroll_x    : .res 1
 scroll_y    : .res 1
 scroll_flags: .res 1 ; the FLAGS for the scroll split part of PPUCTRL

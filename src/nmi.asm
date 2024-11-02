@@ -21,8 +21,15 @@ nmi_:
 	jsr nmi_anims_update
 	
 @onlyAudioPlease:
+	lda dialogsplit
+	bne @dontRunAudio
+	
+	; Audio is NOT run after vblank during NMI split. Why?
+	; Sometimes, it just takes too long (like 25 scanlines!)
+	; So we'll delay it to the IRQ.
 	jsr aud_run
 	
+@dontRunAudio:
 	pla
 	tay
 	pla
@@ -249,8 +256,10 @@ nmi_scrollsplit:
 	sta ppu_scroll
 	
 	sta mmc3_irqdi  ; disable IRQ
+	lda dialogsplit ; -- dialogsplit takes priority over scrollsplit
+	bne :+
 	lda scrollsplit
-	sta mmc3_irqla  ; latch
+:	sta mmc3_irqla  ; latch
 	sta mmc3_irqrl  ; reload
 	sta mmc3_irqen  ; enable IRQs!
 	rts

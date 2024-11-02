@@ -1,7 +1,7 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 .include "g_level.asm"
-;.include "g_rmtran.asm"
+.include "g_rmtran.asm"
 .include "e_draw.asm"
 .include "e_update.asm"
 ;.include "e_physic.asm"
@@ -143,6 +143,10 @@ test:
 	lda scrollsplit
 	eor #64
 	sta scrollsplit
+	
+	lda dialogsplit
+	eor #12
+	sta dialogsplit
 
 :	rts
 
@@ -202,6 +206,7 @@ gm_game_clear_wx:
 	stx plrtrahd
 	stx plrstrawbs
 	stx scrollsplit
+	stx dialogsplit
 	dex
 	stx animmode      ; set to 0xFF
 	inx
