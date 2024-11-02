@@ -111,6 +111,7 @@ gm_game_update:
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
 :	jsr gm_physics
 	jsr gm_anim_player
+	jsr gm_anim_banks
 	jsr gm_draw_player
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities

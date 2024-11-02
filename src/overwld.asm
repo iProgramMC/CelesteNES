@@ -819,26 +819,20 @@ ow_icon_pals:
 ; ** SUBROUTINE: ow_select_banks
 ; desc: Selects the banks required to display the title screen.
 ow_select_banks:
-	lda #mmc3bk_bg0
 	ldy #chrb_bgowd
-	jsr mmc3_set_bank
-	lda #mmc3bk_bg1
+	sty bg0_bknum
 	ldy #chrb_bgowd+2
-	jsr mmc3_set_bank
+	sty bg1_bknum
 	
-	lda #mmc3bk_spr0
 	ldy #chrb_owsp00
-	jsr mmc3_set_bank
+	sty spr0_bknum
 	
-	lda #mmc3bk_spr1
 	ldy #chrb_owsp01
-	jsr mmc3_set_bank
+	sty spr1_bknum
 	
-	lda #mmc3bk_spr2
 	ldy #chrb_owsp02
-	jsr mmc3_set_bank
+	sty spr2_bknum
 	
-	lda #mmc3bk_spr3
 	ldy #chrb_owsp03
-	jsr mmc3_set_bank
+	sty spr3_bknum
 	rts

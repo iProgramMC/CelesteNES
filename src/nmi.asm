@@ -174,28 +174,66 @@ nmi_check_gamemodes:
 
 ; ** SUBROUTINE: nmi_anims_update
 ; desc: Selects the correct graphics banks during gameplay.
+;
+; question: Why is this near the END of the NMI routine, where it can potentially spill out of vblank?
+; answer:   Because updating MMC3 banks is always safe.  Even updating CHR banks is safe.  The only problem
+;           is tearing, but it only happens when the NMI routine takes too long, and the artifact will likely
+;           stay off in overscan anyway.
 nmi_anims_update:
-	lda gamemode
-	bne (nmi_anims_update - 1) ; branch to the rts above
+	lda scrollsplit
+	bne nmi_anims_scrollsplit
 	
-	; Update the current player sprite bank.
-	lda animtimer
-	and #1
-	tay
+nmi_anims_normal:
+	ldy spr0_bknum
 	lda #mmc3bk_spr0
 	jsr mmc3_set_bank_nmi
 	
-	; Update the animated sprite bank.
-	lda framectr
-	lsr
-	lsr
-	lsr
-	and #3
-	tay
-	iny
-	iny
+	ldy spr3_bknum
+	lda #mmc3bk_spr3
+	jsr mmc3_set_bank_nmi
+	
+	ldy spr1_bknum
+	lda #mmc3bk_spr1
+	jsr mmc3_set_bank_nmi
+	
+	ldy spr2_bknum
+	lda #mmc3bk_spr2
+	jsr mmc3_set_bank_nmi
+	
+	ldy bg0_bknum
+	lda #mmc3bk_bg0
+	jsr mmc3_set_bank_nmi
+	
+	ldy bg1_bknum
+	lda #mmc3bk_bg1
+	jmp mmc3_set_bank_nmi
+	
+nmi_anims_scrollsplit:
+	ldy bg0_bkspl
+	lda #mmc3bk_bg0
+	jsr mmc3_set_bank_nmi
+	
+	ldy bg1_bkspl
+	lda #mmc3bk_bg1
+	jsr mmc3_set_bank_nmi
+	
+	ldy spr0_bkspl
+	lda #mmc3bk_spr0
+	jsr mmc3_set_bank_nmi
+	
+	ldy spr1_bkspl
+	lda #mmc3bk_spr1
+	jsr mmc3_set_bank_nmi
+	
+	ldy spr2_bkspl
+	lda #mmc3bk_spr2
+	jsr mmc3_set_bank_nmi
+	
+	ldy spr3_bkspl
 	lda #mmc3bk_spr3
 	jmp mmc3_set_bank_nmi
+	
+
 ; ** SUBROUTINE: nmi_scrollsplit
 ; desc: Determines if the scroll should be split.
 ; NOTE NOTE NOTE: AVOID LAG AT ALL COSTS WHILE A SCROLL SPLIT TAKES PLACE!

@@ -66,29 +66,23 @@ game_update:
 ; ** SUBROUTINE: tl_select_banks
 ; desc: Selects the banks required to display the title screen.
 tl_select_banks:
-	lda #mmc3bk_bg0
 	ldy #chrb_bgttl
-	jsr mmc3_set_bank
+	sty bg0_bknum
 	
-	lda #mmc3bk_bg1
 	ldy #chrb_bgttl+2
-	jsr mmc3_set_bank
+	sty bg1_bknum
 	
-	lda #mmc3bk_spr0
 	ldy #chrb_plrsp0
-	jsr mmc3_set_bank
+	sty spr0_bknum
 	
-	;lda #mmc3bk_spr1
 	;ldy #chrb_gensp2
-	;jsr mmc3_set_bank
+	;sty spr1_bknum
 	
-	lda #mmc3bk_spr2
 	ldy #chrb_gensp1
-	jsr mmc3_set_bank
+	sty spr2_bknum
 	
-	;lda #mmc3bk_spr3
 	;ldy #chrb_anisp0
-	;jsr mmc3_set_bank
+	;sty spr3_bknum
 	rts
 
 ; ** SUBROUTINE: com_clear_oam
@@ -127,55 +121,3 @@ com_calc_camera:
 :	sta scroll_flags
 @return:
 	rts
-
-; ** IRQ
-; thanks NESDev Wiki for providing an example of loopy's scroll method
-irq:
-	pha
-	txa
-	pha
-	tya
-	pha
-	sta mmc3_irqdi
-	
-	lda scroll_flags   ; bits 0 and 1 control the high name table address
-	asl
-	asl
-	sta ppu_addr       ; nametable number << 2 to ppu_addr.
-	
-	; push the Y position to the ppu_scroll
-	lda scroll_y
-	sta ppu_scroll
-	
-	; prepare the 2 latter writes. we reuse scroll_x to hold (y & $f8) << 2.
-	and #%11111000
-	asl
-	asl
-	ldx scroll_x
-	sta scroll_x
-	
-	; ((y & $f8) << 2) | (x >> 3) in A for ppu_addr later
-	txa
-	lsr
-	lsr
-	lsr
-	ora scroll_x
-	
-	; carefully timed code!
-	ldy #$9
-:	dey
-	bne :-
-	
-	; the last two ppu writes MUST happen during horizontal blank
-	stx ppu_scroll
-	sta ppu_addr
-	
-	; restore scroll_x. not sure if this is needed
-	stx scroll_x
-	
-	pla
-	tay
-	pla
-	tax
-	pla
-	rti

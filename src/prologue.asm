@@ -35,17 +35,15 @@ pl_load_text:
 ; ** SUBROUTINE: pl_select_banks
 ; desc: Selects the correct graphics banks for the prologue intro sequence.
 pl_select_banks:
-	lda #mmc3bk_spr1
 	ldy #chrb_gensp2
-	jsr mmc3_set_bank
+	sty spr1_bknum
 	
-	lda #mmc3bk_spr2
 	ldy #chrb_gensp1
-	jsr mmc3_set_bank
+	sty spr2_bknum
 	
-	lda #mmc3bk_bg0
 	ldy #chrb_dmain
-	jmp mmc3_set_bank
+	sty bg0_bknum
+	rts
 
 gamemode_prologue:
 	lda #ps_1stfr

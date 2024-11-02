@@ -27,6 +27,20 @@ gamestate   : .res 1 ; reused by every game mode
 nmictrl     : .res 1 ; nc_*
 nmictrl2    : .res 1 ; nc2_*
 
+spr0_bknum  : .res 1
+spr1_bknum  : .res 1
+spr2_bknum  : .res 1
+spr3_bknum  : .res 1
+bg0_bknum   : .res 1
+bg1_bknum   : .res 1
+
+spr0_bkspl  : .res 1
+spr1_bkspl  : .res 1
+spr2_bkspl  : .res 1
+spr3_bkspl  : .res 1
+bg0_bkspl   : .res 1
+bg1_bkspl   : .res 1
+
 mmc3_shadow : .res 1
 currA000bank: .res 1 ; current bank index loaded at $A000-$BFFF.
 oam_wrhead  : .res 1 ; OAM buffer write head
@@ -183,13 +197,6 @@ clearpahi   : .res 1 ; enqueued name table clear, ppu address high
 clearsizex  : .res 1 ; enqueued name table clear, size X
 clearsizey  : .res 1 ; enqueued name table clear, size Y
 roomnumber  : .res 1 ; incremented every time a room transition happens
-
-spr0_bknum  : .res 1
-spr1_bknum  : .res 1
-spr2_bknum  : .res 1
-spr3_bknum  : .res 1
-bg0_bknum   : .res 1
-bg1_bknum   : .res 1
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.

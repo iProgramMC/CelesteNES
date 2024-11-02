@@ -414,3 +414,21 @@ gm_pushing:
 gm_sliding:
 	lda #am_climbidl
 	jmp gm_anim_mode
+
+; ** SUBROUTINE: gm_anim_banks
+; desc: Updates the loaded bank numbers for the current animation.
+gm_anim_banks:
+	; Update the current player sprite bank.
+	lda animtimer
+	and #1
+	sta spr0_bknum
+	
+	lda framectr
+	lsr
+	lsr
+	lsr
+	and #3
+	clc
+	adc #2
+	sta spr3_bknum
+	rts

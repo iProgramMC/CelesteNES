@@ -1243,16 +1243,14 @@ gm_set_level:
 	asl
 	clc
 	adc #chrb_lvl0           ; The first level's BG bank is #chrb_lvl0.
+	sta bg0_bknum
+	
 	tay
-	lda #mmc3bk_bg0
-	jsr mmc3_set_bank
-	lda #mmc3bk_bg1
 	iny
 	iny
-	jsr mmc3_set_bank
+	sty bg1_bknum
 	
 	jsr gm_load_generics
-	
 	jmp gm_on_level_init
 
 ; ** SUBROUTINE: gm_set_room
@@ -1268,21 +1266,18 @@ gm_set_room:
 ; ** SUBROUTINE: gm_load_generics
 ; desc: Loads the generic sprite sheet banks.  The game may animate them later.
 gm_load_generics:
-	lda #mmc3bk_spr0
-	ldy #chrb_plrsp0
-	jsr mmc3_set_bank
+	lda #chrb_plrsp0
+	sta spr0_bknum
 	
-	lda #mmc3bk_spr1
-	ldy #chrb_gensp2
-	jsr mmc3_set_bank
+	lda #chrb_gensp2
+	sta spr1_bknum
 	
-	lda #mmc3bk_spr2
-	ldy #chrb_gensp1
-	jsr mmc3_set_bank
+	lda #chrb_gensp1
+	sta spr2_bknum
 	
-	lda #mmc3bk_spr3
-	ldy #chrb_anisp0
-	jmp mmc3_set_bank
+	lda #chrb_anisp0
+	sta spr3_bknum
+	rts
 
 ; ** SUBROUTINE: gm_respawn
 ; desc: Respawns the player.
