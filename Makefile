@@ -9,7 +9,7 @@ LD = ld65
 build: main.nes
 
 %.o: src/%.asm
-	$(AS) -g --create-dep "$@.dep" --debug-info $< -o $@
+	$(AS) -g --create-dep "$@.dep" --debug-info $< -o $@ --listing "$(notdir $@).lst"
 
 main.nes: layout main.o
 	$(LD) --dbgfile $@.dbg -C $^ -o $@ -m $@.map

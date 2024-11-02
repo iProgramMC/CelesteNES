@@ -1,3 +1,5 @@
+.feature string_escapes
+
 .segment "INES"
 .byte $4E,$45,$53,$1A
 .byte 8         ; size of prg rom in 16kb units
