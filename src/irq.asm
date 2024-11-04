@@ -1,7 +1,5 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-irqdelays:	.byte 7, 7, 5
-
 ; ** IRQ
 ; thanks NESDev Wiki for providing an example of loopy's scroll method
 .align $100
@@ -252,6 +250,8 @@ irq:
 	pla   ;          4 cycles
 	nop   ;          2 cycles
 	rts   ;          6 cycles
+
+irqdelays:	.byte 7, 7, 5
 
 ; this waits for like 12 scanlines
 ;@gapScanLines:

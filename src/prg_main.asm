@@ -2,6 +2,8 @@
 
 .segment "PRG_MAIN"
 
+.include "irq.asm"
+
 ; ** SUBROUTINE: oam_dma_and_read_cont
 ; desc: Performs OAM DMA, and reads the player 1 controller.
 ; This is done to avoid the DMC DMA process corrupting controller reads.
@@ -451,7 +453,6 @@ main_loop:
 .include "gam_main.asm"
 .include "audio/audio.asm"
 .include "nmi.asm"
-.include "irq.asm"
 
 ; I know this belongs in GAME and not in MAIN, but I want to take some load off of GAME.
 ;
