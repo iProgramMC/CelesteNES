@@ -4,6 +4,7 @@ irqdelays:	.byte 7, 7, 5
 
 ; ** IRQ
 ; thanks NESDev Wiki for providing an example of loopy's scroll method
+.align $100
 irq:
 	pha
 	txa
@@ -44,17 +45,14 @@ irq:
 	ora scroll_x
 	
 	; carefully timed code!
-	ldy #$5
-:	dey        ; 2 cycles
-	bne :-     ; 3 cycles (if branch succeeds)
-	nop
+	jsr @delay_28
 	
 	; the last two ppu writes MUST happen during horizontal blank
 	stx ppu_scroll
 	sta ppu_addr
 	
 	; restore scroll_x. not sure if this is needed
-	stx scroll_x
+	;stx scroll_x
 	
 	jsr nmi_anims_normal
 	
@@ -85,8 +83,6 @@ irq:
 	ldy #$6
 :	dey        ; 2 cycles
 	bne :-     ; 3 cycles (if branch succeeds)
-	nop
-	nop
 	
 	jmp @loopSkip
 
@@ -126,13 +122,16 @@ irq:
 	ora irqtmp3
 	
 	; carefully timed code!
-	ldy #$2
-:	dey        ; 2 cycles
-	bne :-     ; 3 cycles (if branch succeeds)
-	nop
-	nop
+;	ldy #$2
+;:	dey        ; 2 cycles
+;	bne :-     ; 3 cycles (if branch succeeds)
+	jsr @actuallyReturn
 	
 @loopSkip:
+	nop
+	nop
+	nop
+	nop
 	; the last two ppu writes MUST happen during horizontal blank
 	stx ppu_scroll
 	sta ppu_addr
@@ -143,9 +142,11 @@ irq:
 	jsr @eightScanLines
 	
 	; one more scanline to revert to the initial scroll
-	ldy #$13
-:	dey
-	bne :-
+;	ldy #$13
+;:	dey
+;	bne :-
+	; 91 cycles ^^
+	jsr @delay_91
 	
 	lda #$24
 	sta ppu_addr
@@ -160,24 +161,6 @@ irq:
 	sta mmc3_irqen
 	inc irqcounter
 	bne @otherGameMode ; just let it go
-
-; this waits for like 12 scanlines
-@gapScanLines:
-	ldy #$F3
-:	dey
-	bne :-
-	nop
-	nop
-	nop
-	rts
-
-@gapRestScanLines:
-	ldy #$6F
-:	dey
-	bne :-
-	nop
-	nop
-	rts
 
 @eightScanLines:
 	ldy #8
@@ -205,28 +188,11 @@ irq:
 	adc #%00100000
 	sta irqtmp4
 	
-	ldx irqtmp3
 	; re-load a bunch to waste cycles until next h-blank
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
+	jsr @delay_28
 	cpy #$1
 	beq @return
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	
-	ldx irqtmp3
-	nop
-	nop
+	jsr @delay_23_ldx_irqtmp3
 	
 	stx ppu_scroll
 	sta ppu_addr
@@ -234,7 +200,7 @@ irq:
 	; stall a bit more
 	ldx irqtmp3
 	ldx irqtmp3
-	nop
+	ldx irqtmp3
 	
 	dey
 	bne @loop_lineOne
@@ -246,11 +212,61 @@ irq:
 	lda #0
 	sta ppu_scroll
 	
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
+	jsr @actuallyReturn
 	
 	sta ppu_scroll
 	sta ppu_addr
+@actuallyReturn:
 	rts
+
+; delays exactly 28 cycles
+.align $100
+@delay_28:
+	; entry: 6 cycles
+	pha   ;  3 cycles
+	pla   ;  4 cycles
+	pha   ;  3 cycles
+	pla   ;  4 cycles
+	nop   ;  2 cycles
+	rts   ;  6 cycles
+
+; delays exactly 23 cycles and loads irqtmp3
+@delay_23_ldx_irqtmp3:
+	; entry:      6 cycles
+	ldx irqtmp3 ; 3 cycles
+	ldx irqtmp3 ; 3 cycles
+	ldx irqtmp3 ; 3 cycles
+	nop         ; 2 cycles
+	rts   ;       6 cycles
+
+; delay exactly 91 cycles
+@delay_91:
+	; entry:         6 cycles
+	pha   ;          3 cycles
+	pla   ;          4 cycles
+	jsr @delay_28 ; 28 cycles
+	jsr @delay_28 ; 28 cycles
+	pha   ;          3 cycles
+	pla   ;          4 cycles
+	pha   ;          3 cycles
+	pla   ;          4 cycles
+	nop   ;          2 cycles
+	rts   ;          6 cycles
+
+; this waits for like 12 scanlines
+;@gapScanLines:
+;	ldy #$F3
+;:	dey
+;	bne :-
+;	nop
+;	nop
+;	nop
+;	rts
+
+;@gapRestScanLines:
+;	ldy #$6F
+;:	dey
+;	bne :-
+;	nop
+;	nop
+;	rts
