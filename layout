@@ -10,8 +10,8 @@ MEMORY
 	ZEROPAGE: start=$0000, size=$0100, type=rw, file="";
 	OAMBUF:   start=$0200, size=$0100, type=rw, file="";
 	ENTITIES: start=$0300, size=$0100, type=rw, file="";
-	PLTRACES: start=$0400, size=$0080, type=rw, file="";
-	DLGRAM:   start=$0480, size=$0080, type=rw, file="";
+	PLTRACES: start=$0400, size=$00C0, type=rw, file="";
+	DLGRAM:   start=$04C0, size=$0040, type=rw, file="";
 	DRAWTEMP: start=$0500, size=$0200, type=rw, file="";
 	DLGTEMP:  start=$0500, size=$0200, type=rw, file="";
 	FMSRAM:   start=$0700, size=$0100, type=rw, file="";
@@ -27,20 +27,19 @@ MEMORY
 	# Main Level Data
 	#
 	# Each chapter gets 8 KB of level data space.
-	PRG_LVL0: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$00;
-	PRG_LVL1: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$01;
-	PRG_LVL2: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$02;
-	PRG_LVL3: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$03;
-	PRG_LVL4: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$04;
-	PRG_LVL5: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$05;
-	PRG_LVL6: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$06;
-	PRG_LVL7: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$07;
-	PRG_LVL8: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$08;
-	PRG_LVL9: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$09;
+	PRG_LVL0A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$00;
+	PRG_LVL1A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$01;
+	PRG_LVL2A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$02;
+	PRG_LVL3A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$03;
+	PRG_LVL4A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$04;
+	PRG_LVL5A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$05;
+	PRG_LVL0B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$06;
+	PRG_LVL1B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$07;
+	PRG_LVL2B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$08;
+	PRG_LVL3B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$09;
+	PRG_LVL4B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0A;
+	PRG_LVL5B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	
-	# [OUTDATED] Data shared between several levels (entity code, etc)
-	PRG_LVLA: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0A;
-	PRG_LVLB: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	PRG_DIAL: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0C;
 	PRG_TTLE: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0D;
 	
@@ -66,14 +65,15 @@ MEMORY
 	CHR_BG001: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$20;
 	CHR_BG002: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$24;
 	CHR_BG003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$28;
-	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
+	# CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
 	# CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
 	# CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
 	# CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
 	# CHR_BG008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
 	
 	## Dialog Pattern Tables ##
-	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank-$30;
+	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
+	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
 	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
 	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
 	CHR_DGRAN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
@@ -81,33 +81,33 @@ MEMORY
 
 SEGMENTS
 {
-	INES:     load = INES,     type = ro;
-	ZEROPAGE: load = ZEROPAGE, type = zp;
-	OAMBUF:   load = OAMBUF,   type = bss, align = $100;
-	ENTITIES: load = ENTITIES, type = bss, align = $100;
-	PLTRACES: load = PLTRACES, type = bss;
-	DLGRAM:   load = DLGRAM,   type = bss;
-	DRAWTEMP: load = DRAWTEMP, type = bss;
-	DLGTEMP:  load = DLGTEMP,  type = bss;
-	FMSRAM:   load = FMSRAM,   type = bss;
-	CARTWRAM: load = CARTWRAM, type = bss;
-	PRG_LVL0: load = PRG_LVL0, type = ro, align=$100;
-	PRG_LVL1: load = PRG_LVL1, type = ro, align=$100;
-	PRG_LVL2: load = PRG_LVL2, type = ro, align=$100;
-	PRG_LVL3: load = PRG_LVL3, type = ro, align=$100;
-	PRG_LVL4: load = PRG_LVL4, type = ro, align=$100;
-	PRG_LVL5: load = PRG_LVL5, type = ro, align=$100;
-	PRG_LVL6: load = PRG_LVL6, type = ro, align=$100;
-	PRG_LVL7: load = PRG_LVL7, type = ro, align=$100;
-	PRG_LVL8: load = PRG_LVL8, type = ro, align=$100;
-	PRG_LVL9: load = PRG_LVL9, type = ro, align=$100;
-	PRG_LVLA: load = PRG_LVLA, type = ro, align=$100;
-	PRG_LVLB: load = PRG_LVLB, type = ro, align=$100;
-	PRG_DIAL: load = PRG_DIAL, type = ro, align=$100;
-	PRG_TTLE: load = PRG_TTLE, type = ro, align=$100;
-	PRG_GAME: load = PRG_GAME, type = ro;
-	PRG_MAIN: load = PRG_MAIN, type = ro;
-	PRG_VECS: load = PRG_VECS, type = ro;
+	INES:      load = INES,      type = ro;
+	ZEROPAGE:  load = ZEROPAGE,  type = zp;
+	OAMBUF:    load = OAMBUF,    type = bss, align = $100;
+	ENTITIES:  load = ENTITIES,  type = bss, align = $100;
+	PLTRACES:  load = PLTRACES,  type = bss;
+	DLGRAM:    load = DLGRAM,    type = bss;
+	DRAWTEMP:  load = DRAWTEMP,  type = bss;
+	DLGTEMP:   load = DLGTEMP,   type = bss;
+	FMSRAM:    load = FMSRAM,    type = bss;
+	CARTWRAM:  load = CARTWRAM,  type = bss;
+	PRG_LVL0A: load = PRG_LVL0A, type = ro, align=$100;
+	PRG_LVL1A: load = PRG_LVL1A, type = ro, align=$100;
+	PRG_LVL2A: load = PRG_LVL2A, type = ro, align=$100;
+	PRG_LVL3A: load = PRG_LVL3A, type = ro, align=$100;
+	PRG_LVL4A: load = PRG_LVL4A, type = ro, align=$100;
+	PRG_LVL5A: load = PRG_LVL5A, type = ro, align=$100;
+	PRG_LVL0B: load = PRG_LVL0B, type = ro, align=$100;
+	PRG_LVL1B: load = PRG_LVL1B, type = ro, align=$100;
+	PRG_LVL2B: load = PRG_LVL2B, type = ro, align=$100;
+	PRG_LVL3B: load = PRG_LVL3B, type = ro, align=$100;
+	PRG_LVL4B: load = PRG_LVL4B, type = ro, align=$100;
+	PRG_LVL5B: load = PRG_LVL5B, type = ro, align=$100;
+	PRG_DIAL:  load = PRG_DIAL,  type = ro, align=$100;
+	PRG_TTLE:  load = PRG_TTLE,  type = ro, align=$100;
+	PRG_GAME:  load = PRG_GAME,  type = ro, align=$100;
+	PRG_MAIN:  load = PRG_MAIN,  type = ro, align=$100;
+	PRG_VECS:  load = PRG_VECS,  type = ro;
 	CHR_SPR00: load = CHR_SPR00, type = ro;
 	CHR_SPR01: load = CHR_SPR01, type = ro;
 	CHR_SPR02: load = CHR_SPR02, type = ro;
@@ -119,7 +119,7 @@ SEGMENTS
 	CHR_BG001: load = CHR_BG001, type = ro;
 	CHR_BG002: load = CHR_BG002, type = ro;
 	CHR_BG003: load = CHR_BG003, type = ro;
-	CHR_BG004: load = CHR_BG004, type = ro;
+	CHR_DCNTR: load = CHR_DCNTR, type = ro;
 	CHR_DMAIN: load = CHR_DMAIN, type = ro;
 	CHR_DMADE: load = CHR_DMADE, type = ro;
 	CHR_DTHEO: load = CHR_DTHEO, type = ro;

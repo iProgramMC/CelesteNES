@@ -4,6 +4,9 @@
 ;
 ; (1) -- If dialogsplit is non zero, it is applied instead of scrollsplit, and then scrollsplit
 ;        is only used to calculate the camera offset in game.
+;
+; (2) -- The irqcounter represents the current phase of the dialog raster trick.
+;        Once it reaches three, normal game is rendered.
 
 .segment "ZEROPAGE"
 
@@ -63,6 +66,7 @@ dialogsplit : .res 1 ; Y position of the dialog split (1)
 scroll_x    : .res 1
 scroll_y    : .res 1
 scroll_flags: .res 1 ; the FLAGS for the scroll split part of PPUCTRL
+irqcounter  : .res 1 ; (2)
 
 rng_state   : .res 1
 p1_cont     : .res 1
@@ -229,9 +233,6 @@ rm_paloffs  : .res 1
 roomhdrfirst = roomsize
 roomhdrlast  = rm_paloffs + 1
 
-tl_snow_y   : .res 16
-tl_snow_x   : .res 16
-
 .segment "OAMBUF"
 oam_buf     : .res $100
 
@@ -241,6 +242,8 @@ sprspace    : .res $100
 .segment "PLTRACES"
 plr_trace_x : .res $40
 plr_trace_y : .res $40
+tl_snow_y   : .res 16
+tl_snow_x   : .res 16
 
 .segment "DRAWTEMP"
 tempcol     : .res $20  ; 32 bytes - temporary column to be flushed to the screen

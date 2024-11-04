@@ -1,5 +1,7 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+irqdelays:	.byte 7, 7, 5
+
 ; ** IRQ
 ; thanks NESDev Wiki for providing an example of loopy's scroll method
 irq:
@@ -42,7 +44,7 @@ irq:
 	ora scroll_x
 	
 	; carefully timed code!
-	ldy #$7
+	ldy #$5
 :	dey        ; 2 cycles
 	bne :-     ; 3 cycles (if branch succeeds)
 	nop
@@ -69,12 +71,33 @@ irq:
 	pla
 	rti
 
+@noCalculate:
+	cmp #3
+	beq @normalSplit
+	lda irqtmp1
+	sta ppu_addr
+	lda irqtmp2
+	sta ppu_scroll
+	ldx irqtmp3
+	lda irqtmp4
+	
+	; carefully timed code!
+	ldy #$6
+:	dey        ; 2 cycles
+	bne :-     ; 3 cycles (if branch succeeds)
+	nop
+	nop
+	
+	jmp @loopSkip
+
 @dialogSplit:
 	; hell yeah now we're talking
 	
 	; we're on scan line 12 right now.
 	; this calculate the first 4 control bytes that we can re-use later (so we
 	; save ROM space / cycles not trying to recalculate this)
+	lda irqcounter
+	bne @noCalculate
 	
 	lda scroll_flags   ; bits 0 and 1 control the high name table address
 	eor #%00000001     ; EOR the horizontal bit to use the OTHER, hidden, nametable
@@ -84,7 +107,7 @@ irq:
 	sta irqtmp1
 	
 	; push the Y position to the ppu_scroll
-	lda #0
+	lda #40
 	sta ppu_scroll
 	sta irqtmp2
 	
@@ -103,12 +126,13 @@ irq:
 	ora irqtmp3
 	
 	; carefully timed code!
-	ldy #$4
+	ldy #$2
 :	dey        ; 2 cycles
 	bne :-     ; 3 cycles (if branch succeeds)
 	nop
 	nop
 	
+@loopSkip:
 	; the last two ppu writes MUST happen during horizontal blank
 	stx ppu_scroll
 	sta ppu_addr
@@ -117,14 +141,25 @@ irq:
 	
 	; we're coming up to scanline 13 now
 	jsr @eightScanLines
-	jsr @gapScanLines
-	jsr @eightScanLines
-	jsr @gapScanLines
-	jsr @eightScanLines
-	jsr @gapRestScanLines
 	
-	; once synched, just do the normal split
-	jmp @normalSplit
+	; one more scanline to revert to the initial scroll
+	ldy #$13
+:	dey
+	bne :-
+	
+	lda #$24
+	sta ppu_addr
+	lda #$00
+	sta ppu_addr
+	
+	; reprogram the MMC3 to give us a new interrupt in 12 scanlines
+	ldy irqcounter
+	lda irqdelays, y
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	sta mmc3_irqen
+	inc irqcounter
+	bne @otherGameMode ; just let it go
 
 ; this waits for like 12 scanlines
 @gapScanLines:
@@ -137,9 +172,11 @@ irq:
 	rts
 
 @gapRestScanLines:
-	ldy #$70
+	ldy #$6F
 :	dey
 	bne :-
+	nop
+	nop
 	rts
 
 @eightScanLines:
@@ -178,16 +215,15 @@ irq:
 	ldx irqtmp3
 	ldx irqtmp3
 	ldx irqtmp3
+	cpy #$1
+	beq @return
 	ldx irqtmp3
 	ldx irqtmp3
 	ldx irqtmp3
 	ldx irqtmp3
 	ldx irqtmp3
 	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
+	
 	ldx irqtmp3
 	nop
 	nop
@@ -195,6 +231,26 @@ irq:
 	stx ppu_scroll
 	sta ppu_addr
 	
+	; stall a bit more
+	ldx irqtmp3
+	ldx irqtmp3
+	nop
+	
 	dey
 	bne @loop_lineOne
+	rts
+
+@return:
+	lda #$24
+	sta ppu_addr
+	lda #0
+	sta ppu_scroll
+	
+	ldx irqtmp3
+	ldx irqtmp3
+	ldx irqtmp3
+	ldx irqtmp3
+	
+	sta ppu_scroll
+	sta ppu_addr
 	rts

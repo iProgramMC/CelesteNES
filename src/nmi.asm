@@ -246,11 +246,18 @@ nmi_anims_scrollsplit:
 ; NOTE NOTE NOTE: AVOID LAG AT ALL COSTS WHILE A SCROLL SPLIT TAKES PLACE!
 ; ELSE YOU WILL SEE GRAPHICS GLITCHES!
 nmi_scrollsplit:
+	lda #0
+	sta irqcounter
+	
 	lda scrollsplit
 	beq @normalScrolling
 	
 	lda ctl_flags
-	sta ppu_ctrl   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
+	ldx dialogsplit
+	beq :+
+	eor #%00000001
+:	sta ppu_ctrl   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
+	
 	lda #0
 	sta ppu_scroll
 	sta ppu_scroll

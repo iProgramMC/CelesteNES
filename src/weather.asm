@@ -74,7 +74,8 @@ tl_updadontosci:
 	dex
 	beq tl_updatrespawn
 tl_updadontdecr:
-	stx tl_snow_x, y
+	txa
+	sta tl_snow_x, y
 tl_updacontinue:
 	
 	; move on to the next particle

@@ -21,6 +21,7 @@
 .include "globals.asm"
 
 .include "level0/bank_0.asm"
+.include "level0/bank_1.asm"
 .include "level1/bank_0.asm"
 .include "level1/bank_1.asm"
 
@@ -53,6 +54,8 @@
 ; Main dialog tiles
 .segment "CHR_DMAIN"
 .incbin  "chr/d_main.chr"
+.segment "CHR_DCNTR"
+.incbin  "chr/d_count.chr"
 ; Madeline dialog frames
 .segment "CHR_DMADE"
 .incbin  "chr/d_made.chr"

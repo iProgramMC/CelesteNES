@@ -12,25 +12,25 @@ level_table:
 level_table_end:
 
 level_banks:
-	.byte $00
-	.byte $01
-	.byte $00
-	.byte $00
-	.byte $00
-	.byte $00
-	.byte $00
-	.byte $00
+	.byte prgb_lvl0a
+	.byte prgb_lvl1a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
 level_banks_end:
 
 level_banks2:
-	.byte $00
-	.byte $0A  ; level 1 has a special DPCM bank (check level1/bank_1.asm)
-	.byte $00
-	.byte $00
-	.byte $00
-	.byte $00
-	.byte $00
-	.byte $00
+	.byte prgb_lvl0b
+	.byte prgb_lvl1b
+	.byte prgb_lvl0b
+	.byte prgb_lvl0b
+	.byte prgb_lvl0b
+	.byte prgb_lvl0b
+	.byte prgb_lvl0b
+	.byte prgb_lvl0b
 level_banks2_end:
 
 level_table_size = level_table_end - level_table

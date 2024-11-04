@@ -105,7 +105,7 @@ gamemode_game:
 	beq gm_game_init
 gm_game_update:
 	inc framectr
-	jsr test
+	jsr test_dialog
 	lda scrollsplit
 	beq :+
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
@@ -132,7 +132,7 @@ gm_game_update:
 ;	bne gm_titleswitch
 	rts
 
-test:
+test_dialog:
 	lda #cont_select
 	bit p1_cont
 	beq :+
@@ -140,13 +140,7 @@ test:
 	bit p1_conto
 	bne :+
 	
-	lda scrollsplit
-	eor #64
-	sta scrollsplit
-	
-	lda dialogsplit
-	eor #12
-	sta dialogsplit
+	jsr dlg_test_g
 
 :	rts
 

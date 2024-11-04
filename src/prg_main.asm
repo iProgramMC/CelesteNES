@@ -361,12 +361,12 @@ mmc3_initialize:
 	; load PRG ROM banks
 	lda #(def_mmc3_bn | 6)
 	sta mmc3_bsel
-	lda prgb_lvl0
+	lda prgb_lvl0a
 	sta mmc3_bdat
 	
 	lda #(def_mmc3_bn | 7)
 	sta mmc3_bsel
-	lda prgb_lvla
+	lda prgb_lvl0b
 	sta mmc3_bdat
 	
 	; note: don't need to load default banks, the title screen init code will do that for me.
