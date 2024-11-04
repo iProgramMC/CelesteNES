@@ -50,7 +50,7 @@ irq:
 	sta ppu_addr
 	
 	; restore scroll_x. not sure if this is needed
-	;stx scroll_x
+	stx scroll_x
 	
 	jsr nmi_anims_normal
 	
@@ -69,18 +69,17 @@ irq:
 
 @noCalculate:
 	cmp #3
-	beq @normalSplit
+	bcs @normalSplit ; is it >= 3
 	lda irqtmp1
 	sta ppu_addr
 	lda irqtmp2
 	sta ppu_scroll
 	ldx irqtmp3
-	lda irqtmp4
 	
 	; carefully timed code!
-	ldy #$6
-:	dey        ; 2 cycles
-	bne :-     ; 3 cycles (if branch succeeds)
+	lsr
+	lda irqtmp4   ; was after "ldx irqtmp3"
+	jsr @delay_28
 	
 	jmp @loopSkip
 
