@@ -117,15 +117,18 @@ dlg_start_dialog:
 	lda #>test_str
 	sta dlg_textptr+1
 	
-	lda #default_char_timer
+	lda #dialog_char_timer
 	sta dlg_chartimer
 	
-	lda #8
+	lda #(dialog_border+dialog_port_size+dialog_port_brdr)
 	sta dlg_cursor_x
 	sta dlg_crsr_home
 	
 	lda #0
 	sta dlg_cursor_y
+	
+	ldx #SPK_madeline
+	jsr dlg_set_speaker
 	
 	rts
 
@@ -387,7 +390,7 @@ dlg_advance_text:
 	sta dlg_cursor_x
 	
 @return:
-	lda #default_char_timer
+	lda #dialog_char_timer
 	sta dlg_chartimer
 	rts
 
@@ -406,7 +409,100 @@ dlg_advance_text:
 
 ; ** SUBROUTINE: dlg_draw_portrait
 ; desc: Draws the active portrait.
+pall  = 1
+pall2 = 0
+pall3 = 2
 dlg_draw_portrait:
+	jsr @homeX
+	lda #6
+	sta y_crd_temp
+	
+	lda #pall
+	ldy #$00
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$02
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$04
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$06
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$08
+	jsr oam_putsprite
+	jsr @incrementY
+	jsr @homeX
+	lda #pall
+	ldy #$20
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$22
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$24
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$26
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$28
+	jsr oam_putsprite
+	jsr @incrementY
+	jsr @homeX
+	
+	lda #pall
+	ldy #$40
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$42
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$44
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$46
+	jsr oam_putsprite
+	jsr @incrementX
+	lda #pall
+	ldy #$48
+	jsr oam_putsprite
+	jsr @incrementY
+	jsr @homeX
+	
+	rts
+
+@incrementX:
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	rts
+@incrementY:
+	lda y_crd_temp
+	clc
+	adc #16
+	sta y_crd_temp
+	rts
+@homeX:
+	lda #dialog_border
+	sta x_crd_temp
+	rts
+@home2:
+	lda #(dialog_border+2)
+	sta x_crd_temp
 	rts
 
 ; ** SUBROUTINE: dlg_update_d

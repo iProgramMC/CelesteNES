@@ -1,7 +1,10 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 ; some defines:
-default_char_timer = 3
+dialog_char_timer = 3
+dialog_border     = 8
+dialog_port_size  = 40
+dialog_port_brdr  = 8
 
 .segment "DLGRAM" ; 64 bytes
 dlg_chartimer: .res 1 ; when this timer ticks down to zero, show a new character

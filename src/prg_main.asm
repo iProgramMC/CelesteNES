@@ -208,25 +208,28 @@ rand:
 ;   y - tile number
 ;   [x_crd_temp] - y position of sprite
 ;   [y_crd_temp] - y position of sprite
-; clobbers:  a, x
+; clobbers:  a, y
 ; desc:      inserts a sprite into OAM memory
 oam_putsprite:
-	ldx oam_wrhead  ; load the write head into X
-	pha             ; push the tile number
-	lda y_crd_temp  ; store the Y coordinate into OAM
-	sta oam_buf, x
-	inx
+	pha             ; preserve the attributes
 	tya
-	eor #$01        ; flip bit 1 as most sprites are now located at $1000
-	sta oam_buf, x  ; store the attributes into OAM
-	inx
+	pha             ; preserve the tile number
+	ldy oam_wrhead  ; load the write head into Y
+	lda y_crd_temp  ; store the Y coordinate into OAM
+	sta oam_buf, y
+	iny             ; move on to the tile number byte
 	pla
-	sta oam_buf, x  ; store the tile number into OAM
-	inx
+	; flip bit 1 because I am lazy and don't want to make every tile index be odd...
+	eor #$01
+	sta oam_buf, y  ; store the tile number into OAM
+	iny
+	pla
+	sta oam_buf, y  ; store the attributes into OAM
+	iny
 	lda x_crd_temp
-	sta oam_buf, x  ; store the X coordinate into OAM
-	inx
-	stx oam_wrhead
+	sta oam_buf, y  ; store the X coordinate into OAM
+	iny
+	sty oam_wrhead
 	rts
 
 ; ** SUBROUTINE: load_palette
