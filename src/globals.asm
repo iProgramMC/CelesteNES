@@ -61,12 +61,15 @@ oam_wrhead  : .res 1 ; OAM buffer write head
 wr_str_temp : .res 2 ; address of current character of string
 x_crd_temp  : .res 1 ; used by oam_putsprite and h_get_tile, MUST be x before y!
 y_crd_temp  : .res 1 ; used by oam_putsprite
-scrollsplit : .res 1 ; Y position of the scroll split
-dialogsplit : .res 1 ; Y position of the dialog split (1)
 scroll_x    : .res 1
 scroll_y    : .res 1
 scroll_flags: .res 1 ; the FLAGS for the scroll split part of PPUCTRL
+
+; dialog stuff in the zeropage
+scrollsplit : .res 1 ; Y position of the scroll split
+dialogsplit : .res 1 ; Y position of the dialog split (1)
 irqcounter  : .res 1 ; (2)
+dlg_updates : .res 1 ; row update bitmask
 
 rng_state   : .res 1
 p1_cont     : .res 1
@@ -156,6 +159,8 @@ palrdheadlo : .res 1 ; palette read head
 palrdheadhi : .res 1
 camlimit    : .res 1
 camlimithi  : .res 1
+camleftlo   : .res 1
+camlefthi   : .res 1
 transtimer  : .res 1
 trantmp3    : .res 1
 trarwrhead  : .res 1
@@ -257,6 +262,7 @@ temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0
 temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
 lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 loadedpals  : .res $40  ; 64 bytes - temporary storage for loaded palettes during vertical transitions
+ntattrdata  : .res $80  ; 128 bytes- loaded attribute data
 
-.segment "CARTWRAM" ; $6000 - Cartridge WRAM
+.segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

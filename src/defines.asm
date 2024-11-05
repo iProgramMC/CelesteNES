@@ -238,6 +238,8 @@ nc_flushcol = $40   ; Game: flush 1 column
 nc_flshpalv = $80   ; Game: flush 1 column of palettes
 nc2_clrcol  = $01   ; Game: clear two columns (death cutscene)
 nc2_setl0ic = $02   ; Game: set Level 0 Intro Crusher
+nc2_clr256  = $04   ; Dialog: clear 256 bytes of columns to zero starting at the registered [clearpahi, clearpalo] address
+nc2_dlgupd  = $08   ; Dialog: columns have been updated
 
 ; Constants
 def_mmc3_bn = %01000000 ; default mmc3 bank config.
@@ -287,6 +289,8 @@ gs_1stfr    = $01   ; first frame of game screen
 ;TODO: gs_vertical = $02   ; is the level vertical?
 gs_scrstodR = $04   ; rightward camera scrolling is disabled
 gs_scrstopR = $08   ; there is a camera limit to the right
+gs_camlock  = $20   ; camera is locked and will not scroll
+gs_dontpal  = $40   ; don't generate palette data, just mark
 gs_dontgen  = $80   ; don't generate more tiles
 g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything

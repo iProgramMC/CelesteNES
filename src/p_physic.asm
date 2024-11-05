@@ -1086,6 +1086,10 @@ gm_applyx:
 
 ; ** SUBROUTINE: gm_scroll_r_cond
 gm_scroll_r_cond:
+	lda #gs_camlock
+	bit gamectrl
+	bne @scrollRet    ; if camera is locked
+	
 	lda player_x
 	cmp #scrolllimit
 	bcc @scrollRet    ; A < scrolllimit
@@ -1170,6 +1174,10 @@ gm_scroll_r_cond:
 
 ; ** SUBROUTINE: gm_scroll_l_cond
 gm_scroll_l_cond:
+	lda #gs_camlock
+	bit gamectrl
+	bne @scrollRet    ; if camera is locked
+	
 	lda roomsize
 	beq @scrollRet    ; if this is a "long" room, then we CANNOT scroll left.
 	
@@ -1204,17 +1212,17 @@ gm_scroll_l_cond:
 	and #1
 	sta camera_x_hi
 	
-	lda roombeglo
+	lda camleftlo
 	sta scrchklo
-	lda roombeghi
+	lda camlefthi
 	sta scrchkhi
 	
-	lda roombeghi     ; check if [roombeghi, roombeglo] < [camera_x_pg, camera_x]
+	lda camlefthi     ; check if [camlefthi, camleftlo] < [camera_x_pg, camera_x]
 	cmp camera_x_pg
 	bne :+
-	lda roombeglo
+	lda camleftlo
 	cmp camera_x
-:	; if roombeg > cameraX then limit
+:	; if camleft > cameraX then limit
 	bcs @limit
 	
 	; no limitation. also move the PLAYER's x coordinate
@@ -1231,9 +1239,9 @@ gm_scroll_l_cond:
 	rts
 	
 @limit:
-	lda roombeglo
+	lda camleftlo
 	sta camera_x
-	lda roombeghi
+	lda camlefthi
 	sta camera_x_pg
 	and #1
 	sta camera_x_hi

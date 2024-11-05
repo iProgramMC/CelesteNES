@@ -729,10 +729,37 @@ h_gener_col_r:
 	beq h_palette_data_column
 	rts
 
+; ** SUBROUTINE: h_calc_ntattrdata_addr
+; desc: Calculates the current ntattrdata address into temp1, based on ntwrhead.
+h_calc_ntattrdata_addr:
+	; in temp1, we store the index into ntattrdata.
+	lda #%00100000
+	bit ntwrhead
+	bne :+
+	lda #0
+:	asl
+	sta temp1
+	
+	; determined the Page Index
+	; now determine the sub page index
+	
+	lda ntwrhead
+	and #$1F
+	lsr
+	lsr
+	clc
+	adc temp1
+	sta temp1
+	rts
+
 ; ** SUBROUTINE: h_palette_data_column
 ; desc: Reads a single column of palette data.
 ; NOTE: sets nc_flshpalv in nmictrl!
 h_palette_data_column:
+	lda #gs_dontpal
+	bit gamectrl
+	bne @returnAndSetFlag
+	
 	ldy #0                    ; start reading palette data.
 @ploop:
 	jsr gm_read_pal
@@ -753,9 +780,41 @@ h_palette_data_column:
 	cpy #8
 	bne @ploop
 @phaveFE:
+	
+	lda temp1
+	pha
+	
+	; copy all that stuff into "ntattrdata"
+	jsr h_calc_ntattrdata_addr
+	
+	ldy #0
+@loopCopy:
+	; load the palette from the array
+	lda temppal, y
+	
+	; load the index, and store it there
+	ldx temp1
+	sta ntattrdata, x
+	
+	; increment it by eight
+	txa
+	clc
+	adc #8
+	sta temp1
+	
+	; then advance the loop
+	iny
+	cpy #8
+	bne @loopCopy
+	
+	pla
+	sta temp1
+
+@returnAndSetFlag:
 	lda #nc_flshpalv
 	ora nmictrl
 	sta nmictrl
+	
 	rts
 ; significance of palette combinations:
 ; $FE - Re-use the same palette data as the previous column

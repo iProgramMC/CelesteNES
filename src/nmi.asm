@@ -81,6 +81,7 @@ nmi_check_flags:
 	eor nmictrl
 	sta nmictrl
 	jsr h_enqueued_clear
+	jmp @end
 
 @tryClearCol:
 	lda #nc2_clrcol
@@ -90,15 +91,66 @@ nmi_check_flags:
 	eor nmictrl2
 	sta nmictrl2
 	jsr h_clear_2cols
+	jmp @end
 
 @trySetICr:
 	lda #nc2_setl0ic
 	bit nmictrl2
-	beq @end
+	beq @tryClear256
 	
 	eor nmictrl2
 	sta nmictrl2
 	jsr level0_nmi_set_icr
+	jmp @end
+
+@tryClear256:
+	lda #nc2_clr256
+	bit nmictrl2
+	beq @tryCheckCols
+	
+	eor nmictrl2
+	sta nmictrl2
+	
+	lda currA000bank
+	pha
+	
+	lda #mmc3bk_prg1
+	ldy #prgb_dial
+	jsr mmc3_set_bank_nmi
+	
+	; now the bank is loaded, actually clear!
+	jsr dlg_nmi_clear_256
+	
+	pla
+	tay
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank_nmi
+	jmp @end
+
+@tryCheckCols:
+	lda #nc2_dlgupd
+	bit nmictrl2
+	beq @end
+	
+	lda currA000bank
+	pha
+	
+	lda #mmc3bk_prg1
+	ldy #prgb_dial
+	jsr mmc3_set_bank_nmi
+	
+	jsr dlg_nmi_check_upds
+	
+	lda dlg_updates
+	bne :+
+	lda #nc2_dlgupd
+	eor nmictrl2
+	sta nmictrl2
+	
+:	pla
+	tay
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank_nmi
 	
 @end:
 	lda #nc_turnon

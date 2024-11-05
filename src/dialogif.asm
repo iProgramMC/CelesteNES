@@ -20,3 +20,4 @@ dlg_test_g:
 	sta temp1+1
 	ldy #prgb_dial
 	jmp far_call
+

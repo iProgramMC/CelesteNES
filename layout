@@ -5,18 +5,21 @@ MEMORY
 	
 	# System WRAM
 	#
-	# NOTE: DLGTEMP and DRAWTEMP are stored in the same place because DRAWTEMP is not being
-	# used while DLGTEMP is being used.
+	# NOTE: DLGTEMP and DRAWTEMP are stored in the same place because 
+	# the first half DRAWTEMP is not being used while DLGTEMP is being used.
+	#
+	# the second half is, though, because it contains the loaded attribute data
+	# of the current level which we will need to restore
 	ZEROPAGE: start=$0000, size=$0100, type=rw, file="";
 	OAMBUF:   start=$0200, size=$0100, type=rw, file="";
 	ENTITIES: start=$0300, size=$0100, type=rw, file="";
 	PLTRACES: start=$0400, size=$00C0, type=rw, file="";
 	DLGRAM:   start=$04C0, size=$0040, type=rw, file="";
 	DRAWTEMP: start=$0500, size=$0200, type=rw, file="";
-	DLGTEMP:  start=$0500, size=$0200, type=rw, file="";
 	FMSRAM:   start=$0700, size=$0100, type=rw, file="";
 	
-	CARTWRAM: start=$6000, size=$0800, type=rw, file="";
+	AREASPC:  start=$6000, size=$0800, type=rw, file="";
+	DLGTEMP:  start=$6800, size=$0800, type=rw, file="";
 	
 	# NOTE: It's actually possible to have 64 PRG banks and 32 CHR banks.
 	# Currently we only use 16 banks of PRG space because it's enough.
@@ -88,9 +91,9 @@ SEGMENTS
 	PLTRACES:  load = PLTRACES,  type = bss;
 	DLGRAM:    load = DLGRAM,    type = bss;
 	DRAWTEMP:  load = DRAWTEMP,  type = bss;
-	DLGTEMP:   load = DLGTEMP,   type = bss;
 	FMSRAM:    load = FMSRAM,    type = bss;
-	CARTWRAM:  load = CARTWRAM,  type = bss;
+	AREASPC:   load = AREASPC,   type = bss;
+	DLGTEMP:   load = DLGTEMP,   type = bss, align = $100;
 	PRG_LVL0A: load = PRG_LVL0A, type = ro, align=$100;
 	PRG_LVL1A: load = PRG_LVL1A, type = ro, align=$100;
 	PRG_LVL2A: load = PRG_LVL2A, type = ro, align=$100;

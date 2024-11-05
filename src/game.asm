@@ -105,7 +105,6 @@ gamemode_game:
 	beq gm_game_init
 gm_game_update:
 	inc framectr
-	jsr test_dialog
 	lda scrollsplit
 	beq :+
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
@@ -118,6 +117,8 @@ gm_game_update:
 	jsr gm_allocate_palettes
 	jsr gm_update_ptstimer
 	jsr gm_draw_dead
+	
+	jsr test_dialog
 	
 	; note: at this point, camera positioning should have been calculated.
 	; calculate the position of the camera so that the NMI can pick it up
@@ -197,6 +198,8 @@ gm_game_clear_wx:
 	stx roombeglo
 	stx roombeghi
 	stx roombeglo2
+	stx camleftlo
+	stx camlefthi
 	stx plrtrahd
 	stx plrstrawbs
 	stx scrollsplit

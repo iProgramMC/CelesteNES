@@ -19,12 +19,17 @@ gm_leaveroomR:
 	lda #$F0
 	sta player_x
 	
-	; If the rightward camera limit wasn't reached yet then we have no reason to leave
+	; * If the camera is locked then we have no reason to leave
+	lda #gs_camlock
+	bit gamectrl
+	bne @returnEarly
+	
+	; * If the rightward camera limit wasn't reached yet then we have no reason to leave
 	lda #gs_scrstodR
 	bit gamectrl
 	beq @returnEarly
 	
-	; now leave the room through the right side
+	; Now leave the room through the right side
 	ldy warp_r_y
 	sty transoff
 	ldy warp_r
@@ -54,11 +59,13 @@ gm_leaveroomR:
 	asl
 	asl                      ; multiply by 8
 	sta roombeglo
+	sta camleftlo
 	
 	clc
 	lda camera_x_pg
 	adc #1
 	sta roombeghi
+	sta camlefthi
 	
 	lda #0
 	sta tr_scrnpos
@@ -203,12 +210,21 @@ gm_roomRtrangen:
 ; ** SUBROUTINE: gm_leaveroomU
 ; desc: Performs a transition, across multiple frames, going up.
 gm_leaveroomU:
+	lda #gs_camlock
+	bit gamectrl
+	bne @returnEarly
+	
 	; try to leave the room above
 	ldy warp_u
 	cpy #$FF
-	bne :+
-	rts                   ; no warp assigned, continue with normal logic
-:	lda #0
+	bne @actuallyWarp
+	; no warp assigned, return and continue with normal logic
+
+@returnEarly:
+	rts
+
+@actuallyWarp:
+	lda #0
 	sta player_y
 	
 	ldy warp_u_x
@@ -304,12 +320,14 @@ gm_leaveroomU:
 	
 	lda camdst_x
 	sta roombeglo
+	sta camleftlo
 	lsr
 	lsr
 	lsr
 	sta roombeglo2
 	lda camdst_x_pg
 	sta roombeghi
+	sta camlefthi
 	ror
 	ror
 	ror
@@ -480,8 +498,10 @@ gm_leaveroomU:
 	
 	lda camera_x
 	sta roombeglo
+	sta camleftlo
 	lda camera_x_pg
 	sta roombeghi
+	sta camlefthi
 	
 	lda player_x_d
 	sta player_x
