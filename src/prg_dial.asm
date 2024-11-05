@@ -1,7 +1,13 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-.segment "DLGRAM"
-; 64 bytes
+; some defines:
+default_char_timer = 3
+
+.segment "DLGRAM" ; 64 bytes
+dlg_chartimer: .res 1 ; when this timer ticks down to zero, show a new character
+dlg_cursor_x:  .res 1 ; the X position of the cursor
+dlg_cursor_y:  .res 1 ; the Y position of the cursor
+dlg_crsr_home: .res 1 ; the home X position (on the $0A/'\n' character, will go here and advance row)
 
 .segment "DLGTEMP"
 
@@ -28,3 +34,4 @@ dlg_updccurr:	.res 1
 .include "d_test.asm"    ; piece of test dialog
 .include "d_font.asm"
 .include "d_update.asm"
+.include "d_nmi.asm"

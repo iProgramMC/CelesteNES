@@ -13,7 +13,7 @@ dlg_font_widths:
 	; the first character index, $00, maps to ASCII $20
 	.byte $25,$75,$77,$37,$33,$66,$53,$72 ; 5,2,5,7,7,7,7,3,3,3,6,6,3,5,2,7 - $20-$2F
 	.byte $55,$55,$55,$55,$55,$32,$77,$67 ; 5,5,5,5,5,5,5,5,5,5,2,3,7,7,7,6 - $30-$3F
-	.byte $67,$55,$55,$55,$52,$65,$65,$65 ; 7,6,5,5,5,5,5,5,5,2,5,6,5,6,5,6 - $40-$4F
+	.byte $67,$55,$55,$55,$25,$65,$65,$65 ; 7,6,5,5,5,5,5,5,5,2,5,6,5,6,5,6 - $40-$4F
 	.byte $65,$55,$56,$86,$66,$76,$77,$77 ; 5,6,5,5,6,5,6,8,6,6,6,7,7,7,7,7 - $50-$5F
 	.byte $57,$55,$55,$53,$25,$53,$63,$66 ; 7,5,5,5,5,5,3,5,5,2,3,5,3,6,6,6 - $60-$6F
 	.byte $66,$56,$64,$66,$56,$76,$77,$77 ; 6,6,6,5,4,6,6,6,6,5,6,7,7,7,7,7 - $70-$7F
@@ -25,8 +25,8 @@ dlg_font_widths:
 ;     Y - The Y of the strip to fetch.
 dlg_fetch_strip:
 	; turn it into a valid index
-	clc
-	adc #$60   ; (for example, $20 + $60 == $80)
+	sec
+	sbc #$20   ; (for example, $20 + $60 == $80)
 	and #$7F   ; cap it to 0-128
 	
 	pha
@@ -59,7 +59,7 @@ dlg_fetch_strip:
 	sta temp1
 	
 	bcc :+
-	inc temp1
+	inc temp2
 	
 :	; ok, now just fetch and return
 	lda (temp1), y
@@ -300,7 +300,6 @@ dlg_draw_strip:
 	inx
 	stx dlg_updc3
 	rts
-	
 
 ; ** SUBROUTINE: dlg_draw_char
 ; desc: Draws a single character to the screen buffer reserved for dialog.

@@ -2,10 +2,31 @@
 
 ;  This code belongs in the PRG_DIAL segment
 
-;dialog_data:
-;	.incbin "data.bin"
+test_str:	.byte "Hello! I am a piece of dialog.\nI can stretch over multiple\nlines!", 0
 
-dlg_update_d:
+
+
+; ** Speaker Banks Array
+; desc: This defines the graphics banks loaded to display a certain speaker.
+speaker_banks:
+	.byte chrb_dmade ; SPK_madeline
+	.byte chrb_dgran ; SPK_granny
+	.byte chrb_dtheo ; SPK_theo
+
+; ** SUBROUTINE: dlg_set_speaker
+; desc: Sets the current speaker's portrait bank.
+; arguments:
+;     X - current speaker
+dlg_set_speaker:
+	lda speaker_banks, x
+	tay
+	sty spr0_bkspl
+	iny
+	sty spr1_bkspl
+	iny
+	sty spr2_bkspl
+	iny
+	sty spr3_bkspl
 	rts
 
 ; ** SUBROUTINE: dlg_get_clear_start
@@ -88,36 +109,23 @@ dlg_start_dialog:
 	bne @loopOpen
 	
 	jsr @calculatePPUAddresses
+	jsr @setupDialogSplit
 	
-	; dialog is now open, scrollsplit time
-	lda #64
-	sta scrollsplit
+	; also setup some values for testing
+	lda #<test_str
+	sta dlg_textptr
+	lda #>test_str
+	sta dlg_textptr+1
 	
-	lda #12
-	sta dialogsplit
+	lda #default_char_timer
+	sta dlg_chartimer
 	
-	lda #chrb_dcntr
-	sta bg0_bkspl
-	lda #chrb_dcntr+2
-	sta bg1_bkspl
+	lda #8
+	sta dlg_cursor_x
+	sta dlg_crsr_home
 	
-	; now the dialog is open, try drawing some things
-	lda #'A'
-	ldx #10
-	ldy #0
-	jsr dlg_draw_char
-	lda #'B'
-	ldx #16
-	ldy #0
-	jsr dlg_draw_char
-	lda #'C'
-	ldx #21
-	ldy #0
-	jsr dlg_draw_char
-	lda #'D'
-	ldx #26
-	ldy #0
-	jsr dlg_draw_char
+	lda #0
+	sta dlg_cursor_y
 	
 	rts
 
@@ -198,6 +206,7 @@ dlg_start_dialog:
 	bne :+
 	
 	; it is now zero!
+	lda temp2
 	sec
 	sbc #%00100000
 	sta temp2
@@ -205,6 +214,20 @@ dlg_start_dialog:
 	eor #%00000100  ; use the other nametable
 	sta temp1
 :	rts
+
+@setupDialogSplit:
+	; dialog is now open, scrollsplit time
+	lda #64
+	sta scrollsplit
+	
+	lda #12
+	sta dialogsplit
+	
+	lda #chrb_dcntr
+	sta bg0_bkspl
+	lda #chrb_dcntr+2
+	sta bg1_bkspl
+	rts
 
 ; ** SUBROUTINE: dlg_end_dialog
 ; desc: Ends a dialog.
@@ -322,240 +345,92 @@ dlg_leave_doframe:
 	jsr nmi_wait
 	jmp soft_nmi_off
 
-.align $100
-; ** SUBROUTINE: dlg_nmi_clear_256
-; desc: Clears (almost) 256 bytes in an 8X30 column fashion.
-dlg_nmi_clear_256:
-	lda ctl_flags
-	ora #pctl_adv32
-	sta ppu_ctrl
+; ** SUBROUTINE: dlg_advance_text
+; desc: Advances the active text in a dialog.
+dlg_advance_text:
+	ldy #0
+	lda (dlg_textptr), y
+	; if the character is a zero, then return.
+	beq @return
 	
-	ldy #$8 ; write 4 columns
-@beginning:
-	lda clearpahi
-	sta ppu_addr
-	lda clearpalo
-	sta ppu_addr
-	
-	; 30 writes.
-	lda #0
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	
-	lda clearpalo
-	clc
-	adc #1
-	sta clearpalo
-	
-	; check if it's zero
-	and #%00011111
-	sta clearpalo
+	; increment the text pointer
+	inc dlg_textptr
 	bne :+
+	inc dlg_textptr+1
+:
+
+	cmp #$0A
+	beq @newLine
 	
-	lda #0
-	sta clearpalo
+	; regular old character. we should draw it.
+	ldx dlg_cursor_x
+	ldy dlg_cursor_y
+	pha                  ; store the character because we'll need it later
+	jsr dlg_draw_char
 	
-	; it is, so change nametable
-	lda clearpahi
-	eor #$4
-	sta clearpahi
+	pla                  ; pull the character, and determine its width.
+	sec
+	sbc #$20
+	and #$7F
+	lsr                  ; get the index into the widths array. carry will contain the even/odd bit
+	tax
+	lda dlg_font_widths, x
+	bcc :+               ; if character was odd, shift the widths by 4
+	lsr
+	lsr
+	lsr
+	lsr
+:	and #$F
+	sta debug
+	clc
+	adc dlg_cursor_x
+	sta dlg_cursor_x
 	
-:	dey
-	bne @beginning
-	
-	lda ctl_flags
-	sta ppu_ctrl
-	
+@return:
+	lda #default_char_timer
+	sta dlg_chartimer
 	rts
 
-; ** SUBROUTINE: dlg_nmi_check_upds
-; desc: Checks for updates for the dialog columns.
-dlg_nmi_check_upds:
-	lda ctl_flags
-	ora #pctl_adv32
-	sta ppu_ctrl
-	
-	; temp5 is going to be the same because we increment by 256
-	lda #<dlg_bitmap
-	sta temp5
-	
-	lda #1
-	bit dlg_updates
-	beq :+
-	
-	; clear the bit that got us here
-	eor dlg_updates
-	sta dlg_updates
-	lda #>dlg_bitmap
-	sta temp6
-	lda #0
-	sta temp7
-	lda #<dlg_upds1
-	sta temp8
-	lda #>dlg_upds1
-	sta temp9
-	
-	jmp @updateRow
-	
-:	lda #2
-	bit dlg_updates
-	beq :+
-	
-	; clear the bit that got us here
-	eor dlg_updates
-	sta dlg_updates
-	lda #>(dlg_bitmap+$100)
-	sta temp6
-	lda #1
-	sta temp7
-	lda #<dlg_upds2
-	sta temp8
-	lda #>dlg_upds2
-	sta temp9
-	
-	jmp @updateRow
-	
-:	lda #4
-	bit dlg_updates
-	beq :+
-	
-	; clear the bit that got us here
-	eor dlg_updates
-	sta dlg_updates
-	lda #>(dlg_bitmap+$200)
-	sta temp6
-	lda #2
-	sta temp7
-	lda #<dlg_upds3
-	sta temp8
-	lda #>dlg_upds3
-	sta temp9
-	
-	jmp @updateRow
-	
-:	rts
+@newLine:
+	; new line
+	; revert cursor X back to home
+	lda dlg_crsr_home
+	sta dlg_cursor_x
+	; advance new line
+	lda dlg_cursor_y
+	clc
+	adc #8
+	; note: what happens if dlg_cursor_y >= 24?!
+	sta dlg_cursor_y
+	jmp @return
 
-; ** SUBROUTINE: dlg_nmi_check_upds::@updateRow
-; desc: Updates a single row of text.
-; arguments:
-;     temp1 - Low byte of starting ppuaddr
-;     temp2 - High byte of starting ppuaddr
-;     temp5 - Low byte of row bitmap start addr
-;     temp6 - High byte of row bitmap start addr
-;     temp7 - Row number
-;     temp8 - Low byte of updates array
-;     temp9 - High byte of updates array
-; reserves also:
-;     temp3
-;     temp4
-;     temp10
-@updateRow:
-	ldx temp7
-	lda dlg_updc1, x
-	sta dlg_updccurr
-	; acknowledge these updates
-	lda #0
-	sta dlg_updc1, x
+; ** SUBROUTINE: dlg_draw_portrait
+; desc: Draws the active portrait.
+dlg_draw_portrait:
+	rts
+
+; ** SUBROUTINE: dlg_update_d
+; desc: Updates the current dialog.
+;       Draws the active portrait, advances the dialog timer and pushes a character if needed, etc.
+dlg_update_d:
+	dec dlg_chartimer
+	bne @noAdvanceImmediately
+@advanceGo:
+	jsr dlg_advance_text
+	jmp @advanced
 	
-	; add $A0
-	lda temp2
-	ora #$A0
-	sta temp2
+@noAdvanceImmediately:
+	; wasn't advanced immediately. check for the A button
+	lda #cont_a
+	bit p1_cont
+	beq @advanced
 	
-	lda temp7
-	clc
-	adc temp1
-	sta temp1
-	
-	lda temp7
-	asl
-	asl
-	asl
-	asl
-	asl
-	sta temp10 ; 0,32,64
-	
-	;lda temp1
-	;pha
-	;lda temp2
-	;pha
-	
-	; ok, now each column
-	ldy #0
-@loopRow:
-	; store a backup of the update index in temp4
-	sty temp4
-	
-	; load the column to be updated
-	lda (temp8), y
-	
-	; use temp3 as the index into dlg_bitmap
-	sta temp3
-	
-	; add either 0, 32, or 64. this'll get the index into dlg_updpaddr*
-	clc
-	adc temp10
-	
-	; use the thing we calculated earlier as an index
-	tay
-	
-	; load the next ppuaddr
-	lda dlg_updpaddrhi, y
-	sta ppu_addr
-	lda dlg_updpaddrlo, y
-	sta ppu_addr
-	
-	; subloop to copy 8 bytes
-	ldx #0
-@subLoopRow:
-	; load the read head
-	ldy temp3
-	; load and write that data to the PPU
-	lda (temp5), y
-	sta ppu_data
-	; increment the read head
-	lda temp3
-	clc
-	adc #32
-	sta temp3
-	; next row
-	inx
-	cpx #8
-	bne @subLoopRow
-	
-	ldy temp4
-	
-	; continue
-@loopRow_continue:
-	iny
-	cpy dlg_updccurr
-	bne @loopRow
+	; pressed, so decrement it a lot faster
+	dec dlg_chartimer
+	beq @advanceGo
+	dec dlg_chartimer
+	beq @advanceGo
+
+@advanced:
+	jsr dlg_draw_portrait
 	rts

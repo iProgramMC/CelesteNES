@@ -117,6 +117,7 @@ gm_game_update:
 	jsr gm_allocate_palettes
 	jsr gm_update_ptstimer
 	jsr gm_draw_dead
+	jsr gm_update_dialog
 	
 	jsr test_dialog
 	
@@ -133,18 +134,6 @@ gm_game_update:
 ;	bne gm_titleswitch
 	rts
 
-test_dialog:
-	lda #cont_select
-	bit p1_cont
-	beq :+
-	
-	bit p1_conto
-	bne :+
-	
-	jsr dlg_test_g
-
-:	rts
-
 ;; ** SUBROUTINE: gm_titleswitch
 ;gm_titleswitch:
 ;	bit p1_conto
@@ -160,6 +149,27 @@ test_dialog:
 ;	sta titlectrl
 ;@earlyReturn:
 ;	rts
+
+test_dialog:
+	lda #cont_select
+	bit p1_cont
+	beq :+
+	
+	bit p1_conto
+	bne :+
+	
+	jsr dlg_test_g
+
+:	rts
+
+; ** SUBROUTINE: gm_update_dialog
+; desc: Updates the active dialog if needed.
+gm_update_dialog:
+	lda dialogsplit
+	beq @return
+	jmp dlg_update_g
+@return:
+	rts
 
 ; ** SUBROUTINE: gm_game_clear_all_wx
 ; desc: Clears ALL game variables with the X register.
