@@ -730,11 +730,15 @@ h_gener_col_r:
 	rts
 
 ; ** SUBROUTINE: h_calc_ntattrdata_addr
-; desc: Calculates the current ntattrdata address into temp1, based on ntwrhead.
+; desc: Calculates the ntattrdata address into temp1 for a column.
+; arguments:
+;     A - The column index.
 h_calc_ntattrdata_addr:
+	sta temp2
+	
 	; in temp1, we store the index into ntattrdata.
 	lda #%00100000
-	bit ntwrhead
+	bit temp2
 	bne :+
 	lda #0
 :	asl
@@ -743,7 +747,7 @@ h_calc_ntattrdata_addr:
 	; determined the Page Index
 	; now determine the sub page index
 	
-	lda ntwrhead
+	lda temp2
 	and #$1F
 	lsr
 	lsr
@@ -785,6 +789,7 @@ h_palette_data_column:
 	pha
 	
 	; copy all that stuff into "ntattrdata"
+	lda ntwrhead
 	jsr h_calc_ntattrdata_addr
 	
 	ldy #0

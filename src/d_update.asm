@@ -302,7 +302,7 @@ dlg_end_dialog:
 	
 	; load and push the old nametable write head
 	lda ntwrhead
-	sta dialogsplit ; note: dialogsplit will not be checked if scrollsplit is zero!
+	sta dlg_temporary
 	
 	lda gamectrl
 	pha
@@ -341,6 +341,9 @@ dlg_end_dialog:
 	
 	; palettes to be flushed
 	; copied from g_level :: h_flush_pal_r
+	lda ntwrhead
+	sec
+	sbc #1
 	jsr h_calc_ntattrdata_addr
 	
 	ldy #0
@@ -360,7 +363,7 @@ dlg_end_dialog:
 	jsr dlg_leave_doframe
 	
 	lda ntwrhead
-	cmp dialogsplit
+	cmp dlg_temporary
 	
 	bne @loop
 
