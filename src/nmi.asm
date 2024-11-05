@@ -306,12 +306,22 @@ nmi_scrollsplit:
 	
 	lda ctl_flags
 	ldx dialogsplit
-	beq :+
+	beq @noDialogSplit
+	
+	; have dialog split
 	eor #%00000001
-:	sta ppu_ctrl   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
+	sta ppu_ctrl
+	lda camera_x
+	sta ppu_scroll
+	lda #0
+	beq @ahead
+	
+@noDialogSplit:
+	sta ppu_ctrl   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
 	
 	lda #0
 	sta ppu_scroll
+@ahead:
 	sta ppu_scroll
 	
 	sta mmc3_irqdi  ; disable IRQ

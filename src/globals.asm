@@ -54,6 +54,7 @@ spr2_bkspl  : .res 1
 spr3_bkspl  : .res 1
 bg0_bkspl   : .res 1
 bg1_bkspl   : .res 1
+splgapaddr  : .res 2
 
 mmc3_shadow : .res 1
 currA000bank: .res 1 ; current bank index loaded at $A000-$BFFF.
@@ -71,6 +72,8 @@ dialogsplit : .res 1 ; Y position of the dialog split (1)
 irqcounter  : .res 1 ; (2)
 dlg_updates : .res 1 ; row update bitmask
 dlg_textptr : .res 2 ; the pointer to the current character
+dlg_porttbl : .res 2 ; the pointer to the portrait table
+dlg_curport : .res 2 ; the pointer to the current portrait
 
 rng_state   : .res 1
 p1_cont     : .res 1
@@ -235,8 +238,6 @@ warp_d_x    : .res 1
 warp_l_y    : .res 1
 warp_r_y    : .res 1
 rm_paloffs  : .res 1
-
-debug:.res 1
 
 roomhdrfirst = roomsize
 roomhdrlast  = rm_paloffs + 1

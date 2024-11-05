@@ -143,11 +143,11 @@ irq:
 ;:	dey
 ;	bne :-
 	; 91 cycles ^^
-	jsr @delay_91
+	jsr @delay_89
 	
-	lda #$24
+	lda splgapaddr+1
 	sta ppu_addr
-	lda #$00
+	lda splgapaddr
 	sta ppu_addr
 	
 	; reprogram the MMC3 to give us a new interrupt in 12 scanlines
@@ -204,14 +204,23 @@ irq:
 	rts
 
 @return:
-	lda #$24
+	lda irqtmp1
 	sta ppu_addr
 	lda #0
 	sta ppu_scroll
 	
-	jsr @actuallyReturn
+	;jsr @actuallyReturn
+	lda irqtmp3
+	and #%00000111
+	;nop
+	tax
+	;nop
+	lda irqtmp4
 	
-	sta ppu_scroll
+	and #%00011111
+	;nop
+	
+	stx ppu_scroll
 	sta ppu_addr
 @actuallyReturn:
 	rts
@@ -236,8 +245,8 @@ irq:
 	nop         ; 2 cycles
 	rts   ;       6 cycles
 
-; delay exactly 91 cycles
-@delay_91:
+; delay exactly 89 cycles
+@delay_89:
 	; entry:         6 cycles
 	pha   ;          3 cycles
 	pla   ;          4 cycles
@@ -247,10 +256,9 @@ irq:
 	pla   ;          4 cycles
 	pha   ;          3 cycles
 	pla   ;          4 cycles
-	nop   ;          2 cycles
 	rts   ;          6 cycles
 
-irqdelays:	.byte 7, 7, 5
+irqdelays:	.byte 2, 2, 5
 
 ; this waits for like 12 scanlines
 ;@gapScanLines:

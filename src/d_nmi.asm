@@ -10,6 +10,7 @@ dlg_nmi_clear_256:
 	sta ppu_ctrl
 	
 	ldy #$8 ; write 4 columns
+	ldx #$FF
 @beginning:
 	lda clearpahi
 	sta ppu_addr
@@ -19,7 +20,7 @@ dlg_nmi_clear_256:
 	; 30 writes.
 	lda #0
 	sta ppu_data
-	sta ppu_data
+	stx ppu_data
 	sta ppu_data
 	sta ppu_data
 	sta ppu_data

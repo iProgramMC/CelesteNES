@@ -4,20 +4,41 @@
 
 test_str:	.byte "Hello! I am a piece of dialog.\nI can stretch over multiple\nlines!", 0
 
-
-
-; ** Speaker Banks Array
-; desc: This defines the graphics banks loaded to display a certain speaker.
 speaker_banks:
 	.byte chrb_dmade ; SPK_madeline
 	.byte chrb_dgran ; SPK_granny
 	.byte chrb_dtheo ; SPK_theo
+
+speaker_palettes:
+	.byte $1
+	.byte $2
+	.byte $2
+
+speaker_portrait_tables_lo:
+	.byte <portraits_default
+	.byte <portraits_default
+	.byte <portraits_default
+
+speaker_portrait_tables_hi:
+	.byte >portraits_default
+	.byte >portraits_default
+	.byte >portraits_default
+
+portraits_default:
+	.word portrait_default
+
+portrait_default:
+	.byte $00,$02,$04,$06,$08
+	.byte $20,$22,$24,$26,$28
+	.byte $40,$42,$44,$46,$48
+
 
 ; ** SUBROUTINE: dlg_set_speaker
 ; desc: Sets the current speaker's portrait bank.
 ; arguments:
 ;     X - current speaker
 dlg_set_speaker:
+	; set the bank
 	lda speaker_banks, x
 	tay
 	sty spr0_bkspl
@@ -27,6 +48,31 @@ dlg_set_speaker:
 	sty spr2_bkspl
 	iny
 	sty spr3_bkspl
+	
+	; set the palette
+	lda speaker_palettes, x
+	sta dlg_port_pal
+	
+	; set the portrait table
+	lda speaker_portrait_tables_lo, x
+	sta dlg_porttbl
+	lda speaker_portrait_tables_hi, x
+	sta dlg_porttbl+1
+	
+	rts
+
+; ** SUBROUTINE: dlg_set_expression
+; desc: Sets the current speaker's expression.
+; arguments:
+;     A - current expression
+dlg_set_expression:
+	asl
+	tay
+	lda (dlg_porttbl), y
+	sta dlg_curport
+	iny
+	lda (dlg_porttbl), y
+	sta dlg_curport+1
 	rts
 
 ; ** SUBROUTINE: dlg_get_clear_start
@@ -129,6 +175,8 @@ dlg_start_dialog:
 	
 	ldx #SPK_madeline
 	jsr dlg_set_speaker
+	lda #0
+	jsr dlg_set_expression
 	
 	rts
 
@@ -153,8 +201,12 @@ dlg_start_dialog:
 	ora #%00100000
 	sta temp1         ; calculated the high address
 	sta temp3
+	sta splgapaddr+1
+	
 	pla
 	and #%00011111
+	sta splgapaddr
+	
 	ora #%10100000
 	sta temp2         ; calculated the low address
 	sta temp4
@@ -220,10 +272,10 @@ dlg_start_dialog:
 
 @setupDialogSplit:
 	; dialog is now open, scrollsplit time
-	lda #64
+	lda #58
 	sta scrollsplit
 	
-	lda #12
+	lda #16
 	sta dialogsplit
 	
 	lda #chrb_dcntr
@@ -337,7 +389,6 @@ dlg_test_d:
 @initializeDialog:
 	jmp dlg_start_dialog
 
-
 ; ** SUBROUTINE: dlg_leave_doframe
 ; desc: Waits for a new frame to start to continue operation.
 ;       This does NOT draw new sprites, nor does it clear shadow OAM.
@@ -360,9 +411,8 @@ dlg_advance_text:
 	inc dlg_textptr
 	bne :+
 	inc dlg_textptr+1
-:
-
-	cmp #$0A
+	
+:	cmp #$0A
 	beq @newLine
 	
 	; regular old character. we should draw it.
@@ -384,7 +434,6 @@ dlg_advance_text:
 	lsr
 	lsr
 :	and #$F
-	sta debug
 	clc
 	adc dlg_cursor_x
 	sta dlg_cursor_x
@@ -409,80 +458,36 @@ dlg_advance_text:
 
 ; ** SUBROUTINE: dlg_draw_portrait
 ; desc: Draws the active portrait.
-pall  = 1
-pall2 = 0
-pall3 = 2
 dlg_draw_portrait:
+	ldx #0
 	jsr @homeX
-	lda #6
+	lda #(dialog_border_upp-8)
 	sta y_crd_temp
-	
-	lda #pall
-	ldy #$00
+@loop:
+	txa
+	tay
+	lda (dlg_curport), y
+	tay
+	lda dlg_port_pal
 	jsr oam_putsprite
 	jsr @incrementX
-	lda #pall
-	ldy #$02
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$04
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$06
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$08
-	jsr oam_putsprite
-	jsr @incrementY
-	jsr @homeX
-	lda #pall
-	ldy #$20
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$22
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$24
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$26
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$28
-	jsr oam_putsprite
-	jsr @incrementY
-	jsr @homeX
-	
-	lda #pall
-	ldy #$40
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$42
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$44
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$46
-	jsr oam_putsprite
-	jsr @incrementX
-	lda #pall
-	ldy #$48
-	jsr oam_putsprite
-	jsr @incrementY
-	jsr @homeX
-	
+	inx
+	; if it's 15, return
+	cpx #15
+	beq @return
+	; if it's 5 or 10, move on to the next row
+	cpx #5
+	beq @detour
+	cpx #10
+	beq @detour
+	bne @loop
+@return:
 	rts
+
+@detour:
+	jsr @homeX
+	jsr @incrementY
+	jmp @loop
 
 @incrementX:
 	lda x_crd_temp
@@ -498,10 +503,6 @@ dlg_draw_portrait:
 	rts
 @homeX:
 	lda #dialog_border
-	sta x_crd_temp
-	rts
-@home2:
-	lda #(dialog_border+2)
 	sta x_crd_temp
 	rts
 
