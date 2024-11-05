@@ -259,7 +259,7 @@ tempcol     : .res $20  ; 32 bytes - temporary column to be flushed to the scree
 allocpals   : .res $10  ; 16 bytes - logical to physical palette TODO
 palsallocd  : .res $10  ; 16 bytes - physical to logical palette TODO
 temppal     : .res $8   ; 8 bytes  - temp palette column to be flushed to the screen
-temppalH1   : .res $8   ; 8 bytes  - temporary row in nametable 8
+temppalH1   : .res $8   ; 8 bytes  - temporary row in nametable 0
 temppalH2   : .res $8   ; 8 bytes  - temporary row in nametable 1
 spare8bytes : .res $8   ; 8 bytes  - SPARE SPARE
 temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0

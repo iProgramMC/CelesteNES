@@ -32,7 +32,6 @@ portrait_default:
 	.byte $20,$22,$24,$26,$28
 	.byte $40,$42,$44,$46,$48
 
-
 ; ** SUBROUTINE: dlg_set_speaker
 ; desc: Sets the current speaker's portrait bank.
 ; arguments:
@@ -109,6 +108,7 @@ dlg_start_dialog:
 	sta nmictrl2
 	
 	jsr dlg_get_clear_start
+	sta dlg_temporary
 	
 	sta clearpalo
 	tya
@@ -134,26 +134,90 @@ dlg_start_dialog:
 	
 	jsr dlg_leave_doframe
 	
-	ldx #0
-	lda #0
-	sta dlg_updc1
-	sta dlg_updc2
-	sta dlg_updc3
-:	sta dlg_bitmap, x
-	sta dlg_bitmap+$100, x
-	sta dlg_bitmap+$200, x
-	inx
-	bne :-
-	ldx #0
-:	sta dlg_upds1, x
-	inx
-	cpx #96
-	bne :-
-	
 	iny
 	cpy #$4
 	bne @loopOpen
 	
+	lda #0
+	ldy #0
+:	sta temppalH1
+	sta temppalH2
+	iny
+	cpy #8
+	bne :-
+	
+	;lda dlg_temporary
+	;clc
+	;adc #3             ; 4 tiles ahead though
+	;and #$3F
+	;sta dlg_temporary
+	
+	; attribute memes
+	ldy #0
+@loopAttributes:
+	tya
+	asl
+	asl
+	asl
+	sta temp1
+	
+	; calculate spill-over
+	lda dlg_temporary
+	and #$1F       ; 0-31, we care about the in-screen offs only
+	lsr
+	lsr
+	sta wrcountHP2 ; that is how much we want to spill out
+	
+	; calculate non-spillover
+	lda #8
+	sec
+	sbc wrcountHP2
+	sta wrcountHP1
+	
+	; calculate beginning nametable
+	lda dlg_temporary
+	and #%00100000
+	lsr
+	lsr
+	lsr
+	eor #$23
+	sta ppuaddrHP1+1
+	
+	; calculate start offset
+	lda #$C0
+	clc
+	adc temp1
+	clc
+	adc wrcountHP2 ; (8 - wrcountHR1)
+	sta ppuaddrHP1
+	
+	; calculate end nametable
+	lda ppuaddrHP1+1
+	eor #$04
+	sta ppuaddrHP2+1
+	
+	; calculate midpoint
+	lda #$C0
+	clc
+	adc temp1
+	sta ppuaddrHP2
+	
+	; take one away from wrcountHP2
+	;lda wrcountHP2
+	;beq :+
+	;dec wrcountHP2
+	
+	lda #nc_flushpal
+	ora nmictrl
+	sta nmictrl
+	
+	jsr dlg_leave_doframe
+	
+	iny
+	cpy #$8
+	bne @loopAttributes
+	
+	jsr @clearDialogMemory
 	jsr @calculatePPUAddresses
 	jsr @setupDialogSplit
 	
@@ -284,6 +348,24 @@ dlg_start_dialog:
 	sta bg1_bkspl
 	rts
 
+@clearDialogMemory:
+	ldx #0
+	lda #0
+	sta dlg_updc1
+	sta dlg_updc2
+	sta dlg_updc3
+:	sta dlg_bitmap, x
+	sta dlg_bitmap+$100, x
+	sta dlg_bitmap+$200, x
+	inx
+	bne :-
+	ldx #0
+:	sta dlg_upds1, x
+	inx
+	cpx #96
+	bne :-
+	rts
+
 ; ** SUBROUTINE: dlg_end_dialog
 ; desc: Ends a dialog.
 dlg_end_dialog:
@@ -319,6 +401,11 @@ dlg_end_dialog:
 	sta gamectrl
 	
 	jsr dlg_get_clear_start
+	; actually we should subtract 1 tile because of some edge cases and ugh...
+	sec
+	sbc #2
+	and #$3E
+	
 	cmp ntwrhead
 	; if the clear start head would actually be *bigger* than ntwrhead, then
 	; simply return
@@ -342,8 +429,6 @@ dlg_end_dialog:
 	; palettes to be flushed
 	; copied from g_level :: h_flush_pal_r
 	lda ntwrhead
-	sec
-	sbc #1
 	jsr h_calc_ntattrdata_addr
 	
 	ldy #0

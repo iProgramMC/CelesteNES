@@ -304,7 +304,9 @@ nmi_scrollsplit:
 	lda scrollsplit
 	beq @normalScrolling
 	
-	lda ctl_flags
+	lda ctl_flags   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
+	ora scroll_flags
+	
 	ldx dialogsplit
 	beq @noDialogSplit
 	
@@ -317,7 +319,7 @@ nmi_scrollsplit:
 	beq @ahead
 	
 @noDialogSplit:
-	sta ppu_ctrl   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
+	sta ppu_ctrl
 	
 	lda #0
 	sta ppu_scroll
