@@ -130,7 +130,7 @@ nmi_check_flags:
 @tryCheckCols:
 	lda #nc2_dlgupd
 	bit nmictrl2
-	beq @end
+	beq @tryUpdPal1
 	
 	lda currA000bank
 	pha
@@ -151,8 +151,67 @@ nmi_check_flags:
 	tay
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank_nmi
-	
+
 @end:
+@tryUpdPal1:
+	; finally, update loaded palettes.
+	lda #nc2_updpal1
+	bit nmictrl2
+	beq @tryUpdPal2
+	
+	eor nmictrl2
+	sta nmictrl2
+	lda #$3F
+	sta ppu_addr
+	lda #$15
+	sta ppu_addr
+	
+	lda spritepals+0
+	sta ppu_data
+	lda spritepals+1
+	sta ppu_data
+	lda spritepals+2
+	sta ppu_data
+
+@tryUpdPal2:
+	lda #nc2_updpal2
+	bit nmictrl2
+	beq @tryUpdPal3
+	
+	eor nmictrl2
+	sta nmictrl2
+	lda #$3F
+	sta ppu_addr
+	lda #$19
+	sta ppu_addr
+	
+	lda spritepals+3
+	sta ppu_data
+	lda spritepals+4
+	sta ppu_data
+	lda spritepals+5
+	sta ppu_data
+
+@tryUpdPal3:
+	lda #nc2_updpal3
+	bit nmictrl2
+	beq @tryTurnOn
+	
+	eor nmictrl2
+	sta nmictrl2
+	lda #$3F
+	sta ppu_addr
+	lda #$1D
+	sta ppu_addr
+	
+	lda spritepals+6
+	sta ppu_data
+	lda spritepals+7
+	sta ppu_data
+	lda spritepals+8
+	sta ppu_data
+	
+@tryTurnOn:
 	lda #nc_turnon
 	bit nmictrl
 	beq @noTurnOn

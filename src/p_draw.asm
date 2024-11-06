@@ -348,15 +348,23 @@ gm_loaded:
 gm_nooddrhythm:
 	rts
 
+; ** SUBROUTINE: gm_load_hair_palette
+; desc: Loads Madeline's hair's palette
+gm_load_hair_palette:
+	lda #maxdashes
+	sec
+	sbc dashcount
+	jsr gm_allocate_palette
+	sta plh_attrs
+	rts
+
 ; ** SUBROUTINE: gm_anim_player
 ; desc: Updates the sprite numbers for the player character and their hair.
 ; note: gm_anim_player starts a little below.
 gm_anim_player:
 	lda #0
 	sta spryoff
-	ldx dashcount
-	inx
-	stx plh_attrs    ; set the palette to the dash count + 1
+	jsr gm_load_hair_palette
 	lda dashtime
 	cmp #0
 	bne gm_dashing

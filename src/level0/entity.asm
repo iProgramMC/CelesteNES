@@ -216,7 +216,6 @@ l0ic_fallen   = $03
 
 l0ic_maxy        = 120
 l0ic_defshaketmr = (256 - 20)
-l0ic_palette     = $2
 
 level0_intro_crusher:
 	lda #0
@@ -348,6 +347,20 @@ level0_intro_crusher:
 	rts
 	
 @drawSprite:
+	txa
+	pha
+	tya
+	pha
+	
+	lda #pal_blue
+	jsr gm_allocate_palette
+	sta sprpaltemp
+	
+	pla
+	tay
+	pla
+	tax
+	
 	inc sprspace+sp_l0ic_timer, x
 	lda sprspace+sp_l0ic_timer, x
 	and #1
@@ -383,7 +396,7 @@ level0_intro_crusher:
 :	sty temp5
 	lda l0ic_dataFHU, y
 	tay
-	lda #l0ic_palette
+	lda sprpaltemp
 	jsr oam_putsprite
 	
 	jsr @incrementX
@@ -410,7 +423,7 @@ level0_intro_crusher:
 :	sty temp5
 	lda l0ic_dataFHD, y
 	tay
-	lda #l0ic_palette
+	lda sprpaltemp
 	jsr oam_putsprite
 	
 	jsr @incrementX
@@ -437,7 +450,7 @@ level0_intro_crusher:
 :	sty temp5
 	lda l0ic_dataSHU, y
 	tay
-	lda #l0ic_palette
+	lda sprpaltemp
 	jsr oam_putsprite
 	
 	jsr @incrementX
@@ -467,7 +480,7 @@ level0_intro_crusher:
 :	sty temp5
 	lda l0ic_dataSHD, y
 	tay
-	lda #l0ic_palette
+	lda sprpaltemp
 	jsr oam_putsprite
 	
 	jsr @incrementX

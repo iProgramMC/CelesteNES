@@ -258,17 +258,19 @@ tl_snow_x   : .res 16
 
 .segment "DRAWTEMP"
 tempcol     : .res $20  ; 32 bytes - temporary column to be flushed to the screen
-allocpals   : .res $10  ; 16 bytes - logical to physical palette TODO
-palsallocd  : .res $10  ; 16 bytes - physical to logical palette TODO
 temppal     : .res $8   ; 8 bytes  - temp palette column to be flushed to the screen
 temppalH1   : .res $8   ; 8 bytes  - temporary row in nametable 0
 temppalH2   : .res $8   ; 8 bytes  - temporary row in nametable 1
-spare8bytes : .res $8   ; 8 bytes  - SPARE SPARE
 temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0
 temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
 lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 loadedpals  : .res $40  ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 ntattrdata  : .res $80  ; 128 bytes- loaded attribute data
+spritepals  : .res 9    ; 9 bytes  - loaded sprite palettes
+spritepalso : .res 9    ; 9 bytes  - previous frame's loaded sprite palettes
+sprpalcount : .res 1    ; 1 byte   - amount of palettes written
+sprpaltemp  : .res 1    ; 1 byte   - just a temporary variable
+palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

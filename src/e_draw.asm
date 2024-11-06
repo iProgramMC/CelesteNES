@@ -30,7 +30,8 @@ gm_draw_particle:
 
 gm_draw_berry:
 	jsr gm_update_berry
-	lda #$01
+	lda #pal_red
+	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	lda #$F8
@@ -40,9 +41,10 @@ gm_draw_berry:
 	jmp gm_draw_common
 
 gm_draw_refillhold:
-	lda #$03
+	lda #pal_green
+	jsr gm_allocate_palette
 	sta temp5
-	lda #$43
+	ora #$40
 	sta temp8
 	lda #$9A
 	sta temp6
@@ -51,7 +53,8 @@ gm_draw_refillhold:
 	jmp gm_update_refillhold
 
 gm_draw_refill:
-	lda #$03
+	lda #pal_green
+	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	lda #$FC
@@ -62,7 +65,8 @@ gm_draw_refill:
 	jmp gm_update_refill
 	
 gm_draw_spring:
-	lda #$01
+	lda #pal_red
+	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	lda #$C8
@@ -72,7 +76,8 @@ gm_draw_spring:
 	jmp gm_draw_common
 	
 gm_draw_key:
-	lda #$03
+	lda #pal_gold
+	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	lda #$DC
@@ -83,7 +88,8 @@ gm_draw_key:
 
 gm_draw_box:
 	jsr gm_update_box
-	lda #3
+	lda #pal_gray
+	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	lda #$D4
@@ -93,7 +99,8 @@ gm_draw_box:
 	jmp gm_draw_common
 	
 gm_draw_points:
-	lda #$02
+	lda #pal_blue
+	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	
@@ -277,56 +284,6 @@ gm_entjtable_hi:
 	.byte >gm_draw_box
 	.byte >level0_bridge_manager
 
-gm_allocate_palettes:
-	; clear the memory related to palette allocation.
-	lda #$FF
-	ldx #0
-	stx palallochd
-	
-:	sta allocpals,x
-	sta palsallocd,x
-	inx
-	cpx #$10
-	bne :-
-	
-	ldy #0
-gm_allocpal_loop:
-	lda sprspace+sp_kind,y   ; load the entity's kind
-	beq @loopBreak           ; if empty, don't update
-	cmp #e_particle
-	bne :+
-	lda sprspace+sp_part_entty
-:	tya
-	tax
-	jsr gm_check_ent_onscreen
-	beq @loopBreak           ; if entity is off screen, jump to 
-	tax
-	lda ent_palettes,x       ; and now the palettes
-	
-	; OK. now check if that slot has been allocated
-	tax
-	lda allocpals,x
-	cmp #$FF
-	bne @loopBreak           ; palette was already allocated.
-	
-	; need to allocate this palette.
-	lda palallochd
-	sta allocpals, x         ; determined the physical palette for this logical palette
-	
-	stx temp1                ; swap the registers 
-	tax                      ; 'palallochd' is now in X, and the logical palette is now in A
-	lda temp1 
-	inc palallochd
-	
-	sta palsallocd, x
-
-@loopBreak:
-	iny
-	cpy #sp_max
-	bne gm_allocpal_loop
-	rts
-
-	
 ; ** SUBROUTINE: gm_check_ent_onscreen
 ; desc:     Checks if an entity is off of the screen.
 ; parms:    Y - entity index

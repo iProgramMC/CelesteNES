@@ -9,6 +9,7 @@
 .include "p_draw.asm"
 .include "p_physic.asm"
 .include "g_sfx.asm"
+.include "g_palloc.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer
 gm_update_ptstimer:
@@ -104,6 +105,7 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	jsr gm_clear_palette_allocator
 	inc framectr
 	lda scrollsplit
 	beq :+
@@ -114,12 +116,14 @@ gm_game_update:
 	jsr gm_draw_player
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities
-	jsr gm_allocate_palettes
 	jsr gm_update_ptstimer
 	jsr gm_draw_dead
 	jsr gm_update_dialog
 	
 	jsr test_dialog
+	
+	; note: by this point, palettes should have been calculated.
+	jsr gm_check_updated_palettes
 	
 	; note: at this point, camera positioning should have been calculated.
 	; calculate the position of the camera so that the NMI can pick it up
@@ -129,12 +133,12 @@ gm_game_update:
 	jsr gm_calc_camera_nosplit
 :
 
-;	lda #cont_select
-;	bit p1_cont
-;	bne gm_titleswitch
+	;lda #cont_start
+	;bit p1_cont
+	;bne gm_titleswitch
 	rts
 
-;; ** SUBROUTINE: gm_titleswitch
+; ** SUBROUTINE: gm_titleswitch
 ;gm_titleswitch:
 ;	bit p1_conto
 ;	bne @earlyReturn
@@ -225,14 +229,19 @@ gm_game_clear_wx:
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
 	; note: ldx #$00 was removed because it's already 0!
 	txa
-gm_game_clear:
-	sta $200,x
+:	sta $200,x
 	sta $300,x
 	sta $400,x
 	sta $500,x
 	sta $600,x
 	inx
-	bne gm_game_clear
+	bne :-
+	
+	ldy #0
+:	sta spritepals, y
+	iny
+	cpy #9
+	bne :-
 	rts
 
 ; ** SUBROUTINE: gm_calc_camera_nosplit
@@ -309,4 +318,3 @@ gm_calc_camera_split:
 	; TODO: carry might be set again. I don't think it matters right now
 	; but if you set scrolllimit to > like 80, then look here first.
 	jmp @flipHighBitAndDone
-	

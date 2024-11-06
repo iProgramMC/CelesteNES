@@ -1,15 +1,18 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 gm_leave_doframe:
+	jsr gm_load_hair_palette
 	jsr gm_draw_player
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities
 	jsr gm_calc_camera_nosplit
+	jsr gm_check_updated_palettes
 	jsr soft_nmi_on
 	jsr nmi_wait
 	jsr soft_nmi_off
 	
-	jmp com_clear_oam
+	jsr com_clear_oam
+	jmp gm_clear_palette_allocator
 
 cspeed = 8
 

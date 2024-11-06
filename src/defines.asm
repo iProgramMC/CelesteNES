@@ -240,6 +240,19 @@ nc2_clrcol  = $01   ; Game: clear two columns (death cutscene)
 nc2_setl0ic = $02   ; Game: set Level 0 Intro Crusher
 nc2_clr256  = $04   ; Dialog: clear 256 bytes of columns to zero starting at the registered [clearpahi, clearpalo] address
 nc2_dlgupd  = $08   ; Dialog: columns have been updated
+nc2_updpal1 = $10   ; Game: Update first palette
+nc2_updpal2 = $20   ; Game: Update second palette
+nc2_updpal3 = $40   ; Game: Update third palette
+
+; Palette types
+pal_blue    = $00
+pal_red     = $01
+pal_pink    = $02
+pal_green   = $03
+pal_gray    = $04
+pal_gold    = $05
+pal_granny  = $06
+pal_max     = $07
 
 ; Constants
 def_mmc3_bn = %01000000 ; default mmc3 bank config.

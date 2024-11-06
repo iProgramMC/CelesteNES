@@ -487,9 +487,9 @@ init_palette:
 	.byte $0f,$20,$21,$11 ; blue tiles
 	.byte $0f,$39,$29,$19 ; green tiles
 	.byte $0f,$37,$14,$21 ; player sprite colors
-	.byte $0f,$36,$16,$06 ; red/strawberry sprite
-	.byte $0f,$20,$21,$11 ; blue sprite
-	.byte $0f,$30,$29,$09 ; green/refill sprite
+	.byte $0f,$00,$00,$00 ; red/strawberry sprite
+	.byte $0f,$00,$00,$00 ; blue sprite
+	.byte $0f,$00,$00,$00 ; green/refill sprite
 owld_palette:
 	.byte $0f,$0c,$01,$00
 	.byte $0f,$0c,$10,$30
@@ -499,6 +499,16 @@ owld_palette:
 	.byte $0f,$36,$16,$06 ; red/strawberry sprite
 	.byte $0f,$31,$21,$01 ; blue sprite
 	.byte $0f,$30,$29,$09 ; green/refill sprite
+
+; Sprite Palettes
+sprite_palettes:
+	.byte $30,$21,$11 ; blue sprite
+	.byte $36,$16,$06 ; red sprite
+	.byte $34,$25,$15 ; pink palette
+	.byte $30,$29,$09 ; green sprite
+	.byte $20,$10,$00 ; gray sprite
+	.byte $30,$27,$07 ; golden palette
+	.byte $20,$37,$09 ; Granny's palette
 
 .segment "PRG_VECS"
 	.word nmi_
