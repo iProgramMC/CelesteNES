@@ -15,22 +15,47 @@ speaker_palettes:
 	.byte $2
 
 speaker_portrait_tables_lo:
-	.byte <portraits_default
-	.byte <portraits_default
-	.byte <portraits_default
+	.byte <portraits_madeline
+	.byte <portraits_granny
+	.byte <portraits_madeline
 
 speaker_portrait_tables_hi:
-	.byte >portraits_default
-	.byte >portraits_default
-	.byte >portraits_default
+	.byte >portraits_madeline
+	.byte >portraits_granny
+	.byte >portraits_madeline
 
-portraits_default:
-	.word portrait_default
+portraits_madeline:
+	.word portrait_00
+	.word portrait_10
+	.word portrait_20
+	.word portrait_01
 
-portrait_default:
+portraits_granny:
+	.word portrait_00
+	.word portrait_10
+	.word portrait_01
+	.word portrait_11
+
+portrait_00:
 	.byte $00,$02,$04,$06,$08
 	.byte $20,$22,$24,$26,$28
 	.byte $40,$42,$44,$46,$48
+portrait_10:
+	.byte $0A,$0C,$0E,$10,$12
+	.byte $2A,$2C,$2E,$30,$32
+	.byte $4A,$4C,$4E,$50,$52
+portrait_20:
+	.byte $14,$16,$18,$1A,$1C
+	.byte $34,$36,$38,$3A,$3C
+	.byte $54,$56,$58,$5A,$5C
+portrait_01:
+	.byte $60,$62,$64,$66,$68
+	.byte $80,$82,$84,$86,$88
+	.byte $A0,$A2,$A4,$A6,$A8
+portrait_11:
+	.byte $6A,$6C,$6E,$70,$72
+	.byte $8A,$8C,$8E,$90,$92
+	.byte $AA,$AC,$AE,$B0,$B2
 
 ; ** SUBROUTINE: dlg_set_speaker
 ; desc: Sets the current speaker's portrait bank.
@@ -90,7 +115,11 @@ dlg_get_clear_start:
 ; ** SUBROUTINE: dlg_start_dialog
 ; desc: Begins a dialog instance.
 dlg_start_dialog:
-	ldy #0
+	lda dialogsplit
+	beq :+
+	jmp @wasAlreadyOpen
+	
+:	ldy #0
 @loopOpen:
 	; TODO LIMITATION:
 	; once a dialog is initiated, you CANNOT scroll left.
@@ -103,34 +132,7 @@ dlg_start_dialog:
 	ora gamectrl
 	sta gamectrl
 	
-	lda #nc2_clr256
-	ora nmictrl2
-	sta nmictrl2
-	
-	jsr dlg_get_clear_start
-	sta dlg_temporary
-	
-	sta clearpalo
-	tya
-	asl
-	asl
-	asl
-	clc
-	adc clearpalo
-	and #$3F
-	
-	; ok, now we added the transition timer properly.
-	; calculate the address
-	pha
-	and #%00011111
-	sta clearpalo
-	pla
-	and #%00100000
-	lsr
-	lsr
-	lsr
-	ora #%00100000
-	sta clearpahi
+	jsr @enqueueColumnsForClearing
 	
 	jsr dlg_leave_doframe
 	
@@ -217,15 +219,10 @@ dlg_start_dialog:
 	cpy #$8
 	bne @loopAttributes
 	
+@postGraphicsSetup:
 	jsr @clearDialogMemory
 	jsr @calculatePPUAddresses
 	jsr @setupDialogSplit
-	
-	; also setup some values for testing
-	lda #<test_str
-	sta dlg_textptr
-	lda #>test_str
-	sta dlg_textptr+1
 	
 	lda #dialog_char_timer
 	sta dlg_chartimer
@@ -236,11 +233,6 @@ dlg_start_dialog:
 	
 	lda #0
 	sta dlg_cursor_y
-	
-	ldx #SPK_madeline
-	jsr dlg_set_speaker
-	lda #0
-	jsr dlg_set_expression
 	
 	rts
 
@@ -366,6 +358,48 @@ dlg_start_dialog:
 	bne :-
 	rts
 
+@wasAlreadyOpen:
+	ldy #0
+@loopAlreadyOpenClear:
+	jsr @enqueueColumnsForClearing
+	jsr dlg_leave_doframe_split
+	iny
+	cpy #4
+	bne @loopAlreadyOpenClear
+	
+	jmp @postGraphicsSetup
+
+@enqueueColumnsForClearing:
+	jsr dlg_get_clear_start
+	sta dlg_temporary
+	
+	sta clearpalo
+	tya
+	asl
+	asl
+	asl
+	clc
+	adc clearpalo
+	and #$3F
+	
+	; ok, now we added the transition timer properly.
+	; calculate the address
+	pha
+	and #%00011111
+	sta clearpalo
+	pla
+	and #%00100000
+	lsr
+	lsr
+	lsr
+	ora #%00100000
+	sta clearpahi
+	
+	lda #nc2_clr256
+	ora nmictrl2
+	sta nmictrl2
+	rts
+
 ; ** SUBROUTINE: dlg_end_dialog
 ; desc: Ends a dialog.
 dlg_end_dialog:
@@ -487,6 +521,17 @@ dlg_leave_doframe:
 	jsr nmi_wait
 	jmp soft_nmi_off
 
+; ** SUBROUTINE: dlg_leave_doframe_split
+; desc: Waits for a new frame to start to continue operation while calculating
+;       the new camera position to include a split.
+;       This does NOT draw new sprites, nor does it clear shadow OAM.
+; clobbers: A
+dlg_leave_doframe_split:
+	jsr gm_calc_camera_split
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jmp soft_nmi_off
+
 ; ** SUBROUTINE: dlg_advance_text
 ; desc: Advances the active text in a dialog.
 dlg_advance_text:
@@ -598,6 +643,24 @@ dlg_draw_portrait:
 ; desc: Updates the current dialog.
 ;       Draws the active portrait, advances the dialog timer and pushes a character if needed, etc.
 dlg_update_d:
+	; preliminary check for the A button
+	lda #cont_a
+	bit p1_cont
+	beq @skipPreliminaryCheck
+	bit p1_conto
+	bne @skipPreliminaryCheck
+	
+	; has the text finished.
+	ldy #0
+	lda (dlg_textptr), y
+	bne @skipPreliminaryCheck
+	
+	; Ok, can continue.
+	ldy dlg_havenext
+	beq @exitDialog
+	bne @continueCutscene
+	
+@skipPreliminaryCheck:
 	dec dlg_chartimer
 	bne @noAdvanceImmediately
 @advanceGo:
@@ -618,4 +681,156 @@ dlg_update_d:
 
 @advanced:
 	jsr dlg_draw_portrait
+	rts
+
+@exitDialog:
+	jsr dlg_end_dialog
+@continueCutscene:
+	jmp dlg_run_cutscene
+
+; ** SUBROUTINE: dlg_begin_cutscene_d
+; desc: Initiates a cutscene.
+; parameters:
+;     [dlg_cutsptr+1, dlg_cutsptr] - The pointer to the cutscene to load.
+;     [dlg_entity]                 - The index of the entity the player is engaging with.
+dlg_begin_cutscene_d:
+	; initialize things about the cutscene here TODO
+	
+	;fallthrough: jmp dlg_run_cutscene
+
+; ** SUBROUTINE: dlg_run_cutscene
+; desc: Runs the cutscene script until a blocking operation. Then, runs that blocking operation
+;       and exits.
+dlg_run_cutscene:
+	; check if there is no cutscene to run.
+	lda dlg_cutsptr+1
+	beq @return
+@loop:
+	ldy #0
+	lda (dlg_cutsptr), y
+	beq @exitCutscene
+	
+	; increment the dialog pointer
+	inc dlg_cutsptr
+	bne :+
+	inc dlg_cutsptr+1
+
+:	pha
+	asl
+	tay
+	pla
+	jsr @executeCommand
+	
+	; if the command didn't block, then run again
+	beq @loop
+	rts
+
+@exitCutscene:
+	; The cutscene is over. Resume normal gameplay.
+	lda #0
+	sta dlg_cutsptr
+	sta dlg_cutsptr+1
+
+@return:
+	rts
+
+@executeCommand:
+	ldx dlg_cmd_table, y
+	stx temp1
+	iny
+	ldx dlg_cmd_table, y
+	stx temp1+1
+	jmp (temp1)
+
+; ** SUBROUTINE: dlg_read_script
+; desc: Reads a byte from the script and increments the dialog pointer.
+dlg_read_script:
+	ldy #0
+	lda (dlg_cutsptr), y
+	inc dlg_cutsptr
+	bne :+
+	inc dlg_cutsptr+1
+:	rts
+
+; ** Dialog Command Table
+; Each of these represents a command that the cutscene script runner will execute.
+;
+; These functions should return:
+;      0 - The function has run synchronously, all its effects have been done.
+;  Non-0 - The function will run asynchronously. Cutscene script execution will be resumed
+;          later.
+;
+; These functions get a single argument: A, which is the opcode that led to the execution
+; of that command.  Due to the way the command table is laid out, bit 7 is ignored, and
+; can be checked for.
+dlg_cmd_table:
+	.word $0000
+	.word dlg_cmd_wait
+	.word dlg_cmd_dialog
+	.word dlg_cmd_speaker
+	.word dlg_cmd_dirplr
+	.word dlg_cmd_dirent
+	.word dlg_cmd_walkplr
+	.word dlg_cmd_walkent
+	.word dlg_cmd_express
+	.word dlg_cmd_trigger
+
+dlg_cmd_wait:
+	; TODO
+	jsr dlg_read_script
+	lda #0
+	rts
+
+dlg_cmd_dialog:
+	asl                  ; shift the high bit of the command byte into C
+	lda #0
+	rol                  ; shift it into the low bit of A
+	sta dlg_havenext     ; store it into the "have next"
+	
+	; read address
+	jsr dlg_read_script
+	sta dlg_textptr
+	jsr dlg_read_script
+	sta dlg_textptr+1
+	
+	jsr dlg_start_dialog
+	
+	lda #1
+	rts
+
+dlg_cmd_speaker:
+	; read speaker
+	jsr dlg_read_script
+	
+	; select speaker
+	tax
+	jsr dlg_set_speaker
+	
+	; return zero because this is a synchronous command
+	lda #0
+	rts
+
+dlg_cmd_dirplr:
+dlg_cmd_dirent:
+dlg_cmd_walkplr:
+dlg_cmd_walkent:
+	; TODO
+	jsr dlg_read_script
+	lda #0
+	rts
+
+dlg_cmd_express:
+	; read expression
+	jsr dlg_read_script
+	
+	; select expression
+	jsr dlg_set_expression
+	
+	lda #0
+	rts
+
+dlg_cmd_trigger:
+	; TODO
+	jsr dlg_read_script
+	lda #0
 	rts

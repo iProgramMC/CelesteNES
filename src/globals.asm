@@ -71,6 +71,8 @@ scrollsplit : .res 1 ; Y position of the scroll split
 dialogsplit : .res 1 ; Y position of the dialog split (1)
 irqcounter  : .res 1 ; (2)
 dlg_updates : .res 1 ; row update bitmask
+dlg_entity  : .res 1 ; entity engaged with in a cutscene
+dlg_cutsptr : .res 2 ; pointer to the current cutscene script command
 dlg_textptr : .res 2 ; the pointer to the current character
 dlg_porttbl : .res 2 ; the pointer to the portrait table
 dlg_curport : .res 2 ; the pointer to the current portrait

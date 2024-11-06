@@ -21,3 +21,10 @@ dlg_test_g:
 	ldy #prgb_dial
 	jmp far_call
 
+dlg_begin_cutscene_g:
+	lda #<dlg_begin_cutscene_d
+	sta temp1
+	lda #>dlg_begin_cutscene_d
+	sta temp2
+	ldy #prgb_dial
+	jmp far_call

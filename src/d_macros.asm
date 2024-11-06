@@ -7,19 +7,19 @@
 ;   top. This is usually the case in the original as well, except for some dialog in Ch.3.
 
 ; ## OPCODES ##
-DOP_wait    = $00  ; Wait N frames
-DOP_1line   = $01  ; One line of dialog
-DOP_2line   = $02  ; Two lines of dialog
-DOP_3line   = $03  ; Three lines of dialog
-DOP_speaker = $04  ; Change speaker
-DOP_dirent  = $05  ; Change facing direction of Entity
-DOP_dirplr  = $06  ; Change facing direction of Player
-DOP_walkplr = $07  ; Walk to position
-DOP_walkent = $08  ; Walk to position (entity)
-DOP_express = $09  ; Change expression
-DOP_trigger = $0A  ; Trip a hardcoded trigger
+DOP_wait    = $01  ; Wait N frames
+DOP_dialogE = $02  ; Show dialog box with end
+DOP_speaker = $03  ; Change speaker
+DOP_dirent  = $04  ; Change facing direction of Entity
+DOP_dirplr  = $05  ; Change facing direction of Player
+DOP_walkplr = $06  ; Walk to position
+DOP_walkent = $07  ; Walk to position (entity)
+DOP_express = $08  ; Change expression
+DOP_trigger = $09  ; Trip a hardcoded trigger
 
-DOP_end     = $FF  ; Finish dialog
+DOP_dialog =  $82  ; Show dialog box (with more dialog boxes following it)
+
+DOP_end     = $00  ; Finish dialog
 
 ; ## SPEAKERS ##
 ; NOTE: These double as characters you can use. When one of these characters is encountered
@@ -32,10 +32,22 @@ SPK_ex       = $04
 SPK_mom      = $05
 SPK_oshiro   = $06
 
+; ** Madeline's expressions
+MAD_normal   = $00
+MAD_sad      = $01
+MAD_upset    = $02
+MAD_angry    = $03
+
+; ** Granny's expressions
+GRN_normal   = $00
+GRN_laugh    = $01
+GRN_creepA   = $02
+GRN_creepB   = $03
+
 ; Define a dialog line
 .macro line name, text
 name:
-	.byte .strlen(text), text
+	.byte text, 0
 .endmacro
 
 ; Wait N frames
@@ -44,22 +56,16 @@ name:
 	.byte DOP_wait, n
 .endmacro
 
-; 1 line dialog
-.macro dialog1 line1
-	.byte DOP_1line
-	.word line1
+; Dialog box
+.macro dialog line
+	.byte DOP_dialog
+	.word line
 .endmacro
 
-; 2 line dialog
-.macro dialog2 line1, line2
-	.byte DOP_2line
-	.word line1, line2
-.endmacro
-
-; 3 line dialog
-.macro dialog3 line1, line2, line3
-	.byte DOP_3line
-	.word line1, line2, line3
+; Dialog box with end
+.macro dialogE line
+	.byte DOP_dialogE
+	.word line
 .endmacro
 
 ; Change Speaker

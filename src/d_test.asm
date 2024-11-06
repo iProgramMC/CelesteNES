@@ -2,63 +2,65 @@
 
 ch0_granny:
 	speaker     SPK_madeline
-	dialog1     @d0
+	expression  MAD_normal
+	dialogE     @d0
 	
 	face_ent    1
 	
 	; walk
-	expression  0
-	dialog2     @d1, @d2
+	expression  MAD_normal
+	dialogE     @d1
 	
 	speaker     SPK_granny
-	dialog2     @d3, @d4
+	expression  GRN_normal
+	dialogE     @d2
 	
 	; walk
 	speaker     SPK_madeline
+	expression  MAD_normal
 	face_player 1
 	face_ent    0
-	dialog2     @d5, @d6
+	dialogE     @d3
 	
 	trigger     0              ; "haha"
 	wait        30             ; half a sec
 	speaker     SPK_granny
-	dialog2     @d7, @d8
+	expression  GRN_laugh
+	dialogE     @d4
 	
 	speaker     SPK_madeline
-	dialog1     @d9
+	expression  MAD_upset
+	dialog      @d5
 	
-	expression  1
-	dialog2     @d10, @d11
+	expression  MAD_angry
+	dialogE     @d6
 	
 	trigger     1              ; stop laughing
 	speaker     SPK_granny
-	dialog1     @d12
-	dialog2     @d13, @d14
-	
-	dialog1     @d15
-	dialog1     @d16
+	expression  GRN_normal
+	dialog      @d7
+	dialog      @d8
+	expression  GRN_creepA
+	dialog      @d9
+	expression  GRN_creepB
+	dialogE     @d10
 	
 	wait        30
 	speaker     SPK_madeline
-	dialog1     @d17
+	expression  MAD_upset
+	dialogE     @d11
 	
 	end
 	
 	line @d0, "Excuse me, ma'am?"
-	line @d1, "The sign out front is busted..."
-	line @d2, "is this the Mountain trail?"
-	line @d3, "You're almost there."
-	line @d4, "It's just across the bridge."
-	line @d5, "By the way, you should call someone about your"
-	line @d6, "driveway. The ridge collapsed and I nearly died."
-	line @d7, "If my \"driveway\" almost did you in,"
-	line @d8, "the Mountain might be a bit much for you."
-	line @d9, "..."
-	line @d10,"Well, if an old bat like you can"
-	line @d11,"survive out here, I think I'll be fine."
-	line @d12,"Suit yourself."
-	line @d13,"But you should know,"
-	line @d14,"Celeste Mountain is a strange place."
-	line @d15,"You might see things."
-	line @d16,"Things you ain't ready to see."
-	line @d17,"You should seek help, lady."
+	line @d1, "The sign out front is busted...\nis this the Mountain trail?"
+	line @d2, "You're almost there.\nIt's just across the bridge."
+	line @d3, "By the way, you should call someone\nabout your driveway. The ridge collapsed\nand I nearly died."
+	line @d4, "If my \"driveway\" almost did you in,\nthe Mountain might be a bit much\nfor you."
+	line @d5, "..."
+	line @d6, "Well, if an old bat like *you* can\nsurvive out here, I think I'll be fine."
+	line @d7, "Suit yourself."
+	line @d8, "But you should know,\nCeleste Mountain is a strange place."
+	line @d9, "You might see things."
+	line @d10,"Things you ain't ready to see."
+	line @d11,"You should seek help, lady."

@@ -158,7 +158,11 @@ test_dialog:
 	bit p1_conto
 	bne :+
 	
-	jsr dlg_test_g
+	lda #<ch0_granny
+	sta dlg_cutsptr
+	lda #>ch0_granny
+	sta dlg_cutsptr+1
+	jsr dlg_begin_cutscene_g
 
 :	rts
 
