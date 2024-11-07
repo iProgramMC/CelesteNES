@@ -3,7 +3,7 @@
 .segment "INES"
 .byte $4E,$45,$53,$1A
 .byte 8         ; size of prg rom in 16kb units
-.byte 8         ; size of chr rom in 8kb units
+.byte 16        ; size of chr rom in 8kb units
 .byte %01000000 ; flags 6 -- switchable nametable mirroring, mapper 4
 .byte %00001000 ; flags 7 -- NES 2.0 header
 .byte %00000000 ; mapper msb / submapper
@@ -31,10 +31,14 @@
 .include "prg_dial.asm"
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
-.segment "CHR_SPR00"
+.segment "CHR_SPMAD"
 .incbin  "chr/sp_player.chr"
-.segment "CHR_SPR01"
-.incbin  "chr/sprites.chr"
+
+.segment "CHR_SPGEN"
+.incbin  "chr/sp_gener.chr"
+
+.segment "CHR_SPANI"
+.incbin  "chr/sp_anim.chr"
 
 .segment "CHR_BGTTL"
 .incbin  "chr/b_title.chr"

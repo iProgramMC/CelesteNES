@@ -55,8 +55,9 @@ MEMORY
 	## Sprites ##
 	
 	# Player Sprites
-	CHR_SPR00: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$00;
-	CHR_SPR01: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$04;
+	CHR_SPMAD: start=$0000, size=$0800, fill=yes, fillval=$FF, bank=$00;
+	CHR_SPGEN: start=$0800, size=$0800, fill=yes, fillval=$FF, bank=$02;
+	CHR_SPANI: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$04;
 	CHR_SPR02: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$08;
 	CHR_SPR03: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$0C;
 	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$10;
@@ -68,18 +69,30 @@ MEMORY
 	CHR_BG001: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$20;
 	CHR_BG002: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$24;
 	CHR_BG003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$28;
-	# CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
-	# CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
-	# CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
-	# CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
-	# CHR_BG008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
+	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
+	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
+	CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
+	CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
+	CHR_BG008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
+	
+	CHR_UN000: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40;
+	CHR_UN001: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44;
+	CHR_UN002: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$48;
+	CHR_UN003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C;
+	CHR_UN004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$50;
+	CHR_UN005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$54;
+	CHR_UN006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58;
+	CHR_UN007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C;
+	CHR_UN008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
+	CHR_UN009: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
+	CHR_UN010: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68;
 	
 	## Dialog Pattern Tables ##
-	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
-	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
-	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
-	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
-	CHR_DGRAN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
+	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$6C;
+	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$70;
+	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$74;
+	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$78;
+	CHR_DGRAN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$7C;
 }
 
 SEGMENTS
@@ -111,8 +124,10 @@ SEGMENTS
 	PRG_GAME:  load = PRG_GAME,  type = ro, align=$100;
 	PRG_MAIN:  load = PRG_MAIN,  type = ro, align=$100;
 	PRG_VECS:  load = PRG_VECS,  type = ro;
-	CHR_SPR00: load = CHR_SPR00, type = ro;
-	CHR_SPR01: load = CHR_SPR01, type = ro;
+	
+	CHR_SPMAD: load = CHR_SPMAD, type = ro;
+	CHR_SPGEN: load = CHR_SPGEN, type = ro;
+	CHR_SPANI: load = CHR_SPANI, type = ro;
 	CHR_SPR02: load = CHR_SPR02, type = ro;
 	CHR_SPR03: load = CHR_SPR03, type = ro;
 	CHR_SPOWD: load = CHR_SPOWD, type = ro;
@@ -122,6 +137,22 @@ SEGMENTS
 	CHR_BG001: load = CHR_BG001, type = ro;
 	CHR_BG002: load = CHR_BG002, type = ro;
 	CHR_BG003: load = CHR_BG003, type = ro;
+	CHR_BG004: load = CHR_BG004, type = ro;
+	CHR_BG005: load = CHR_BG005, type = ro;
+	CHR_BG006: load = CHR_BG006, type = ro;
+	CHR_BG007: load = CHR_BG007, type = ro;
+	CHR_BG008: load = CHR_BG008, type = ro;
+	CHR_UN000: load = CHR_UN000, type = ro;
+	CHR_UN001: load = CHR_UN001, type = ro;
+	CHR_UN002: load = CHR_UN002, type = ro;
+	CHR_UN003: load = CHR_UN003, type = ro;
+	CHR_UN004: load = CHR_UN004, type = ro;
+	CHR_UN005: load = CHR_UN005, type = ro;
+	CHR_UN006: load = CHR_UN006, type = ro;
+	CHR_UN007: load = CHR_UN007, type = ro;
+	CHR_UN008: load = CHR_UN008, type = ro;
+	CHR_UN009: load = CHR_UN009, type = ro;
+	CHR_UN010: load = CHR_UN010, type = ro;
 	CHR_DCNTR: load = CHR_DCNTR, type = ro;
 	CHR_DMAIN: load = CHR_DMAIN, type = ro;
 	CHR_DMADE: load = CHR_DMADE, type = ro;

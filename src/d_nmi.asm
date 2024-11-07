@@ -141,7 +141,9 @@ dlg_nmi_check_upds:
 	
 	jmp @updateRow
 	
-:	rts
+:	lda ctl_flags
+	sta ppu_ctrl
+	rts
 
 ; ** SUBROUTINE: dlg_nmi_check_upds::@updateRow
 ; desc: Updates a single row of text.
@@ -239,4 +241,7 @@ dlg_nmi_check_upds:
 	iny
 	cpy dlg_updccurr
 	bne @loopRow
+	
+	lda ctl_flags
+	sta ppu_ctrl
 	rts

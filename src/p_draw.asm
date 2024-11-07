@@ -437,6 +437,6 @@ gm_anim_banks:
 	lsr
 	and #3
 	clc
-	adc #2
+	adc #4
 	sta spr3_bknum
 	rts

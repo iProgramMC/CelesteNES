@@ -169,14 +169,14 @@ level_data    = $A200 ; address of actual level data
 ;   anisp0.....anisp3 belong at $0C00
 ;   gensp1 and gensp2 belong at $0800 and $0400 respectively.
 
-chrb_plrsp0 = $00   ; player sprite banks  \.
-chrb_plrsp1 = $01   ;                      |  PART OF "sp_player.chr"
-chrb_anisp0 = $02   ; animated sprites     |
-chrb_anisp1 = $03   ;                      /
-chrb_anisp2 = $04   ;                      \.
-chrb_anisp3 = $05   ;                      |  PART OF "sprites.chr"
-chrb_gensp1 = $06   ;                      |
-chrb_gensp2 = $07   ;                      /
+chrb_plrsp0 = $00   ; player sprite banks
+chrb_plrsp1 = $01   ;
+chrb_gensp1 = $02   ; generic sprites
+chrb_gensp2 = $03   ;
+chrb_anisp0 = $04   ; animated sprites   
+chrb_anisp1 = $05   ;
+chrb_anisp2 = $06   ;
+chrb_anisp3 = $07   ;
 
 ; don't know when these will be used.
 chrb_gesp10 = $08   ; generic sprite 1
@@ -188,10 +188,12 @@ chrb_gesp21 = $0D
 chrb_gesp22 = $0E
 chrb_gesp23 = $0F
 
+; OVERWORLD SPRITE BANKS
 chrb_owsp00 = $10   ; sprite banks for Overworld
 chrb_owsp01 = $11
 chrb_owsp02 = $12
 chrb_owsp03 = $13
+
 ; BACKGROUND BANKS
 chrb_bgttl  = $14   ; graphics bank for title screen
 chrb_bgowd  = $18   ; graphics bank for Overworld
@@ -199,17 +201,22 @@ chrb_lvl0   = $1C   ; graphics bank for level 0 "Prologue"
 chrb_lvl1   = $20   ; graphics bank for level 1 "Forsaken City"
 chrb_lvl2   = $24   ; graphics bank for level 2 "Old Site"
 chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
-;chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
-;chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
-;chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
-;chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
-;chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
-chrb_dcntr  = $2C   ; dialogue binary counting pattern
-chrb_dmain  = $30
-chrb_dmade  = $34   ; graphics bank for dialog with Madeline
-chrb_dtheo  = $38   ; graphics bank for dialog with Theo
-chrb_dgran  = $3C   ; graphics bank for dialog with Granny
-; PRGROM BANKS
+chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
+chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
+chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
+chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
+chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
+
+; EXTRA SPRITE BANKS
+
+; DIALOG DATA BANKS
+chrb_dcntr  = $6C   ; dialogue binary counting pattern
+chrb_dmain  = $70
+chrb_dmade  = $74   ; graphics bank for dialog with Madeline
+chrb_dtheo  = $78   ; graphics bank for dialog with Theo
+chrb_dgran  = $7C   ; graphics bank for dialog with Granny
+
+; PRG ROM BANKS
 prgb_lvl0a  = $00   ; Main level data ($A000)
 prgb_lvl1a  = $01
 prgb_lvl2a  = $02
