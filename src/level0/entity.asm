@@ -11,15 +11,103 @@
 ; ** ENTITY: level0_granny
 ; desc: This is Granny. She will initiate dialog with Madeline when approached.
 level0_granny:
-	lda #pal_granny
+	; Granny States
+	@idle  = 0
+	@walk  = 1
+	@laugh = 2
+	
+	; ensure her bank is loaded
+	lda #chrb_splvl0
+	sta spr1_bknum
+	
+	lda sprspace+sp_l0gr_ttimr, x
+	bne :+
+	lda #1
+	sta sprspace+sp_l0gr_ttimr, x
+	
+:	lda #pal_granny
 	jsr gm_allocate_palette
+	ldx temp1
+	ora sprspace+sp_l0gr_flags, x
 	sta temp5
 	sta temp8
-	lda #$60
+	
+	lda sprspace+sp_l0gr_state
+	bne @notIdle
+	
+	; idle
+	dec sprspace+sp_l0gr_ttimr, x
+	bne :+
+	lda #20
+	sta sprspace+sp_l0gr_ttimr, x
+	inc sprspace+sp_l0gr_timer, x
+	
+:	lda sprspace+sp_l0gr_timer, x
+	and #3
+	tay
+	lda @idleAnim, y
 	sta temp6
-	lda #$62
+	bne @stateDone
+	
+@notIdle:
+	cmp #@walk
+	bne @notWalk
+	
+	; walking
+	dec sprspace+sp_l0gr_ttimr, x
+	bne :+
+	lda #12
+	sta sprspace+sp_l0gr_ttimr, x
+	inc sprspace+sp_l0gr_timer, x
+	
+:	lda sprspace+sp_l0gr_timer, x
+	and #1
+	tay
+	lda @walkAnim, y
+	sta temp6
+	bne @stateDone
+	
+@notWalk:
+	cmp #@laugh
+	bne @notLaugh
+	
+	; laughing
+	dec sprspace+sp_l0gr_ttimr, x
+	bne :+
+	lda #12
+	sta sprspace+sp_l0gr_ttimr, x
+	inc sprspace+sp_l0gr_timer, x
+	
+:	lda sprspace+sp_l0gr_timer, x
+	and #1
+	tay
+	lda @laughAnim, y
+	sta temp6
+	bne @stateDone
+	
+@notLaugh:
+@stateDone:
+	lda temp6
+	clc
+	adc #2
 	sta temp7
+	
+	lda sprspace+sp_l0gr_flags, x
+	and #obj_fliphz
+	beq @dontFlip
+	lda temp6
+	pha
+	lda temp7
+	sta temp6
+	pla
+	sta temp7
+	
+@dontFlip:
 	jmp gm_draw_common
+
+@idleAnim:	.byte $40,$44,$48,$4C
+@laughAnim:	.byte $50,$54
+@walkAnim:	.byte $58,$5C
 
 ; ** ENTITY: level0_bird_climb
 ; desc: This is the tutorial bird that teaches you how to climb.

@@ -89,9 +89,14 @@ sp_l0bm_state = sp_entspec1  ; 0 - waiting, 1 - falling
 sp_l0bm_blidx = sp_entspec2  ; index of block to trigger to fall
 sp_l0bm_timer = sp_entspec3
 
+sp_l0gr_timer = sp_entspec1
+sp_l0gr_flags = sp_entspec2
+sp_l0gr_state = sp_entspec3
+sp_l0gr_ttimr = sp_wid
+
 ; entity flags
 ef_collidable = $01
-ef_oddroom    = $02 ; 
+ef_oddroom    = $02
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
@@ -107,6 +112,9 @@ e_points    = $07 ; INTERNAL: points when a strawberry is collected
 e_l0introcr = $08 ; LEVEL 0: intro crusher
 e_box       = $09 ; box with collision against the player
 e_l0bridge  = $0A ; LEVEL 0: bridge manager
+e_l0granny  = $0B ; LEVEL 0: granny
+e_l0birdcl  = $0C ; LEVEL 0: bird (climb)
+e_l0birdda  = $0D ; LEVEL 0: bird (dash)
 
 ; Entity types that turn into other entities on load
 e_rerefill  = $FF ; refill with respawn flag set
@@ -172,7 +180,7 @@ level_data    = $A200 ; address of actual level data
 chrb_plrsp0 = $00   ; player sprite banks
 chrb_plrsp1 = $01   ;
 chrb_gensp1 = $02   ; generic sprites
-; unused bank $03.
+chrb_splv0b = $03   ; level 0 alternate sprite bank
 chrb_anisp0 = $04   ; animated sprites   
 chrb_anisp1 = $05   ;
 chrb_anisp2 = $06   ;
