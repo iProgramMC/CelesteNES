@@ -33,4 +33,15 @@ level_banks2:
 	.byte prgb_lvl0b
 level_banks2_end:
 
+level_banks_spr:
+	.byte chrb_splvl0
+	.byte chrb_splvl1
+	.byte chrb_splvl0
+	.byte chrb_splvl0
+	.byte chrb_splvl0
+	.byte chrb_splvl0
+	.byte chrb_splvl0
+	.byte chrb_splvl0
+level_banks_spr_end:
+
 level_table_size = level_table_end - level_table

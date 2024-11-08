@@ -1,4 +1,5 @@
 .feature string_escapes
+.feature line_continuations
 
 .segment "INES"
 .byte $4E,$45,$53,$1A
@@ -42,6 +43,9 @@
 
 .segment "CHR_BGTTL"
 .incbin  "chr/b_title.chr"
+
+.segment "CHR_SLVL0"
+.incbin  "chr/sp_level0.chr"
 
 .segment "CHR_BGOWD"
 .incbin  "chr/b_overw.chr"

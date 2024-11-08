@@ -35,9 +35,6 @@ pl_load_text:
 ; ** SUBROUTINE: pl_select_banks
 ; desc: Selects the correct graphics banks for the prologue intro sequence.
 pl_select_banks:
-	ldy #chrb_gensp2
-	sty spr1_bknum
-	
 	ldy #chrb_gensp1
 	sty spr2_bknum
 	

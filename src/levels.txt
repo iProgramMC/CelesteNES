@@ -8,9 +8,19 @@ level0:
 	metatile_path:   level0/metatile.asm
 	metapale_path:   level0/mpalette.txt
 	tilegroups_path: level0/tgroups.txt
+	spr0_path:       chr/sp_player.chr
+	spr1_path:       chr/sp_level0.chr
+	spr2_path:       chr/sp_gener.chr
+	spr3_path:       chr/sp_anim.chr
+	bg_path:         chr/b_lvl0.chr
 
 level1:
 	leveldata_path:  level1/roomdata.asm
 	metatile_path:   level1/metatile.asm
 	metapale_path:   level1/mpalette.txt
 	tilegroups_path: level1/tgroups.txt
+	spr0_path:       chr/sp_player.chr
+	spr1_path:       chr/sp_level1.chr
+	spr2_path:       chr/sp_gener.chr
+	spr3_path:       chr/sp_anim.chr
+	bg_path:         chr/b_lvl1.chr

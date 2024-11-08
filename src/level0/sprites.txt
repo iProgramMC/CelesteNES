@@ -1,0 +1,11 @@
+Granny:
+ Idle: $00,$04,$08,$00,$04,$08,$0C
+ Laugh:$10,$14
+ Walk: $18,$1C
+Haha:
+ $3C
+Bird:
+ Fly:  $20,$24,$28,$2C
+ Dash: $24
+ Crow: $34,$38
+ Idle: $30

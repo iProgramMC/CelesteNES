@@ -54,12 +54,18 @@ MEMORY
 	##### CHR ROM #####
 	## Sprites ##
 	
-	# Player Sprites
+	# Permanent Sprite Banks
 	CHR_SPMAD: start=$0000, size=$0800, fill=yes, fillval=$FF, bank=$00;
 	CHR_SPGEN: start=$0800, size=$0800, fill=yes, fillval=$FF, bank=$02;
 	CHR_SPANI: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$04;
-	CHR_SPR02: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$08;
+	
+	# Level Specific Sprite Banks
+	CHR_SLVL0: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$08;
+	CHR_SLVL1: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$09;
+	CHR_SPR02: start=$0000, size=$0800, fill=yes, fillval=$FF, bank=$0A;
 	CHR_SPR03: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$0C;
+	
+	# Overworld Sprite Banks
 	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$10;
 	
 	## Backgrounds ##
@@ -128,6 +134,8 @@ SEGMENTS
 	CHR_SPMAD: load = CHR_SPMAD, type = ro;
 	CHR_SPGEN: load = CHR_SPGEN, type = ro;
 	CHR_SPANI: load = CHR_SPANI, type = ro;
+	CHR_SLVL0: load = CHR_SLVL0, type = ro;
+	CHR_SLVL1: load = CHR_SLVL1, type = ro;
 	CHR_SPR02: load = CHR_SPR02, type = ro;
 	CHR_SPR03: load = CHR_SPR03, type = ro;
 	CHR_SPOWD: load = CHR_SPOWD, type = ro;

@@ -509,6 +509,7 @@ sprite_palettes:
 	.byte $20,$10,$00 ; gray sprite
 	.byte $30,$27,$07 ; golden palette
 	.byte $20,$37,$09 ; Granny's palette
+	.byte $27,$21,$11 ; Bird palette
 
 .segment "PRG_VECS"
 	.word nmi_

@@ -217,6 +217,7 @@ plattemp2   : .res 1 ; TODO: replace with a regular temp
 entground   : .res 1 ; entity ID the player is standing on
 musicbank   : .res 1 ; music is active in this bank
 musicbank2  : .res 1
+defsprbank  : .res 1 ; the default level specific sprite bank
 musictable  : .res 2 ; currently active table of songs
 musicdiff   : .res 1 ; should the music be re-initialized?
 clearpalo   : .res 1 ; enqueued name table clear, ppu address low

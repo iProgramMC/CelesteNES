@@ -172,15 +172,16 @@ level_data    = $A200 ; address of actual level data
 chrb_plrsp0 = $00   ; player sprite banks
 chrb_plrsp1 = $01   ;
 chrb_gensp1 = $02   ; generic sprites
-chrb_gensp2 = $03   ;
+; unused bank $03.
 chrb_anisp0 = $04   ; animated sprites   
 chrb_anisp1 = $05   ;
 chrb_anisp2 = $06   ;
 chrb_anisp3 = $07   ;
 
+chrb_splvl0 = $08   ; sprites for level 0
+chrb_splvl1 = $09   ; sprites for level 1
+
 ; don't know when these will be used.
-chrb_gesp10 = $08   ; generic sprite 1
-chrb_gesp11 = $09
 chrb_gesp12 = $0A
 chrb_gesp13 = $0B
 chrb_gesp20 = $0C   ; generic sprite 2
@@ -259,7 +260,8 @@ pal_green   = $03
 pal_gray    = $04
 pal_gold    = $05
 pal_granny  = $06
-pal_max     = $07
+pal_bird    = $07
+pal_max     = $08
 
 ; Constants
 def_mmc3_bn = %01000000 ; default mmc3 bank config.

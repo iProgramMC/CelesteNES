@@ -2,8 +2,6 @@
 
 ;  This code belongs in the PRG_DIAL segment
 
-test_str:	.byte "Hello! I am a piece of dialog.\nI can stretch over multiple\nlines!", 0
-
 speaker_banks:
 	.byte chrb_dmade ; SPK_madeline
 	.byte chrb_dgran ; SPK_granny

@@ -257,32 +257,24 @@ gm_draw_ent_call:
 	
 	jmp (lvladdr)
 
-; TODO: figure out how to avoid defining two tables like this
-gm_entjtable_lo:
-	.byte $00
-	.byte <gm_draw_berry
-	.byte <gm_draw_refill
-	.byte <gm_draw_spring
-	.byte <gm_draw_key
-	.byte <gm_draw_particle
-	.byte <gm_draw_refillhold
-	.byte <gm_draw_points
-	.byte <level0_intro_crusher
-	.byte <gm_draw_box
-	.byte <level0_bridge_manager
+.define entity_jump_table   \
+	$0000,                  \
+	gm_draw_berry,          \
+	gm_draw_refill,         \
+	gm_draw_spring,         \
+	gm_draw_key,            \
+	gm_draw_particle,       \
+	gm_draw_refillhold,     \
+	gm_draw_points,         \
+	level0_intro_crusher,   \
+	gm_draw_box,            \
+	level0_bridge_manager,  \
+	level0_granny,          \
+	level0_bird_climb,      \
+	level0_bird_dash
 
-gm_entjtable_hi:
-	.byte $00
-	.byte >gm_draw_berry
-	.byte >gm_draw_refill
-	.byte >gm_draw_spring
-	.byte >gm_draw_key
-	.byte >gm_draw_particle
-	.byte >gm_draw_refillhold
-	.byte >gm_draw_points
-	.byte >level0_intro_crusher
-	.byte >gm_draw_box
-	.byte >level0_bridge_manager
+gm_entjtable_lo: .lobytes entity_jump_table
+gm_entjtable_hi: .hibytes entity_jump_table
 
 ; ** SUBROUTINE: gm_check_ent_onscreen
 ; desc:     Checks if an entity is off of the screen.

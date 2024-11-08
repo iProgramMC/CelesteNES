@@ -8,6 +8,45 @@
 ;   temp3 - Y Screen Position
 ;   temp4 - X High Position
 
+; ** ENTITY: level0_granny
+; desc: This is Granny. She will initiate dialog with Madeline when approached.
+level0_granny:
+	lda #pal_granny
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	lda #$60
+	sta temp6
+	lda #$62
+	sta temp7
+	jmp gm_draw_common
+
+; ** ENTITY: level0_bird_climb
+; desc: This is the tutorial bird that teaches you how to climb.
+level0_bird_climb:
+	lda #pal_bird
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	lda #$70
+	sta temp6
+	lda #$72
+	sta temp7
+	jmp gm_draw_common
+
+; ** ENTITY: level0_bird_dash
+; desc: This is the tutorial bird that teaches you how to dash.
+level0_bird_dash:
+	lda #pal_bird
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	lda #$78
+	sta temp6
+	lda #$7A
+	sta temp7
+	jmp gm_draw_common
+
 ; ** ENTITY: level0_bridge_manager
 ; desc: This entity manages a single bridge instance  (13 tiles wide) and
 ;       initiates the fall sequence for each.

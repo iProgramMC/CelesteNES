@@ -14,11 +14,8 @@ level0_r1_p:
 	.byte $01,$00,$00,$00,$00,$00,$5F,$55
 	.byte $04,$FF
 level0_r1_e:
-	.byte $C0,$98,$01
-	.byte $D0,$40,$FF
 	.byte $FE
 	.byte $00,$40,$08
-	.byte $60,$98,$03
 	.byte $FF
 level0_r1_t:
 	.byte $D3,$40,$05,$13,$C8,$93,$41,$05
@@ -104,11 +101,7 @@ level0_r2_p:
 	.byte $00,$00,$30,$15,$01,$10,$11,$00
 	.byte $FF
 level0_r2_e:
-	.byte $30,$60,$01
-	.byte $40,$60,$02
-	.byte $50,$60,$03
-	.byte $FE
-	.byte $10,$50,$04
+	.byte $80,$70,$0C
 	.byte $FF
 level0_r2_t:
 	.byte $D8,$05,$13,$C4,$97,$43,$05,$14
@@ -181,6 +174,7 @@ level0_r3_p:
 	.byte $00,$00,$F0,$06,$00,$00,$00,$00
 	.byte $00,$FF
 level0_r3_e:
+	.byte $B8,$70,$0B
 	.byte $FF
 level0_r3_t:
 	.byte $D6,$05,$19,$C6,$97,$18,$86,$97
@@ -273,6 +267,7 @@ level0_r4_e:
 	.byte $B0,$B0,$0A
 	.byte $FE
 	.byte $18,$B0,$0A
+	.byte $90,$A0,$0D
 	.byte $FF
 level0_r4_t:
 	.byte $D6,$06,$13,$C6,$96,$05,$14,$86

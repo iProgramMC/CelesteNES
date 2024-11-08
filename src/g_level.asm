@@ -1255,6 +1255,10 @@ gm_set_level:
 	lda #mmc3bk_prg0
 	jsr mmc3_set_bank
 	
+	ldy level_banks_spr, x
+	sty defsprbank
+	sty spr1_bknum
+	
 	txa
 	asl
 	tax
@@ -1333,8 +1337,7 @@ gm_load_generics:
 	lda #chrb_plrsp0
 	sta spr0_bknum
 	
-	lda #chrb_gensp2
-	sta spr1_bknum
+	; spr1_bknum is controlled by the level itself.
 	
 	lda #chrb_gensp1
 	sta spr2_bknum
