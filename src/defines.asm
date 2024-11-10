@@ -271,6 +271,26 @@ pal_granny  = $06
 pal_bird    = $07
 pal_max     = $08
 
+; Controller Buttons
+cont_a      = $80  ; SNES controller B
+cont_b      = $40  ; SNES controller Y
+cont_select = $20
+cont_start  = $10
+cont_up     = $08
+cont_down   = $04
+cont_left   = $02
+cont_right  = $01
+
+cont_a2     = $80  ; SNES controller A
+cont_b2     = $40  ; SNES controller X
+cont_lsh    = $20  ; SNES left shoulder
+cont_rsh    = $20  ; SNES right shoulder
+
+; Control Schemes
+cns_console = $01  ; Official console control scheme. Press UP while sliding on a wall to climb
+cns_emulat  = $02  ; Emulator control scheme. Hold SELECT to climb
+cns_snes    = $03  ; SNES control scheme. Hold the L shoulder to climb
+
 ; Constants
 def_mmc3_bn = %01000000 ; default mmc3 bank config.
                         ; two 2K banks at $0000-$0FFF, four 1K banks at $1000-$1FFF
@@ -296,14 +316,6 @@ gm_titletra = $02   ; title transition
 gm_overwld  = $03   ; overworld
 gm_prologue = $04
 tm_gametra  = 30    ; frames until the title->game transition ends
-cont_a      = $80
-cont_b      = $40
-cont_select = $20
-cont_start  = $10
-cont_up     = $08
-cont_down   = $04
-cont_left   = $02
-cont_right  = $01
 ts_1stfr    = $01   ; first frame of title screen
 os_1stfr    = $01   ; first frame of overworld screen
 os_leftmov  = $08   ; level selector moving left

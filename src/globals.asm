@@ -78,8 +78,10 @@ dlg_porttbl : .res 2 ; the pointer to the portrait table
 dlg_curport : .res 2 ; the pointer to the current portrait
 
 rng_state   : .res 1
-p1_cont     : .res 1
-p1_conto    : .res 1
+p1_cont     : .res 2
+p1_conto    : .res 2
+hassupercnt : .res 1 ; has an S-NES controller installed
+ctrlscheme  : .res 1 ; active control scheme
 paladdr     : .res 2 ; currently loaded palette address.
 
 player_x    : .res 1 ; offset by the camera's position!
