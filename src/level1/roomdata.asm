@@ -277,7 +277,7 @@ level1_r4_t:
 level1_r4:
 	.byte 40, 0, 0
 	.byte 32, 168
-	.byte 8, 255, 255, 8
+	.byte 8, 255, 255, 255
 	.byte 8, 0, 0, 0
 	.byte 0
 	.word level1_r4_t
@@ -345,14 +345,49 @@ level1_r5_t:
 	.byte $2D,$33,$2F,$30,$2B,$2F,$2B,$86
 	.byte $D8,$9E,$FF
 level1_r5:
-	.byte 0, 0, 0
+	.byte 44, 0, 0
 	.byte 48, 160
-	.byte 0, 0, 0, 0
+	.byte 10, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.word level1_r5_t
 	.word level1_r5_p
 	.word level1_r5_e
+level1_r6_p:
+	.byte $00,$00,$00,$00,$00,$00,$55,$05
+	.byte $FE,$FE,$FE,$FE,$FE,$FE,$FE,$FE
+	.byte $FE,$FF
+level1_r6_e:
+	.byte $30,$60,$01
+	.byte $50,$A0,$02
+	.byte $70,$30,$01
+	.byte $70,$B0,$03
+	.byte $90,$80,$01
+	.byte $A0,$60,$01
+	.byte $C0,$B0,$03
+	.byte $D0,$40,$02
+	.byte $F0,$90,$02
+	.byte $FE
+	.byte $10,$80,$01
+	.byte $20,$30,$02
+	.byte $20,$B0,$03
+	.byte $FF
+level1_r6_t:
+	.byte $D8,$A6,$01,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$FF
+level1_r6:
+	.byte 40, 1, 0
+	.byte 40, 176
+	.byte 12, 255, 255, 255
+	.byte 0, 0, 0, 0
+	.byte 0
+	.word level1_r6_t
+	.word level1_r6_p
+	.word level1_r6_e
 level1_rEnd_p:
 	.byte $00,$00,$00,$00,$00,$A0,$08,$00
 	.byte $00,$00,$00,$00,$00,$60,$22,$02
@@ -408,10 +443,11 @@ level1_rEnd:
 level1:
 	.word level1_music	; music table
 	.byte $01	; environment type
-	.byte $06	; room count
+	.byte $07	; room count
 	.word level1_r1
 	.word level1_r2
 	.word level1_r3
 	.word level1_r4
 	.word level1_r5
+	.word level1_r6
 	.word level1_rEnd
