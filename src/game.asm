@@ -221,6 +221,8 @@ gm_game_clear_wx:
 	stx plrstrawbs
 	stx scrollsplit
 	stx dialogsplit
+	stx camera_y_bs
+	stx camera_y_sub
 	dex
 	stx animmode      ; set to 0xFF
 	inx
@@ -248,10 +250,20 @@ gm_game_clear_wx:
 ;       Then calculates the cameraX/cameraY and prepares it for upload to the PPU.
 ; note: Does not handle scroll splits.
 gm_calc_camera_nosplit:
+	; scroll X
 	lda camera_x
 	sta scroll_x
+	
+	; scroll Y
 	lda camera_y
-	sta scroll_y
+	clc
+	adc camera_y_sub
+	cmp #240
+	bcc :+
+	adc #15     ; adds 16 because carry is set
+:	sta scroll_y
+	
+	; scroll X/Y high
 	lda #0
 	ldx camera_x_hi
 	beq :+
@@ -266,10 +278,20 @@ gm_calc_camera_nosplit:
 ; desc: Calculates the cameraX/cameraY and prepares it for upload to the PPU.
 ; note: Does not calculate quake offsets.
 gm_calc_camera_split:
+	; scroll X
 	lda camera_x
 	sta scroll_x
+	
+	; scroll Y
 	lda camera_y
-	sta scroll_y
+	clc
+	adc camera_y_sub
+	cmp #240
+	bcc :+
+	adc #15
+:	sta scroll_y
+	
+	; scroll X/Y high
 	lda camera_x_hi
 	sta temp1
 	lda camera_y_hi

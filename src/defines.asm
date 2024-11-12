@@ -98,6 +98,10 @@ sp_l0gr_ttimr = sp_wid
 ef_collidable = $01
 ef_oddroom    = $02
 
+; room flags
+rf_godown     = $01 ; room descends
+rf_goup       = $02 ; room ascends
+
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
 ;                 and LEVELEDITOR\MainGame.cs (GetByteFromString)
@@ -373,6 +377,7 @@ gravity     = $40   ; Celeste uses a value of 900 px/s^2, converted it would be 
 lograthresh = $C0   ; if Math.Abs(Speed.Y) <= lograthresh (40f in Celeste), and holding C, then apply half the gravity
 ctrpull     = $18   ; acceleration imposed by player pressing buttons
 scrolllimit = $78   ; around halfway to the screen
+vscrolllimit= $78   ; around halfway to the screen
 jumpsustain = $0C   ; sustain the max jump velocity for at most twelve frames
 accel       = $47   ; acceleration. equivalent of RunAccel in Celeste
 accelred    = $1C   ; reduced accel. equivalent of RunReduce in Celeste

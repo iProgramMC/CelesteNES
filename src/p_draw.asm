@@ -153,13 +153,18 @@ gm_facingleft:
 	stx temp5
 	sty temp6
 gm_donecomputing:
+	lda player_y
+	sec
+	sbc camera_y_sub
+	tay
 	ldx #temp1           ; draw player
 	lda player_x
-	ldy player_y
 	jsr gm_draw_2xsprite
 	ldx #temp4           ; draw hair
-	clc
 	lda player_y
+	sec
+	sbc camera_y_sub
+	clc
 	adc spryoff
 	tay
 	lda #pl_left

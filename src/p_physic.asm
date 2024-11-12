@@ -723,6 +723,7 @@ gm_collidefull:
 	lda #1
 	rts
 gm_collidejthru:
+	sty $FF
 	tax
 	lda player_vl_y
 	bmi gm_collidenone; if player is moving UP, don't do collision checks at all
@@ -734,6 +735,7 @@ gm_collidejthru:
 	asl               ; it's a pixel position now
 	sec
 	sbc #(plr_y_bot - jtheight)
+	sta $FE
 	sta temp3
 	ldx player_yo
 	cpx player_y
@@ -844,7 +846,7 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	bcs gm_leaveroomU_
 	lda player_vl_y
 	bmi gm_checkceil
-	jmp gm_checkfloor
+	bpl gm_checkfloor
 
 gm_fellout:           ; if the player fell out of the world
 	sta player_y
@@ -870,8 +872,7 @@ gm_checkceil:
 	lda #gc_ceil
 	jsr gm_collide
 	bne @snapToCeil
-	
-	rts
+	beq gm_applyy_checkdone
 
 @snapToCeil:
 	lda y_crd_temp    ; load the y position of the tile that was collided with
@@ -888,7 +889,7 @@ gm_checkceil:
 	sta player_vl_y   ; also clear the velocity
 	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
 	sta jcountdown    ; also clear the jump timer
-	rts
+	beq gm_applyy_checkdone
 
 gm_checkfloor:
 	jsr gm_collentfloor
@@ -908,7 +909,7 @@ gm_checkfloor:
 	lda #gc_floor
 	jsr gm_collide
 	bne @snapToFloor
-	rts
+	beq gm_applyy_checkdone
 	
 @snapToFloor:
 	lda #%11111000    ; round player's position to lower multiple of 8
@@ -934,8 +935,13 @@ gm_checkfloor:
 	sta player_vl_y
 	sta player_vs_y
 	sta dashcount
+	
 @done:
+gm_applyy_checkdone:
+	lda player_vl_y
+	bpl :+
 	rts
+:	jmp gm_scroll_d_cond
 
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 

@@ -129,19 +129,17 @@ gm_roomRtranloop:
 	lda #cspeed
 	jsr gm_shifttrace
 	
-	lda transoff
+	ldx transoff
+	stx trantmp2
+	lsr trantmp2
+	lda #0
 	ror
+	lsr trantmp2
 	ror
-	ror                      ; lvlyoff: 11000000
-	and #%11000000
 	sta trantmp1
-	lda transoff
-	lsr
-	lsr                      ; lvlyoff: 00111111
-	sta trantmp2
+	txa
+	bpl :+
 	lda #%11100000
-	bit trantmp2
-	beq :+
 	ora trantmp2
 	sta trantmp2
 :	clc
@@ -165,6 +163,7 @@ gm_roomRtranpluscap:
 	adc #$10
 	sta camera_y
 gm_roomRtrannocap:
+	sta camera_y_bs
 	sec
 	lda player_sp_y
 	sbc trantmp1
@@ -190,6 +189,7 @@ gm_roomRtrangenbk:
 	asl
 	asl
 	sta camera_y
+	sta camera_y_bs
 	
 	lda #(g3_transitR ^ $FF)
 	and gamectrl3
@@ -460,6 +460,7 @@ gm_leaveroomU:
 	sec
 	sbc #$10
 :	sta camera_y
+	sta camera_y_bs
 	
 	; add the relevant displacement [camoff_H, camoff_M, camoff_L] to the camera's position...
 	; camoff_H is the low byte, camoff_M is the high byte.
@@ -562,6 +563,7 @@ gm_leaveroomU:
 	asl
 	asl
 	sta camera_y
+	sta camera_y_bs
 	
 	lda #(g3_transitU ^ $FF)
 	and gamectrl3

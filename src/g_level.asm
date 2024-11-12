@@ -40,9 +40,24 @@ h_comp_addr:
 ;     y - Y coordinate
 ; returns:  a - Tile value
 ; clobbers: a
-;
-; NOTE for h_get_tile1: the Y coordinate must be in A when you call!
 h_get_tile:
+	lda vertoffshack
+	beq @noOffset
+	
+	sty gettiletmp
+	tya
+	clc
+	adc vertoffshack
+	cmp #30
+	bcc :+
+	sbc #30
+:	tay
+	jsr h_comp_addr
+	lda (lvladdr), y; A = (&areaspace[x * 32])[y]
+	ldy gettiletmp
+	rts
+
+@noOffset:
 	jsr h_comp_addr
 	lda (lvladdr), y; A = (&areaspace[x * 32])[y]
 	rts
