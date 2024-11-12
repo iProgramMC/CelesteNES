@@ -77,7 +77,11 @@ gm_scroll_d_cond:
 	cpy #sp_max
 	bne @entShiftLoop
 	
+	; load a new set of tiles
+	jsr gm_gener_tiles_below
+	
 @scrollRet:
+gm_calculate_vert_offs:
 	; calculate vertical offset hack
 	lda camera_y
 	sec
@@ -87,3 +91,43 @@ gm_scroll_d_cond:
 	lsr
 	sta vertoffshack
 	rts
+
+; ** SUBROUTINE: gm_gener_tiles_below
+; desc: Generates tiles below the scroll seam.
+gm_gener_tiles_below:
+	
+	
+	
+	; get the tile position of camera_y
+	lda camera_y
+	lsr
+	lsr
+	lsr
+	; take the one *above* camera_y
+	tay
+	dey
+	bpl :+
+	ldy #29
+:	rts
+
+
+; ** SUBROUTINE: gm_load_level_if_vert
+; desc: Loads more of the horizontal level segment, if in vertical mode.
+gm_load_level_if_vert:
+	lda #(g3_transitA)
+	bit gamectrl3
+	bne @return      ; if there are transitions going on, then return
+	
+	lda #(rf_godown | rf_goup)
+	bit roomflags
+	beq @return      ; if level is horizontal, then return
+	
+	lda #gs_lvlend
+	bit gamectrl
+	bne @return      ; if level is over, then return
+	
+	jmp h_gener_col_r
+
+@return:
+	rts
+

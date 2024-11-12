@@ -917,7 +917,7 @@ h_genertiles_lvlend:
 	asl
 	asl
 	sta camlimit
-	lda #gs_scrstopR
+	lda #(gs_scrstopR | gs_lvlend)
 	ora gamectrl
 	sta gamectrl
 	lda arwrhead
@@ -931,7 +931,7 @@ h_genertiles_lvlend:
 ; ** SUBROUTINE: h_gener_mts_r
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_gener_mts_r:
-	lda #gs_scrstopR
+	lda #gs_lvlend
 	bit gamectrl
 	beq :+
 	rts
@@ -1372,6 +1372,10 @@ gm_respawn:
 	lsr
 	sta ntwrhead
 	
+	lda #g3_transitX
+	ora gamectrl3
+	sta gamectrl3
+	
 	; perform the slide wipe
 	ldy #18
 @loop:
@@ -1398,6 +1402,13 @@ gm_respawn:
 	lda #0
 	sta ppu_mask
 	jsr vblank_wait
+	
+	lda nmictrl
+	and #<~(nc_flshpalv | nc_flushcol | nc_flushpal | nc_flushrow)
+	sta nmictrl
+	lda gamectrl
+	and #<~(gs_lvlend | gs_scrstopR | gs_scrstodR)
+	sta gamectrl
 	
 	jsr com_clear_oam
 	

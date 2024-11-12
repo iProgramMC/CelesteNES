@@ -92,7 +92,7 @@ gm_roomRtransneg:
 gm_roomRtransdone:
 	sta lvlyoff
 	lda gamectrl             ; clear the camera stop bits
-	and #((gs_scrstopR|gs_scrstodR)^$FF)
+	and #((gs_scrstopR|gs_scrstodR|gs_lvlend)^$FF)
 	sta gamectrl
 	lda camera_x
 	and #%11111100
@@ -198,6 +198,8 @@ gm_roomRtrangenbk:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
+	
+	jsr gm_calculate_vert_offs
 	
 	lda #0
 	rts
@@ -366,7 +368,7 @@ gm_leaveroomU:
 	
 	; clear the camera stop bits
 	lda gamectrl
-	and #((gs_scrstopR|gs_scrstodR)^$FF)
+	and #((gs_scrstopR|gs_scrstodR|gs_lvlend)^$FF)
 	sta gamectrl
 	
 	lda nmictrl
@@ -421,7 +423,7 @@ gm_leaveroomU:
 	; preserve the camera stop bits temporarily.
 	; we'll clear them so that h_gener_col_r does its job.
 	lda gamectrl
-	and #(gs_scrstopR|gs_scrstodR)
+	and #(gs_scrstopR|gs_scrstodR|gs_lvlend)
 	sta temp9
 	
 	lda nmictrl
@@ -572,6 +574,7 @@ gm_leaveroomU:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
+	jsr gm_calculate_vert_offs
 	
 	rts
 	

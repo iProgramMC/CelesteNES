@@ -100,6 +100,7 @@ camera_y_bs : .res 1 ; base camera Y
 camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
 vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
 gettiletmp  : .res 1 ; temporary used by h_get_tile
+roomwidth   : .res 1 ; room width, only valid if room is vertical
 
 ; TODO: Merge These Into Each Other
 ; title
