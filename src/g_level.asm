@@ -494,8 +494,6 @@ h_gener_row_u:
 :	; add ntwrhead % 32
 	lda ntwrhead
 	and #$1F
-	clc
-	adc ppuaddrHR1
 	sta ppuaddrHR1
 	; add (ntrowhead % 8) * 0x20 + (ntrowhead / 8) * 0x100
 	lda ntrowhead
