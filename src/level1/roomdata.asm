@@ -591,8 +591,7 @@ level1_r6_t:
 	.byte $64,$FF
 level1_r6:
 	.byte 40, 2, 0
-	;.byte 24, 40
-	.byte 96, 128
+	.byte 24, 40
 	.byte 255, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0

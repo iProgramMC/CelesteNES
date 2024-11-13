@@ -169,6 +169,10 @@ gm_scroll_d_cond:
 	bit gamectrl
 	bne @scrollRet
 	
+	lda #gs_lvlend
+	bit gamectrl
+	beq @scrollRet    ; if level data hasn't actually ended
+	
 	lda #g2_scrstopD
 	bit gamectrl2
 	bne @scrollRet
@@ -280,6 +284,10 @@ gm_scroll_u_cond:
 	lda #gs_camlock
 	bit gamectrl
 	bne @scrollRet
+	
+	lda #gs_lvlend
+	bit gamectrl
+	beq @scrollRet    ; if level data hasn't actually ended
 	
 	lda #g2_scrstopD
 	bit gamectrl2

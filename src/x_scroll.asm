@@ -83,9 +83,19 @@ gm_gener_tiles_horiz_FAR:
 	ora nmictrl
 	sta nmictrl
 	
+	lda roomflags
+	and #rf_goup
+	bne @goingUp
+	
 	lda temp1
 	and #1
 	beq @uploadPaletteDataBelow
+	rts
+
+@goingUp:
+	lda temp1
+	and #1
+	bne @uploadPaletteDataBelow
 	rts
 
 @uploadPaletteDataBelow:
