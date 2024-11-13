@@ -1168,7 +1168,6 @@ gm_adv_ent:
 gm_read_pal:
 	ldx #0
 	lda (palrdheadlo,x)
-gm_adv_pal:
 	inc palrdheadlo
 	bne :+
 	inc palrdheadhi

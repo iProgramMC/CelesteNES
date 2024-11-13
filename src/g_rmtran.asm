@@ -1,10 +1,24 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+gm_leave_doframe:
+	jsr gm_load_hair_palette
+	jsr gm_draw_player
+	jsr gm_unload_os_ents
+	jsr gm_draw_entities
+	jsr gm_calc_camera_nosplit
+	jsr gm_check_updated_palettes
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jsr soft_nmi_off
+	
+	jsr com_clear_oam
+	jmp gm_clear_palette_allocator
+
 cspeed = 8
 
-; ** SUBROUTINE: gm_leaveroomR_FAR
+; ** SUBROUTINE: gm_leaveroomR
 ; desc: Performs a transition, across multiple frames, going right.
-gm_leaveroomR_FAR:
+gm_leaveroomR:
 	lda #$F0
 	sta player_x
 	
@@ -198,9 +212,9 @@ gm_roomRtrangen:
 	sta camera_rev
 	jmp gm_roomRtrangenbk
 
-; ** SUBROUTINE: gm_leaveroomU_FAR
+; ** SUBROUTINE: gm_leaveroomU
 ; desc: Performs a transition, across multiple frames, going up.
-gm_leaveroomU_FAR:
+gm_leaveroomU:
 	lda #gs_camlock
 	bit gamectrl
 	bne @returnEarly
