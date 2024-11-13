@@ -735,7 +735,6 @@ gm_collidejthru:
 	asl               ; it's a pixel position now
 	sec
 	sbc #(plr_y_bot - jtheight)
-	sta $FE
 	sta temp3
 	ldx player_yo
 	cpx player_y

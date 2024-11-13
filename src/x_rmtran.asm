@@ -243,12 +243,12 @@ gm_leaveroomU_FAR:
 	lda ntwrhead
 	sec
 	sbc #$20
-	and #$3F
+	and #%00111100
 	sta ntwrhead
 	lda arwrhead
 	sec
 	sbc #$21
-	and #$3F
+	and #%00111100
 	sta arwrhead
 	
 	; add the X offset of this room to the name table and area table write heads
@@ -257,6 +257,7 @@ gm_leaveroomU_FAR:
 	adc ntwrhead
 	and #$3F
 	sta ntwrhead
+	sta roombeglo2
 	
 	lda temp3
 	clc
@@ -311,20 +312,9 @@ gm_leaveroomU_FAR:
 	lda camdst_x
 	sta roombeglo
 	sta camleftlo
-	lsr
-	lsr
-	lsr
-	sta roombeglo2
 	lda camdst_x_pg
 	sta roombeghi
 	sta camlefthi
-	ror
-	ror
-	ror
-	ror
-	and #%11100000
-	ora roombeglo2
-	sta roombeglo2
 	
 	lda #0
 	sta temp7                ; temp7 will now hold the camera's "sub X" position

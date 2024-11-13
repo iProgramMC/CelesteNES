@@ -10,6 +10,10 @@ gm_scroll_d_cond:
 	bit gamectrl
 	bne @scrollRet
 	
+	lda #g2_scrstopD
+	bit gamectrl2
+	bne @scrollRet
+	
 	lda #rf_godown
 	bit roomflags
 	beq @scrollRet

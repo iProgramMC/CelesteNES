@@ -1132,10 +1132,10 @@ gm_set_ent_head:
 ; advance the pointer.
 ; returns: a - the byte of data read in
 ; clobbers: x
-;gm_read_tile_na:
-;	ldx #0
-;	lda (arrdheadlo,x)
-;	rts
+gm_read_tile_na:
+	ldx #0
+	lda (arrdheadlo,x)
+	rts
 
 gm_read_ent_na:
 	ldx #0

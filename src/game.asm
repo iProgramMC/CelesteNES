@@ -20,6 +20,23 @@ gm_update_ptstimer:
 	sta ptscount
 	rts
 
+; ** SUBROUTINE: gm_load_room_fully
+gm_load_room_fully:
+	jsr h_gener_ents_r
+	jsr h_gener_mts_r
+	ldy #$00          ; generate tilesahead columns
+:	tya
+	pha
+	jsr h_gener_col_r
+	jsr h_flush_col_r
+	jsr h_flush_pal_r_cond
+	pla
+	tay
+	iny
+	cpy #tilesahead
+	bne :-
+	rts
+
 ; ** SUBROUTINE: gamemode_init
 gm_game_init:
 	ldx #$FF
@@ -71,20 +88,7 @@ gm_game_init:
 	sta camera_y_bs
 	
 	jsr gm_calculate_vert_offs
-	
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
-	ldy #$00          ; generate tilesahead columns
-:	tya
-	pha
-	jsr h_gener_col_r
-	jsr h_flush_col_r
-	jsr h_flush_pal_r_cond
-	pla
-	tay
-	iny
-	cpy #tilesahead
-	bne :-
+	jsr gm_load_room_fully
 	
 	lda gamectrl
 	and #(gs_scrstodR|gs_scrstopR)
