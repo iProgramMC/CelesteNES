@@ -243,8 +243,14 @@ gm_gener_tiles_below:
 	ora nmictrl
 	sta nmictrl
 	
-	rts
+	lda temp1
+	and #1
+	beq :+
+	jsr gm_upload_palette_data_below
+:	rts
 
+gm_upload_palette_data_below:
+	rts
 
 ; ** SUBROUTINE: gm_load_level_if_vert
 ; desc: Loads more of the horizontal level segment, if in vertical mode.
