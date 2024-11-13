@@ -63,9 +63,6 @@ xt_set_room:
 	tya
 	tax                 ; save room # in X
 	
-	lda currA000bank
-	pha
-	
 	ldy musicbank
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank   ; change bank
@@ -74,11 +71,46 @@ xt_set_room:
 	tay                 ; restore room # in X
 	jsr gm_set_room
 	
-	pla
-	tay
+	ldy #prgb_xtra
 	lda #mmc3bk_prg1
 	jmp mmc3_set_bank   ; change bank back
 
 x_gener_mts_ents_r_fixed:
 	jsr h_gener_ents_r
 	jmp h_gener_mts_r
+
+; generate palette data for vertical transition
+xt_generate_palette_data_V:
+	ldy musicbank
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank   ; change bank
+	
+	; pre-generate all palette data
+	ldy #0
+@palloop:
+	sty temp6
+	jsr h_palette_data_column
+	
+	; an inner loop to copy from temppal to loadedpals
+	lda temp6
+	asl
+	asl
+	asl
+	tax
+	ldy #0
+	
+:	lda temppal, y
+	sta loadedpals, x
+	inx
+	iny
+	cpy #8
+	bne :-
+	
+	ldy temp6
+	iny
+	cpy #8
+	bne @palloop
+	
+	ldy #prgb_xtra
+	lda #mmc3bk_prg1
+	jmp mmc3_set_bank   ; change bank back

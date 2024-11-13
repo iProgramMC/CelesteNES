@@ -370,31 +370,7 @@ gm_leaveroomU_FAR:
 	cpy #36
 	bne @genloop
 	
-	; pre-generate all palette data
-	ldy #0
-@palloop:
-	sty temp6
-	jsr h_palette_data_column
-	
-	; an inner loop to copy from temppal to loadedpals
-	lda temp6
-	asl
-	asl
-	asl
-	tax
-	ldy #0
-	
-:	lda temppal, y
-	sta loadedpals, x
-	inx
-	iny
-	cpy #8
-	bne :-
-	
-	ldy temp6
-	iny
-	cpy #8
-	bne @palloop
+	jsr xt_generate_palette_data_V
 	
 	; now, we will want to wait for vblank. NMIs are disabled at this point
 	; sometimes the code above is too slow so we may end up calling xt_leave_doframe

@@ -665,10 +665,10 @@ level1:
 	.word level1_music	; music table
 	.byte $01	; environment type
 	.byte $07	; room count
-	.word level1_r6
+	.word level1_r1
 	.word level1_r2
 	.word level1_r3
 	.word level1_r4
 	.word level1_r5
-	.word level1_r1
+	.word level1_r6
 	.word level1_rEnd
