@@ -29,7 +29,7 @@ gm_leaveroomR_FAR:
 	lda #1
 	rts                      ; no warp was assigned there so return
 @actuallyTransition:
-	jsr gm_set_room
+	jsr xt_set_room
 	
 	inc roomnumber
 	
@@ -83,13 +83,12 @@ gm_roomRtransdone:
 	lda camera_x
 	and #%11111100
 	sta camera_x
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
+	jsr xt_gener_mts_ents_r
 	ldy #4
 gm_roomRtranloopI:
 	sty transtimer
-	jsr h_gener_col_r
-	jsr gm_leave_doframe
+	jsr xt_gener_col_r
+	jsr xt_leave_doframe
 	ldy transtimer
 	dey
 	bne gm_roomRtranloopI
@@ -164,7 +163,7 @@ gm_roomRtrannocap:
 	cmp #8
 	bcs gm_roomRtrangen
 gm_roomRtrangenbk:
-	jsr gm_leave_doframe
+	jsr xt_leave_doframe
 	ldy transtimer
 	dey
 	bne gm_roomRtranloop
@@ -191,7 +190,7 @@ gm_roomRtrangenbk:
 	rts
 
 gm_roomRtrangen:
-	jsr h_gener_col_r
+	jsr xt_gener_col_r
 	lda camera_rev
 	sec
 	sbc #8
@@ -222,7 +221,7 @@ gm_leaveroomU_FAR:
 	sty temp3
 	
 	ldy warp_u
-	jsr gm_set_room
+	jsr xt_set_room
 	
 	inc roomnumber
 	
@@ -365,8 +364,7 @@ gm_leaveroomU_FAR:
 	ldy #0
 @genloop:
 	sty transtimer
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
+	jsr xt_gener_mts_ents_r
 	ldy transtimer
 	iny
 	cpy #36
@@ -399,7 +397,7 @@ gm_leaveroomU_FAR:
 	bne @palloop
 	
 	; now, we will want to wait for vblank. NMIs are disabled at this point
-	; sometimes the code above is too slow so we may end up calling gm_leave_doframe
+	; sometimes the code above is too slow so we may end up calling xt_leave_doframe
 	; during vblank, the NMI is fired, but the NMI ends up sending stuff to the
 	; PPU even after vblank.
 	;
@@ -407,7 +405,7 @@ gm_leaveroomU_FAR:
 	jsr vblank_wait
 	
 	; preserve the camera stop bits temporarily.
-	; we'll clear them so that h_gener_col_r does its job.
+	; we'll clear them so that xt_gener_col_r does its job.
 	lda gamectrl
 	and #(gs_scrstopR|gs_scrstodR|gs_lvlend)
 	sta temp9
@@ -425,7 +423,7 @@ gm_leaveroomU_FAR:
 	ldy #0
 @writeloop:
 	sty transtimer
-	jsr h_gener_row_u
+	jsr xt_gener_row_u
 	
 	; also bring the player down
 	lda player_y
@@ -461,7 +459,7 @@ gm_leaveroomU_FAR:
 	jsr @add2ndtocameraX
 	
 :	dec ntrowhead2
-	jsr gm_leave_doframe
+	jsr xt_leave_doframe
 	
 @dontdeccamy:
 	ldy transtimer
@@ -506,8 +504,8 @@ gm_leaveroomU_FAR:
 	; camera wasn't stopped so draw 4 more cols
 	ldy #0
 :	sty transtimer
-	jsr h_gener_col_r
-	jsr gm_leave_doframe
+	jsr xt_gener_col_r
+	jsr xt_leave_doframe
 	ldy transtimer
 	iny
 	cpy #4
@@ -518,8 +516,7 @@ gm_leaveroomU_FAR:
 	bit gamectrl
 	bne @dontdomore
 	
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
+	jsr xt_gener_mts_ents_r
 	
 @dontdomore:
 	lda gamectrl
@@ -542,7 +539,7 @@ gm_leaveroomU_FAR:
 	bcc @finalloopdone
 	beq @finalloopdone
 	
-	jsr gm_leave_doframe
+	jsr xt_leave_doframe
 	jmp @finalloop
 	
 @finalloopdone:
