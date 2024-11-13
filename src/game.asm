@@ -1,7 +1,6 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 .include "g_level.asm"
-.include "g_rmtran.asm"
 .include "e_draw.asm"
 .include "e_update.asm"
 ;.include "e_physic.asm"
@@ -345,3 +344,17 @@ gm_calc_camera_split:
 	; TODO: carry might be set again. I don't think it matters right now
 	; but if you set scrolllimit to > like 80, then look here first.
 	jmp @flipHighBitAndDone
+
+gm_leave_doframe:
+	jsr gm_load_hair_palette
+	jsr gm_draw_player
+	jsr gm_unload_os_ents
+	jsr gm_draw_entities
+	jsr gm_calc_camera_nosplit
+	jsr gm_check_updated_palettes
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jsr soft_nmi_off
+	
+	jsr com_clear_oam
+	jmp gm_clear_palette_allocator
