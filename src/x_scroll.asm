@@ -1,33 +1,10 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-; ** SUBROUTINE: gm_gener_tiles_below_FAR
-; desc: Generates tiles below the scroll seam.
-gm_gener_tiles_below_FAR:
-	lda #gs_readvd
-	bit gamectrl
-	bne @dontInitializeVerticalRead
-	
-	; initialize vertical reading.
-	ora gamectrl
-	sta gamectrl
-	
-	; skip the $FF byte, for tiles, palettes, and entities
-	jsr gm_adv_tile
-	jsr gm_adv_pal
-	jsr gm_adv_ent
-	
-@dontInitializeVerticalRead:
-	; get the tile position of camera_y
-	lda camera_y
-	lsr
-	lsr
-	lsr
-	; take the one *above* camera_y
-	tay
-	dey
-	bpl :+
-	ldy #29
-:	sty temp1
+; ** SUBROUTINE: gm_gener_tiles_horiz_FAR
+; desc: Generates tiles at the scroll seam.
+;       This is the PRG_XTRA part of the function gm_gener_tiles_below.
+gm_gener_tiles_horiz_FAR:
+	; temp1 has the row to load.
 	
 	; outlined because we need access to level data bank
 	jsr xt_read_row

@@ -41,6 +41,8 @@ h_comp_addr:
 ; returns:  a - Tile value
 ; clobbers: a
 h_get_tile:
+	cpy #$FF
+	beq @noTile
 	lda vertoffshack
 	beq @noOffset
 	
@@ -55,6 +57,9 @@ h_get_tile:
 	jsr h_comp_addr
 	lda (lvladdr), y; A = (&areaspace[x * 32])[y]
 	ldy gettiletmp
+	rts
+@noTile:
+	lda #0
 	rts
 
 @noOffset:

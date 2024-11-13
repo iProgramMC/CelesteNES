@@ -9,6 +9,7 @@
 .include "p_physic.asm"
 .include "g_sfx.asm"
 .include "g_palloc.asm"
+.include "g_scroll.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer
 gm_update_ptstimer:

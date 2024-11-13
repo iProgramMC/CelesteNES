@@ -341,6 +341,7 @@ gs_camlock  = $20   ; camera is locked and will not scroll
 gs_dontpal  = $40   ; don't generate palette data, just mark
 gs_dontgen  = $80   ; don't generate more tiles
 g2_scrstopD = $01   ; there is a camera limit down
+g2_loadvrow = $02   ; load vertical rows above next time a row is revealed
 g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything
 g3_transitR = $01   ; is in a RIGHT transition

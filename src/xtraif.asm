@@ -19,13 +19,82 @@ gm_leaveroomU:
 	ldy #prgb_xtra
 	jmp far_call
 
+; ** SUBROUTINE: gm_gener_tiles_below
+; desc: Generates tiles at the scroll seam.
 gm_gener_tiles_below:
-	lda #<gm_gener_tiles_below_FAR
-	sta temp1
-	lda #>gm_gener_tiles_below_FAR
-	sta temp1+1
+	lda #gs_readvd
+	bit gamectrl
+	bne @dontInitializeVerticalRead
+	
+	; initialize vertical reading.
+	ora gamectrl
+	sta gamectrl
+	
+	; skip the $FF byte, for tiles, palettes, and entities
+	jsr gm_adv_tile
+	jsr gm_adv_pal
+	jsr gm_adv_ent
+	
+@dontInitializeVerticalRead:
+	; get the tile position of camera_y
+	lda camera_y
+	lsr
+	lsr
+	lsr
+	; take the one *above* camera_y
+	tay
+	dey
+	bpl :+
+	ldy #29
+:	sty temp1
+	jmp gm_gener_tiles_horiz
+
+; ** SUBROUTINE: gm_gener_tiles_above
+; desc: Generates tiles at the scroll seam.
+gm_gener_tiles_above:
+	lda #gs_readvd
+	bit gamectrl
+	bne @dontInitializeVerticalRead
+	
+	; initialize vertical reading.
+	ora gamectrl
+	sta gamectrl
+	
+	; skip the $FF byte, for tiles, palettes, and entities
+	jsr gm_adv_tile
+	jsr gm_adv_pal
+	jsr gm_adv_ent
+	
+@dontInitializeVerticalRead:
+	; get the tile position of camera_y
+	lda camera_y
+	lsr
+	lsr
+	lsr
+	clc
+	adc #1
+	cmp #30
+	bne :+
+	lda #0
+:	sta temp1
+	;jmp gm_gener_tiles_horiz
+
+gm_gener_tiles_horiz:
+	lda currA000bank
+	pha
+	
 	ldy #prgb_xtra
-	jmp far_call
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank   ; change bank
+	
+	txa
+	tay                 ; restore room # in X
+	jsr gm_gener_tiles_horiz_FAR
+	
+	pla
+	tay
+	lda #mmc3bk_prg1
+	jmp mmc3_set_bank   ; change bank back
 
 xt_gener_col_r:
 	lda #<h_gener_col_r
