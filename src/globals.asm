@@ -7,6 +7,10 @@
 ;
 ; (2) -- The irqcounter represents the current phase of the dialog raster trick.
 ;        Once it reaches three, normal game is rendered.
+;
+; (3) -- The camera Y is split into "multiples of 8" and "non multiple of 8" because I suck. There
+;        are loads of edge cases in the horizontal level design that I'm not willing to completely
+;        reupholster.
 
 .segment "ZEROPAGE"
 
@@ -92,6 +96,10 @@ camera_x    : .res 1
 camera_y    : .res 1
 camera_x_hi : .res 1
 camera_y_hi : .res 1
+camera_y_bs : .res 1 ; base camera Y
+camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
+vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
+gettiletmp  : .res 1 ; temporary used by h_get_tile
 
 ; TODO: Merge These Into Each Other
 ; title
@@ -230,7 +238,7 @@ roomnumber  : .res 1 ; incremented every time a room transition happens
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
-roomspare2  : .res 1 ; spare bytes
+roomflags   : .res 1 ; room flags
 roomspare3  : .res 1 ; spare bytes
 startpx     : .res 1 ; starting player X position
 startpy     : .res 1 ; starting player Y position

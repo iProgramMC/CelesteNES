@@ -225,6 +225,8 @@ gm_draw_ent_call:
 	bne @forceAddingCamY
 	
 	lda sprspace+sp_y, x
+	sec
+	sbc camera_y_sub
 	sta temp3
 	
 	lda sprspace+sp_strawb_flags, x
@@ -242,7 +244,9 @@ gm_draw_ent_call:
 	adc temp3
 	sta temp3
 	sec
-	sbc camera_y
+	sbc camera_y_bs
+	sec
+	sbc camera_y_sub
 	sta temp3
 	
 @doNotAddCamY:

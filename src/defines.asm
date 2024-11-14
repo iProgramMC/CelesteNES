@@ -98,6 +98,10 @@ sp_l0gr_ttimr = sp_wid
 ef_collidable = $01
 ef_oddroom    = $02
 
+; room flags
+rf_godown     = $01 ; room descends
+rf_goup       = $02 ; room ascends
+
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
 ;                 and LEVELEDITOR\MainGame.cs (GetByteFromString)
@@ -237,7 +241,8 @@ prgb_lvl1b  = $07
 prgb_lvl2b  = $08
 prgb_lvl3b  = $09
 prgb_lvl4b  = $0A   ; Shared level data ($C000)
-prgb_lvl5b  = $0B
+;prgb_lvl5b  = $0B
+prgb_xtra   = $0B   ; extra game code
 prgb_dial   = $0C
 prgb_ttle   = $0D
 prgb_game   = $0E   ; bank containing game engine code.  This is fixed at $8000
@@ -328,19 +333,23 @@ pls_wrtext  = $01   ; prologue: write text state
 pls_fade    = $02   ; prologue: wait state
 pls_wait    = $03   ; prologue: fade state
 gs_1stfr    = $01   ; first frame of game screen
-;TODO: gs_vertical = $02   ; is the level vertical?
+gs_readvd   = $02   ; reading vertical tile data now
 gs_scrstodR = $04   ; rightward camera scrolling is disabled
 gs_scrstopR = $08   ; there is a camera limit to the right
+gs_lvlend   = $10   ; if horizontal level data is finished
 gs_camlock  = $20   ; camera is locked and will not scroll
 gs_dontpal  = $40   ; don't generate palette data, just mark
 gs_dontgen  = $80   ; don't generate more tiles
+g2_scrstopD = $01   ; there is a camera limit down
+g2_loadvrow = $02   ; load vertical rows above next time a row is revealed
 g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything
 g3_transitR = $01   ; is in a RIGHT transition
 g3_transitU = $02   ; is in an UP transition
 g3_transitL = $04   ; is in a LEFT transition
 g3_transitD = $08   ; is in a DOWN transition
-	g3_transitA = $0F ; all transition types, for checking whether any kind of transition is active
+g3_transitX = $10   ; is in a DEATH transition
+	g3_transitA = $1F ; all transition types, for checking whether any kind of transition is active
 ;TODO: lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
@@ -373,6 +382,7 @@ gravity     = $40   ; Celeste uses a value of 900 px/s^2, converted it would be 
 lograthresh = $C0   ; if Math.Abs(Speed.Y) <= lograthresh (40f in Celeste), and holding C, then apply half the gravity
 ctrpull     = $18   ; acceleration imposed by player pressing buttons
 scrolllimit = $78   ; around halfway to the screen
+vscrolllimit= $78   ; around halfway to the screen
 jumpsustain = $0C   ; sustain the max jump velocity for at most twelve frames
 accel       = $47   ; acceleration. equivalent of RunAccel in Celeste
 accelred    = $1C   ; reduced accel. equivalent of RunReduce in Celeste

@@ -1,7 +1,6 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 .include "g_level.asm"
-.include "g_rmtran.asm"
 .include "e_draw.asm"
 .include "e_update.asm"
 ;.include "e_physic.asm"
@@ -10,6 +9,7 @@
 .include "p_physic.asm"
 .include "g_sfx.asm"
 .include "g_palloc.asm"
+.include "g_scroll.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer
 gm_update_ptstimer:
@@ -19,6 +19,23 @@ gm_update_ptstimer:
 	rts
 :	lda #0            ; if they're both 0, reset the points count and return
 	sta ptscount
+	rts
+
+; ** SUBROUTINE: gm_load_room_fully
+gm_load_room_fully:
+	jsr h_gener_ents_r
+	jsr h_gener_mts_r
+	ldy #$00          ; generate tilesahead columns
+:	tya
+	pha
+	jsr h_gener_col_r
+	jsr h_flush_col_r
+	jsr h_flush_pal_r_cond
+	pla
+	tay
+	iny
+	cpy #tilesahead
+	bne :-
 	rts
 
 ; ** SUBROUTINE: gamemode_init
@@ -32,12 +49,10 @@ gm_game_init:
 	bit gamectrl2
 	beq @clearAll
 	
-	stx gamectrl2
 	jsr gm_game_clear_wx
 	jmp @clearDone
 	
 @clearAll:
-	stx gamectrl2
 	jsr gm_game_clear_all_wx
 	
 	jsr vblank_wait
@@ -71,20 +86,10 @@ gm_game_init:
 	asl
 	asl
 	sta camera_y
+	sta camera_y_bs
 	
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
-	ldy #$00          ; generate tilesahead columns
-:	tya
-	pha
-	jsr h_gener_col_r
-	jsr h_flush_col_r
-	jsr h_flush_pal_r_cond
-	pla
-	tay
-	iny
-	cpy #tilesahead
-	bne :-
+	jsr gm_calculate_vert_offs
+	jsr gm_load_room_fully
 	
 	lda gamectrl
 	and #(gs_scrstodR|gs_scrstopR)
@@ -119,6 +124,7 @@ gm_game_update:
 	jsr gm_update_ptstimer
 	jsr gm_draw_dead
 	jsr gm_update_dialog
+	jsr gm_load_level_if_vert
 	
 	jsr test_dialog
 	
@@ -188,6 +194,7 @@ gm_game_clear_all_wx:
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.
 gm_game_clear_wx:
+	stx gamectrl2
 	stx transoff
 	stx tr_scrnpos
 	stx gamectrl      ; clear game related fields to zero
@@ -221,9 +228,14 @@ gm_game_clear_wx:
 	stx plrstrawbs
 	stx scrollsplit
 	stx dialogsplit
+	stx camera_y_sub
 	dex
 	stx animmode      ; set to 0xFF
 	inx
+	
+	lda #<~g3_transitX
+	and gamectrl3
+	sta gamectrl3
 	
 	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
 	; note: ldx #$00 was removed because it's already 0!
@@ -248,10 +260,20 @@ gm_game_clear_wx:
 ;       Then calculates the cameraX/cameraY and prepares it for upload to the PPU.
 ; note: Does not handle scroll splits.
 gm_calc_camera_nosplit:
+	; scroll X
 	lda camera_x
 	sta scroll_x
+	
+	; scroll Y
 	lda camera_y
-	sta scroll_y
+	clc
+	adc camera_y_sub
+	cmp #240
+	bcc :+
+	adc #15     ; adds 16 because carry is set
+:	sta scroll_y
+	
+	; scroll X/Y high
 	lda #0
 	ldx camera_x_hi
 	beq :+
@@ -266,10 +288,20 @@ gm_calc_camera_nosplit:
 ; desc: Calculates the cameraX/cameraY and prepares it for upload to the PPU.
 ; note: Does not calculate quake offsets.
 gm_calc_camera_split:
+	; scroll X
 	lda camera_x
 	sta scroll_x
+	
+	; scroll Y
 	lda camera_y
-	sta scroll_y
+	clc
+	adc camera_y_sub
+	cmp #240
+	bcc :+
+	adc #15
+:	sta scroll_y
+	
+	; scroll X/Y high
 	lda camera_x_hi
 	sta temp1
 	lda camera_y_hi
@@ -317,3 +349,17 @@ gm_calc_camera_split:
 	; TODO: carry might be set again. I don't think it matters right now
 	; but if you set scrolllimit to > like 80, then look here first.
 	jmp @flipHighBitAndDone
+
+gm_leave_doframe:
+	jsr gm_load_hair_palette
+	jsr gm_draw_player
+	jsr gm_unload_os_ents
+	jsr gm_draw_entities
+	jsr gm_calc_camera_nosplit
+	jsr gm_check_updated_palettes
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jsr soft_nmi_off
+	
+	jsr com_clear_oam
+	jmp gm_clear_palette_allocator

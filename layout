@@ -41,8 +41,9 @@ MEMORY
 	PRG_LVL2B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$08;
 	PRG_LVL3B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$09;
 	PRG_LVL4B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0A;
-	PRG_LVL5B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0B;
+	#PRG_LVL5B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	
+	PRG_XTRA: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	PRG_DIAL: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0C;
 	PRG_TTLE: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0D;
 	
@@ -125,7 +126,7 @@ SEGMENTS
 	PRG_LVL2B: load = PRG_LVL2B, type = ro, align=$100;
 	PRG_LVL3B: load = PRG_LVL3B, type = ro, align=$100;
 	PRG_LVL4B: load = PRG_LVL4B, type = ro, align=$100;
-	PRG_LVL5B: load = PRG_LVL5B, type = ro, align=$100;
+	PRG_XTRA:  load = PRG_XTRA,  type = ro, align=$100;
 	PRG_DIAL:  load = PRG_DIAL,  type = ro, align=$100;
 	PRG_TTLE:  load = PRG_TTLE,  type = ro, align=$100;
 	PRG_GAME:  load = PRG_GAME,  type = ro, align=$100;

@@ -40,9 +40,29 @@ h_comp_addr:
 ;     y - Y coordinate
 ; returns:  a - Tile value
 ; clobbers: a
-;
-; NOTE for h_get_tile1: the Y coordinate must be in A when you call!
 h_get_tile:
+	cpy #$FF
+	beq @noTile
+	lda vertoffshack
+	beq @noOffset
+	
+	sty gettiletmp
+	tya
+	clc
+	adc vertoffshack
+	cmp #30
+	bcc :+
+	sbc #30
+:	tay
+	jsr h_comp_addr
+	lda (lvladdr), y; A = (&areaspace[x * 32])[y]
+	ldy gettiletmp
+	rts
+@noTile:
+	lda #0
+	rts
+
+@noOffset:
 	jsr h_comp_addr
 	lda (lvladdr), y; A = (&areaspace[x * 32])[y]
 	rts
@@ -479,8 +499,6 @@ h_gener_row_u:
 :	; add ntwrhead % 32
 	lda ntwrhead
 	and #$1F
-	clc
-	adc ppuaddrHR1
 	sta ppuaddrHR1
 	; add (ntrowhead % 8) * 0x20 + (ntrowhead / 8) * 0x100
 	lda ntrowhead
@@ -902,7 +920,7 @@ h_genertiles_lvlend:
 	asl
 	asl
 	sta camlimit
-	lda #gs_scrstopR
+	lda #(gs_scrstopR | gs_lvlend)
 	ora gamectrl
 	sta gamectrl
 	lda arwrhead
@@ -916,7 +934,7 @@ h_genertiles_lvlend:
 ; ** SUBROUTINE: h_gener_mts_r
 ; desc:    Generates a column of metatiles ahead of the visual column render head.
 h_gener_mts_r:
-	lda #gs_scrstopR
+	lda #gs_lvlend
 	bit gamectrl
 	beq :+
 	rts
@@ -1119,10 +1137,10 @@ gm_set_ent_head:
 ; advance the pointer.
 ; returns: a - the byte of data read in
 ; clobbers: x
-;gm_read_tile_na:
-;	ldx #0
-;	lda (arrdheadlo,x)
-;	rts
+gm_read_tile_na:
+	ldx #0
+	lda (arrdheadlo,x)
+	rts
 
 gm_read_ent_na:
 	ldx #0
@@ -1155,6 +1173,7 @@ gm_adv_ent:
 gm_read_pal:
 	ldx #0
 	lda (palrdheadlo,x)
+gm_adv_pal:
 	inc palrdheadlo
 	bne :+
 	inc palrdheadhi
@@ -1357,6 +1376,10 @@ gm_respawn:
 	lsr
 	sta ntwrhead
 	
+	lda #g3_transitX
+	ora gamectrl3
+	sta gamectrl3
+	
 	; perform the slide wipe
 	ldy #18
 @loop:
@@ -1383,6 +1406,13 @@ gm_respawn:
 	lda #0
 	sta ppu_mask
 	jsr vblank_wait
+	
+	lda nmictrl
+	and #<~(nc_flshpalv | nc_flushcol | nc_flushpal | nc_flushrow)
+	sta nmictrl
+	lda gamectrl
+	and #<~(gs_lvlend | gs_scrstopR | gs_scrstodR)
+	sta gamectrl
 	
 	jsr com_clear_oam
 	

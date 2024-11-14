@@ -622,6 +622,9 @@ gm_gettopy:
 	clc
 	lda player_y
 	adc #plr_y_top
+	bcs gm_gety_wraparound
+	cmp #240
+	bcs gm_gety_wraparound
 	lsr
 	lsr
 	lsr
@@ -638,6 +641,9 @@ gm_getbottomy_w:
 	clc
 	lda player_y
 	adc #plr_y_bot_wall
+	bcs gm_gety_wraparound
+	cmp #240
+	bcs gm_gety_wraparound
 	lsr
 	lsr
 	lsr
@@ -650,21 +656,15 @@ gm_getmidy:
 	clc
 	lda player_y
 	adc #plr_y_mid
+	bcs gm_gety_wraparound
+	cmp #240
+	bcs gm_gety_wraparound
 	lsr
 	lsr
 	lsr
 	rts
-
-; ** SUBROUTINE: gm_getmidx
-; desc:     Gets the tile X position at the middle of the player's hitbox, used for squish checking
-; returns:  A - the X coordinate
-gm_getmidx:
-	clc
-	lda player_x
-	adc #plr_x_mid
-	lsr
-	lsr
-	lsr
+gm_gety_wraparound:
+	lda #$FF
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_f
@@ -678,6 +678,21 @@ gm_getbottomy_f:
 	clc
 	lda player_y
 	adc #plr_y_bot
+	bcs gm_gety_wraparound
+	cmp #240
+	bcs gm_gety_wraparound
+	lsr
+	lsr
+	lsr
+	rts
+
+; ** SUBROUTINE: gm_getmidx
+; desc:     Gets the tile X position at the middle of the player's hitbox, used for squish checking
+; returns:  A - the X coordinate
+gm_getmidx:
+	clc
+	lda player_x
+	adc #plr_x_mid
 	lsr
 	lsr
 	lsr
@@ -723,6 +738,7 @@ gm_collidefull:
 	lda #1
 	rts
 gm_collidejthru:
+	sty $FF
 	tax
 	lda player_vl_y
 	bmi gm_collidenone; if player is moving UP, don't do collision checks at all
@@ -843,14 +859,7 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	cmp #$F0
 	bcs gm_leaveroomU_
 	lda player_vl_y
-	bmi gm_checkceil
-	jmp gm_checkfloor
-
-gm_fellout:           ; if the player fell out of the world
-	sta player_y
-	lda player_vl_y
-	bpl gm_killplayer
-	rts
+	bpl gm_checkfloor
 
 gm_checkceil:
 	jsr gm_collentceil
@@ -870,8 +879,7 @@ gm_checkceil:
 	lda #gc_ceil
 	jsr gm_collide
 	bne @snapToCeil
-	
-	rts
+	beq gm_applyy_checkdone
 
 @snapToCeil:
 	lda y_crd_temp    ; load the y position of the tile that was collided with
@@ -888,7 +896,7 @@ gm_checkceil:
 	sta player_vl_y   ; also clear the velocity
 	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
 	sta jcountdown    ; also clear the jump timer
-	rts
+	beq gm_applyy_checkdone
 
 gm_checkfloor:
 	jsr gm_collentfloor
@@ -908,7 +916,7 @@ gm_checkfloor:
 	lda #gc_floor
 	jsr gm_collide
 	bne @snapToFloor
-	rts
+	beq gm_applyy_checkdone
 	
 @snapToFloor:
 	lda #%11111000    ; round player's position to lower multiple of 8
@@ -934,8 +942,13 @@ gm_checkfloor:
 	sta player_vl_y
 	sta player_vs_y
 	sta dashcount
+	
 @done:
-	rts
+gm_applyy_checkdone:
+	lda player_vl_y
+	bpl :+
+	jmp gm_scroll_u_cond
+:	jmp gm_scroll_d_cond
 
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
@@ -1032,7 +1045,7 @@ gm_applyx:
 
 @checkDone:
 	lda player_vl_x
-	bpl gm_scroll_r_cond    ; if moving positively, scroll if needed
+	bpl gm_scroll_r_cond_   ; if moving positively, scroll if needed
 	jmp gm_scroll_l_cond
 
 @callLeaveRoomR:
@@ -1084,168 +1097,8 @@ gm_applyx:
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
 	jmp @checkLeftLoop
 
-; ** SUBROUTINE: gm_scroll_r_cond
-gm_scroll_r_cond:
-	lda #gs_camlock
-	bit gamectrl
-	bne @scrollRet    ; if camera is locked
-	
-	lda player_x
-	cmp #scrolllimit
-	bcc @scrollRet    ; A < scrolllimit
-	beq @scrollRet    ; A = scrolllimit
-	sec
-	sbc #scrolllimit
-	cmp #camspeed     ; see the difference we need to scroll
-	bcc @noFix        ; A < camspeed
-	lda #camspeed
-@noFix:               ; A now contains the delta we need to scroll by
-	sta temp1
-	clc
-	tax               ; save the delta as we'll need it later
-	adc camera_x      ; add the delta to the camera X
-	sta camera_x
-	lda #0
-	adc camera_x_pg
-	sta camera_x_pg
-	and #1
-	sta camera_x_hi
-	lda #gs_scrstopR  ; check if we overstepped the camera boundary, if needed
-	bit gamectrl
-	beq @noLimit
-	
-	lda camlimit
-	sta scrchklo
-	lda camlimithi
-	sta scrchkhi
-	lda camlimithi    ; check if [camlimithi,camlimit] < [camera_x_hi,camera_x]
-	cmp camera_x_hi
-	bcs :+
-	lda camlimit
-	cmp camera_x
-	bcs :+
-	lda #2            ; note: carry clear here
-	adc scrchkhi
-	sta scrchkhi
-:	sec
-	lda scrchklo
-	sbc camera_x
-	sta scrchklo
-	lda scrchkhi
-	sbc camera_x_hi
-	bmi @camXLimited
-	;sta scrchkhi
-	
-@noLimit:
-	;lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
-	lda player_x
-	sec
-	sbc temp1
-	sta player_x
-	txa               ; restore the delta to add to camera_rev
-	pha
-	lda temp1
-	jsr gm_shifttrace
-	pla
-	clc
-	adc camera_rev
-	sta camera_rev
-	cmp #8
-	bcs @goGenerate   ; if camera_rev+diff < 8 return
-@scrollRet:
-	rts
-@goGenerate:
-	lda camera_rev    ; subtract 8 from camera_rev
-	sec
-	sbc #8
-	sta camera_rev
-	jmp h_gener_col_r
-@camXLimited:
-	lda camlimithi
-	sta camera_x_hi
-	lda camlimit
-	sta camera_x
-	lda #gs_scrstodR
-	bit gamectrl
-	bne :+
-	ora gamectrl
-	sta gamectrl
-:	rts
-
-; ** SUBROUTINE: gm_scroll_l_cond
-gm_scroll_l_cond:
-	lda #gs_camlock
-	bit gamectrl
-	bne @scrollRet    ; if camera is locked
-	
-	lda roomsize
-	beq @scrollRet    ; if this is a "long" room, then we CANNOT scroll left.
-	
-	lda player_x
-	cmp #scrolllimit
-	bcs @scrollRet
-	;bcc @scrollRet
-	
-	lda #scrolllimit
-	sec
-	sbc player_x
-	cmp #camspeed     ; see the difference we need to scroll
-	bcc @noFix
-	lda #camspeed
-@noFix:
-	sta temp1
-	
-	lda #(gs_scrstodR^$FF)
-	and gamectrl
-	sta gamectrl
-	
-	sec
-	lda camera_x
-	tax               ; save the delta as we'll need it later
-	sbc temp1         ; take the delta from the camera X
-	sta camera_x
-	lda camera_x_pg
-	sbc #0
-	bmi @limit
-	
-	sta camera_x_pg
-	and #1
-	sta camera_x_hi
-	
-	lda camleftlo
-	sta scrchklo
-	lda camlefthi
-	sta scrchkhi
-	
-	lda camlefthi     ; check if [camlefthi, camleftlo] < [camera_x_pg, camera_x]
-	cmp camera_x_pg
-	bne :+
-	lda camleftlo
-	cmp camera_x
-:	; if camleft > cameraX then limit
-	bcs @limit
-	
-	; no limitation. also move the PLAYER's x coordinate
-@shouldNotLimit:
-	lda player_x
-	clc
-	adc temp1
-	sta player_x
-	
-	lda temp1
-	jsr gm_shiftrighttrace
-	
-@scrollRet:
-	rts
-	
-@limit:
-	lda camleftlo
-	sta camera_x
-	lda camlefthi
-	sta camera_x_pg
-	and #1
-	sta camera_x_hi
-	rts
+gm_scroll_r_cond_:
+	jmp gm_scroll_r_cond
 
 ; ** SUBROUTINE: gm_checkwjump
 ; desc: Assigns coyote time if wall is detected near the player.

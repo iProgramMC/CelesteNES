@@ -1,24 +1,10 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-gm_leave_doframe:
-	jsr gm_load_hair_palette
-	jsr gm_draw_player
-	jsr gm_unload_os_ents
-	jsr gm_draw_entities
-	jsr gm_calc_camera_nosplit
-	jsr gm_check_updated_palettes
-	jsr soft_nmi_on
-	jsr nmi_wait
-	jsr soft_nmi_off
-	
-	jsr com_clear_oam
-	jmp gm_clear_palette_allocator
-
 cspeed = 8
 
-; ** SUBROUTINE: gm_leaveroomR
+; ** SUBROUTINE: gm_leaveroomR_FAR
 ; desc: Performs a transition, across multiple frames, going right.
-gm_leaveroomR:
+gm_leaveroomR_FAR:
 	lda #$F0
 	sta player_x
 	
@@ -43,7 +29,7 @@ gm_leaveroomR:
 	lda #1
 	rts                      ; no warp was assigned there so return
 @actuallyTransition:
-	jsr gm_set_room
+	jsr xt_set_room
 	
 	inc roomnumber
 	
@@ -92,18 +78,17 @@ gm_roomRtransneg:
 gm_roomRtransdone:
 	sta lvlyoff
 	lda gamectrl             ; clear the camera stop bits
-	and #((gs_scrstopR|gs_scrstodR)^$FF)
+	and #((gs_scrstopR|gs_scrstodR|gs_lvlend)^$FF)
 	sta gamectrl
 	lda camera_x
 	and #%11111100
 	sta camera_x
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
+	jsr xt_gener_mts_ents_r
 	ldy #4
 gm_roomRtranloopI:
 	sty transtimer
-	jsr h_gener_col_r
-	jsr gm_leave_doframe
+	jsr xt_gener_col_r
+	jsr xt_leave_doframe
 	ldy transtimer
 	dey
 	bne gm_roomRtranloopI
@@ -129,19 +114,17 @@ gm_roomRtranloop:
 	lda #cspeed
 	jsr gm_shifttrace
 	
-	lda transoff
+	ldx transoff
+	stx trantmp2
+	lsr trantmp2
+	lda #0
 	ror
+	lsr trantmp2
 	ror
-	ror                      ; lvlyoff: 11000000
-	and #%11000000
 	sta trantmp1
-	lda transoff
-	lsr
-	lsr                      ; lvlyoff: 00111111
-	sta trantmp2
+	txa
+	bpl :+
 	lda #%11100000
-	bit trantmp2
-	beq :+
 	ora trantmp2
 	sta trantmp2
 :	clc
@@ -165,6 +148,7 @@ gm_roomRtranpluscap:
 	adc #$10
 	sta camera_y
 gm_roomRtrannocap:
+	sta camera_y_bs
 	sec
 	lda player_sp_y
 	sbc trantmp1
@@ -179,7 +163,7 @@ gm_roomRtrannocap:
 	cmp #8
 	bcs gm_roomRtrangen
 gm_roomRtrangenbk:
-	jsr gm_leave_doframe
+	jsr xt_leave_doframe
 	ldy transtimer
 	dey
 	bne gm_roomRtranloop
@@ -190,6 +174,7 @@ gm_roomRtrangenbk:
 	asl
 	asl
 	sta camera_y
+	sta camera_y_bs
 	
 	lda #(g3_transitR ^ $FF)
 	and gamectrl3
@@ -199,20 +184,22 @@ gm_roomRtrangenbk:
 	eor #1
 	jsr gm_unload_ents_room
 	
+	jsr gm_calculate_vert_offs
+	
 	lda #0
 	rts
 
 gm_roomRtrangen:
-	jsr h_gener_col_r
+	jsr xt_gener_col_r
 	lda camera_rev
 	sec
 	sbc #8
 	sta camera_rev
 	jmp gm_roomRtrangenbk
 
-; ** SUBROUTINE: gm_leaveroomU
+; ** SUBROUTINE: gm_leaveroomU_FAR
 ; desc: Performs a transition, across multiple frames, going up.
-gm_leaveroomU:
+gm_leaveroomU_FAR:
 	lda #gs_camlock
 	bit gamectrl
 	bne @returnEarly
@@ -234,7 +221,7 @@ gm_leaveroomU:
 	sty temp3
 	
 	ldy warp_u
-	jsr gm_set_room
+	jsr xt_set_room
 	
 	inc roomnumber
 	
@@ -256,12 +243,12 @@ gm_leaveroomU:
 	lda ntwrhead
 	sec
 	sbc #$20
-	and #$3F
+	and #%00111100
 	sta ntwrhead
 	lda arwrhead
 	sec
 	sbc #$21
-	and #$3F
+	and #%00111100
 	sta arwrhead
 	
 	; add the X offset of this room to the name table and area table write heads
@@ -270,6 +257,7 @@ gm_leaveroomU:
 	adc ntwrhead
 	and #$3F
 	sta ntwrhead
+	sta roombeglo2
 	
 	lda temp3
 	clc
@@ -324,20 +312,9 @@ gm_leaveroomU:
 	lda camdst_x
 	sta roombeglo
 	sta camleftlo
-	lsr
-	lsr
-	lsr
-	sta roombeglo2
 	lda camdst_x_pg
 	sta roombeghi
 	sta camlefthi
-	ror
-	ror
-	ror
-	ror
-	and #%11100000
-	ora roombeglo2
-	sta roombeglo2
 	
 	lda #0
 	sta temp7                ; temp7 will now hold the camera's "sub X" position
@@ -366,7 +343,7 @@ gm_leaveroomU:
 	
 	; clear the camera stop bits
 	lda gamectrl
-	and #((gs_scrstopR|gs_scrstodR)^$FF)
+	and #((gs_scrstopR|gs_scrstodR|gs_lvlend)^$FF)
 	sta gamectrl
 	
 	lda nmictrl
@@ -377,41 +354,16 @@ gm_leaveroomU:
 	ldy #0
 @genloop:
 	sty transtimer
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
+	jsr xt_gener_mts_ents_r
 	ldy transtimer
 	iny
 	cpy #36
 	bne @genloop
 	
-	; pre-generate all palette data
-	ldy #0
-@palloop:
-	sty temp6
-	jsr h_palette_data_column
-	
-	; an inner loop to copy from temppal to loadedpals
-	lda temp6
-	asl
-	asl
-	asl
-	tax
-	ldy #0
-	
-:	lda temppal, y
-	sta loadedpals, x
-	inx
-	iny
-	cpy #8
-	bne :-
-	
-	ldy temp6
-	iny
-	cpy #8
-	bne @palloop
+	jsr xt_generate_palette_data_V
 	
 	; now, we will want to wait for vblank. NMIs are disabled at this point
-	; sometimes the code above is too slow so we may end up calling gm_leave_doframe
+	; sometimes the code above is too slow so we may end up calling xt_leave_doframe
 	; during vblank, the NMI is fired, but the NMI ends up sending stuff to the
 	; PPU even after vblank.
 	;
@@ -419,9 +371,9 @@ gm_leaveroomU:
 	jsr vblank_wait
 	
 	; preserve the camera stop bits temporarily.
-	; we'll clear them so that h_gener_col_r does its job.
+	; we'll clear them so that xt_gener_col_r does its job.
 	lda gamectrl
-	and #(gs_scrstopR|gs_scrstodR)
+	and #(gs_scrstopR|gs_scrstodR|gs_lvlend)
 	sta temp9
 	
 	lda nmictrl
@@ -437,7 +389,7 @@ gm_leaveroomU:
 	ldy #0
 @writeloop:
 	sty transtimer
-	jsr h_gener_row_u
+	jsr xt_gener_row_u
 	
 	; also bring the player down
 	lda player_y
@@ -460,6 +412,7 @@ gm_leaveroomU:
 	sec
 	sbc #$10
 :	sta camera_y
+	sta camera_y_bs
 	
 	; add the relevant displacement [camoff_H, camoff_M, camoff_L] to the camera's position...
 	; camoff_H is the low byte, camoff_M is the high byte.
@@ -472,7 +425,7 @@ gm_leaveroomU:
 	jsr @add2ndtocameraX
 	
 :	dec ntrowhead2
-	jsr gm_leave_doframe
+	jsr xt_leave_doframe
 	
 @dontdeccamy:
 	ldy transtimer
@@ -517,8 +470,8 @@ gm_leaveroomU:
 	; camera wasn't stopped so draw 4 more cols
 	ldy #0
 :	sty transtimer
-	jsr h_gener_col_r
-	jsr gm_leave_doframe
+	jsr xt_gener_col_r
+	jsr xt_leave_doframe
 	ldy transtimer
 	iny
 	cpy #4
@@ -529,8 +482,7 @@ gm_leaveroomU:
 	bit gamectrl
 	bne @dontdomore
 	
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
+	jsr xt_gener_mts_ents_r
 	
 @dontdomore:
 	lda gamectrl
@@ -553,7 +505,7 @@ gm_leaveroomU:
 	bcc @finalloopdone
 	beq @finalloopdone
 	
-	jsr gm_leave_doframe
+	jsr xt_leave_doframe
 	jmp @finalloop
 	
 @finalloopdone:
@@ -562,6 +514,7 @@ gm_leaveroomU:
 	asl
 	asl
 	sta camera_y
+	sta camera_y_bs
 	
 	lda #(g3_transitU ^ $FF)
 	and gamectrl3
@@ -570,6 +523,7 @@ gm_leaveroomU:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
+	jsr gm_calculate_vert_offs
 	
 	rts
 	
