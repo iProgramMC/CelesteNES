@@ -144,6 +144,7 @@ entrdheadhi : .res 1
 lvladdr     : .res 1 ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   : .res 1
 tr_scrnpos  : .res 1 ; active screen position
+entdelay    : .res 1 ; entity row delay (vertical scrolling)
 playerctrl  : .res 1
 player_vl_x : .res 1 ; velocity X, pixels
 player_vs_x : .res 1 ; velocity X, subpixels

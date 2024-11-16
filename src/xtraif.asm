@@ -228,12 +228,18 @@ xt_read_row:
 	lda #mmc3bk_prg1
 	jmp mmc3_set_bank   ; change bank back
 
-; ** SUBROUTINE: xt_convert_metatiles
-; desc: Generates a list of metatiles to write.
-__xt_convert_metatiles:
+; ** SUBROUTINE: __xt_convert_metatiles_load_entities
+; desc: Generates a list of metatiles to write, and loads entities corresponding to the correct row.
+;
+; parameters:
+;    X - Row Number
+__xt_convert_metatiles_load_entities:
 	ldy musicbank
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank   ; change bank
+	
+	lda temp1
+	pha
 	
 	ldx #0
 @loop1:
@@ -264,6 +270,104 @@ __xt_convert_metatiles:
 	cpx wrcountHR2
 	bne @loop2
 	
+	; now start loading entities.
+	
+	; but first, ensure there isn't a delay imposed on us
+	lda entdelay
+	beq @entityLoadLoop
+	
+	; yeah there is, decrement and return
+	dec entdelay
+	jmp @return
+	
+@entityLoadLoop:
+	jsr gm_read_ent_na
+	cmp #ec_dataend
+	beq @return
+	
+	cmp #ec_scrnext
+	beq @screenNext
+	
+	; three bits will be masked away. these might be repurposed for flags.
+	; this is the Y position of the entity.
+	
+	; compare it to the current row's position
+	lsr
+	lsr
+	lsr
+	cmp temp1
+	
+	; if they are not equal, then return, this entity don't belong on this column.
+	bne @return
+	
+	; they DO belong on this column! load the entity.
+	
+	; - When scrolling up, entities will be moved up. Using $F8, it's partly off the
+	; top of the screen, but when the screen is scrolled again it goes back to
+	; zero.
+	; - When scrolling down, $F8 will be the resting position of the entity.
+	lda #$F8
+	sta temp2
+	
+	; Load the rest of the data
+	; TODO: Use one of the unused 3 bits for the X position
+	jsr gm_read_ent               ; Y position + 3 unused bits. Skipping
+	jsr gm_read_ent               ; X position
+	sta temp1
+	jsr gm_read_ent               ; Type of entity
+	sta temp3
+	
+	; Find a spot for this entity.
+	ldx #0
+@spotFindingLoop:
+	lda sprspace + sp_kind, x
+	beq @spotFound
+	inx
+	cpx #sp_max
+	bne @spotFindingLoop
+	
+	; No Space Found
+	; Read as many entities as there are on this column
+	beq @entityLoadLoop
+	
+	; "Not Equal" is not possible because we would have jumped back to @spotFindingLoop
+@screenNext:
+	; OK. Next screen then, eh?
+	
+	; Delay entity loading for 30 rows (1 full screen)
+	lda #30
+	sta entdelay
+	
+	jmp @return
+	
+@spotFound:
+	; initialize the entity
+	jsr gm_init_entity
+	
+	; load its X coordinate.
+	lda roombeglo
+	clc
+	adc temp1
+	sta sprspace + sp_x, x
+	
+	lda temp3
+	; rotate the 0x80 bit back into 0x01
+	rol
+	rol
+	and #1
+	
+	clc
+	adc roombeghi
+	sta sprspace + sp_x_pg, x
+	
+	; okay !! try loading another entity
+	jmp @entityLoadLoop
+	
+@return:
+	pla
+	sta temp1
+	
+@return2:
 	ldy #prgb_xtra
 	lda #mmc3bk_prg1
 	jmp mmc3_set_bank   ; change bank back

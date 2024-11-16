@@ -1645,6 +1645,8 @@ gm_addtrace:
 	lda player_x
 	sta plr_trace_x, x
 	lda player_y
+	sec
+	sbc camera_y_sub
 	sta plr_trace_y, x
 	rts
 
@@ -1712,6 +1714,28 @@ gm_shifttraceYP:
 	bcc :+
 	lda #$F0
 	
+:	sta plr_trace_y, x
+	inx
+	cpx #$40
+	bne @loop
+	pla
+	rts
+	
+; ** SUBROUTINE: gm_shifttraceYN
+; desc: Shifts the player Y trace up by an amount of pixels
+; parameters:
+;     A - the amount of pixels to increase the player Y trace by
+; note: The player X trace is capped to 0. It will never overflow.
+gm_shifttraceYN:
+	pha
+	ldx #0
+	sta temp1
+@loop:
+	lda plr_trace_y, x
+	sec
+	sbc temp1	
+	bcs :+
+	lda #0
 :	sta plr_trace_y, x
 	inx
 	cpx #$40

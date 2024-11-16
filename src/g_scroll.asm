@@ -198,6 +198,7 @@ gm_scroll_d_cond:
 @noFix:
 	
 	sta temp1          ; store the difference here as we'll need it later
+	jsr gm_shifttraceYN
 	
 	; add it to the camera Y sub coord
 	lda camera_y_sub
@@ -316,6 +317,7 @@ gm_scroll_u_cond:
 @noFix:
 	
 	sta temp1          ; store the difference here as we'll need it later
+	jsr gm_shifttraceYP
 	
 	; take it from the camera Y sub coord
 	lda camera_y_sub

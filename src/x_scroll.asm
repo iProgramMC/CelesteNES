@@ -77,7 +77,8 @@ gm_gener_tiles_horiz_FAR:
 	sta wrcountHR2
 	
 	; outlined because we need access to level data bank
-	jsr __xt_convert_metatiles
+	ldx temp1
+	jsr __xt_convert_metatiles_load_entities
 	
 	lda #nc_flushrow
 	ora nmictrl

@@ -52,13 +52,12 @@ level1_r6_e:
 	.byte $D0,$70,$02
 	.byte $D0,$80,$02
 	.byte $D0,$90,$02
-	.byte $FE
 	.byte $FF
+	.byte $80,$C0,$01
+	.byte $90,$50,$01
 	.byte $FE
-	.byte $60,$90,$01
-	.byte $90,$10,$01
-	.byte $B0,$80,$01
-	.byte $10,$50,$81
+	.byte $FE
+	.byte $A8,$80,$03
 	.byte $FF
 level1_r6_t:
 	.byte $C7,$3C,$00,$00,$00,$3F,$07,$09
@@ -590,7 +589,7 @@ level1_r6_t:
 	.byte $64,$64,$64,$64,$64,$64,$64,$64
 	.byte $64,$FF
 level1_r6:
-	.byte 40, 2, 0
+	.byte 40, 1, 0
 	.byte 24, 40
 	.byte 255, 255, 255, 255
 	.byte 0, 0, 0, 0

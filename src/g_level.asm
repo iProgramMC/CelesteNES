@@ -1050,7 +1050,36 @@ h_gener_ents_r:
 	; no more space found for this entity! :(
 	rts
 h_generents_spotfound:
+	
 	; a sprite slot was found. its slot number is located in the x register.
+	jsr gm_init_entity
+	
+	; load the X coordinate, and add the room beginning pixel and the current screen pos
+	clc
+	lda temp1
+	adc roombeglo
+	sta sprspace+sp_x, x
+	
+	lda tr_scrnpos
+	adc roombeghi
+	sta sprspace+sp_x_pg, x
+	
+	rts
+
+; ** SUBROUTINE: gm_init_entity
+; desc: Initializes an entity's fields when loaded.
+;       Handles all the special entity ID cases (e.g. e_rerefill)
+;
+; note: You can also use `gm_read_ent` here to read extra properties about
+;       this entity (though you MUST make LevelEditor export them as well)
+;
+; note: The X coordinate is up to the loader. It won't be modified.
+;
+; parameters:
+;     temp2 - Y coordinate
+;     temp3 - Entity Type
+;     X Reg - Entity index
+gm_init_entity:
 	lda #0
 	sta sprspace+sp_entspec1, x
 	sta sprspace+sp_entspec2, x
@@ -1065,18 +1094,6 @@ h_generents_spotfound:
 	sta sprspace+sp_vel_y_lo, x
 	sta sprspace+sp_flags, x
 	
-	lda temp3
-	cmp #e_rerefill
-	bne :+
-	lda #e_refill             ; this is a refill with regeneration. turn it into a
-	sta sprspace+sp_kind, x   ; normal refill entity with the erf_regen flag set.
-	lda #erf_regen
-	sta sprspace+sp_refill_flags, x
-	jmp h_generents_cont
-:
-	; some more exceptional entity IDs here...
-	sta sprspace+sp_kind, x
-h_generents_cont:
 	lda roomnumber
 	and #1
 	asl
@@ -1085,17 +1102,22 @@ h_generents_cont:
 	lda temp2
 	sta sprspace+sp_y, x
 	
-	; load the X coordinate, and add the room beginning pixel and the current screen pos
-	clc
-	lda temp1
-	adc roombeglo
-	sta sprspace+sp_x, x
+	lda temp3
+	sta sprspace+sp_kind, x
 	
-	lda tr_scrnpos
-	adc roombeghi
-	sta sprspace+sp_x_pg, x
+	cmp #e_rerefill
+	bne @notReRefill
 	
+	lda #e_refill             ; this is a refill with regeneration. turn it into a
+	sta sprspace+sp_kind, x   ; normal refill entity with the erf_regen flag set.
+	lda #erf_regen
+	sta sprspace+sp_refill_flags, x
+	
+@notReRefill:
+	; todo: more cases ...
 	rts
+	
+	
 
 ; ** SUBROUTINE: gm_set_level_ptr
 ; ** SUBROUTINE: gm_set_room_ptr
