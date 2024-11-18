@@ -253,6 +253,12 @@ warp_l_y    : .res 1
 warp_r_y    : .res 1
 rm_paloffs  : .res 1
 
+; NEW level format
+roomwidth   : .res 1
+roomheight  : .res 1
+roomreadidx : .res 2 ; read index in first name table row
+roomcurrcol : .res 1 ; current column index in first name table row
+
 roomhdrfirst = roomsize
 roomhdrlast  = rm_paloffs + 1
 
@@ -289,3 +295,9 @@ areaspace   : .res $800
 
 .segment "AREAXTRA"     ; $6800 - Cartridge WRAM
 areaextra   : .res $400 * 4 ; 4 screens worth of extra data
+
+; AreaExtra composed of:
+; [ 960 bytes ] - Screen 1
+; [ 960 bytes ] - Screen 2
+; [ 960 bytes ] - Screen 3
+; [ 960 bytes ] - Screen 4

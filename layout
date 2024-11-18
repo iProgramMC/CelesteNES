@@ -20,7 +20,7 @@ MEMORY
 	
 	AREASPC:  start=$6000, size=$0800, type=rw, file="";
 	AREAXTRA: start=$6800, size=$1000, type=rw, file="";
-	DLGTEMP:  start=$6800, size=$0400, type=rw, file="";
+	DLGTEMP:  start=$7800, size=$0400, type=rw, file="";
 	
 	# NOTE: It's actually possible to have 64 PRG banks and 32 CHR banks.
 	# Currently we only use 16 banks of PRG space because it's enough.

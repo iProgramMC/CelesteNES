@@ -9,7 +9,7 @@
 .byte %00001000 ; flags 7 -- NES 2.0 header
 .byte %00000000 ; mapper msb / submapper
 .byte %00000000 ; prg-rom / chr-rom size msb
-.byte %00000110 ; prg-ram / eeprom size (64 << 6 == 4096)
+.byte %00000111 ; prg-ram / eeprom size (64 << 7 == 8192)
 .byte %00000000 ; chr-ram size
 .byte %00000000 ; cpu/ppu timing mode
 .byte %00000000 ; vs. system type

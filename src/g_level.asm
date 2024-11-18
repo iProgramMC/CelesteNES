@@ -942,7 +942,12 @@ h_gener_mts_r:
 :	ldx arwrhead
 	jsr h_comp_addr       ; compute the address in (lvladdr)
 	
-	ldy #0
+	lda #rf_new
+	bit roomflags
+	beq :+
+	jmp h_gener_mts_NEW_r
+	
+:	ldy #0
 h_genertiles_loop:
 	jsr gm_read_tile
 	cmp #$FF              ; if data == 0xFF, then decrement the pointer
@@ -980,6 +985,7 @@ h_genertiles_cont:
 	sta (lvladdr), y
 	iny
 	
+h_genertiles_inc_arwrhead:
 	clc                   ; loop done, increment arwrhead, ensuring it rolls over after 63
 	lda #1
 	adc arwrhead
@@ -1250,12 +1256,9 @@ gm_fetch_room:
 	; check if this is new level
 	lda #rf_new
 	bit roomflags
-	bne :+
+	beq :+
 	jmp gm_decompress_level
 :	rts
-
-gm_decompress_level:
-	rts
 
 ; ** SUBROUTINE: gm_on_level_init
 ; desc: Called on level initialization.
