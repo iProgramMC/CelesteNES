@@ -3,6 +3,7 @@
 .segment "PRG_TTLE"
 
 	.include "title/title.asm"
+	.include "title/titlescr.asm"
 	.include "title/mountain.asm"
 
 title_palette:

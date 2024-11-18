@@ -1216,12 +1216,12 @@ gm_fetch_room:
 	
 	ldy #0
 
-gm_fetch_room_loop:
+@fetchRoomLoop:
 	lda (roomptrlo),y
 	sta roomhdrfirst,y
 	iny
 	cpy #<(roomhdrlast-roomhdrfirst)
-	bne gm_fetch_room_loop
+	bne @fetchRoomLoop
 	
 	; load tile pointer from room pointer, Y=10
 	lda (roomptrlo),y
@@ -1246,6 +1246,15 @@ gm_fetch_room_loop:
 	lda (roomptrlo),y
 	iny
 	jsr gm_set_ent_head
+	
+	; check if this is new level
+	lda #rf_new
+	bit roomflags
+	bne :+
+	jmp gm_decompress_level
+:	rts
+
+gm_decompress_level:
 	rts
 
 ; ** SUBROUTINE: gm_on_level_init
@@ -1369,8 +1378,7 @@ gm_set_room:
 	sty currroom
 	iny
 	iny
-	jsr gm_fetch_room
-	rts
+	jmp gm_fetch_room
 
 ; ** SUBROUTINE: gm_load_generics
 ; desc: Loads the generic sprite sheet banks.  The game may animate them later.
