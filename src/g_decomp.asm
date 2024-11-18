@@ -181,3 +181,41 @@ dataEnd:
 	sta trarwrhead
 	jmp finally
 .endproc
+
+; desc: Generates a row of tiles below the scroll seam.
+.proc gm_gener_tiles_below_NEW
+	lda camera_y
+	lsr
+	lsr
+	lsr
+	; take the one *above* camera_y
+	tay
+	dey
+	bpl :+
+	ldy #29
+:	sty temp1
+	jmp gm_gener_tiles_horiz_NEW
+.endproc
+
+; desc: Generates a row of tiles above the scroll seam.
+.proc gm_gener_tiles_above_NEW
+	lda camera_y
+	lsr
+	lsr
+	lsr
+	; take the one *below* camera_y
+	clc
+	adc #1
+	cmp #30
+	bne :+
+	lda #0
+:	sta temp1
+	; jmp gm_gener_tiles_horiz
+.endproc
+
+; desc: Generates a row of tiles on the scroll seam.
+.proc gm_gener_tiles_horiz_NEW
+	
+	
+	rts
+.endproc

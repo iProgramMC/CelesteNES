@@ -5,4 +5,3 @@
 .include "game.asm"
 .include "lvltable.asm"
 .include "dialogif.asm"
-.include "xtraif.asm"
