@@ -265,8 +265,8 @@ sprspace    : .res $100
 .segment "PLTRACES"
 plr_trace_x : .res $40
 plr_trace_y : .res $40
-tl_snow_y   : .res 16
-tl_snow_x   : .res 16
+tl_snow_y   = plr_trace_y
+tl_snow_x   = plr_trace_x
 
 .segment "DRAWTEMP"
 tempcol     : .res $20  ; 32 bytes - temporary column to be flushed to the screen
@@ -286,3 +286,6 @@ palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800
+
+.segment "AREAXTRA"     ; $6800 - Cartridge WRAM
+areaextra   : .res $400 * 4 ; 4 screens worth of extra data
