@@ -227,7 +227,22 @@ h_flush_row_u:
 	bne :-
 	
 @dontflushHR2:
+	ldy wrcountHR3
+	beq @dontflushHR3
 	
+	lda ppuaddrHR3+1
+	sta ppu_addr
+	lda ppuaddrHR3
+	sta ppu_addr
+	ldy #0
+	
+:	lda temprow3, y
+	sta ppu_data
+	iny
+	cpy wrcountHR3
+	bne :-
+	
+@dontflushHR3:
 	; advance the row head but keep it within 30
 	ldx ntrowhead
 	bne :+

@@ -831,6 +831,7 @@ gm_gener_tiles_horiz:
 	; ok, now that the tiles are written, render them to the screen
 	; we're reusing tempcol for that
 	
+gm_gener_tiles_horiz_row_read:
 	; calculate the first PPUADDR
 	lda #$00
 	sta ppuaddrHR1
@@ -876,6 +877,11 @@ gm_gener_tiles_horiz:
 	and #%11100000
 	sta ppuaddrHR2
 	
+	; ppuaddrHR3 (if needed) is going to be the nametable we're starting with with X=0
+	sta ppuaddrHR3
+	lda ppuaddrHR1+1
+	sta ppuaddrHR3+1
+	
 	; determine how much we should be writing to the first half
 	lda ppuaddrHR1
 	and #%00011111
@@ -895,6 +901,15 @@ gm_gener_tiles_horiz:
 	sbc wrcountHR1
 	sta wrcountHR2
 	
+	cmp #32
+	bcc @noMoreThan32
+	
+	; sigh, seems like it's still more than 32
+	sbc #32
+	sta wrcountHR3
+	; note: writes to temprow2 will slip onto temprow3. wrcountHR2 will be fixed up later
+	
+@noMoreThan32:
 	; outlined because we need access to level data bank
 	ldx temp1
 	jsr gm_convert_metatiles_load_entities
@@ -903,10 +918,16 @@ gm_gener_tiles_horiz:
 	ora nmictrl
 	sta nmictrl
 	
+	lda wrcountHR2
+	cmp #32
+	bcc @noFixUpWrCount
+	lda #32
+	sta wrcountHR2
+@noFixUpWrCount:
+	
 	lda roomflags
 	and #rf_goup
 	bne @goingUp
-	
 	lda temp1
 	and #1
 	beq @uploadPaletteDataBelow

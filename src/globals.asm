@@ -203,13 +203,15 @@ ntrowhead2  : .res 1
 camdst_x    : .res 1 ; temporary used by gm_leaveroomU
 camdst_x_pg : .res 1 ; temporary used by gm_leaveroomU
 wrcountHP1  : .res 1 ; write count for HP1
+wrcountHP2  : .res 1 ; write count for HP2
 ppuaddrHP1  : .res 2 ; ppuaddr to write palH1 to
 ppuaddrHP2  : .res 2 ; ppuaddr to write palH2 to
 ppuaddrHR1  : .res 2 ; ppuaddr to write row1 to
 ppuaddrHR2  : .res 2 ; ppuaddr to write row2 to
-wrcountHP2  : .res 1 ; write count for HP2
+ppuaddrHR3  : .res 2 ; ppuaddr to write row3 to
 wrcountHR1  : .res 1 ; write count for HR1
 wrcountHR2  : .res 1 ; write count for HR2
+wrcountHR3  : .res 1 ; write count for HR3
 camoff_H    : .res 1 ; temporaries used by gm_leaveroomU
 camoff_M    : .res 1
 camoff_L    : .res 1
@@ -281,6 +283,7 @@ temppalH1   : .res $8   ; 8 bytes  - temporary row in nametable 0
 temppalH2   : .res $8   ; 8 bytes  - temporary row in nametable 1
 temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0
 temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
+temprow3    : .res $20  ; 32 bytes - temporary row in nametable 1
 lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 loadedpals  : .res $40  ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 ntattrdata  : .res $80  ; 128 bytes- loaded attribute data

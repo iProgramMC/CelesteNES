@@ -10,7 +10,7 @@ noCarry:
 .endscope
 .endmacro
 
-; adds a value (constant or from memory) to 16-bit "thing"
+; adds an 8-bit value (constant or from memory) to 16-bit "thing"
 .macro add_16 thing, value
 .scope
 	lda thing
@@ -21,6 +21,17 @@ noCarry:
 	inc thing+1
 noCarry:
 .endscope
+.endmacro
+
+; adds a 16-bit value (constant) to 16-bit "thing"
+.macro add_16_16 thing, constant
+	lda #<(constant)
+	clc
+	adc thing
+	sta thing
+	lda #>(constant)
+	adc thing+1
+	sta thing+1
 .endmacro
 
 ; adds the content of A to 16-bit "thing"
@@ -194,6 +205,7 @@ dataEnd:
 	bpl :+
 	ldy #29
 :	sty temp1
+	ldx #1
 	jmp gm_gener_tiles_horiz_NEW
 .endproc
 
@@ -210,12 +222,48 @@ dataEnd:
 	bne :+
 	lda #0
 :	sta temp1
+	ldx #0
 	; jmp gm_gener_tiles_horiz
 .endproc
 
 ; desc: Generates a row of tiles on the scroll seam.
 .proc gm_gener_tiles_horiz_NEW
+	; read a row
+	lda #<areaextra
+	sta temp2
+	lda #>areaextra
+	sta temp2+1
 	
+	; X is either 0 or 1. 0 if scrolling up, 1 if scrolling down.
+	; This pretty much always tells us which nametable we need.
+	txa
+	beq dontUseSecondRow
+	add_16_16 temp2, (960*2)
 	
-	rts
+dontUseSecondRow:
+	ldx roombeglo2
+	jsr h_comp_addr
+	
+	ldy temp1
+	ldx #0
+loop:
+	lda (temp2), y
+	sta tempcol, x
+	sta (lvladdr), y
+	
+	; increment the column index
+	add_16 temp2,   #30
+	add_16 lvladdr, #32
+	
+	; of course, we need to mask out any potential increases beyond areaspace
+	; lvladdr is formed of the following bits: 0100 0xxx xxxy yyyy
+	lda lvladdr+1
+	and #%11110111
+	sta lvladdr+1
+	
+	inx
+	cpx roomwidth
+	bne loop
+	
+	jmp gm_gener_tiles_horiz_row_read
 .endproc
