@@ -198,6 +198,24 @@ gm_scroll_d_cond:
 @noFix:
 	
 	sta temp1          ; store the difference here as we'll need it later
+	
+	; first of all, check if the camera should be locked
+	lda camera_y
+	bne @notZero
+	; is zero, so instead, camera_y_hi times 240
+	lda camera_y_hi
+	beq @notZero
+	lda #240
+@notZero:
+	lsr
+	lsr
+	lsr
+	clc
+	adc #30
+	cmp roomheight
+	beq @scrollRet     ; yes, locked
+	
+	lda temp1
 	jsr gm_shifttraceYN
 	
 	; add it to the camera Y sub coord
@@ -220,9 +238,15 @@ gm_scroll_d_cond:
 	lda camera_y
 	clc
 	adc #8
+	sta temp1
 	cmp #240
 	bcc :+
 	adc #15       ; carry set, so actually adds 16
+	pha
+	lda camera_y_hi
+	eor #$01
+	sta camera_y_hi
+	pla
 :	sta camera_y
 	
 	; move player up
@@ -231,19 +255,7 @@ gm_scroll_d_cond:
 	sbc #8
 	sta player_y
 	
-	; move all entities up
-	ldy #0
-@entShiftLoop:
-	lda sprspace+sp_y, y
-	sec
-	sbc #8
-	bcs :+      ; if it didn't go below zero, don't clear
-	lda #0
-	sta sprspace+sp_kind, y
-:	sta sprspace+sp_y, y
-	iny
-	cpy #sp_max
-	bne @entShiftLoop
+	jsr gm_shift_entities_up
 	
 	; load a new set of tiles
 	jsr gm_gener_tiles_below
@@ -259,6 +271,21 @@ gm_calculate_vert_offs:
 	lsr
 	sta vertoffshack
 	rts
+
+gm_shift_entities_up:
+	; move all entities up
+	ldy #0
+@entShiftLoop:
+	lda sprspace+sp_y, y
+	sec
+	sbc #8
+	bcs :+      ; if it didn't go below zero, don't clear
+	lda #0
+	sta sprspace+sp_kind, y
+:	sta sprspace+sp_y, y
+	iny
+	cpy #sp_max
+	bne @entShiftLoop
 
 ; ** SUBROUTINE: gm_load_level_if_vert
 ; desc: Loads more of the horizontal level segment, if in vertical mode.
@@ -317,6 +344,20 @@ gm_scroll_u_cond:
 @noFix:
 	
 	sta temp1          ; store the difference here as we'll need it later
+	
+	; first of all, check if the camera should be locked
+	lda camera_y
+	bne @notZero
+	lda camera_y_hi
+	bne @notZero
+	; if cameraY and cameraYHigh == 0, forbid scrolling more than "camera_y_sub" pixels
+	lda temp1
+	cmp camera_y_sub
+	bcc @notZero
+	lda camera_y_sub
+	sta temp1
+@notZero:
+	lda temp1
 	jsr gm_shifttraceYP
 	
 	; take it from the camera Y sub coord
@@ -340,6 +381,11 @@ gm_scroll_u_cond:
 	sbc #8
 	bcs :+
 	sbc #15            ; subtract 16 more because this is surely in the 240-256 range
+	pha
+	lda camera_y_hi
+	eor #$01
+	sta camera_y_hi
+	pla
 :	sta camera_y
 	
 	; move player down
@@ -348,6 +394,24 @@ gm_scroll_u_cond:
 	adc #8
 	sta player_y
 	
+	jsr gm_shift_entities_down
+	
+	lda #g2_loadvrow
+	bit gamectrl2
+	bne @generateTilesAbove
+	
+	ora gamectrl2
+	sta gamectrl2
+	bne @scrollRet
+	
+@generateTilesAbove:
+	; load a new set of tiles
+	jsr gm_gener_tiles_above
+	
+@scrollRet:
+	jmp gm_calculate_vert_offs
+
+gm_shift_entities_down:
 	; move all entities down
 	ldy #0
 @entShiftLoop:
@@ -365,21 +429,7 @@ gm_scroll_u_cond:
 	iny
 	cpy #sp_max
 	bne @entShiftLoop
-	
-	lda #g2_loadvrow
-	bit gamectrl2
-	bne @generateTilesAbove
-	
-	ora gamectrl2
-	sta gamectrl2
-	bne @scrollRet
-	
-@generateTilesAbove:
-	; load a new set of tiles
-	jsr gm_gener_tiles_above
-	
-@scrollRet:
-	jmp gm_calculate_vert_offs
+	rts
 
 ; ** SUBROUTINE: gm_gener_tiles_below
 ; desc: Generates tiles at the scroll seam.
@@ -897,7 +947,9 @@ gm_gener_tiles_horiz_row_read:
 	sec
 	sbc roombeglo2
 	and #%00111111 ; total number to write
-	sec
+	bne :+
+	lda #%01000000
+:	sec
 	sbc wrcountHR1
 	sta wrcountHR2
 	

@@ -94,6 +94,7 @@ noCarry:
 	sta roomcurrcol
 	sta roomreadidx
 	sta roomreadidx+1
+	sta camera_y_hi   ; might want to set it to 1 if the room grows *up*
 	
 	rts
 
