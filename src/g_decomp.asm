@@ -23,6 +23,19 @@ noCarry:
 .endscope
 .endmacro
 
+; subtracts an 8-bit value (constant or from memory) to 16-bit "thing"
+.macro sub_16 thing, value
+.scope
+	lda thing
+	sec
+	sbc value
+	sta thing
+	bcs noCarry
+	dec thing+1
+noCarry:
+.endscope
+.endmacro
+
 ; adds a 16-bit value (constant) to 16-bit "thing"
 .macro add_16_16 thing, constant
 	lda #<(constant)
@@ -110,7 +123,7 @@ loopJ_s1lo:
 	lda (palrdheadlo, x)
 	sta temp6
 	
-	add_16 palrdheadlo, #1
+	increment_16 palrdheadlo
 	
 	; screen_1[i+j+0]
 	lda temp6
@@ -139,7 +152,7 @@ loopJ_s2lo:
 	lda (palrdheadlo, x)
 	sta temp6
 	
-	add_16 palrdheadlo, #1
+	increment_16 palrdheadlo
 	
 	; screen_2[i+j+0]
 	lda temp6
@@ -154,8 +167,8 @@ loopJ_s2lo:
 	lsr
 	lsr
 	iny
-	ora (temp1), y
-	sta (temp1), y
+	ora (temp3), y
+	sta (temp3), y
 	
 	iny
 	cpy #8
@@ -166,14 +179,31 @@ loopJ_s2lo:
 	; check if I is 56
 	lda _index
 	cmp #56
-	beq dontProcess
+	bne alsoProcessHighHalf
 	
+	; sigh, finally done
+doneProcessing:
+	lda _index
+	clc
+	adc #8
+	tax
+	cpx #64
+	beq :+
+	jmp loopI
+:	rts
+
+alsoProcessHighHalf:
 	; i is not 56, also process the high part
+	; subtract 8 from temp1 and temp3, they'll be back here after
+	sub_16 temp1, #8
+	sub_16 temp3, #8
+	
+	ldy #0
 loopJ_s1hi:
 	lda (palrdheadlo, x)
 	sta temp6
 	
-	add_16 palrdheadlo, #1
+	increment_16 palrdheadlo
 	
 	; screen_1[i+j+0]
 	lda temp6
@@ -202,7 +232,7 @@ loopJ_s2hi:
 	lda (palrdheadlo, x)
 	sta temp6
 	
-	add_16 palrdheadlo, #1
+	increment_16 palrdheadlo
 	
 	; screen_2[i+j+0]
 	lda temp6
@@ -225,17 +255,7 @@ loopJ_s2hi:
 	bne loopJ_s2hi
 	
 	add_16 temp3, #8
-	
-	; sigh, finally done
-	lda _index
-dontProcess:
-	clc
-	adc #8
-	tax
-	cpx #64
-	beq :+
-	jmp loopI
-:	rts
+	jmp doneProcessing 
 .endproc
 
 .proc gm_de_read_palette_data
@@ -252,6 +272,12 @@ loop:
 	
 	; convert palette data from 8X2 to 4X4
 	
+	; reload palrdhead
+	lda #<areapal8X2
+	sta palrdheadlo
+	lda #>areapal8X2
+	sta palrdheadhi
+	
 	; first nametable row
 	
 	; prepare addresses
@@ -265,7 +291,7 @@ loop:
 	lda #>(areapal4X4+64)
 	sta temp4
 	
-	;jsr gm_de_convert_palette_data
+	jsr gm_de_convert_palette_data
 	
 	; prepare addresses
 	lda #<(areapal4X4+128)
@@ -278,8 +304,7 @@ loop:
 	lda #>(areapal4X4+192)
 	sta temp4
 	
-	;jmp gm_de_convert_palette_data
-	rts
+	jmp gm_de_convert_palette_data
 .endproc
 
 ; ** SUBROUTINE: gm_decompress_level
