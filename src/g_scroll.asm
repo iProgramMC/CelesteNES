@@ -553,20 +553,20 @@ gm_convert_metatiles_load_entities:
 	
 	ldx #0
 @loop1:
-	ldy tempcol, x
+	ldy temprowtot, x
 	lda metatiles, y
 	sta temprow1, x
 	inx
 	cpx wrcountHR1
 	bne @loop1
 	
-	; store the index in tempcol to temp4, will be picked up later
+	; store the index in temprowtot to temp4, will be picked up later
 	stx temp4
 	
 	ldx #0
 @loop2:
 	ldy temp4
-	lda tempcol, y
+	lda temprowtot, y
 	
 	; increment and store to get rid of it. we'll need Y for a different purpose
 	iny

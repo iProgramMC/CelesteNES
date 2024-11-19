@@ -248,9 +248,9 @@ dontUseSecondRow:
 	ldy temp1
 	ldx #0
 loop:
-	lda (temp2), y
-	sta tempcol, x
-	sta (lvladdr), y
+	lda (temp2),    y
+	sta (lvladdr),  y
+	sta temprowtot, x
 	
 	; increment the column index
 	add_16 temp2,   #30

@@ -277,10 +277,12 @@ tl_snow_y   = plr_trace_y
 tl_snow_x   = plr_trace_x
 
 .segment "DRAWTEMP"
-tempcol     : .res $20  ; 32 bytes - temporary column to be flushed to the screen
-temppal     : .res $8   ; 8 bytes  - temp palette column to be flushed to the screen
-temppalH1   : .res $8   ; 8 bytes  - temporary row in nametable 0
-temppalH2   : .res $8   ; 8 bytes  - temporary row in nametable 1
+temprowtot  : .res $40
+tempcol     = temprowtot+$00  ; 32 bytes - temporary column to be flushed to the screen
+temppal     = temprowtot+$20  ; 8 bytes  - temp palette column to be flushed to the screen
+temppalH1   = temprowtot+$28  ; 8 bytes  - temporary row in nametable 0
+temppalH2   = temprowtot+$30  ; 8 bytes  - temporary row in nametable 1
+; 8 bytes here
 temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0
 temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
 temprow3    : .res $20  ; 32 bytes - temporary row in nametable 1
