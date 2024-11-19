@@ -63,42 +63,7 @@ noCarry:
 ;   
 ;
 
-; ** SUBROUTINE: gm_decompress_level
-; desc: Completely decompresses a level.
-.proc gm_decompress_level
-	
-	; Read room width and height.
-	jsr gm_read_tile
-	sta roomwidth
-	jsr gm_read_tile
-	sta roomheight
-	
-	; Start loading the first screen
-	lda #<areaextra
-	sta lvladdr
-	lda #>areaextra
-	sta lvladdr+1
-	
-	jsr load_screen
-	
-	lda #<(areaextra+960*2)
-	sta lvladdr
-	lda #>(areaextra+960*2)
-	sta lvladdr+1
-	
-	jsr load_screen
-	
-	; TODO: palette data, etc.
-	
-	lda #0
-	sta roomcurrcol
-	sta roomreadidx
-	sta roomreadidx+1
-	sta camera_y_hi   ; might want to set it to 1 if the room grows *up*
-	
-	rts
-
-load_screen:
+.proc gm_de_load_screen
 	; OK, now start writing.  This is the FIRST row of screens.
 	ldx #0
 loopX:
@@ -123,7 +88,236 @@ endedLoopYEarly:
 	cpx roomwidth
 	bne loopX
 	rts
+.endproc
 
+; ** SUBROUTINE: gm_de_convert_palette_data
+; parameters:
+;    [temp2, temp1] - address of screen_1
+;    [temp4, temp3] - address of screen_2
+; clobbers:
+;    temp5, temp6
+.proc gm_de_convert_palette_data
+_index = temp5
+	ldx #0   ; _index
+	
+loopI:
+	stx _index
+	
+	ldx #0    ; used in the loops as a zero register, always
+	ldy #0
+loopJ_s1lo:
+	; read palette data
+	lda (palrdheadlo, x)
+	sta temp6
+	
+	add_16 palrdheadlo, #1
+	
+	; screen_1[i+j+0]
+	lda temp6
+	and #%00001111
+	ora (temp1), y
+	sta (temp1), y
+	
+	; screen_1[i+j+1]
+	lda temp6
+	lsr
+	lsr
+	lsr
+	lsr
+	iny
+	ora (temp1), y
+	sta (temp1), y
+	
+	iny
+	cpy #8
+	bne loopJ_s1lo
+	
+	add_16 temp1, #8
+	
+	ldy #0
+loopJ_s2lo:
+	lda (palrdheadlo, x)
+	sta temp6
+	
+	add_16 palrdheadlo, #1
+	
+	; screen_2[i+j+0]
+	lda temp6
+	and #%00001111
+	ora (temp3), y
+	sta (temp3), y
+	
+	; screen_2[i+j+1]
+	lda temp6
+	lsr
+	lsr
+	lsr
+	lsr
+	iny
+	ora (temp1), y
+	sta (temp1), y
+	
+	iny
+	cpy #8
+	bne loopJ_s2lo
+	
+	add_16 temp3, #8
+	
+	; check if I is 56
+	lda _index
+	cmp #56
+	beq dontProcess
+	
+	; i is not 56, also process the high part
+loopJ_s1hi:
+	lda (palrdheadlo, x)
+	sta temp6
+	
+	add_16 palrdheadlo, #1
+	
+	; screen_1[i+j+0]
+	lda temp6
+	asl
+	asl
+	asl
+	asl
+	ora (temp1), y
+	sta (temp1), y
+	
+	; screen_1[i+j+1]
+	lda temp6
+	and #%11110000
+	iny
+	ora (temp1), y
+	sta (temp1), y
+	
+	iny
+	cpy #8
+	bne loopJ_s1hi
+	
+	add_16 temp1, #8
+	
+	ldy #0
+loopJ_s2hi:
+	lda (palrdheadlo, x)
+	sta temp6
+	
+	add_16 palrdheadlo, #1
+	
+	; screen_2[i+j+0]
+	lda temp6
+	asl
+	asl
+	asl
+	asl
+	ora (temp3), y
+	sta (temp3), y
+	
+	; screen_1[i+j+1]
+	lda temp6
+	and #%11110000
+	iny
+	ora (temp3), y
+	sta (temp3), y
+	
+	iny
+	cpy #8
+	bne loopJ_s2hi
+	
+	add_16 temp3, #8
+	
+	; sigh, finally done
+	lda _index
+dontProcess:
+	clc
+	adc #8
+	tax
+	cpx #64
+	beq :+
+	jmp loopI
+:	rts
+.endproc
+
+.proc gm_de_read_palette_data
+	; TODO: Read all 256 bytes for now
+	; note: perhaps there may be less, but reads would spill only into tile data so they'd be fine
+	ldy #0
+loop:
+	jsr gm_read_pal
+	sta areapal8X2, y
+	lda #0
+	sta areapal4X4, y
+	iny
+	bne loop
+	
+	; convert palette data from 8X2 to 4X4
+	
+	; first nametable row
+	
+	; prepare addresses
+	lda #<(areapal4X4+0)
+	sta temp1
+	lda #>(areapal4X4+0)
+	sta temp2
+	
+	lda #<(areapal4X4+64)
+	sta temp3
+	lda #>(areapal4X4+64)
+	sta temp4
+	
+	;jsr gm_de_convert_palette_data
+	
+	; prepare addresses
+	lda #<(areapal4X4+128)
+	sta temp1
+	lda #>(areapal4X4+128)
+	sta temp2
+	
+	lda #<(areapal4X4+192)
+	sta temp3
+	lda #>(areapal4X4+192)
+	sta temp4
+	
+	;jmp gm_de_convert_palette_data
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_decompress_level
+; desc: Completely decompresses a level.
+.proc gm_decompress_level
+	
+	; Read room width and height.
+	jsr gm_read_tile
+	sta roomwidth
+	jsr gm_read_tile
+	sta roomheight
+	
+	; Start loading the first screen
+	lda #<areaextra
+	sta lvladdr
+	lda #>areaextra
+	sta lvladdr+1
+	
+	jsr gm_de_load_screen
+	
+	lda #<(areaextra+960*2)
+	sta lvladdr
+	lda #>(areaextra+960*2)
+	sta lvladdr+1
+	
+	jsr gm_de_load_screen
+	
+	jsr gm_de_read_palette_data
+	
+	; TODO: palette data, etc.
+	
+	lda #0
+	sta roomcurrcol
+	sta roomreadidx
+	sta roomreadidx+1
+	sta camera_y_hi   ; might want to set it to 1 if the room grows *up*
+	
+	rts
 .endproc
 
 ; ** SUBROUTINE: h_gener_mts_NEW_r

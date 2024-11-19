@@ -19,8 +19,10 @@ MEMORY
 	FMSRAM:   start=$0700, size=$0100, type=rw, file="";
 	
 	AREASPC:  start=$6000, size=$0800, type=rw, file="";
-	AREAXTRA: start=$6800, size=$1000, type=rw, file="";
-	DLGTEMP:  start=$7800, size=$0400, type=rw, file="";
+	DLGTEMP:  start=$6800, size=$0400, type=rw, file="";
+	AREAPAL:  start=$6C00, size=$0200, type=rw, file="";
+	SAVEFILE: start=$6D00, size=$0200, type=rw, file="";
+	AREAXTRA: start=$7000, size=$1000, type=rw, file="";
 	
 	# NOTE: It's actually possible to have 64 PRG banks and 32 CHR banks.
 	# Currently we only use 16 banks of PRG space because it's enough.
@@ -116,6 +118,8 @@ SEGMENTS
 	FMSRAM:    load = FMSRAM,    type = bss;
 	AREASPC:   load = AREASPC,   type = bss;
 	DLGTEMP:   load = DLGTEMP,   type = bss, align = $100;
+	AREAPAL:   load = AREAPAL,   type = bss, align = $100;
+	SAVEFILE:  load = SAVEFILE,  type = bss, align = $100;
 	AREAXTRA:  load = AREAXTRA,  type = bss, align = $100;
 	PRG_LVL0A: load = PRG_LVL0A, type = ro, align=$100;
 	PRG_LVL1A: load = PRG_LVL1A, type = ro, align=$100;

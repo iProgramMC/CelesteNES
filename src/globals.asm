@@ -306,3 +306,29 @@ areaextra   : .res $400 * 4 ; 4 screens worth of extra data
 ; [ 960 bytes ] - Screen 2
 ; [ 960 bytes ] - Screen 3
 ; [ 960 bytes ] - Screen 4
+
+.segment "AREAPAL"
+
+areapal8X2  : .res $40  * 4 ; 4 X 16 X 4 (4 screens' worth of attribute table data)
+; (note: this one is laid out horizontally in 8X2 tile strips)
+; (note: this data is laid out row-wise)
+
+areapal4X4  : .res $40  * 4 ; 8 X 8  X 4 (4 screens' worth of attribute table data)
+; (note: this one is laid out in 4X4 tile blocks)
+; (note: this data is laid out column-wise)
+
+.segment "SAVEFILE"
+save_file_0:
+	sf_berries:   .res 22    ; bitset for 176 total strawberries
+	sf_name:      .res 16    ; player's name (default is "Madeline")
+	sf_times:     .res 3*8   ; times for each chapter (in frames. Up to 77 hours / 16.7 million frames)
+	sf_totaltime: .res 4     ; total time spent in-game (up to 2 years / 4 billion frames)
+	sf_deaths:    .res 2*8   ; total deaths (max. 65K)
+	sf_cassettes: .res 1     ; cassettes (B-sides) unlocked (note: probably won't actually have B-sides !)
+	sf_hearts:    .res 1     ; crystal hearts obtained
+	sf_flags:     .res 1     ; miscellaneous flags
+
+save_file_size = * - save_file_0
+
+save_file_1:      .res save_file_size
+save_file_2:      .res save_file_size

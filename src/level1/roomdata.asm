@@ -1,4 +1,36 @@
 level1_r6_p:
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
 	.byte $FF
 	.byte $FF
 level1_r6_e:
