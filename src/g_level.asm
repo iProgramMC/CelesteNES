@@ -792,18 +792,23 @@ h_calc_ntattrdata_addr:
 ; ** SUBROUTINE: h_palette_data_column
 ; desc: Reads a single column of palette data.
 ; NOTE: sets nc_flshpalv in nmictrl!
-h_palette_data_column:
+.proc h_palette_data_column
 	lda #gs_dontpal
 	bit gamectrl
-	bne @returnAndSetFlag
+	bne returnAndSetFlag
 	
-	ldy #0                    ; start reading palette data.
-@ploop:
+	lda #rf_new
+	bit roomflags
+	beq :+
+	jmp gm_gen_pal_col_NEW
+:	ldy #0                    ; start reading palette data.
+	
+ploop:
 	jsr gm_read_pal
 	cmp #$FE
-	beq @phaveFE              ; break out of this loop
+	beq phaveFE               ; break out of this loop
 	cmp #$FF
-	bne @pnoFF
+	bne pnoFF
 	
 	lda palrdheadlo
 	bne :+
@@ -811,13 +816,14 @@ h_palette_data_column:
 :	dec palrdheadlo
 	
 	lda #0
-@pnoFF:
+pnoFF:
 	sta temppal,y
 	iny
 	cpy #8
-	bne @ploop
-@phaveFE:
+	bne ploop
+phaveFE:
 	
+doneloadingpalettes:
 	lda temp1
 	pha
 	
@@ -826,7 +832,7 @@ h_palette_data_column:
 	jsr h_calc_ntattrdata_addr
 	
 	ldy #0
-@loopCopy:
+loopCopy:
 	; load the palette from the array
 	lda temppal, y
 	
@@ -843,17 +849,21 @@ h_palette_data_column:
 	; then advance the loop
 	iny
 	cpy #8
-	bne @loopCopy
+	bne loopCopy
 	
 	pla
 	sta temp1
 
-@returnAndSetFlag:
+returnAndSetFlag:
 	lda #nc_flshpalv
 	ora nmictrl
 	sta nmictrl
 	
 	rts
+.endproc
+
+h_palette_finish := h_palette_data_column::doneloadingpalettes
+
 ; significance of palette combinations:
 ; $FE - Re-use the same palette data as the previous column
 ; $FF - End of palette data

@@ -294,6 +294,7 @@ spritepalso : .res 9    ; 9 bytes  - previous frame's loaded sprite palettes
 sprpalcount : .res 1    ; 1 byte   - amount of palettes written
 sprpaltemp  : .res 1    ; 1 byte   - just a temporary variable
 palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
+palmystery  : .res 8    ; 8 bytes  - mysterious place to store some palettes, what could this be?
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

@@ -513,3 +513,45 @@ loop:
 	
 	jmp gm_gener_tiles_horiz_row_read
 .endproc
+
+; ** SUBROUTINE: gm_gen_pal_col_NEW
+; desc: Generates a column of palettes, stores it in temppal, then
+;       returns back to a label inside of h_palette_data_column.
+;
+; note: this is NOT called using jsr!
+.proc gm_gen_pal_col_NEW
+	lda ntwrhead
+	and #%11111100
+	sec
+	sbc roombeglo2
+	pha               ; OK SO we need to actually push here
+	and #%00011111    ; we'll want to reuse this amount to determine
+	lsr               ; which nametable this is actually a part of (important)
+	lsr
+	clc
+	adc #<areapal4X4
+	sta temp1
+	lda #>areapal4X4
+	adc #0
+	sta temp1+1
+	
+	pla
+	and #%00100000
+	beq dontAdd
+	
+	; add 64
+	add_16 temp1, #64
+	
+dontAdd:
+	ldx #0
+	ldy #0
+loop:
+	lda (temp1),  y
+	sta temppal,  x
+	add_16 temp1, #8
+	inx
+	cpx #8
+	bne loop
+	
+	jmp h_palette_finish
+.endproc
