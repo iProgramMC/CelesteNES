@@ -1,36 +1,36 @@
 level1_r6_p:
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	
+	.byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-	.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
+	.byte $B1,$B1,$B1,$B1,$B1,$B1,$B1,$B1
 	.byte $FF
 	.byte $FF
 level1_r6_e:

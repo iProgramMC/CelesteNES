@@ -454,6 +454,32 @@ dataEnd:
 	lda #>areaextra
 	sta temp2+1
 	
+	lda #0
+	sta palrdheadhi
+	
+	; X is either 0 or 1. 0 if scrolling up, 1 if scrolling down.
+	; This pretty much always tells us which nametable we need.
+	txa
+	beq :+
+	lda #30
+:	clc
+	adc temp1
+	and #%00111110   ; divide by 2 (temp1 is tile row) and multiply by 2
+	asl
+	rol palrdheadhi
+	asl
+	rol palrdheadhi
+	
+	sta palrdheadlo
+	
+	lda #<areapal8X2
+	clc
+	adc palrdheadlo
+	sta palrdheadlo
+	lda #>areapal8X2
+	adc palrdheadhi
+	sta palrdheadhi
+	
 	; X is either 0 or 1. 0 if scrolling up, 1 if scrolling down.
 	; This pretty much always tells us which nametable we need.
 	txa
