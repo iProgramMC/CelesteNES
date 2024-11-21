@@ -359,11 +359,16 @@ loop:
 	;ldx arwrhead
 	;jsr h_comp_addr       ; compute the address in (lvladdr)
 	
+	lda #rf_inverted
+	bit roomflags
+	bne isInverted
+	
 	lda #<areaextra
 	sta temp1
 	lda #>areaextra
 	sta temp1+1
 	
+doneInverted:
 	lda temp1
 	clc
 	adc roomreadidx
@@ -411,6 +416,14 @@ dataEnd:
 	lda arwrhead
 	sta trarwrhead
 	jmp finally
+
+isInverted:
+	lda #<(areaextra+960*2)
+	sta temp1
+	lda #>(areaextra+960*2)
+	sta temp1+1
+	bne doneInverted ; MUST succeed
+	brk $00
 .endproc
 
 ; desc: Generates a row of tiles below the scroll seam.
@@ -453,6 +466,17 @@ dataEnd:
 	sta temp2
 	lda #>areaextra
 	sta temp2+1
+	
+	lda roomflags
+	and #rf_inverted
+	; rf_inverted == 8
+	lsr
+	lsr
+	lsr
+	sta palrdheadhi
+	txa
+	eor palrdheadhi
+	tax
 	
 	lda #0
 	sta palrdheadhi
@@ -535,14 +559,21 @@ loop:
 	adc #0
 	sta temp1+1
 	
+	lda #rf_inverted
+	bit roomflags
+	beq dontAdd128
+	
+	add_16 temp1, #128
+	
+dontAdd128:
 	pla
 	and #%00100000
-	beq dontAdd
+	beq dontAdd64
 	
 	; add 64
 	add_16 temp1, #64
 	
-dontAdd:
+dontAdd64:
 	ldx #0
 	ldy #0
 loop:

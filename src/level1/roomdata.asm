@@ -177,7 +177,7 @@ level1_r6_t:
 	.byte $FF
 	.byte $FF
 level1_r6:
-	.byte 32, 4|2|1, 0
+	.byte 32, 8|4|2|1, 0
 	.byte 0, 0
 	.byte 255, 255, 255, 255
 	.byte 0, 0, 0, 0
