@@ -340,6 +340,13 @@ loop:
 	sta roomcurrcol
 	sta roomreadidx
 	sta roomreadidx+1
+	
+	lda roomflags
+	and #rf_inverted
+	; rf_inverted == 8
+	lsr
+	lsr
+	lsr
 	sta camera_y_hi   ; might want to set it to 1 if the room grows *up*
 	
 	rts
@@ -466,17 +473,6 @@ isInverted:
 	sta temp2
 	lda #>areaextra
 	sta temp2+1
-	
-	lda roomflags
-	and #rf_inverted
-	; rf_inverted == 8
-	lsr
-	lsr
-	lsr
-	sta palrdheadhi
-	txa
-	eor palrdheadhi
-	tax
 	
 	lda #0
 	sta palrdheadhi
