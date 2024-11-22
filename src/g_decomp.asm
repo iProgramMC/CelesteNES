@@ -93,19 +93,19 @@ loopY:
 	cmp #$FF                 ; End Early
 	beq endedLoopYEarly
 	
-	cmp #$A0
+	cmp #$A1
 	bcc notAirRepeat
 	cmp #$BF
 	bcc airRepeat            ; A0-BE
 
 notAirRepeat:
-	cmp #$C0
+	cmp #$C1
 	bcc notTileRepeat
 	cmp #$DF
 	bcc tileRepeat           ; C0-DE
 
 notTileRepeat:
-	cmp #$E0
+	cmp #$E1
 	bcc normalTile
 	cmp #$FF
 	bcc columnRepeat         ; E0-FE
