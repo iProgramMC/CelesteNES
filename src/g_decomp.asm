@@ -80,27 +80,96 @@ noCarry:
 	; OK, now start writing.  This is the FIRST row of screens.
 	ldx #0
 loopX:
+	stx temp8
 	; load a column
 	ldy #0
 loopY:
-	lda (arrdheadlo), y
+	; Now that the index into arrdheadlo doesn't necessarily match
+	; the actual Y row coord, we have to do this crap.
+	jsr readByte
+	
+	bpl normalTile           ; special bytes start at 0xA0, so anything below 0x80 must be normal
+	
 	cmp #$FF                 ; End Early
 	beq endedLoopYEarly
-	sta (lvladdr), y
+	
+	cmp #$A0
+	bcc notAirRepeat
+	cmp #$BF
+	bcc airRepeat            ; A0-BE
+
+notAirRepeat:
+	cmp #$C0
+	bcc notTileRepeat
+	cmp #$DF
+	bcc tileRepeat           ; C0-DE
+
+notTileRepeat:
+	cmp #$E0
+	bcc normalTile
+	cmp #$FF
+	bcc columnRepeat         ; E0-FE
+	
+normalTile:
+	sta (lvladdr),  y
+	sta lastcolumn, y
 	iny
+doneWithThisByte:
 	cpy #30
-	bne loopY
+	bcc loopY
 	
 	; move on to the next column
 endedLoopYEarly:
-	tya
-	add_16_a arrdheadlo
-	add_16   lvladdr, #30
+	add_16 lvladdr, #30
 	
+	ldx temp8
 	inx
 	cpx roomwidth
 	bne loopX
 	rts
+
+airRepeat:
+	sec
+	sbc #$A0
+	tax
+	lda #0
+airRepeatLoop:
+	sta (lvladdr),  y
+	sta lastcolumn, y
+	iny
+	dex
+	bne airRepeatLoop
+	beq doneWithThisByte
+
+tileRepeat:
+	sec
+	sbc #$C0
+	sta temp10   ; store the count in temp10
+	jsr readByte ; read byte (clobbers X)
+	ldx temp10   ; unclobber X
+	jmp airRepeatLoop ; it just places the tile index in A, so fine
+
+columnRepeat:
+	sec
+	sbc #$E0
+	tax
+	lda #0
+columnRepeatLoop:
+	lda lastcolumn, y
+	sta (lvladdr),  y
+	iny
+	dex
+	bne columnRepeatLoop
+	beq doneWithThisByte
+
+readByte:
+	ldx #0
+	lda (arrdheadlo, x)
+	tax
+	increment_16 arrdheadlo
+	txa
+	rts
+
 .endproc
 
 ; ** SUBROUTINE: gm_de_convert_palette_data
