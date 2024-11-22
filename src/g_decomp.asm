@@ -435,16 +435,6 @@ isInverted:
 
 ; desc: Generates a row of tiles below the scroll seam.
 .proc gm_gener_tiles_below_NEW
-	lda camera_y
-	lsr
-	lsr
-	lsr
-	; take the one *above* camera_y
-	tay
-	dey
-	bpl :+
-	ldy #29
-:	sty temp1
 	ldx #1
 	jmp gm_gener_tiles_horiz_NEW
 .endproc
@@ -452,16 +442,6 @@ isInverted:
 ; desc: Generates a row of tiles above the scroll seam.
 .proc gm_gener_tiles_above_NEW
 	lda camera_y
-	lsr
-	lsr
-	lsr
-	; take the one *below* camera_y
-	clc
-	adc #1
-	cmp #30
-	bne :+
-	lda #0
-:	sta temp1
 	ldx #0
 	; jmp gm_gener_tiles_horiz
 .endproc
@@ -476,6 +456,14 @@ isInverted:
 	
 	lda #0
 	sta palrdheadhi
+	
+	ldx #0
+	lda revealedrow
+	cmp #30
+	bcc :+
+	sbc #30
+	ldx #1
+:	sta temp1
 	
 	; X is either 0 or 1. 0 if scrolling up, 1 if scrolling down.
 	; This pretty much always tells us which nametable we need.

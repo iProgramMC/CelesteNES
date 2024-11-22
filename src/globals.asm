@@ -98,6 +98,8 @@ camera_x_hi : .res 1
 camera_y_hi : .res 1
 camera_y_bs : .res 1 ; base camera Y
 camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
+camera_y_ho : .res 1 ; camera Y high OLD
+revealedrow : .res 1 ; row revealed by an up/down scroll
 vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
 gettiletmp  : .res 1 ; temporary used by h_get_tile
 

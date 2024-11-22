@@ -110,6 +110,9 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	lda camera_y_hi
+	sta camera_y_ho
+	
 	jsr gm_clear_palette_allocator
 	inc framectr
 	lda scrollsplit

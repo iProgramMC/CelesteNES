@@ -235,6 +235,17 @@ gm_scroll_d_cond:
 	sbc #8
 	sta camera_y_sub
 	
+	; this is a down scroll, so the row that was revealed is the old camera_y, plus 30 tiles
+	lda camera_y_hi
+	lsr
+	lda camera_y
+	ror
+	lsr
+	lsr
+	clc
+	adc #30
+	sta revealedrow
+	
 	lda camera_y
 	clc
 	adc #8
@@ -249,13 +260,7 @@ gm_scroll_d_cond:
 	pla
 :	sta camera_y
 	
-	; move player up
-	lda player_y
-	sec
-	sbc #8
-	sta player_y
-	
-	jsr gm_shift_entities_up
+	jsr gm_shift_entities_and_player_up
 	
 	; load a new set of tiles
 	jsr gm_gener_tiles_below
@@ -272,7 +277,13 @@ gm_calculate_vert_offs:
 	sta vertoffshack
 	rts
 
-gm_shift_entities_up:
+gm_shift_entities_and_player_up:
+	; move player up
+	lda player_y
+	sec
+	sbc #8
+	sta player_y
+	
 	; move all entities up
 	ldy #0
 @entShiftLoop:
@@ -345,6 +356,9 @@ gm_scroll_u_cond:
 	
 	sta temp1          ; store the difference here as we'll need it later
 	
+	; this is an up scroll, so the row that was revealed is the old camera_y
+	jsr @calculateUpScrollRow
+	
 	; first of all, check if the camera should be locked
 	lda camera_y
 	bne @notZero
@@ -355,6 +369,7 @@ gm_scroll_u_cond:
 	cmp camera_y_sub
 	bcc @notZero
 	lda camera_y_sub
+	beq @loadRow
 	sta temp1
 @notZero:
 	lda temp1
@@ -388,14 +403,9 @@ gm_scroll_u_cond:
 	pla
 :	sta camera_y
 	
-	; move player down
-	lda player_y
-	clc
-	adc #8
-	sta player_y
+	jsr gm_shift_entities_and_player_down
 	
-	jsr gm_shift_entities_down
-	
+@loadRow:
 	lda #g2_loadvrow
 	bit gamectrl2
 	bne @generateTilesAbove
@@ -411,7 +421,23 @@ gm_scroll_u_cond:
 @scrollRet:
 	jmp gm_calculate_vert_offs
 
-gm_shift_entities_down:
+@calculateUpScrollRow:
+	lda camera_y_hi
+	lsr
+	lda camera_y
+	ror
+	lsr
+	lsr
+	sta revealedrow
+	rts
+
+gm_shift_entities_and_player_down:
+	; move player down
+	lda player_y
+	clc
+	adc #8
+	sta player_y
+	
 	; move all entities down
 	ldy #0
 @entShiftLoop:
