@@ -448,6 +448,8 @@ isInverted:
 
 ; desc: Generates a row of tiles on the scroll seam.
 .proc gm_gener_tiles_horiz_NEW
+	stx temp10
+	
 	; read a row
 	lda #<areaextra
 	sta temp2

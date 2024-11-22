@@ -1003,18 +1003,11 @@ gm_gener_tiles_horiz_row_read:
 	sta wrcountHR2
 @noFixUpWrCount:
 	
-	lda roomflags
-	and #rf_goup
-	bne @goingUp
 	lda temp1
 	and #1
+	eor #1
+	cmp temp10
 	beq @uploadPaletteDataBelow
-	rts
-
-@goingUp:
-	lda temp1
-	and #1
-	bne @uploadPaletteDataBelow
 	rts
 
 @uploadPaletteDataBelow:
