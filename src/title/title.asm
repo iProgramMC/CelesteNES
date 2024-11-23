@@ -78,7 +78,6 @@ gamemode_title_init_FAR:
 	
 	jsr print_logo   ; print the logo and the "PRESS BUTTON" text
 	jsr tl_init_snow ; initialize snow
-	jsr ppu_rstaddr  ; reset PPUADDR
 	
 	lda titlectrl
 	ora #ts_1stfr

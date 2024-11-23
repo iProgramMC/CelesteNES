@@ -351,17 +351,6 @@ soft_nmi_off:
 	sta nmienable
 	rts
 
-; ** SUBROUTINE: ppu_rstaddr
-; arguments: none
-; clobbers:  A
-; desc:      writes $2000 to PPUADDR in vblank or after a render disable section
-ppu_rstaddr:
-	lda #$20
-	sta ppu_addr
-	lda #$00
-	sta ppu_addr
-	rts
-
 ; ** SUBROUTINE: ppu_loadaddr
 ; arguments:
 ;   x - low 8 bits of address

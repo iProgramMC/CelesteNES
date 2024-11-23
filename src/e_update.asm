@@ -67,7 +67,7 @@ gm_ent_oscillate:
 	lda sprspace+sp_y, x
 	clc
 	adc temp5
-	sta sprspace+sp_y, x
+	;sta sprspace+sp_y, x
 	
 :	rts
 

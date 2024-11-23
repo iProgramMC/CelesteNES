@@ -1134,6 +1134,17 @@ gm_init_entity:
 	sta sprspace+sp_y, x
 	
 	lda temp3
+	asl                       ; shift the limbo bit in Carry
+	
+	lda #0
+	rol                       ; rotate the carry bit in
+	asl
+	asl                       ; ef_limbo is $04
+	ora sprspace+sp_flags, x
+	sta sprspace+sp_flags, x
+	
+	lda temp3
+	and #%01111111
 	sta sprspace+sp_kind, x
 	
 	cmp #e_rerefill

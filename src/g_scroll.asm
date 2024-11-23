@@ -290,28 +290,49 @@ gm_shift_entities_and_player_up:
 	lda sprspace+sp_y, y
 	sec
 	sbc #8
-	bcs :+      ; if it didn't go below zero, don't clear
-	lda #0
-	sta sprspace+sp_kind, y
-:	sta sprspace+sp_y, y
+	bcc @wentOffScreen   ; if it didn't go below zero, don't clear
+	;lda #0
+	;sta sprspace+sp_kind, y
+@dontSet:
+	sta sprspace+sp_y, y
 	iny
 	cpy #sp_max
 	bne @entShiftLoop
+	rts
+
+@actuallyClearType:
+	pla                  ; pop it because we don't actually need it
+	lda #0
+	sta sprspace+sp_kind, y
+	beq @dontSet
+
+@wentOffScreen:
+	pha                  ; push the coord we calculated
+	lda roomflags
+	and #rf_new
+	beq @actuallyClearType
+	
+	; ok, we're in a new format room, just toggle the limbo bit
+	lda sprspace+sp_flags, y
+	eor #ef_limbo
+	sta sprspace+sp_flags, y
+	pla
+	jmp @dontSet
 
 ; ** SUBROUTINE: gm_load_level_if_vert
 ; desc: Loads more of the horizontal level segment, if in vertical mode.
 gm_load_level_if_vert:
 	lda #(g3_transitA)
 	bit gamectrl3
-	bne @return      ; if there are transitions going on, then return
+	bne @return          ; if there are transitions going on, then return
 	
 	lda #(rf_godown | rf_goup)
 	bit roomflags
-	beq @return      ; if level is horizontal, then return
+	beq @return          ; if level is horizontal, then return
 	
 	lda #gs_lvlend
 	bit gamectrl
-	bne @return      ; if level is over, then return
+	bne @return          ; if level is over, then return
 	
 	jmp h_gener_col_r
 
@@ -326,7 +347,7 @@ gm_scroll_u_cond:
 	
 	lda #gs_lvlend
 	bit gamectrl
-	beq @scrollRet    ; if level data hasn't actually ended
+	beq @scrollRet       ; if level data hasn't actually ended
 	
 	lda #g2_scrstopD
 	bit gamectrl2
@@ -354,7 +375,7 @@ gm_scroll_u_cond:
 	lda #camspeed
 @noFix:
 	
-	sta temp1          ; store the difference here as we'll need it later
+	sta temp1            ; store the difference here as we'll need it later
 	
 	; this is an up scroll, so the row that was revealed is the old camera_y
 	jsr @calculateUpScrollRow
@@ -444,18 +465,34 @@ gm_shift_entities_and_player_down:
 	lda sprspace+sp_y, y
 	clc
 	adc #8
-	bcs @clearType     ; if it went above 256, don't clear
-	cmp #240
-	bcc @dontSet
-@clearType:
-	lda #0
-	sta sprspace+sp_kind, y
+	bcs @wentOffScreen     ; if it went above 256, don't clear
+	;cmp #240
+	;bcs @wentOffScreen
 @dontSet:
 	sta sprspace+sp_y, y
 	iny
 	cpy #sp_max
 	bne @entShiftLoop
 	rts
+	
+@actuallyClearType:
+	pla                    ; pop it because we don't actually need it
+	lda #0
+	sta sprspace+sp_kind, y
+	beq @dontSet
+
+@wentOffScreen:
+	pha                    ; push the coord we calculated
+	lda roomflags
+	and #rf_new
+	beq @actuallyClearType
+	
+	; ok, we're in a new format room, just toggle the limbo bit
+	lda sprspace+sp_flags, y
+	eor #ef_limbo
+	sta sprspace+sp_flags, y
+	pla
+	jmp @dontSet
 
 ; ** SUBROUTINE: gm_gener_tiles_below
 ; desc: Generates tiles at the scroll seam.

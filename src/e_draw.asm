@@ -286,9 +286,12 @@ gm_entjtable_hi: .hibytes entity_jump_table
 ; returns:  ZF - entity is off-screen
 ; clobbers: A, X, temp3, temp4. not Y
 gm_check_ent_onscreen:
-	sec
-	lda sprspace+sp_x, x
+	lda sprspace+sp_flags, x
+	and #ef_limbo
+	bne @returnZero             ; if entity is in limbo
 	
+	lda sprspace+sp_x, x
+	sec
 	sbc camera_x
 	sta temp2
 	

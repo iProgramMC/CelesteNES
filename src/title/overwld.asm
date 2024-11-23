@@ -25,7 +25,6 @@ gamemode_overwd_init_FAR:
 	jsr ow_draw_level_name
 	jsr ow_draw_icon_fadeout
 	;jsr tl_init_snow
-	jsr ppu_rstaddr
 	lda owldctrl
 	ora #os_1stfr
 	sta owldctrl

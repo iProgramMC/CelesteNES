@@ -97,6 +97,7 @@ sp_l0gr_ttimr = sp_wid
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02
+ef_limbo      = $04 ; entity was scrolled away vertically, and will show up whenever the screen is scrolled
 
 ; room flags
 rf_godown     = $01 ; room descends
@@ -123,7 +124,7 @@ e_l0birdcl  = $0C ; LEVEL 0: bird (climb)
 e_l0birdda  = $0D ; LEVEL 0: bird (dash)
 
 ; Entity types that turn into other entities on load
-e_rerefill  = $FF ; refill with respawn flag set
+e_rerefill  = $7F ; refill with respawn flag set
 
 ; Entity Commands
 ec_scrnext  = $FE
