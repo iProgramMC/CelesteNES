@@ -350,9 +350,10 @@ ow_draw_icons:
 ; desc: Draws the new level name.
 ; assumes: Inside of NMI
 ow_draw_level_name:
-	ldy #$20
-	ldx #$C8
-	jsr ppu_loadaddr
+	lda #$20
+	sta ppu_addr
+	lda #$C8
+	sta ppu_addr
 	
 	lda ow_sellvl
 	asl
@@ -504,9 +505,10 @@ ow_draw_mtn:
 	lda #0
 	sta ow_temp5
 	
-:	ldy ow_temp1
-	ldx ow_temp2
-	jsr ppu_loadaddr
+:	lda ow_temp1
+	sta ppu_addr
+	lda ow_temp2
+	sta ppu_addr
 	ldx ow_temp3
 	ldy ow_temp4
 	lda #26
@@ -537,9 +539,10 @@ ow_draw_mtn:
 	bne :-
 	
 	; finally write palette data
-	ldy #$23
-	ldx #$C0
-	jsr ppu_loadaddr
+	lda #$23
+	sta ppu_addr
+	lda #$C0
+	sta ppu_addr
 	ldx #<MTN_attr
 	ldy #>MTN_attr
 	lda #64

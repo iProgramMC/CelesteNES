@@ -351,18 +351,6 @@ soft_nmi_off:
 	sta nmienable
 	rts
 
-; ** SUBROUTINE: ppu_loadaddr
-; arguments:
-;   x - low 8 bits of address
-;   y - high 8 bits of address
-; clobbers: none
-; assumes:  none
-; desc:     loads a 16-bit address into PPUADDR
-ppu_loadaddr:
-	sty ppu_addr
-	stx ppu_addr
-	rts
-
 ; ** SUBROUTINE: ppu_wrstring
 ; arguments:
 ;   x - low 8 bits of address

@@ -5,9 +5,10 @@
 ; assumes:  video output disabled
 print_logo:
 	; write the actual logo, in 4 parts.
-	ldy #$20
-	ldx #$00
-	jsr ppu_loadaddr
+	lda #$20
+	sta ppu_addr
+	lda #$00
+	sta ppu_addr
 	ldx #<(tscr_canvas + $0000)
 	ldy #>(tscr_canvas + $0000)
 	lda #0
@@ -29,18 +30,20 @@ print_logo:
 	jsr ppu_wrstring
 	
 	; write the "PRESS START" text
-	ldy #$22
-	ldx #$EA
-	jsr ppu_loadaddr
+	lda #$22
+	sta ppu_addr
+	lda #$EA
+	sta ppu_addr
 	ldx #<logo_pressstart
 	ldy #>logo_pressstart
 	lda #11
 	jsr ppu_wrstring
 	
 	; write iProgramInCpp's name
-	ldy #$23
-	ldx #$4C
-	jsr ppu_loadaddr
+	lda #$23
+	sta ppu_addr
+	lda #$4C
+	sta ppu_addr
 	ldx #<logo_iprogram
 	ldy #>logo_iprogram
 	lda #7
