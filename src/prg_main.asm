@@ -466,7 +466,7 @@ reset_clrmem:
 	sty ctl_flags
 	sty ppu_ctrl
 	
-	;jsr aud_init
+	jsr aud_init
 	
 	ldy #gm_title
 	sty gamemode     ; set title screen mode

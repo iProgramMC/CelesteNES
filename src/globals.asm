@@ -84,7 +84,6 @@ dlg_curport : .res 2 ; the pointer to the current portrait
 rng_state   : .res 1
 p1_cont     : .res 2
 p1_conto    : .res 2
-hassupercnt : .res 1 ; has an S-NES controller installed
 ctrlscheme  : .res 1 ; active control scheme
 paladdr     : .res 2 ; currently loaded palette address.
 
@@ -194,7 +193,6 @@ plr_spr_r   : .res 1 ; player sprite right
 plh_spr_l   : .res 1 ; player hair sprite left
 plh_spr_r   : .res 1 ; player hair sprite right
 deathtimer  : .res 1
-palallochd  : .res 1
 roombeglo   : .res 1 ; beginning of room in pixels.  Used for entity placement
 roombeghi   : .res 1
 roombeglo2  : .res 1 ; beginning of room in tiles.
@@ -296,7 +294,6 @@ spritepalso : .res 9    ; 9 bytes  - previous frame's loaded sprite palettes
 sprpalcount : .res 1    ; 1 byte   - amount of palettes written
 sprpaltemp  : .res 1    ; 1 byte   - just a temporary variable
 palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
-palmystery  : .res 8    ; 8 bytes  - mysterious place to store some palettes, what could this be?
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

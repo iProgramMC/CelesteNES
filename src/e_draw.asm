@@ -436,12 +436,3 @@ gm_draw_entities:
 	cpx #sp_max
 	bne @loopEven
 	rts
-
-; List of entity palette IDs
-ent_palettes:
-	.byte $00  ; e_none
-	.byte $00  ; e_strawb
-	.byte $01  ; e_refill
-	.byte $02  ; e_spring
-	.byte $03  ; e_key
-	.byte $00  ; e_particle (will inherit palette from old ent id)

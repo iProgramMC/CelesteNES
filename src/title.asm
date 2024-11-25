@@ -17,9 +17,6 @@ gamemode_title:
 	
 	jmp gamemode_title_init_FAR
 
-gamemode_title_:
-	beq gamemode_title
-
 gamemode_title_update_NEAR:
 	jmp gamemode_title_update_FAR
 
