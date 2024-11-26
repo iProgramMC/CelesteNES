@@ -81,7 +81,20 @@ xt_generate_palette_data_V:
 	ldy #0
 @palloop:
 	sty temp6
+	
+	lda ntwrhead
+	pha
+	tya
+	asl
+	asl
+	clc
+	adc ntwrhead
+	sta ntwrhead
+	
 	jsr h_palette_data_column
+	
+	pla
+	sta ntwrhead
 	
 	; an inner loop to copy from temppal to loadedpals
 	lda temp6

@@ -345,7 +345,7 @@ level1_r5_t:
 	.byte $2D,$33,$2F,$30,$2B,$2F,$2B,$86
 	.byte $D8,$9E,$FF
 level1_r5:
-	.byte 0, 0, 0
+	.byte 44, 0, 0
 	.byte 48, 160
 	.byte 10, 255, 255, 255
 	.byte 8, 0, 0, 0
