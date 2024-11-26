@@ -277,10 +277,18 @@ gm_leaveroomU_FAR:
 	sta arwrhead
 	
 	; add the X offset to the current camera X.
+	lda #32
+	sec
+	sbc camera_x
+	and #%00011111
+	sta temp1
+	
 	lda temp3
 	asl
 	asl
 	asl
+	clc
+	adc temp1
 	sta temp1
 	lda temp3
 	lsr
