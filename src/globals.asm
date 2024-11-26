@@ -101,6 +101,8 @@ camera_y_ho : .res 1 ; camera Y high OLD
 revealedrow : .res 1 ; row revealed by an up/down scroll
 vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
 gettiletmp  : .res 1 ; temporary used by h_get_tile
+camera_y_min: .res 1
+camera_y_max: .res 1
 
 ; TODO: Merge These Into Each Other
 ; title

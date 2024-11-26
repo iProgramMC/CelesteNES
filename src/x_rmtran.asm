@@ -29,6 +29,10 @@ gm_leaveroomR_FAR:
 	lda #1
 	rts                      ; no warp was assigned there so return
 @actuallyTransition:
+	lda #0
+	sta camera_y_min
+	sta camera_y_max
+	
 	jsr xt_set_room
 	
 	inc roomnumber
@@ -219,6 +223,10 @@ gm_leaveroomU_FAR:
 	
 	lda warp_u_x
 	pha
+	
+	lda #0
+	sta camera_y_min
+	sta camera_y_max
 	
 	ldy warp_u
 	jsr xt_set_room

@@ -119,3 +119,14 @@ gm_check_updated_palettes:
 	.byte nc2_updpal1,nc2_updpal1,nc2_updpal1
 	.byte nc2_updpal2,nc2_updpal2,nc2_updpal2
 	.byte nc2_updpal3,nc2_updpal3,nc2_updpal3
+
+; Sprite Palettes
+sprite_palettes:
+	.byte $30,$21,$11 ; blue sprite
+	.byte $36,$16,$06 ; red sprite
+	.byte $34,$25,$15 ; pink palette
+	.byte $30,$29,$09 ; green sprite
+	.byte $20,$10,$00 ; gray sprite
+	.byte $30,$27,$07 ; golden palette
+	.byte $20,$37,$09 ; Granny's palette
+	.byte $27,$21,$11 ; Bird palette

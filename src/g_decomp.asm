@@ -445,6 +445,28 @@ loopsub:
 	lsr
 	sta camera_y_hi   ; might want to set it to 1 if the room grows *up*
 	
+	; calculate cameraYmin and cameraYmax
+	lda roomflags
+	and #rf_inverted
+	beq notInverted
+	
+	lda #128
+	sta camera_y_max
+	lda #60
+	sec
+	sbc roomheight
+	sta camera_y_min
+	rts
+	
+notInverted:
+	sta camera_y_min
+	lda roomheight
+	sec
+	sbc #30
+	cmp #30
+	bne :+
+	lda #128
+:	sta camera_y_max
 	rts
 .endproc
 

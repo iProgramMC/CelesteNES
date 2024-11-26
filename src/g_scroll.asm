@@ -167,9 +167,10 @@ gm_scroll_l_cond:
 gm_scroll_d_cond:
 	lda #gs_camlock
 	bit gamectrl
-	bne @scrollRet
+	beq :+
+	rts
 	
-	lda #gs_lvlend
+:	lda #gs_lvlend
 	bit gamectrl
 	beq @scrollRet    ; if level data hasn't actually ended
 	
@@ -200,21 +201,18 @@ gm_scroll_d_cond:
 	sta temp1          ; store the difference here as we'll need it later
 	
 	; first of all, check if the camera should be locked
-	lda camera_y
-	bne @notZero
-	; is zero, so instead, camera_y_hi times 240
-	lda camera_y_hi
-	beq @notZero
-	lda #240
-@notZero:
-	lsr
-	lsr
-	lsr
-	clc
-	adc #30
-	cmp roomheight
-	beq @scrollRet     ; yes, locked
+	lda #rf_new
+	bit roomflags
+	beq @dontCheckCamLimit
 	
+	lda camera_y_hi
+	lsr
+	lda camera_y
+	ror
+	cmp camera_y_max
+	beq @scrollRet
+	
+@dontCheckCamLimit:
 	lda temp1
 	jsr gm_shifttraceYN
 	
@@ -343,11 +341,15 @@ gm_load_level_if_vert:
 gm_scroll_u_cond:
 	lda #gs_camlock
 	bit gamectrl
-	bne @scrollRet
+	beq @scrollDontReturn
 	
+@scrollReturn2:
+	rts
+
+@scrollDontReturn:
 	lda #gs_lvlend
 	bit gamectrl
-	beq @scrollRet       ; if level data hasn't actually ended
+	beq @scrollReturn2   ; if level data hasn't actually ended
 	
 	lda #g2_scrstopD
 	bit gamectrl2
@@ -381,18 +383,28 @@ gm_scroll_u_cond:
 	jsr @calculateUpScrollRow
 	
 	; first of all, check if the camera should be locked
+	lda #rf_new
+	bit roomflags
+	beq @dontCheckCamLimit
+	
 	lda camera_y
+	lsr
+	lsr
+	lsr
+	cmp camera_y_min
 	bne @notZero
 	lda camera_y_hi
 	bne @notZero
-	; if cameraY and cameraYHigh == 0, forbid scrolling more than "camera_y_sub" pixels
+	; if cameraY == camera_y_min, and cameraYHigh == 0, forbid scrolling more than "camera_y_sub" pixels
 	lda temp1
 	cmp camera_y_sub
 	bcc @notZero
 	lda camera_y_sub
 	beq @loadRow
 	sta temp1
+	
 @notZero:
+@dontCheckCamLimit:
 	lda temp1
 	jsr gm_shifttraceYP
 	
