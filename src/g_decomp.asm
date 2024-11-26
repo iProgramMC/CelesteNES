@@ -328,16 +328,43 @@ loopJ_s2hi:
 .endproc
 
 .proc gm_de_read_palette_data
-	; TODO: Read all 256 bytes for now
-	; note: perhaps there may be less, but reads would spill only into tile data so they'd be fine
+	; calculate the roomwidth>>3, into temp1
+	; it'll be compared later
+	lda roomwidth
+	lsr
+	lsr
+	lsr
+	sta temp1
+	
 	ldy #0
+	lda #0
+loop3:
+	sta areapal4X4, y
+	sta areapal8X2, y
+	iny
+	bne loop3
+	
+loop2:
+	dey
+	ldx #0
 loop:
+	iny
+	stx temp2
 	jsr gm_read_pal
 	sta areapal8X2, y
-	lda #0
-	sta areapal4X4, y
-	iny
+	ldx temp2
+	inx
+	cpx temp1
 	bne loop
+	
+	; reached the end of a loop, increment Y until a multiple of 8
+loopsub:
+	iny
+	tya
+	and #%00000111
+	bne loopsub    ; not a multiple of 8
+	tya
+	bne loop2      ; reached a non-zero multiple of 16 (256 would be overflow)
 	
 	; convert palette data from 8X2 to 4X4
 	
