@@ -9,7 +9,7 @@
 .byte %00001000 ; flags 7 -- NES 2.0 header
 .byte %00000000 ; mapper msb / submapper
 .byte %00000000 ; prg-rom / chr-rom size msb
-.byte %00000110 ; prg-ram / eeprom size (64 << 6 == 4096)
+.byte %00000111 ; prg-ram / eeprom size (64 << 7 == 8192)
 .byte %00000000 ; chr-ram size
 .byte %00000000 ; cpu/ppu timing mode
 .byte %00000000 ; vs. system type
@@ -74,3 +74,35 @@
 ; Granny dialog frames
 .segment "CHR_DGRAN"
 .incbin  "chr/d_gran.chr"
+
+; UNUSED segments
+.segment "PRG_LVL2A"
+.segment "PRG_LVL3A"
+.segment "PRG_LVL4A"
+.segment "PRG_LVL5A"
+.segment "PRG_LVL2B"
+.segment "PRG_LVL3B"
+.segment "PRG_LVL4B"
+.segment "PRG_LVL5B"
+.segment "CHR_SLVL1"
+.segment "CHR_SLV0B"
+.segment "CHR_SPR02"
+.segment "CHR_SPR03"
+.segment "CHR_BG002"
+.segment "CHR_BG003"
+.segment "CHR_BG004"
+.segment "CHR_BG005"
+.segment "CHR_BG006"
+.segment "CHR_BG007"
+.segment "CHR_BG008"
+.segment "CHR_UN000"
+.segment "CHR_UN001"
+.segment "CHR_UN002"
+.segment "CHR_UN003"
+.segment "CHR_UN004"
+.segment "CHR_UN005"
+.segment "CHR_UN006"
+.segment "CHR_UN007"
+.segment "CHR_UN008"
+.segment "CHR_UN009"
+.segment "CHR_UN010"

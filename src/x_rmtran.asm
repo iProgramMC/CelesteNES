@@ -217,11 +217,14 @@ gm_leaveroomU_FAR:
 	lda #0
 	sta player_y
 	
-	ldy warp_u_x
-	sty temp3
+	lda warp_u_x
+	pha
 	
 	ldy warp_u
 	jsr xt_set_room
+	
+	pla
+	sta temp3
 	
 	inc roomnumber
 	

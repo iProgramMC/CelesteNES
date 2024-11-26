@@ -7,7 +7,7 @@ dialog_border_upp = 20
 dialog_port_size  = 40
 dialog_port_brdr  = 8
 
-.segment "DLGRAM" ; 64 bytes
+.segment "DLGRAM" ; 96 bytes
 dlg_chartimer: .res 1 ; when this timer ticks down to zero, show a new character
 dlg_cursor_x:  .res 1 ; the X position of the cursor
 dlg_cursor_y:  .res 1 ; the Y position of the cursor
@@ -16,6 +16,9 @@ dlg_port_pal:  .res 1 ; the palette used by the portrait
 dlg_temporary: .res 1
 dlg_skipping:  .res 1 ; is the cutscene being skipped
 dlg_havenext:  .res 1 ; if this dialog has a "next" dialog after it
+dlg_upds1:	.res 32
+dlg_upds2:	.res 32
+dlg_upds3:	.res 32
 
 .segment "DLGTEMP"
 
@@ -24,9 +27,6 @@ dlg_bitmap:	.res 32*24
 
 .align $100
 ; columns to be updated
-dlg_upds1:	.res 32
-dlg_upds2:	.res 32
-dlg_upds3:	.res 32
 
 dlg_updpaddrlo:	.res 32*3
 dlg_updpaddrhi:	.res 32*3

@@ -53,7 +53,7 @@ gm_ent_oscillate:
 	
 	sta temp5
 	and #7
-	bne :+
+	bne @return
 	
 	lda temp5
 	lsr
@@ -64,12 +64,29 @@ gm_ent_oscillate:
 	lda osciltable, x
 	sta temp5
 	ldx temp1
-	lda sprspace+sp_y, x
-	clc
-	adc temp5
-	sta sprspace+sp_y, x
 	
-:	rts
+	lda temp5
+	bmi @temp5Negative
+	
+	clc
+	adc sprspace+sp_y, x
+	sta sprspace+sp_y, x
+	bcs @overflow
+@return:
+	rts
+
+@temp5Negative:
+	clc
+	adc sprspace+sp_y, x
+	sta sprspace+sp_y, x
+	bcc @overflow
+	rts
+
+@overflow:
+	lda sprspace+sp_flags,x
+	eor #ef_limbo
+	sta sprspace+sp_flags,x
+	rts
 
 gm_update_berry:
 	jsr gm_ent_oscillate

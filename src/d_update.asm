@@ -501,14 +501,6 @@ dlg_end_dialog:
 	
 	rts
 
-dlg_test_d:
-	lda dialogsplit
-	beq @initializeDialog
-	jmp dlg_end_dialog
-
-@initializeDialog:
-	jmp dlg_start_dialog
-
 ; ** SUBROUTINE: dlg_leave_doframe
 ; desc: Waits for a new frame to start to continue operation.
 ;       This does NOT draw new sprites, nor does it clear shadow OAM.

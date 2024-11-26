@@ -286,9 +286,12 @@ gm_entjtable_hi: .hibytes entity_jump_table
 ; returns:  ZF - entity is off-screen
 ; clobbers: A, X, temp3, temp4. not Y
 gm_check_ent_onscreen:
-	sec
-	lda sprspace+sp_x, x
+	lda sprspace+sp_flags, x
+	and #ef_limbo
+	bne @returnZero             ; if entity is in limbo
 	
+	lda sprspace+sp_x, x
+	sec
 	sbc camera_x
 	sta temp2
 	
@@ -433,12 +436,3 @@ gm_draw_entities:
 	cpx #sp_max
 	bne @loopEven
 	rts
-
-; List of entity palette IDs
-ent_palettes:
-	.byte $00  ; e_none
-	.byte $00  ; e_strawb
-	.byte $01  ; e_refill
-	.byte $02  ; e_spring
-	.byte $03  ; e_key
-	.byte $00  ; e_particle (will inherit palette from old ent id)

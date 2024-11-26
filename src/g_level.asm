@@ -227,7 +227,22 @@ h_flush_row_u:
 	bne :-
 	
 @dontflushHR2:
+	ldy wrcountHR3
+	beq @dontflushHR3
 	
+	lda ppuaddrHR3+1
+	sta ppu_addr
+	lda ppuaddrHR3
+	sta ppu_addr
+	ldy #0
+	
+:	lda temprow3, y
+	sta ppu_data
+	iny
+	cpy wrcountHR3
+	bne :-
+	
+@dontflushHR3:
 	; advance the row head but keep it within 30
 	ldx ntrowhead
 	bne :+
@@ -777,18 +792,23 @@ h_calc_ntattrdata_addr:
 ; ** SUBROUTINE: h_palette_data_column
 ; desc: Reads a single column of palette data.
 ; NOTE: sets nc_flshpalv in nmictrl!
-h_palette_data_column:
+.proc h_palette_data_column
 	lda #gs_dontpal
 	bit gamectrl
-	bne @returnAndSetFlag
+	bne returnAndSetFlag
 	
-	ldy #0                    ; start reading palette data.
-@ploop:
+	lda #rf_new
+	bit roomflags
+	beq :+
+	jmp gm_gen_pal_col_NEW
+:	ldy #0                    ; start reading palette data.
+	
+ploop:
 	jsr gm_read_pal
 	cmp #$FE
-	beq @phaveFE              ; break out of this loop
+	beq phaveFE               ; break out of this loop
 	cmp #$FF
-	bne @pnoFF
+	bne pnoFF
 	
 	lda palrdheadlo
 	bne :+
@@ -796,13 +816,14 @@ h_palette_data_column:
 :	dec palrdheadlo
 	
 	lda #0
-@pnoFF:
+pnoFF:
 	sta temppal,y
 	iny
 	cpy #8
-	bne @ploop
-@phaveFE:
+	bne ploop
+phaveFE:
 	
+doneloadingpalettes:
 	lda temp1
 	pha
 	
@@ -811,7 +832,7 @@ h_palette_data_column:
 	jsr h_calc_ntattrdata_addr
 	
 	ldy #0
-@loopCopy:
+loopCopy:
 	; load the palette from the array
 	lda temppal, y
 	
@@ -828,17 +849,21 @@ h_palette_data_column:
 	; then advance the loop
 	iny
 	cpy #8
-	bne @loopCopy
+	bne loopCopy
 	
 	pla
 	sta temp1
 
-@returnAndSetFlag:
+returnAndSetFlag:
 	lda #nc_flshpalv
 	ora nmictrl
 	sta nmictrl
 	
 	rts
+.endproc
+
+h_palette_finish := h_palette_data_column::doneloadingpalettes
+
 ; significance of palette combinations:
 ; $FE - Re-use the same palette data as the previous column
 ; $FF - End of palette data
@@ -942,7 +967,12 @@ h_gener_mts_r:
 :	ldx arwrhead
 	jsr h_comp_addr       ; compute the address in (lvladdr)
 	
-	ldy #0
+	lda #rf_new
+	bit roomflags
+	beq :+
+	jmp h_gener_mts_NEW_r
+	
+:	ldy #0
 h_genertiles_loop:
 	jsr gm_read_tile
 	cmp #$FF              ; if data == 0xFF, then decrement the pointer
@@ -980,6 +1010,7 @@ h_genertiles_cont:
 	sta (lvladdr), y
 	iny
 	
+h_genertiles_inc_arwrhead:
 	clc                   ; loop done, increment arwrhead, ensuring it rolls over after 63
 	lda #1
 	adc arwrhead
@@ -1103,6 +1134,17 @@ gm_init_entity:
 	sta sprspace+sp_y, x
 	
 	lda temp3
+	asl                       ; shift the limbo bit in Carry
+	
+	lda #0
+	rol                       ; rotate the carry bit in
+	asl
+	asl                       ; ef_limbo is $04
+	ora sprspace+sp_flags, x
+	sta sprspace+sp_flags, x
+	
+	lda temp3
+	and #%01111111
 	sta sprspace+sp_kind, x
 	
 	cmp #e_rerefill
@@ -1216,12 +1258,12 @@ gm_fetch_room:
 	
 	ldy #0
 
-gm_fetch_room_loop:
+@fetchRoomLoop:
 	lda (roomptrlo),y
 	sta roomhdrfirst,y
 	iny
 	cpy #<(roomhdrlast-roomhdrfirst)
-	bne gm_fetch_room_loop
+	bne @fetchRoomLoop
 	
 	; load tile pointer from room pointer, Y=10
 	lda (roomptrlo),y
@@ -1246,7 +1288,13 @@ gm_fetch_room_loop:
 	lda (roomptrlo),y
 	iny
 	jsr gm_set_ent_head
-	rts
+	
+	; check if this is new level
+	lda #rf_new
+	bit roomflags
+	beq :+
+	jmp gm_decompress_level
+:	rts
 
 ; ** SUBROUTINE: gm_on_level_init
 ; desc: Called on level initialization.
@@ -1369,8 +1417,7 @@ gm_set_room:
 	sty currroom
 	iny
 	iny
-	jsr gm_fetch_room
-	rts
+	jmp gm_fetch_room
 
 ; ** SUBROUTINE: gm_load_generics
 ; desc: Loads the generic sprite sheet banks.  The game may animate them later.

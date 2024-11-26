@@ -97,10 +97,13 @@ sp_l0gr_ttimr = sp_wid
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02
+ef_limbo      = $04 ; entity was scrolled away vertically, and will show up whenever the screen is scrolled
 
 ; room flags
 rf_godown     = $01 ; room descends
 rf_goup       = $02 ; room ascends
+rf_new        = $04 ; new format, level is decompressed in memory and used
+rf_inverted   = $08 ; new format: inverted (starts on the bottom)
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
@@ -121,7 +124,7 @@ e_l0birdcl  = $0C ; LEVEL 0: bird (climb)
 e_l0birdda  = $0D ; LEVEL 0: bird (dash)
 
 ; Entity types that turn into other entities on load
-e_rerefill  = $FF ; refill with respawn flag set
+e_rerefill  = $7F ; refill with respawn flag set
 
 ; Entity Commands
 ec_scrnext  = $FE

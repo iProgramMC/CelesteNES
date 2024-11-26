@@ -861,7 +861,7 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	lda player_vl_y
 	bpl gm_checkfloor
 
-gm_checkceil:
+;gm_checkceil:
 	jsr gm_collentceil
 	bne @snapToCeilArbitrary
 	

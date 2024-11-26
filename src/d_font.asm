@@ -78,8 +78,6 @@ dlg_strip_mask:
 	.byte %00111111
 	.byte %01111111
 
-dlg_upds_offs:
-	.byte <dlg_upds1, <dlg_upds2, <dlg_upds3
 dlg_bitmask:
 	.byte 1,2,4
 

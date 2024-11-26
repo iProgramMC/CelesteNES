@@ -13,14 +13,6 @@ dlg_update_g:
 	ldy #prgb_dial
 	jmp far_call
 
-dlg_test_g:
-	lda #<dlg_test_d
-	sta temp1
-	lda #>dlg_test_d
-	sta temp1+1
-	ldy #prgb_dial
-	jmp far_call
-
 ; ** SUBROUTINE: dlg_begin_cutscene_g
 ; desc: Initiates a cutscene.
 ; parameters:

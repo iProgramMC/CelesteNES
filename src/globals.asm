@@ -84,7 +84,6 @@ dlg_curport : .res 2 ; the pointer to the current portrait
 rng_state   : .res 1
 p1_cont     : .res 2
 p1_conto    : .res 2
-hassupercnt : .res 1 ; has an S-NES controller installed
 ctrlscheme  : .res 1 ; active control scheme
 paladdr     : .res 2 ; currently loaded palette address.
 
@@ -98,6 +97,8 @@ camera_x_hi : .res 1
 camera_y_hi : .res 1
 camera_y_bs : .res 1 ; base camera Y
 camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
+camera_y_ho : .res 1 ; camera Y high OLD
+revealedrow : .res 1 ; row revealed by an up/down scroll
 vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
 gettiletmp  : .res 1 ; temporary used by h_get_tile
 
@@ -192,7 +193,6 @@ plr_spr_r   : .res 1 ; player sprite right
 plh_spr_l   : .res 1 ; player hair sprite left
 plh_spr_r   : .res 1 ; player hair sprite right
 deathtimer  : .res 1
-palallochd  : .res 1
 roombeglo   : .res 1 ; beginning of room in pixels.  Used for entity placement
 roombeghi   : .res 1
 roombeglo2  : .res 1 ; beginning of room in tiles.
@@ -203,13 +203,15 @@ ntrowhead2  : .res 1
 camdst_x    : .res 1 ; temporary used by gm_leaveroomU
 camdst_x_pg : .res 1 ; temporary used by gm_leaveroomU
 wrcountHP1  : .res 1 ; write count for HP1
+wrcountHP2  : .res 1 ; write count for HP2
 ppuaddrHP1  : .res 2 ; ppuaddr to write palH1 to
 ppuaddrHP2  : .res 2 ; ppuaddr to write palH2 to
 ppuaddrHR1  : .res 2 ; ppuaddr to write row1 to
 ppuaddrHR2  : .res 2 ; ppuaddr to write row2 to
-wrcountHP2  : .res 1 ; write count for HP2
+ppuaddrHR3  : .res 2 ; ppuaddr to write row3 to
 wrcountHR1  : .res 1 ; write count for HR1
 wrcountHR2  : .res 1 ; write count for HR2
+wrcountHR3  : .res 1 ; write count for HR3
 camoff_H    : .res 1 ; temporaries used by gm_leaveroomU
 camoff_M    : .res 1
 camoff_L    : .res 1
@@ -253,6 +255,12 @@ warp_l_y    : .res 1
 warp_r_y    : .res 1
 rm_paloffs  : .res 1
 
+; NEW level format
+roomwidth   : .res 1
+roomheight  : .res 1
+roomreadidx : .res 2 ; read index in first name table row
+roomcurrcol : .res 1 ; current column index in first name table row
+
 roomhdrfirst = roomsize
 roomhdrlast  = rm_paloffs + 1
 
@@ -265,16 +273,19 @@ sprspace    : .res $100
 .segment "PLTRACES"
 plr_trace_x : .res $40
 plr_trace_y : .res $40
-tl_snow_y   : .res 16
-tl_snow_x   : .res 16
+tl_snow_y   = plr_trace_y
+tl_snow_x   = plr_trace_x
 
 .segment "DRAWTEMP"
-tempcol     : .res $20  ; 32 bytes - temporary column to be flushed to the screen
-temppal     : .res $8   ; 8 bytes  - temp palette column to be flushed to the screen
-temppalH1   : .res $8   ; 8 bytes  - temporary row in nametable 0
-temppalH2   : .res $8   ; 8 bytes  - temporary row in nametable 1
+temprowtot  : .res $40
+tempcol     = temprowtot+$00  ; 32 bytes - temporary column to be flushed to the screen
+temppal     = temprowtot+$20  ; 8 bytes  - temp palette column to be flushed to the screen
+temppalH1   = temprowtot+$28  ; 8 bytes  - temporary row in nametable 0
+temppalH2   = temprowtot+$30  ; 8 bytes  - temporary row in nametable 1
+; 8 bytes here
 temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0
 temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
+temprow3    : .res $20  ; 32 bytes - temporary row in nametable 1
 lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 loadedpals  : .res $40  ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 ntattrdata  : .res $80  ; 128 bytes- loaded attribute data
@@ -286,3 +297,38 @@ palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800
+
+.segment "AREAXTRA"     ; $6800 - Cartridge WRAM
+areaextra   : .res $400 * 4 ; 4 screens worth of extra data
+
+; AreaExtra composed of:
+; [ 960 bytes ] - Screen 1
+; [ 960 bytes ] - Screen 2
+; [ 960 bytes ] - Screen 3
+; [ 960 bytes ] - Screen 4
+
+.segment "AREAPAL"
+
+areapal8X2  : .res $40  * 4 ; 4 X 16 X 4 (4 screens' worth of attribute table data)
+; (note: this one is laid out horizontally in 8X2 tile strips)
+; (note: this data is laid out row-wise)
+
+areapal4X4  : .res $40  * 4 ; 8 X 8  X 4 (4 screens' worth of attribute table data)
+; (note: this one is laid out in 4X4 tile blocks)
+; (note: this data is laid out column-wise)
+
+.segment "SAVEFILE"
+save_file_0:
+	sf_berries:   .res 22    ; bitset for 176 total strawberries
+	sf_name:      .res 16    ; player's name (default is "Madeline")
+	sf_times:     .res 3*8   ; times for each chapter (in frames. Up to 77 hours / 16.7 million frames)
+	sf_totaltime: .res 4     ; total time spent in-game (up to 2 years / 4 billion frames)
+	sf_deaths:    .res 2*8   ; total deaths (max. 65K)
+	sf_cassettes: .res 1     ; cassettes (B-sides) unlocked (note: probably won't actually have B-sides !)
+	sf_hearts:    .res 1     ; crystal hearts obtained
+	sf_flags:     .res 1     ; miscellaneous flags
+
+save_file_size = * - save_file_0
+
+save_file_1:      .res save_file_size
+save_file_2:      .res save_file_size

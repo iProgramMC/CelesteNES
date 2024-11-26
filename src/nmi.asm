@@ -278,9 +278,10 @@ nmi_check_gamemodes:
 	lsr
 	lsr
 	lsr
-	ldy #$3F
-	ldx #$01
-	jsr ppu_loadaddr
+	lda #$3F
+	sta ppu_addr
+	lda #$01
+	sta ppu_addr
 	tay
 	lda alt_colors, y
 	sta ppu_data

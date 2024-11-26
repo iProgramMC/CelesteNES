@@ -3,5 +3,4 @@
 .segment "PRG_XTRA"
 
 .include "x_rmtran.asm"
-.include "x_scroll.asm"
 	

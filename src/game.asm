@@ -3,13 +3,13 @@
 .include "g_level.asm"
 .include "e_draw.asm"
 .include "e_update.asm"
-;.include "e_physic.asm"
+.include "e_physic.asm"
 .include "e_spawn.asm"
 .include "p_draw.asm"
 .include "p_physic.asm"
 .include "g_sfx.asm"
 .include "g_palloc.asm"
-.include "g_scroll.asm"
+.include "xtraif.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer
 gm_update_ptstimer:
@@ -110,6 +110,9 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	lda camera_y_hi
+	sta camera_y_ho
+	
 	jsr gm_clear_palette_allocator
 	inc framectr
 	lda scrollsplit
