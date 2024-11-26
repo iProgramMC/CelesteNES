@@ -33,6 +33,8 @@ gm_leaveroomR_FAR:
 	sta camera_y_min
 	sta camera_y_max
 	
+	jsr gm_calculate_lvlyoff
+	
 	jsr xt_set_room
 	
 	inc roomnumber
@@ -227,6 +229,8 @@ gm_leaveroomU_FAR:
 	lda #0
 	sta camera_y_min
 	sta camera_y_max
+	
+	jsr gm_calculate_lvlyoff
 	
 	ldy warp_u
 	jsr xt_set_room
@@ -662,3 +666,28 @@ gm_leaveroomU_FAR:
 	sbc camera_x_pg
 	sta camoff2_M
 	rts
+
+; ** SUBROUTINE: gm_calculate_lvlyoff
+; desc: Calculates the new lvlyoff if this level was a vertically scrolling one
+.proc gm_calculate_lvlyoff
+	lda #rf_new
+	bit roomflags
+	beq dontTouch
+	
+	; is new format room
+	lda camera_y
+	lsr
+	lsr
+	lsr
+	sec
+	sbc camera_y_min
+	; difference now added to lvlyoff
+	clc
+	adc lvlyoff
+	cmp #$1E
+	bcc :+
+	sbc #$1E
+:	sta lvlyoff
+dontTouch:
+	rts
+.endproc
