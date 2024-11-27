@@ -408,6 +408,11 @@ gm_leaveroomU_FAR:
 	ora #gs_dontgen
 	sta gamectrl
 	
+	lda roomflags
+	and #rf_new
+	beq @skipNewMode
+	jsr gm_leaveroomU_newModeTran
+@skipNewMode:
 	; write 30 rows - these are not subject to camera limitations
 	ldy #0
 @writeloop:
@@ -666,6 +671,67 @@ gm_leaveroomU_FAR:
 	sbc camera_x_pg
 	sta camoff2_M
 	rts
+
+.proc gm_leaveroomU_newModeTran
+	; prepare row to generate
+	lda #1
+	ldy #0
+newModeLoop2:
+	sta temprow1, y
+	sta temprow2, y
+	iny
+	cpy #32
+	bne newModeLoop2
+	
+	lda #32
+	sta wrcountHR1
+	sta wrcountHR2
+	
+newModeLoop:
+	lda camera_y
+	beq endNewModeLoop
+	sec
+	sbc #8
+	sta camera_y
+	
+	lda camera_y_hi
+	and #1
+	sta ppuaddrHR1+1
+	
+	lda camera_y
+	and #%11111000
+	; sta temp10
+	; --- here camera_y_tile * 8
+	asl
+	rol ppuaddrHR1+1
+	asl
+	rol ppuaddrHR1+1
+	sta ppuaddrHR1
+	; boom, now it's 32
+	lda #$20
+	clc
+	adc ppuaddrHR1+1
+	sta ppuaddrHR1+1
+	
+	eor #$04
+	sta ppuaddrHR2+1
+	lda ppuaddrHR1
+	sta ppuaddrHR2
+	
+	lda #nc_flushrow
+	ora nmictrl
+	sta nmictrl
+	
+	jsr xt_leave_doframe
+	jmp newModeLoop
+
+endNewModeLoop:
+	lda #29
+	sta ntrowhead
+	lda #0
+	sta lvlyoff
+	rts
+.endproc
 
 ; ** SUBROUTINE: gm_calculate_lvlyoff
 ; desc: Calculates the new lvlyoff if this level was a vertically scrolling one
