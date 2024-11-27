@@ -4,12 +4,23 @@
 ; interface to things in the PRG_XTRA bank.
 
 gm_leaveroomR:
+	lda temp1
+	pha
+	lda temp2
+	pha
+	
 	lda #<gm_leaveroomR_FAR
 	sta temp1
 	lda #>gm_leaveroomR_FAR
 	sta temp1+1
 	ldy #prgb_xtra
-	jmp far_call
+	jsr far_call
+	
+	pla
+	sta temp2
+	pla
+	sta temp1
+	rts
 
 gm_leaveroomU:
 	lda #<gm_leaveroomU_FAR
