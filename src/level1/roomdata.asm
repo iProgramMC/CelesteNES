@@ -642,10 +642,30 @@ level1_rEnd:
 	.word level1_rEnd_t
 	.word level1_rEnd_p
 	.word level1_rEnd_e
+level1_r9_p:
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $FE,$FE,$FE,$FE,$FE,$FE,$FE,$FF
+level1_r9_e:
+	.byte $FF
+level1_r9_t:
+	.byte 32,30,$DE,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $9E,$9E,$9E,$9E,$9E,$9E,$9E,$9E
+	.byte $FF
+level1_r9:
+	.byte 32, 15, 0
+	.byte 0, 0
+	.byte 255,255,255,255
+	.byte 0, 0, 0, 0
+	.byte 0
+	.word level1_r9_t
+	.word level1_r9_p
+	.word level1_r9_e
 level1:
 	.word level1_music	; music table
 	.byte $01	; environment type
-	.byte $09	; room count
+	.byte $0A	; room count
 	.word level1_r1
 	.word level1_r2
 	.word level1_r3
@@ -654,4 +674,5 @@ level1:
 	.word level1_r6
 	.word level1_r7
 	.word level1_r8
+	.word level1_r9
 	.word level1_rEnd
