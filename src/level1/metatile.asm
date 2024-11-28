@@ -53,6 +53,7 @@
 	.byte $D5,$D6,$D7,$D8 ; Memorial
 	.byte $E4,$E5,$E6,$E8,$E9 ; Memorial
 	.byte $DA,$DB,$DC,$DD ; Campfire
+	.byte $C8,$C9,$CA,$CB ; Spikes (Blue)
 
 ;metatile_info:
 .align $100
@@ -69,5 +70,6 @@
 	.res   3, ct_jumpthru        ; Grey Jump Through
 	.res  30, ct_none            ; Memorial
 	.res   4, ct_none            ; Campfire
+	.res   4, ct_deadly          ; Spikes
 
 .align $100

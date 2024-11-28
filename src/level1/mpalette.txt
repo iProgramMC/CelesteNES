@@ -15,3 +15,4 @@ metatile_palette:
 	.res   3, $0 ; Grey Jump Through
 	.res  30, $0 ; Memorial
 	.res   4, $1 ; Campfire
+	.res   4, $2 ; Spikes (Blue)
