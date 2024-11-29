@@ -465,7 +465,7 @@ level1_r6:
 	.byte 32, 184
 	.byte 12, 255, 255, 255
 	.byte 24, 0, 0, 0
-	.byte 1
+	.byte 0
 	.word level1_r6_t
 	.word level1_r6_p
 	.word level1_r6_e

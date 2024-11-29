@@ -373,11 +373,11 @@ gm_anim_player:
 	lda dashtime
 	cmp #0
 	bne gm_dashing
+	lda player_vl_y
+	bmi gm_jumping   ; if it's <0, then jumping
 	lda #pl_pushing
 	bit playerctrl
 	bne gm_pushing
-	lda player_vl_y
-	bmi gm_jumping   ; if it's <0, then jumping
 	lda #pl_ground
 	bit playerctrl
 	beq gm_falling   ; if pl_ground set, then moving only in X direction

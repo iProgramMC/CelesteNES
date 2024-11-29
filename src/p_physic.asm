@@ -274,10 +274,6 @@ gm_getdownforce:
 ; ** SUBROUTINE: gm_gravity
 ; desc:    If player is not grounded, applies a constant downward force.
 gm_gravity:
-	lda playerctrl
-	and #pl_climbing
-	bne @nogravity
-	
 	lda jcountdown
 	beq @nojumpcountdown
 	
@@ -295,9 +291,13 @@ gm_gravity:
 @nojumpcountdown:
 	lda #pl_ground
 	bit playerctrl
-	beq gm_apply_gravity
+	beq @apply_gravity
 	rts
-gm_apply_gravity:
+@apply_gravity:
+	lda playerctrl
+	and #pl_climbing
+	bne @nogravity
+	
 	jsr gm_getdownforce
 	clc
 	adc player_vs_y
@@ -367,6 +367,7 @@ gm_jump:
 gm_normaljump:
 	lda jumpcoyote
 	beq gm_dontjump   ; if no coyote time, then can't jump
+gm_normaljmp2:
 	jsr gm_jump_sfx
 	lda #jumpvelHI
 	sta player_vl_y
@@ -378,6 +379,9 @@ gm_normaljump:
 	sta jumpbuff      ; consume the buffered jump input
 	sta jumpcoyote    ; consume the existing coyote time
 	sta wjumpcoyote   ; or the wall coyote time
+	lda playerctrl
+	and #<~(pl_ground|pl_climbing)
+	sta playerctrl
 	lda #%00000011
 	bit p1_cont
 	beq gm_dontjump   ; don't give a boost if we aren't moving
@@ -411,10 +415,32 @@ gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	jmp gm_dontjump
 	
 gm_walljump:
-	jsr gm_jump_sfx
 	lda #pl_ground
 	bit playerctrl
 	bne gm_normaljump ; if player is grounded, ALWAYS perform a standard jump
+	
+	; check if player is climbing right now
+	lda playerctrl
+	and #pl_climbing
+	beq @notClimbing
+	
+	; climbing, check if the held direction is different from the facing direction
+	lda p1_cont
+	and #(cont_left|cont_right)
+	beq gm_normaljmp2 ; not holding any buttons, so standard jump
+	
+	and #cont_left    ; cont_left == $02
+	lsr
+	sta temp1
+	
+	lda playerctrl
+	and #pl_left      ; pl_left == $01
+	eor temp1
+	beq gm_normaljmp2 ; if they match (player was holding left while facing left), then normal jump
+	
+@notClimbing:
+	jsr gm_jump_sfx
+	
 	; the facing direction IS the one the player is currently pushing against.
 	; that means that the opposite direction is the one they should be flinged against
 	lda playerctrl
@@ -1928,6 +1954,8 @@ noEffect:
 ; of stamina.
 .proc gm_climbcheck
 	lda dashtime
+	bne return
+	lda jcountdown
 	bne return
 	
 	lda playerctrl
