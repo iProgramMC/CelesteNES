@@ -1898,6 +1898,9 @@ noEffect:
 ; This also checks the UP/DOWN directions to move the player up and down, and deducts points
 ; of stamina.
 .proc gm_climbcheck
+	lda dashtime
+	bne return
+	
 	lda playerctrl
 	and #pl_climbing
 	bne alreadyClimbing
@@ -1988,97 +1991,81 @@ hasWall:
 	
 	lda p1_cont
 	and #(cont_up | cont_down)
-	beq towardsZero
+	lsr
+	lsr
 	
-	; if both UP and DOWN are held, then cancel
-	cmp #(cont_up | cont_down)
-	beq towardsZero
-	
-	cmp #cont_up
-	bne isDown
-	
-	; is UP
-	lda player_vs_y
-	sec
-	sbc #40
-	sta player_vs_y
-	bcs :+
-	dec player_vl_y
-:	bpl returnDude2  ; if it's positive there's no checking to be done
-	lda player_vl_y
-	cmp #>climbupvel
-	bcc resetToUpper
-	; player_vl_y == $FF, now check player_vs_y
-	lda player_vs_y
-	cmp #<climbupvel
-	bcs returnDude2
-	; player_vs_y < $40, go reset and return now
-resetToUpper:
-	lda #>climbupvel
-	sta player_vl_y
-	lda #<climbupvel
-	sta player_vs_y
-returnDude2:
-	rts
-
-isDown:
-	; is DOWN
-	lda player_vs_y
+	; I don't understand what llvm-mos cooked here. You might not either.
+	; original C code:
+	; if (player_vy > target) {
+	; 	player_vy -= climbvelamt;
+	; 	if (player_vy < target)
+	; 		player_vy = target;
+	; }
+	; else {
+	; 	player_vy += climbvelamt;
+	; 	if (player_vy > target)
+	; 		player_vy = target;
+	; }
+	tay
+	ldx table2lo, y
+	lda table2hi, y
+	stx temp3
+	ldx player_vs_y
+	ldy player_vl_y
+	stx temp4
+	stx temp2
+	ldx temp3
+	cpx temp2
+	sty temp3
+	sty temp2
+	sta temp5
+	sbc temp2
+	bvc @LBB0_2
+	eor #$80
+@LBB0_2:
+	tay
+	bpl @LBB0_8
 	clc
-	adc #40
-	sta player_vs_y
-	bcc :+
-	inc player_vl_y
-:	bmi returnDude2  ; if it's still negative there's no checking to be done
-	lda player_vl_y
-	cmp #>climbdnvel
-	bne returnDude   ; if it's not equal to >climbdnvel just return
-	cmp #>(climbdnvel+$100)
-	bcs resetToLower ; oh definitely reset in that case
-	; ok, now check the lower
-	lda player_vs_y
-	cmp #<climbdnvel
-	bcc returnDude
-	; player_vs_y > $55 so go reset now
-resetToLower:
-	lda #>climbdnvel
+	lda temp4
+	adc #$C0
+	tay
+	lda temp3
+	adc #$FF
+	sty player_vs_y
 	sta player_vl_y
-	lda #<climbdnvel
-	sta player_vs_y
+	stx temp2
+	cpy temp2
+	sbc temp5
+	bvc @LBB0_5
+@LBB0_4:
+	eor #$80
+@LBB0_5:
+	tay
+	bpl @LBB0_7
+	stx player_vs_y
+	ldy temp5
+	sty player_vl_y
+@LBB0_7:
 	rts
-	
-towardsZero:
-	lda player_vl_y
-	bpl towardsZeroPlus
-	; minus
-	lda player_vs_y
+@LBB0_8:
 	clc
-	adc #climbvelamt
-	sta player_vs_y
-	lda player_vl_y
+	lda temp4
+	adc #$40
+	sta temp2
+	tay
+	lda temp3
 	adc #0
+	sta temp3
+	sty player_vs_y
 	sta player_vl_y
-	bmi returnDude
-	; hit positive, so reset to 0
-resetToZero:
-	lda #0
-	sta player_vl_y
-	sta player_vs_y
-returnDude:
-	rts
-
-towardsZeroPlus:
-	; plus
-	lda player_vs_y
-	sec
-	sbc #climbvelamt
-	sta player_vs_y
-	lda player_vl_y
-	sbc #0
-	sta player_vl_y
-	bpl returnDude
-	; hit negative, so reset to 0
-	bmi resetToZero
-
+	cpx temp2
+	lda temp5
+	sbc temp3
+	bvs @LBB0_4
+	bvc @LBB0_5 ; jmp @LBB0_5
+	brk
+	
 table: .byte 0, pl_wallleft
+table2lo: .byte $00,$55,$40,$00
+table2hi: .byte $00,$01,$FF,$00
 .endproc
