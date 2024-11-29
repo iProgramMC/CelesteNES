@@ -274,17 +274,23 @@ gm_getdownforce:
 ; ** SUBROUTINE: gm_gravity
 ; desc:    If player is not grounded, applies a constant downward force.
 gm_gravity:
+	lda playerctrl
+	and #pl_climbing
+	bne @nogravity
+	
 	lda jcountdown
 	beq @nojumpcountdown
 	
 	; jump countdown is active. Check if the A button is still being held.
 	lda #cont_a
 	bit p1_cont
-	beq :+
+	beq @dontDecJumpCd
 	dec jcountdown
+@nogravity:
 	rts
 	
-:	lda #0
+@dontDecJumpCd:
+	lda #0
 	sta jcountdown        ; nope, so clear the jump countdown and proceed with gravity as usual
 @nojumpcountdown:
 	lda #pl_ground
@@ -419,7 +425,7 @@ gm_walljump:
 	lsr               ; move bit 3 (pl_wallleft) into bit 0 (pl_left)'s position
 	sta temp1
 	lda playerctrl
-	and #((pl_left|pl_dashed)^$FF) ; also clear the pl_dashed flag to allow the wall jump at full force
+	and #((pl_left|pl_dashed|pl_climbing)^$FF) ; also clear the pl_dashed flag to allow the wall jump at full force
 	ora temp1
 	sta playerctrl
 	
@@ -825,6 +831,11 @@ gm_velminus:
 	jmp gm_velapplied
 	
 gm_applyy:
+	; clear entground, because this is run first
+	ldy #$FF
+	sty entground
+	sty temp9
+	
 	jsr gm_getleftx
 	sta temp1
 	jsr gm_getrightx
@@ -942,6 +953,10 @@ gm_checkfloor:
 	sta player_vl_y
 	sta player_vs_y
 	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
 	
 @done:
 gm_applyy_checkdone:
@@ -1030,6 +1045,8 @@ gm_applyx:
 	and #(pl_wallleft^$FF)   ; the wall wasn't found on the left.
 	sta playerctrl
 	
+	jsr gm_check_attach_wall
+	
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
@@ -1086,6 +1103,8 @@ gm_applyx:
 	ora #(pl_pushing | pl_wallleft) ; the wall was found on the left.
 	sta playerctrl
 	
+	jsr gm_check_attach_wall
+	
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
@@ -1103,13 +1122,23 @@ gm_scroll_r_cond_:
 ; ** SUBROUTINE: gm_checkwjump
 ; desc: Assigns coyote time if wall is detected near the player.
 gm_checkwjump:
-	lda #pl_ground
-	bit playerctrl
-	bne @dontSet             ; if player is grounded, simply return
+	lda playerctrl
+	and #<~pl_nearwall
+	sta playerctrl
+	
+	and #pl_ground
+	bne @dontSet             ; if player is grounded, simply return. TODO: Maybe it should still happen if climb button held?
 	
 	jsr gm_getmidy
 	sta y_crd_temp
 	
+	lda playerctrl
+	and #pl_left
+	
+	; preferentially check the left wall first, if the player is facing left
+	beq @checkRightFirst
+	
+	; check the left side first
 	; left side
 	jsr gm_wjckentleft
 	bne @setL
@@ -1124,7 +1153,7 @@ gm_checkwjump:
 	
 	; right side
 	jsr gm_wjckentright
-	bne @set
+	bne @setR
 	
 	ldy y_crd_temp
 	jsr gm_getrightwjx
@@ -1133,19 +1162,45 @@ gm_checkwjump:
 	jsr gm_collide
 	beq @dontSet
 	
+@setR:
 	lda playerctrl
-	and #(pl_wallleft^$FF)
-	sta playerctrl           ; set that a wall was found on the RIGHT side
+	and #(pl_wallleft^$FF)   ; set that a wall was found on the RIGHT side
 @set:
+	ora #pl_nearwall
+	sta playerctrl
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 @dontSet:
 	rts
 @setL:
 	lda playerctrl
-	ora #pl_wallleft
-	sta playerctrl           ; set that a wall was found on the LEFT side
+	ora #pl_wallleft         ; set that a wall was found on the LEFT side
 	jmp @set
+
+@checkRightFirst:
+	; check the right side first
+	; right side
+	jsr gm_wjckentright
+	bne @setR
+	
+	ldy y_crd_temp
+	jsr gm_getrightwjx
+	tax
+	lda #gc_right
+	jsr gm_collide
+	bne @setR
+	ldy y_crd_temp
+	
+	; left side
+	jsr gm_wjckentleft
+	bne @setL
+	ldy y_crd_temp
+	jsr gm_getleftwjx
+	tax
+	lda #gc_left
+	jsr gm_collide
+	bne @setL
+	beq @dontSet
 
 ; ** SUBROUTINE: gm_calchorzplat
 ; desc: Calculates the edges of a platform entity in plattemp1, plattemp2, screen coordinates.
@@ -1207,9 +1262,7 @@ gm_calchorzplat:
 ;       not the closest.
 ; returns: ZF - the player has collided (BNE). A - the Y position of the floor minus 16
 gm_collentfloor:
-	ldy #$FF
-	sty entground
-	iny
+	ldy #0
 @loop:
 	lda #ef_collidable
 	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
@@ -1277,9 +1330,7 @@ gm_collentfloor:
 ;       not the closest.
 ; returns: ZF - the player has collided (BNE). A - ceilingY + entityHeight - 8
 gm_collentceil:
-	ldy #$FF
-	sty entground
-	iny
+	ldy #0
 @loop:
 	lda #ef_collidable
 	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
@@ -1451,6 +1502,7 @@ gm_collentside:
 	rts
 
 @haveHitBox:
+	sty temp9
 	ldx #1                   ; load X to 1 to clear the zero flag. probably superfluous
 	rts
 
@@ -1630,9 +1682,10 @@ gm_dash_update_done:
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
+	jsr gm_checkwjump
+	jsr gm_climbcheck
 	jsr gm_addtrace
-	jsr gm_timercheck
-	jmp gm_checkwjump
+	jmp gm_timercheck
 
 gm_addtrace:
 	ldx plrtrahd
@@ -1807,3 +1860,225 @@ gm_rem25pcvelYonly:
 	sbc temp2
 	sta player_vs_y
 	rts
+
+; ** SUBROUTINE: gm_check_attach_wall
+; desc: After a sideways collision check, check if the player is holding the climb button, and if so,
+;       initiate the climbing action.
+.proc gm_check_attach_wall
+	; Note: The collided entity's index is stored in temp9.
+	lda climbbutton
+	beq noEffect
+	
+	; check if there is stamina
+	lda stamina+1
+	bne haveStamina
+	lda stamina
+	beq noEffect
+	
+haveStamina:
+	lda temp9
+	sta entground ; attach the player to this entity
+	
+	; set the climbing flag now
+	lda playerctrl
+	ora #pl_climbing
+	sta playerctrl
+	
+noEffect:
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_climbcheck
+; desc: If the climbing flag is set, checks if the player should release the climbed wall.
+; This happens if one of the following conditions is met:
+; 1. The player let go of L/Up/Select
+; 2. The object the player is climbing on has disappeared
+; 3. There is no wall in the facing direction (in case Madeline is climbing a wall)
+;
+; This also checks the UP/DOWN directions to move the player up and down, and deducts points
+; of stamina.
+.proc gm_climbcheck
+	lda playerctrl
+	and #pl_climbing
+	bne alreadyClimbing
+	
+	; not already climbing, check wall
+	lda playerctrl
+	and #pl_nearwall
+	beq return
+	
+	; has a wall!
+	lda climbbutton
+	beq return
+	
+	lda stamina+1
+	bne :+
+	lda stamina
+	beq return
+	
+	; we can start climbing!!
+:	lda playerctrl
+	ora #pl_climbing
+	sta playerctrl
+	rts
+	
+alreadyClimbing:
+	lda climbbutton
+	bne noRelease
+release:
+	lda playerctrl
+	and #<~pl_climbing
+	sta playerctrl
+	lda #$FF
+	sta entground
+return:
+	rts
+	
+noRelease:
+	; player is still holding climb.
+	lda stamina+1
+	bne haveStamina
+	lda stamina
+	beq release     ; CLIMB should be released if there is no stamina left
+	
+haveStamina:
+	; player has stamina. Check if the entity disappeared
+	ldy entground
+	bmi noEntity
+	
+	; POTENTIAL BUG: If this slot is immediately replaced with a different slot,
+	; Madeline might inherit the climb on this object. Does that really matter?
+	; Probably not.
+	lda sprspace+sp_kind, y
+	beq release     ; If the entity's type is just zero, then release the climb.
+	
+	lda sprspace+sp_flags, y
+	and #ef_collidable
+	beq release     ; If this entity is no longer collidable, then release the climb.
+	
+noEntity:
+	
+	; The gm_checkwjump function, called above this one, tells us if a wall is near.
+	lda playerctrl
+	and #pl_nearwall
+	beq release     ; No wall was detected!
+	
+hasWall:
+	; Ok, we have a wall.  Is it in our facing direction?
+	; (Note: gm_checkwjump no longer checks the left wall first, it checks the wall in our facing direction first
+	; INVARIANT: pl_left == $01
+	lda playerctrl
+	and #pl_left
+	tay
+	
+	lda playerctrl
+	and #pl_wallleft
+	cmp table, y
+	
+	; if there is no wall *in our facing direction*, then release.
+	bne release
+	
+	; okay!!! No more conditions for the release. Means that, this frame, we can keep climbing.
+	
+	; Decrement stamina.  Further stamina will be deducted when a player performs an action such as jumping.
+	lda stamina
+	bne :+
+	dec stamina+1
+:	dec stamina
+	
+	lda p1_cont
+	and #(cont_up | cont_down)
+	beq towardsZero
+	
+	; if both UP and DOWN are held, then cancel
+	cmp #(cont_up | cont_down)
+	beq towardsZero
+	
+	cmp #cont_up
+	bne isDown
+	
+	; is UP
+	lda player_vs_y
+	sec
+	sbc #40
+	sta player_vs_y
+	bcs :+
+	dec player_vl_y
+:	bpl returnDude2  ; if it's positive there's no checking to be done
+	lda player_vl_y
+	cmp #>climbupvel
+	bcc resetToUpper
+	; player_vl_y == $FF, now check player_vs_y
+	lda player_vs_y
+	cmp #<climbupvel
+	bcs returnDude2
+	; player_vs_y < $40, go reset and return now
+resetToUpper:
+	lda #>climbupvel
+	sta player_vl_y
+	lda #<climbupvel
+	sta player_vs_y
+returnDude2:
+	rts
+
+isDown:
+	; is DOWN
+	lda player_vs_y
+	clc
+	adc #40
+	sta player_vs_y
+	bcc :+
+	inc player_vl_y
+:	bmi returnDude2  ; if it's still negative there's no checking to be done
+	lda player_vl_y
+	cmp #>climbdnvel
+	bne returnDude   ; if it's not equal to >climbdnvel just return
+	cmp #>(climbdnvel+$100)
+	bcs resetToLower ; oh definitely reset in that case
+	; ok, now check the lower
+	lda player_vs_y
+	cmp #<climbdnvel
+	bcc returnDude
+	; player_vs_y > $55 so go reset now
+resetToLower:
+	lda #>climbdnvel
+	sta player_vl_y
+	lda #<climbdnvel
+	sta player_vs_y
+	rts
+	
+towardsZero:
+	lda player_vl_y
+	bpl towardsZeroPlus
+	; minus
+	lda player_vs_y
+	clc
+	adc #climbvelamt
+	sta player_vs_y
+	lda player_vl_y
+	adc #0
+	sta player_vl_y
+	bmi returnDude
+	; hit positive, so reset to 0
+resetToZero:
+	lda #0
+	sta player_vl_y
+	sta player_vs_y
+returnDude:
+	rts
+
+towardsZeroPlus:
+	; plus
+	lda player_vs_y
+	sec
+	sbc #climbvelamt
+	sta player_vs_y
+	lda player_vl_y
+	sbc #0
+	sta player_vl_y
+	bpl returnDude
+	; hit negative, so reset to 0
+	bmi resetToZero
+
+table: .byte 0, pl_wallleft
+.endproc

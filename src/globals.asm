@@ -229,7 +229,7 @@ quakeflags  : .res 1 ; directions are the same as controller flags
 l0crshidx   : .res 1
 plattemp1   : .res 1 ; TODO: replace with a regular temp
 plattemp2   : .res 1 ; TODO: replace with a regular temp
-entground   : .res 1 ; entity ID the player is standing on
+entground   : .res 1 ; entity ID the player is interacting with (standing on or climbing)
 musicbank   : .res 1 ; music is active in this bank
 musicbank2  : .res 1
 defsprbank  : .res 1 ; the default level specific sprite bank
