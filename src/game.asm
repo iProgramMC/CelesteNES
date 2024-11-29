@@ -114,6 +114,7 @@ gm_game_update:
 	sta camera_y_ho
 	
 	jsr gm_clear_palette_allocator
+	jsr gm_check_climb_input
 	inc framectr
 	lda scrollsplit
 	beq :+
@@ -388,3 +389,33 @@ dash_table:
 	.byte $04, $00, $00, $00 ; UD-R
 	.byte $FC, $00, $00, $00 ; UDL-
 	.byte $FC, $00, $00, $00 ; UDLR
+
+; ** SUBROUTINE: gm_check_climb_input
+; desc: Depending on the control scheme, checks the state of the CLIMB button.
+;
+; For the SNES controller, checks the state of the L or R buttons.
+; For the NES controller, if emulator mode is selected, the state of the SELECT button is checked.
+; Otherwise, the UP button is checked.
+gm_check_climb_input:
+	lda ctrlscheme
+	cmp #cns_snes
+	beq @isSNES
+	cmp #cns_emulat
+	beq @isEmulator
+	
+	lda p1_cont
+	and #cont_up
+	sta climbbutton
+	rts
+
+@isSNES:
+	lda p1_cont+1
+	and #(cont_lsh|cont_rsh)
+	sta climbbutton
+	rts
+
+@isEmulator:
+	lda p1_cont
+	and #cont_select
+	sta climbbutton
+	rts

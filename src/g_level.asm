@@ -494,6 +494,7 @@ h_gener_row_u:
 	ldy #0
 	sty wrcountHR1
 	sty wrcountHR2
+	sty wrcountHR3
 	sty wrcountHP1
 	sty wrcountHP2
 	
