@@ -1129,8 +1129,10 @@ gm_checkwjump:
 	and #pl_ground
 	bne @dontSet             ; if player is grounded, simply return. TODO: Maybe it should still happen if climb button held?
 	
-	jsr gm_getmidy
-	sta y_crd_temp
+	jsr gm_gettopy
+	sta temp1
+	jsr gm_getbottomy_w
+	sta temp2
 	
 	lda playerctrl
 	and #pl_left
@@ -1143,22 +1145,35 @@ gm_checkwjump:
 	jsr gm_wjckentleft
 	bne @setL
 	
-	ldy y_crd_temp
 	jsr gm_getleftwjx
+	sta temp7
 	tax
 	lda #gc_left
+	ldy temp1
 	jsr gm_collide
 	bne @setL
-	ldy y_crd_temp
+	
+	lda #gc_left
+	ldx temp7
+	ldy temp2
+	jsr gm_collide
+	bne @setL
 	
 	; right side
 	jsr gm_wjckentright
 	bne @setR
 	
-	ldy y_crd_temp
 	jsr gm_getrightwjx
+	sta temp7
 	tax
 	lda #gc_right
+	ldy temp1
+	jsr gm_collide
+	bne @setR
+	
+	lda #gc_right
+	ldx temp7
+	ldy temp2
 	jsr gm_collide
 	beq @dontSet
 	
@@ -1183,21 +1198,35 @@ gm_checkwjump:
 	jsr gm_wjckentright
 	bne @setR
 	
-	ldy y_crd_temp
 	jsr gm_getrightwjx
+	sta temp7
 	tax
 	lda #gc_right
+	ldy temp1
 	jsr gm_collide
 	bne @setR
-	ldy y_crd_temp
+	
+	lda #gc_right
+	ldx temp7
+	ldy temp2
+	jsr gm_collide
+	bne @setR
 	
 	; left side
 	jsr gm_wjckentleft
 	bne @setL
-	ldy y_crd_temp
+	
 	jsr gm_getleftwjx
+	sta temp7
 	tax
 	lda #gc_left
+	ldy temp1
+	jsr gm_collide
+	bne @setL
+	
+	lda #gc_left
+	ldx temp7
+	ldy temp2
 	jsr gm_collide
 	bne @setL
 	beq @dontSet
