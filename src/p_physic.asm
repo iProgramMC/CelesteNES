@@ -1173,8 +1173,13 @@ gm_checkwjump:
 	sta playerctrl
 	
 	and #pl_ground
-	bne @dontSet             ; if player is grounded, simply return. TODO: Maybe it should still happen if climb button held?
+	beq @alwaysSet           ; if player is grounded, and they aren't pushing the climb button, simply return.
 	
+	; is grounded
+	lda climbbutton
+	beq @dontSet
+	
+@alwaysSet:
 	jsr gm_gettopy
 	sta temp1
 	jsr gm_getbottomy_w
@@ -1959,8 +1964,30 @@ haveStamina:
 	ora #pl_climbing
 	sta playerctrl
 	
+	and #pl_left
+	tay
+	lda table, y
+	sta temp9
+	
+	; ensure that Madeline's position resides entirely within one tile.
+	lda player_x
+	clc
+	adc camera_x
+	clc
+	adc #plr_x_mid
+	and #%11111000
+	sta player_x
+	lda player_x
+	sec
+	sbc camera_x
+	sec
+	sbc temp9
+	sta player_x
+	
 noEffect:
 	rts
+
+table:	.byte 3, 5  ; no left, left
 .endproc
 
 ; ** SUBROUTINE: gm_climbcheck
