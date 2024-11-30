@@ -2003,10 +2003,19 @@ table:	.byte 3, 5  ; no left, left
 	lda #stamchgdef
 	sta temp10
 	
-	;lda stamina+1
-	;bne noLowStaminaFlash
-	;lda stamina
-	;cmp #
+	ldx #0
+	lda stamina+1
+	bne noLowStaminaFlash
+	lda stamina
+	cmp #stamlowthre
+	bcs noLowStaminaFlash
+	
+	; Low Stamina Flash Timer
+	ldx stamflashtm
+	inx
+	
+noLowStaminaFlash:
+	stx stamflashtm
 	
 	lda dashtime
 	bne return

@@ -198,7 +198,7 @@ gm_game_clear_all_wx:
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.
 gm_game_clear_wx:
-	stx gamectrl2
+	;stx gamectrl2
 	stx transoff
 	stx tr_scrnpos
 	stx gamectrl      ; clear game related fields to zero
@@ -233,6 +233,7 @@ gm_game_clear_wx:
 	stx scrollsplit
 	stx dialogsplit
 	stx camera_y_sub
+	stx stamflashtm
 	dex
 	stx animmode      ; set to 0xFF
 	inx
@@ -257,6 +258,13 @@ gm_game_clear_wx:
 	iny
 	cpy #9
 	bne :-
+	
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	lda #g2_flashed
+	sta gamectrl2
 	rts
 
 ; ** SUBROUTINE: gm_calc_camera_nosplit
@@ -367,6 +375,25 @@ gm_leave_doframe:
 	
 	jsr com_clear_oam
 	jmp gm_clear_palette_allocator
+
+init_palette:
+	.byte $0f,$20,$10,$00 ; grey tiles
+	.byte $0f,$37,$16,$06 ; brown tiles
+	.byte $0f,$20,$21,$11 ; blue tiles
+	.byte $0f,$39,$29,$19 ; green tiles
+	.byte $0f,$37,$14,$21 ; player sprite colors
+	.byte $0f,$00,$00,$00 ; red/strawberry sprite
+	.byte $0f,$00,$00,$00 ; blue sprite
+	.byte $0f,$00,$00,$00 ; green/refill sprite
+owld_palette:
+	.byte $0f,$0c,$01,$00
+	.byte $0f,$0c,$10,$30
+	.byte $0f,$0c,$00,$10
+	.byte $0f,$00,$10,$30
+	.byte $0f,$37,$14,$21 ; player sprite colors
+	.byte $0f,$36,$16,$06 ; red/strawberry sprite
+	.byte $0f,$31,$21,$01 ; blue sprite
+	.byte $0f,$30,$29,$09 ; green/refill sprite
 
 ; Note: The LR row must match the L row because gm_defaultdir requires it.
 dash_table:

@@ -227,7 +227,7 @@ nmi_check_flags:
 
 nmi_check_gamemodes:
 	lda gamemode
-	beq @return
+	beq @game
 	cmp #gm_titletra
 	beq @titleTra
 	cmp #gm_overwld
@@ -236,6 +236,9 @@ nmi_check_gamemodes:
 	beq @prologue
 @return:
 	rts
+
+@game:
+	jmp @game_
 
 @overwld:
 	lda #nc_updlvlnm
@@ -289,6 +292,58 @@ nmi_check_gamemodes:
 	sta ppu_data
 	lda alt_colors+4, y
 	sta ppu_data
+	rts
+
+@game_:
+	lda stamflashtm
+	beq @unFlash
+	
+	and #%00000100
+	beq @unFlash
+	
+	; do flash
+	lda #g2_flashed
+	bit gamectrl2
+	bne @returnUnFlash ; if already set
+	
+	ora gamectrl2
+	sta gamectrl2
+	
+	; NOTE: hardcoded but I'm lazy
+	lda #$3F
+	sta ppu_addr
+	lda #$11
+	sta ppu_addr
+	lda #$26
+	sta ppu_data
+	lda #$16
+	sta ppu_data
+	lda #$06
+	sta ppu_data
+	rts
+	
+@unFlash:
+	lda gamectrl2
+	and #g2_flashed
+	beq @returnUnFlash
+	
+	; unset the bit
+	eor gamectrl2
+	sta gamectrl2
+	; program the correct color
+	; NOTE: hardcoded but I'm lazy
+	lda #$3F
+	sta ppu_addr
+	lda #$11
+	sta ppu_addr
+	lda #$37
+	sta ppu_data
+	lda #$14
+	sta ppu_data
+	lda #$21
+	sta ppu_data
+	
+@returnUnFlash:
 	rts
 
 ; ** SUBROUTINE: nmi_anims_update

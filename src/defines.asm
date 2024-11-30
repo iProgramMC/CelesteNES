@@ -347,6 +347,7 @@ g2_scrstopD = $01   ; there is a camera limit down
 g2_loadvrow = $02   ; load vertical rows above next time a row is revealed
 g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything
+g2_flashed  = $10   ; player was flashed red
 g3_transitR = $01   ; is in a RIGHT transition
 g3_transitU = $02   ; is in an UP transition
 g3_transitL = $04   ; is in a LEFT transition
@@ -429,6 +430,7 @@ staminamax  = 660   ; 110 * 6. Madeline loses 10 stamina per second in the origi
 stamchgdef  = 1     ; 1 stamina point per frame. When idle, Madeline loses 10 stamina points per second in Celeste, so 60 here.
 stamchgup   = 4     ; or 5 depending on frame parity TODO
 stamchgjump = 165   ; amount charged per straight jump
+stamlowthre = 120   ; start flashing at this stamina value
 
 maxfallHI   = (maxfall >> 8)
 maxfallLO   = (maxfall & $FF)
