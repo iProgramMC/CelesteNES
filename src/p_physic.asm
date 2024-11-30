@@ -427,7 +427,7 @@ gm_walljump:
 	; climbing, check if the held direction is different from the facing direction
 	lda p1_cont
 	and #(cont_left|cont_right)
-	beq gm_normaljmp2 ; not holding any buttons, so standard jump
+	beq @climbJump    ; not holding any buttons, so standard jump
 	
 	and #cont_left    ; cont_left == $02
 	lsr
@@ -436,7 +436,27 @@ gm_walljump:
 	lda playerctrl
 	and #pl_left      ; pl_left == $01
 	eor temp1
-	beq gm_normaljmp2 ; if they match (player was holding left while facing left), then normal jump
+	bne @notClimbing  ; if they match (player was holding left while facing left), then climb jump
+	
+	; climb jump, but charge the correct stamina if they have it
+@climbJump:
+	lda stamina+1
+	bne @ahead
+	lda stamina
+	beq @notClimbing
+	
+@ahead:
+	lda stamina
+	sec
+	sbc #stamchgjump
+	sta stamina
+	bcs :+
+	dec stamina+1
+	bpl :+
+	lda #0
+	sta stamina
+	sta stamina+1
+:	jmp gm_normaljmp2
 	
 @notClimbing:
 	jsr gm_jump_sfx
@@ -1953,6 +1973,14 @@ noEffect:
 ; This also checks the UP/DOWN directions to move the player up and down, and deducts points
 ; of stamina.
 .proc gm_climbcheck
+	lda #stamchgdef
+	sta temp10
+	
+	;lda stamina+1
+	;bne noLowStaminaFlash
+	;lda stamina
+	;cmp #
+	
 	lda dashtime
 	bne return
 	lda jcountdown
@@ -2040,14 +2068,31 @@ hasWall:
 	
 	; okay!!! No more conditions for the release. Means that, this frame, we can keep climbing.
 	
-	; Decrement stamina.  Further stamina will be deducted when a player performs an action such as jumping.
-	lda stamina
-	bne :+
-	dec stamina+1
-:	dec stamina
-	
 	lda p1_cont
 	and #(cont_up | cont_down)
+	pha
+	
+	cmp #cont_up
+	bne notGoingUp
+	
+	lda #stamchgup
+	sta temp10
+	
+notGoingUp:
+	; Decrement stamina.  Further stamina will be deducted when a player performs an action such as jumping.
+	lda stamina
+	sec
+	sbc temp10
+	sta stamina
+	bcs dontDecrementHighByte
+	dec stamina+1
+	bpl dontDecrementHighByte
+	lda #0
+	sta stamina
+	sta stamina+1
+
+dontDecrementHighByte:
+	pla
 	lsr
 	lsr
 	

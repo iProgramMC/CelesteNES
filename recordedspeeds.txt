@@ -25,3 +25,18 @@ NeutrWallJumpDecel: 10.8333 px/fr
 NormalWallJmpDecel: 4.33333 px/fr
 Spring Y Vel      : $FCEB (-185 px/sec)
 Spring X Vel      : $0400 (240 px/sec)
+Max Wall Climb UP : $FF40
+Max Wall Climb DN : $0155
+
+// Stamina Related
+public const float ClimbMaxStamina = 110;
+private const float ClimbUpCost = 100 / 2.2f;
+private const float ClimbStillCost = 100 / 10f;
+private const float ClimbJumpCost = 110 / 4f;
+
+IN FRAMES (multiply by 6, because ClimbStillCost is 10/sec -> 60/sec -> 1/frame
+ClimbMaxStamina = 660;
+ClimbStillCost  = 60 /sec   = 1    /fr    => 1
+ClimbUpCost     = 272.727/s = 4.54545 /fr => 4 or 5 depending on parity of frame?
+ClimbJumpCost   = 165/jump (she can do 4 per frame
+		

@@ -422,10 +422,13 @@ ct_jumpthru = $03   ; the tile is a jump through
 ow_maxlvl   = $07   ; maximum level number
 jtheight    = 3     ; height of jump through blocks
 swjgrace    = 5     ; grace time for a super wall jump TODO
-staminamax  = 660   ; 110 * 6. Madeline loses 10 stamina per second in the original Celeste, so 60 here.
 climbupvel  = $FF40
 climbdnvel  = $0155
 climbvelamt = $40
+staminamax  = 660   ; 110 * 6. Madeline loses 10 stamina per second in the original Celeste, so 60 here.
+stamchgdef  = 1     ; 1 stamina point per frame. When idle, Madeline loses 10 stamina points per second in Celeste, so 60 here.
+stamchgup   = 4     ; or 5 depending on frame parity TODO
+stamchgjump = 165   ; amount charged per straight jump
 
 maxfallHI   = (maxfall >> 8)
 maxfallLO   = (maxfall & $FF)

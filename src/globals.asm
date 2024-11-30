@@ -104,31 +104,32 @@ gettiletmp  : .res 1 ; temporary used by h_get_tile
 camera_y_min: .res 1
 camera_y_max: .res 1
 
-; TODO: Merge These Into Each Other
+; merged from individual variables between Prologue, Title and Overworld.
+; note: these may be used as extra temporaries for the Game mode too!
+pot_merged  : .res 10
+
 ; title
-tl_timer    : .res 1
-tl_gametime : .res 1
-
+tl_timer    := pot_merged + 0
+tl_gametime := pot_merged + 1
 ; overworld
-ow_temp1    : .res 1
-ow_temp2    : .res 1
-ow_temp3    : .res 1
-ow_temp4    : .res 1
-ow_temp5    : .res 1
-ow_timer    : .res 1
-ow_sellvl   : .res 1 ; selected level
-ow_iconoff  : .res 1
-ow_slidetmr : .res 1
-
+ow_temp1    := pot_merged + 0
+ow_temp2    := pot_merged + 1
+ow_temp3    := pot_merged + 2
+ow_temp4    := pot_merged + 3
+ow_temp5    := pot_merged + 4
+ow_timer    := pot_merged + 5
+ow_sellvl   := pot_merged + 6 ; selected level
+ow_iconoff  := pot_merged + 7
+ow_slidetmr := pot_merged + 8
 ; Prologue specific addresses
-pl_state    : .res 1 ; 0 - load text, 1 - writing text, 2 - waiting, 3 - fadeout
-pl_ppuaddr  : .res 2
-pl_ppudata  : .res 1
-p_textaddr  : .res 2 ; current address in text string
-p_textlen   : .res 1 ; length of current text string
-p_textnum   : .res 1
-p_textoffs  : .res 1
-p_texttimer : .res 1
+pl_state    := pot_merged + 0 ; 0 - load text, 1 - writing text, 2 - waiting, 3 - fadeout
+pl_ppuaddr  := pot_merged + 1
+pl_ppudata  := pot_merged + 3
+p_textaddr  := pot_merged + 4 ; current address in text string
+p_textlen   := pot_merged + 6 ; length of current text string
+p_textnum   := pot_merged + 7
+p_textoffs  := pot_merged + 8
+p_texttimer := pot_merged + 9
 
 ; Game specific addresses
 gamectrl2   : .res 1 ; second game control flags
@@ -242,6 +243,7 @@ clearsizey  : .res 1 ; enqueued name table clear, size Y
 roomnumber  : .res 1 ; incremented every time a room transition happens
 climbbutton : .res 1 ; the state of the CLIMB button. Any non zero value works.
 stamina     : .res 2 ; stamina amount (16-bit integer)
+stamflashtm : .res 1 ; stamina flash timer
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
