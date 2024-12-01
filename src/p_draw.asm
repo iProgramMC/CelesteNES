@@ -223,15 +223,10 @@ gm_anim_advwalk:
 	sta temp1
 	lda player_vl_x
 	sta temp2
-	clc
 	ldy #3
 gm_advwalkloop:
-	lda temp2
-	ror
-	sta temp2
-	lda temp1
-	ror
-	sta temp1
+	lsr temp2
+	ror temp1
 	dey
 	bne gm_advwalkloop
 	lda #pl_left         ; shift loop done, check which direction we should advance
@@ -329,7 +324,13 @@ gm_timerNOT4f:
 	lda #af_6frame       ; load the 6 frame limit into X if needed
 	bit animflags
 	beq gm_timerNOT6f
-	ldx #5
+	lda animtimer
+	cmp #6
+	bcc gm_donetimer
+	sec
+	sbc #6
+	sta animtimer
+	jmp gm_donetimer
 gm_timerNOT6f:
 	lda #af_noloop
 	bit animflags
@@ -339,9 +340,8 @@ gm_timerNOT6f:
 	stx animtimer
 	jmp gm_donetimer
 gm_timernomax:
-	cpx animtimer
-	bcs gm_donetimer
-	lda #0               ; af_noloop not set, so this is a loop
+	txa
+	and animtimer        ; af_noloop not set, so this is a loop
 	sta animtimer
 gm_donetimer:
 	lda #(af_2frame|af_4frame|af_6frame)
