@@ -1978,7 +1978,7 @@ haveStamina:
 	clc
 	adc camera_x
 	clc
-	adc #plr_x_mid
+	adc table2, y
 	and #%11111000
 	sta player_x
 	lda player_x
@@ -1992,6 +1992,7 @@ noEffect:
 	rts
 
 table:	.byte 3, 5  ; no left, left
+table2:	.byte 7, 8  ; no left, left
 .endproc
 
 ; ** SUBROUTINE: gm_climbcheck
