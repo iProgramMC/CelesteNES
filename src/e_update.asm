@@ -162,9 +162,17 @@ gm_update_refill:
 	; collided!
 	; check if the dash count is non zero.
 	lda dashcount
-	beq @return
-	; todo: check stamina too
+	bne @break
 	
+	; dash count is zero (never dashed), so check stamina
+	lda stamina+1
+	bne @return
+	
+	lda stamina
+	cmp #stamlowthre
+	bcs @return
+	
+@break:
 	; player has dashed which means 
 	; break into 4 pieces, destroy, and give the player their dashes back
 	
@@ -204,6 +212,10 @@ gm_update_refill:
 	
 	lda #0
 	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
 	
 @return:
 	rts
