@@ -2036,6 +2036,16 @@ noLowStaminaFlash:
 	and #pl_nearwall
 	beq return
 	
+	; check if that wall is in the direction of the character
+	lda playerctrl
+	and #pl_wallleft
+	lsr
+	lsr
+	lsr
+	eor playerctrl
+	and #pl_left
+	bne return       ; if they are different, then return
+	
 	; has a wall!
 	lda climbbutton
 	beq return

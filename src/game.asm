@@ -31,6 +31,9 @@ gm_load_room_fully:
 	jsr h_gener_col_r
 	jsr h_flush_col_r
 	jsr h_flush_pal_r_cond
+	lda nmictrl
+	and #<~(nc_flushcol|nc_flshpalv|nc_flushrow|nc_flushpal)
+	sta nmictrl
 	pla
 	tay
 	iny
@@ -226,17 +229,7 @@ gm_game_clear_wx:
 	stx roombeglo
 	stx roombeghi
 	stx roombeglo2
-	stx camleftlo
-	stx camlefthi
-	stx plrtrahd
-	stx plrstrawbs
-	stx scrollsplit
-	stx dialogsplit
-	stx camera_y_sub
-	stx stamflashtm
-	dex
-	stx animmode      ; set to 0xFF
-	inx
+	jsr gm_clear_aux
 	
 	lda #<~g3_transitX
 	and gamectrl3
@@ -252,6 +245,8 @@ gm_game_clear_wx:
 	sta $600,x
 	inx
 	bne :-
+	dex
+	stx animmode      ; set to 0xFF
 	
 	ldy #0
 :	sta spritepals, y
@@ -424,7 +419,14 @@ dash_table:
 ; For the NES controller, if emulator mode is selected, the state of the SELECT button is checked.
 ; Otherwise, the UP button is checked.
 gm_check_climb_input:
-	lda ctrlscheme
+	lda climbcdown
+	beq :+
+	dec climbcdown
+	lda #0
+	sta climbbutton
+	rts
+	
+:	lda ctrlscheme
 	cmp #cns_snes
 	beq @isSNES
 	cmp #cns_emulat

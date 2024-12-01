@@ -39,6 +39,11 @@ gm_leaveroomR_FAR:
 	
 	inc roomnumber
 	
+	; disable player climbing
+	lda playerctrl
+	and #<~(pl_climbing|pl_nearwall|pl_wallleft)
+	sta playerctrl
+	
 	lda #g3_transitR
 	ora gamectrl3
 	sta gamectrl3
@@ -192,7 +197,11 @@ gm_roomRtrangenbk:
 	
 	jsr gm_calculate_vert_offs
 	
+	lda #2
+	sta climbcdown
+	
 	lda #0
+	sta climbbutton
 	rts
 
 gm_roomRtrangen:
@@ -612,6 +621,8 @@ gm_leaveroomU_FAR:
 	lda camoff2_M
 	jsr gm_shifttrace
 	
+	lda #2
+	sta climbcdown
 	rts
 
 @compute_camoff:

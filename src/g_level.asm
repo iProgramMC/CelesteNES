@@ -684,9 +684,14 @@ h_gener_row_u:
 h_gener_col_r:
 	lda #gs_scrstopR
 	bit gamectrl
-	beq :+
+	beq @continue
+@return:
 	rts
-:	ldx ntwrhead              ; compute the areaspace address
+@continue:
+	lda #nc_flushcol
+	bit nmictrl
+	bne @return               ; if a column was already enqueued, return
+	ldx ntwrhead              ; compute the areaspace address
 	jsr h_comp_addr
 	ldy lvlyoff               ; start writing tiles.
 	sty temp6
