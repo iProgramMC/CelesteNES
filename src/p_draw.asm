@@ -188,6 +188,14 @@ gm_walktbl:
 	.byte plr_walk2_l, plr_walk2_r
 	.byte plr_walk2_l, plr_walk2_r
 
+gm_climtbl:
+	.byte plr_clim1_l, plr_clim1_r
+	.byte plr_clim2_l, plr_clim2_r
+	.byte plr_clim3_l, plr_clim3_r
+	.byte plr_clim4_l, plr_clim4_r
+	.byte plr_clim5_l, plr_clim5_r
+	.byte plr_clim6_l, plr_clim6_r
+
 gm_anim_table:
 	; format: player L, player R, hair L, hair R, hair X off, hair Y off, flags, unused.
 	.byte plr_idle1_l, plr_idle1_r, plr_hasta_l, plr_hasta_r, $00, $00, af_none,   $00  ; IDLE
@@ -195,7 +203,7 @@ gm_anim_table:
 	.byte plr_jump_l,  plr_jump_r,  plr_hamvu_l, plr_hamvu_r, $00, $00, af_lock,   $00  ; JUMP
 	.byte plr_fall_l,  plr_fall_r,  plr_hamvd_l, plr_hamvd_r, $00, $00, af_lock,   $00  ; FALL
 	.byte plr_push1_l, plr_push1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_none|af_oddryth, $00  ; PUSH
-	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_none,   $00  ; CLIMB
+	.byte <gm_climtbl, >gm_climtbl, plr_hasta_l, plr_hasta_r, $01, $00, af_6frame, $00  ; CLIMB
 	.byte plr_dash_l,  plr_dash_r,  plr_hadsh_l, plr_hadsh_r, $00, $00, af_lock,   $00  ; DASH
 	.byte plr_flip_l,  plr_flip_r,  plr_haflp_l, plr_haflp_r, $00, $00, af_lock,   $00  ; FLIP
 	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_lock,   $00  ; CLIMB IDLE
@@ -293,8 +301,14 @@ gm_sameanim:
 	lda #1
 	sta animtimer
 	bne gm_donetimer
-:	clc
-	lda #animspd
+:	lda animflags
+	and #af_6frame
+	asl
+	lda #0
+	rol
+	tay
+	lda gm_animspeeds, y
+	clc
 	adc animtimersb
 	sta animtimersb
 	lda #0
@@ -312,6 +326,11 @@ gm_timerNOT2f:
 	beq gm_timerNOT4f
 	ldx #3
 gm_timerNOT4f:
+	lda #af_6frame       ; load the 6 frame limit into X if needed
+	bit animflags
+	beq gm_timerNOT6f
+	ldx #5
+gm_timerNOT6f:
 	lda #af_noloop
 	bit animflags
 	beq gm_timernomax
@@ -320,11 +339,12 @@ gm_timerNOT4f:
 	stx animtimer
 	jmp gm_donetimer
 gm_timernomax:
-	txa                  ; af_noloop not set, so this is a loop
-	and animtimer
+	cpx animtimer
+	bcs gm_donetimer
+	lda #0               ; af_noloop not set, so this is a loop
 	sta animtimer
 gm_donetimer:
-	lda #(af_2frame|af_4frame)
+	lda #(af_2frame|af_4frame|af_6frame)
 	bit animflags
 	beq gm_regularload
 	lda animtimer
@@ -351,6 +371,15 @@ gm_loaded:
 	adc spryoffbase
 	sta spryoff
 gm_nooddrhythm:
+	lda animmode
+	cmp #am_climb
+	bne gm_notclimbing
+	lda animtimer
+	lsr
+	lsr
+	eor #1
+	sta sprxoff
+gm_notclimbing:
 	rts
 
 ; ** SUBROUTINE: gm_load_hair_palette
@@ -370,21 +399,32 @@ gm_anim_player:
 	lda #0
 	sta spryoff
 	jsr gm_load_hair_palette
+	
 	lda dashtime
 	cmp #0
 	bne gm_dashing
+	
+	lda #pl_climbing
+	bit playerctrl
+	bne gm_climbing
+	
 	lda player_vl_y
 	bmi gm_jumping   ; if it's <0, then jumping
+	
 	lda #pl_pushing
 	bit playerctrl
 	bne gm_pushing
+	
 	lda #pl_ground
 	bit playerctrl
 	beq gm_falling   ; if pl_ground set, then moving only in X direction
+	
 	lda player_vl_x  ; check if both components of the velocity are zero
 	bne gm_anim_notidle
+	
 	lda player_vs_x
 	beq gm_idle
+	
 gm_anim_notidle:
 	lda #pl_left     ; check if facing left
 	bit playerctrl
@@ -396,46 +436,81 @@ gm_anim_notidle:
 	bmi gm_flip      ; if A <= 0, then flipping
 	beq gm_flip
 	jmp gm_right
+
 gm_anim_right:
 	lda player_vl_x
 	bmi gm_flip      ; if A < 0, then flipping
 	jmp gm_right     ; if A >= 0, then running. vl_x==vs_x==0 case is already handled.
+
 gm_idle:
 	lda #am_idle
 	jmp gm_anim_mode
+
 gm_flip:
 	lda #am_flip
 	jmp gm_anim_mode
+
 gm_dashing:
 	lda #am_dash
 	jmp gm_anim_mode
+
 gm_right:
 	lda #am_walk
 	jmp gm_anim_mode
+
 gm_jumping:
 	lda #am_jump
 	jmp gm_anim_mode
+
 gm_falling:
 	lda #am_fall
 	jmp gm_anim_mode
+
 gm_pushing:
 	lda #pl_ground
 	bit playerctrl
 	beq gm_sliding
 	lda #am_push
 	jmp gm_anim_mode
+
 gm_sliding:
 	lda #am_climbidl
+	jmp gm_anim_mode
+
+gm_climbing:
+	lda player_vl_y
+	bne gm_actuallyclimbing
+	lda player_vs_y
+	bne gm_actuallyclimbing
+	
+	lda #am_climbidl
+	jmp gm_anim_mode
+	
+gm_actuallyclimbing:
+	lda #am_climb
 	jmp gm_anim_mode
 
 ; ** SUBROUTINE: gm_anim_banks
 ; desc: Updates the loaded bank numbers for the current animation.
 gm_anim_banks:
+	lda animmode
+	cmp #am_climb
+	bne @standardAnimMode
+	
+	ldx animtimer
+	dex
+	beq :+
+	ldx #1
+:	stx spr0_bknum
+	jmp @alsoUpdateFrameCounter
+
+@standardAnimMode:
 	; Update the current player sprite bank.
 	lda animtimer
 	and #1
 	sta spr0_bknum
 	
+@alsoUpdateFrameCounter:
 	lda framectr
 	lsr
 	lsr
@@ -445,3 +520,5 @@ gm_anim_banks:
 	adc #4
 	sta spr3_bknum
 	rts
+
+gm_animspeeds:	.byte animspd,animspd2

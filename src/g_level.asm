@@ -318,43 +318,6 @@ h_enqueued_clear:
 	sta ppu_ctrl
 	
 	rts
-	
-level0_nmi_set_icr:
-	lda clearpahi
-	sta ppu_addr
-	lda clearpalo
-	sta ppu_addr
-	
-	ldx #0
-	ldy #0
-@loop:
-	stx temp2
-	
-	ldx #0
-:	lda l0ic_chardata, y
-	sta ppu_data
-	iny
-	inx
-	cpx #7
-	bne :-
-	
-	lda clearpalo
-	clc
-	adc #$20
-	sta clearpalo
-	bcc :+
-	inc clearpahi
-	
-:	lda clearpahi
-	sta ppu_addr
-	lda clearpalo
-	sta ppu_addr
-	
-	ldx temp2
-	inx
-	cpx #4
-	bne @loop
-	rts
 
 ; ** SUBROUTINE: h_calcppuaddr
 ; desc: Calculates the PPU address for the tile position stored at [temp2 (x), temp3 (y)].

@@ -751,3 +751,40 @@ l0ic_chardata:
 	.byte $81,$89,$8B,$8D,$8D,$89,$85
 	.byte $82,$8E,$90,$92,$99,$92,$86
 	.byte $83,$8F,$91,$93,$8F,$93,$87
+
+level0_nmi_set_icr:
+	lda clearpahi
+	sta ppu_addr
+	lda clearpalo
+	sta ppu_addr
+	
+	ldx #0
+	ldy #0
+@loop:
+	stx temp2
+	
+	ldx #0
+:	lda l0ic_chardata, y
+	sta ppu_data
+	iny
+	inx
+	cpx #7
+	bne :-
+	
+	lda clearpalo
+	clc
+	adc #$20
+	sta clearpalo
+	bcc :+
+	inc clearpahi
+	
+:	lda clearpahi
+	sta ppu_addr
+	lda clearpalo
+	sta ppu_addr
+	
+	ldx temp2
+	inx
+	cpx #4
+	bne @loop
+	rts

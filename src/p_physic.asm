@@ -1955,7 +1955,11 @@ gm_rem25pcvelYonly:
 	lda stamina
 	beq noEffect
 	
+	; check if we are jumping
 haveStamina:
+	lda jcountdown
+	bne noEffect
+	
 	lda temp9
 	sta entground ; attach the player to this entity
 	
