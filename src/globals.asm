@@ -24,6 +24,7 @@ temp7       : .res 1
 temp8       : .res 1
 temp9       : .res 1
 temp10      : .res 1
+temp11      : .res 1
 
 ; temporaries ONLY touchable in the IRQ!
 irqtmp1     : .res 1

@@ -406,14 +406,14 @@ gm_leaveroomU_FAR:
 	; we'll clear them so that xt_gener_col_r does its job.
 	lda gamectrl
 	and #(gs_scrstopR|gs_scrstodR|gs_lvlend)
-	sta temp9
+	sta temp11
 	
 	lda nmictrl
 	and #((nc_flushcol|nc_flshpalv)^$FF)
 	sta nmictrl
 	
 	lda gamectrl
-	eor temp9
+	eor temp11
 	ora #gs_dontgen
 	sta gamectrl
 	
@@ -478,7 +478,7 @@ gm_leaveroomU_FAR:
 	
 	; restore the camera flags
 	lda gamectrl
-	ora temp9
+	ora temp11
 	sta gamectrl
 	
 	; snap the camera position properly

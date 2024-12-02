@@ -145,3 +145,123 @@ gm_ent_move_y:
 	; TODO
 	
 	rts
+
+; ** SUBROUTINE: gm_check_collision_ent
+; desc: Checks for collision between the player and an entity.
+;
+; parameters:
+;     temp7 - X offset (left)
+;     temp8 - Y offset (top)
+;     temp9 - X offset (right)
+;     temp10- Y offset (bottom)
+;
+;     Y - the entity's index.
+;
+; returns:
+;     ZF set - No collision
+.proc gm_check_collision_ent
+	jsr gm_calc_ent_hitbox
+	
+	; r1 is player
+	; r2 is entity
+	; conditions mean instant failure
+	
+	; r1->left >= r2->right
+	lda player_x
+	clc
+	adc #plr_x_left
+	cmp temp9
+	bcs failure
+	
+	; r1->right <= r2->left
+	; r1->right - 1 < r2->left
+	lda player_x
+	clc
+	adc #(plr_x_right - 1)
+	cmp temp7
+	bcc failure
+	
+	; r1->top >= r2->bottom
+	lda player_y
+	clc
+	adc #plr_y_top
+	cmp temp10
+	bcs failure
+	
+	; r1->bottom <= r2->top
+	; r1->bottom - 1 < r2->top
+	lda player_y
+	clc
+	adc #(plr_y_bot - 1)
+	cmp temp8
+	bcc failure
+	
+	lda #1
+	rts
+
+failure:
+	lda #0
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_calc_ent_hitbox
+; desc: Calculates an entity's hit box.  This is used when calculating
+;       collisions with the player, so these positions will be relative
+;       to the camera position.
+;       This also handles over/underflow on the X-axis.
+;
+; parameters:
+;     temp7 - X offset (left)
+;     temp8 - Y offset (top)
+;     temp9 - X offset (right)
+;     temp10- Y offset (bottom)
+;
+;     Y - the entity's index.
+;
+; returns:
+;     temp7, 8, 9, 10 - the hitbox itself.
+;
+; note: The entity must be at least partly on screen.
+.proc gm_calc_ent_hitbox
+	lda sprspace+sp_x, y
+	clc
+	adc temp7
+	sec
+	sbc camera_x
+	sta temp7
+	
+	lda sprspace+sp_x_pg, y
+	sbc camera_x_pg
+	; this should be zero. If it is not, then the left edge is off screen.
+	beq xHighZero
+	lda #0
+	sta temp7
+xHighZero:
+	
+	lda sprspace+sp_x, y
+	clc
+	adc temp9
+	sec
+	sbc camera_x
+	sta temp9
+	
+	lda sprspace+sp_x_pg, y
+	sbc camera_x_pg
+	; this should be zero. If it is not, then the right edge is off screen.
+	beq x2HighZero
+	lda #$FF
+	sta temp9
+x2HighZero:
+	
+	lda sprspace+sp_y, y
+	clc
+	adc temp8
+	sta temp8
+	
+	lda sprspace+sp_y, y
+	clc
+	adc temp10
+	sta temp10
+	
+	rts
+.endproc
