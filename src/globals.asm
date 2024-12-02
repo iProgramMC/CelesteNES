@@ -246,6 +246,10 @@ stamina     : .res 2 ; stamina amount (16-bit integer)
 stamflashtm : .res 1 ; stamina flash timer
 climbcdown  : .res 1 ; climb cooldown (when transitioning rooms)
 
+fuck1:.res 1
+fuck2:.res 1
+fuck3:.res 1
+
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
 roomflags   : .res 1 ; room flags

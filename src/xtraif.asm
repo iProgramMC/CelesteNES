@@ -38,6 +38,22 @@ xt_gener_col_r:
 	ldy musicbank
 	jmp far_call
 
+xt_gener_tiles_below:
+	lda #<gm_gener_tiles_below
+	sta temp1
+	lda #>gm_gener_tiles_below
+	sta temp1+1
+	ldy musicbank
+	jmp far_call
+
+xt_gener_tiles_above:
+	lda #<gm_gener_tiles_above
+	sta temp1
+	lda #>gm_gener_tiles_above
+	sta temp1+1
+	ldy musicbank
+	jmp far_call
+
 xt_gener_mts_ents_r:
 	lda #<x_gener_mts_ents_r_fixed
 	sta temp1

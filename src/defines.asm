@@ -182,10 +182,16 @@ plr_haflp_r = $9E
 plr_hadsh_l = $3C   ; hair dash
 plr_hadsh_r = $3E
 
+; Collision Directions
+gc_floor = $00
+gc_ceil  = $01
+gc_left  = $02
+gc_right = $03
+
 ; Level Bank Format
-metatiles     = $A000 ; address of metatile character data
-metatile_info = $A100 ; address of metatile information
-level_data    = $A200 ; address of actual level data
+metatiles     = $C000 ; address of metatile character data
+metatile_info = $C100 ; address of metatile information
+level_data    = $A000 ; address of actual level data
 
 ; SPRITE BANKS
 ;
