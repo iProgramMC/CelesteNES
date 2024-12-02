@@ -361,11 +361,6 @@ gm_leaveroomU_FAR:
 	sta player_vs_x
 	sta dashcount
 	
-	; set the auto jump flag. it'll be cleared when the player lands
-	lda #g2_autojump
-	ora gamectrl2
-	sta gamectrl2
-	
 	lda #jumpvelHI
 	sta player_vl_y
 	lda #jumpvelLO

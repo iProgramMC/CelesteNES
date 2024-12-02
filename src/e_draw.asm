@@ -70,12 +70,17 @@ gm_draw_spring:
 	lda #pal_red
 	jsr gm_allocate_palette
 	sta temp5
+	ora #obj_fliphz
 	sta temp8
-	lda #$C8
+	ldy temp1
+	ldx sprspace+sp_spring_frame, y
+	lda @frames, x
 	sta temp6
-	lda #$CA
 	sta temp7
+	dec temp3 ; correction because sprites are drawn with a 1 px down offset
 	jmp gm_draw_common
+
+@frames: .byte $C0, $C2, $C4, $CA, $C4, $CA, $C4, $C2, $C6, $C8
 	
 gm_draw_key:
 	lda #pal_gold

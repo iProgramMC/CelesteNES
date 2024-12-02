@@ -89,6 +89,25 @@ gm_ent_oscillate:
 	rts
 
 gm_update_spring:
+	ldy temp1
+	ldx temp1
+	lda sprspace+sp_spring_frame, y
+	beq @idleTime
+	
+	dec sprspace+sp_spring_timer, x
+	bne @idleTime
+	
+	ldx sprspace+sp_spring_frame, y
+	inx
+	cpx #10
+	bne :+
+	ldx #0
+:	txa
+	sta sprspace+sp_spring_frame, y
+	lda @frametimes, x
+	sta sprspace+sp_spring_timer, y
+
+@idleTime:
 	; is the player colliding?
 	lda #2
 	sta temp7
@@ -97,16 +116,23 @@ gm_update_spring:
 	sta temp9
 	lda #16
 	sta temp10
-	ldy temp1
 	jsr gm_check_collision_ent
 	beq @return
 	
+	lda #1
+	sta sprspace+sp_spring_frame, y
+	lda #5
+	sta sprspace+sp_spring_timer, y
+	
 	; propel the player!
 	lda temp10
-	jsr gm_superbounce
+	jmp gm_superbounce
 	
 @return:
 	rts
+
+@frametimes:	.byte 5, 3, 6, 8, 7, 8, 9, 5, 4, 4
+; note: frame 2 is constantly oscillating
 
 gm_update_berry:
 	jsr gm_ent_oscillate

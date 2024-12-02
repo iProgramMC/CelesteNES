@@ -72,6 +72,8 @@ sp_strawb_flags = sp_entspec2
 sp_strawb_colid = sp_entspec3
 sp_points_count = sp_entspec1
 sp_points_timer = sp_entspec2
+sp_spring_timer = sp_entspec1
+sp_spring_frame = sp_entspec2
 
 sp_part_entty = sp_entspec1
 sp_part_vel_x = sp_vel_x
