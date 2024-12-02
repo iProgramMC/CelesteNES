@@ -415,6 +415,7 @@ jumpvel     = $01C0 ; jump velocity
 walljump    = $022A ; wall jump velocity
 maxwalk     = $0180 ; max walk speed in pixels
 maxfall     = $02AA ; max fall speed
+springspd   = $FCEB ; spring speed (super bounce)
 plrwidth    = $08   ; player hitbox width - 8 pixels wide
 plrheight   = $0A   ; player hitbox height - 10 pixels wide
 maxdashes   = 1     ; TODO: change to 2

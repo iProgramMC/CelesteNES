@@ -276,18 +276,8 @@ gm_getdownforce:
 gm_gravity:
 	lda jcountdown
 	beq @nojumpcountdown
-	
-	; jump countdown is active. Check if the A button is still being held.
-	lda #cont_a
-	bit p1_cont
-	beq @dontDecJumpCd
-	dec jcountdown
 @nogravity:
 	rts
-	
-@dontDecJumpCd:
-	lda #0
-	sta jcountdown        ; nope, so clear the jump countdown and proceed with gravity as usual
 @nojumpcountdown:
 	lda #pl_ground
 	bit playerctrl
@@ -939,6 +929,9 @@ gm_checkfloor:
 	sta stamina
 	lda #>staminamax
 	sta stamina+1
+	lda gamectrl2
+	and #<~g2_autojump
+	sta gamectrl2
 	
 @done:
 gm_applyy_checkdone:
@@ -1711,7 +1704,29 @@ gm_timercheck:
 	lda forcemovext
 	beq :+
 	dec forcemovext
-:	rts
+:	
+	lda jcountdown
+	beq @return
+
+	; jump countdown is active. Check if the A button is still being held.
+	lda #g2_autojump
+	bit gamectrl2
+	bne @decJumpCd
+	
+	lda #cont_a
+	bit p1_cont
+	beq @dontDecJumpCd
+
+@decJumpCd:
+	dec jcountdown
+	
+@return:
+	rts
+	
+@dontDecJumpCd:
+	lda #0
+	sta jcountdown        ; nope, so clear the jump countdown and proceed with gravity as usual
+	rts
 
 ; ** SUBROUTINE: gm_rem25pcvel
 ; desc: Removes 25% of the player's velocity.

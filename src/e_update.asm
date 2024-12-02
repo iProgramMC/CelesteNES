@@ -88,6 +88,26 @@ gm_ent_oscillate:
 	sta sprspace+sp_flags,x
 	rts
 
+gm_update_spring:
+	; is the player colliding?
+	lda #2
+	sta temp7
+	lda #14
+	sta temp8
+	sta temp9
+	lda #16
+	sta temp10
+	ldy temp1
+	jsr gm_check_collision_ent
+	beq @return
+	
+	; propel the player!
+	lda temp10
+	jsr gm_superbounce
+	
+@return:
+	rts
+
 gm_update_berry:
 	jsr gm_ent_oscillate
 	

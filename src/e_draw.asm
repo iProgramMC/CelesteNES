@@ -66,20 +66,9 @@ gm_draw_refill:
 	jmp gm_update_refill
 	
 gm_draw_spring:
-	; is the player colliding?
-	lda #2
-	sta temp7
-	lda #14
-	sta temp8
-	sta temp9
-	lda #16
-	sta temp10
-	ldy temp1
-	jsr gm_check_collision_ent
-	bne @draw
-	;lda #pal_red
-	;jsr gm_allocate_palette
-@draw:
+	jsr gm_update_spring
+	lda #pal_red
+	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	lda #$C8

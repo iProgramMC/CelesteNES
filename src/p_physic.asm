@@ -242,3 +242,42 @@ gm_collentfloor:
 xt_collentfloor_kludge:
 	jsr xt_collentfloor
 	jmp xt_kludge_zeroflag
+
+; ** SUBROUTINE: gm_superbounce
+; desc: Bounces the player from a specific height. Equivalent to Player.SuperBounce(float) in Celeste.
+; parameters:
+;      A - the Y coordinate to bounce from -- `fromY`
+.proc gm_superbounce
+	; note: Celeste does a MoveY(fromY - Bottom) which is, uh, expensive.
+	sec
+	sbc #16
+	sta player_y
+	
+	lda #0
+	sta dashcount
+	sta jumpcoyote
+	sta wjumpcoyote
+	
+	lda #14
+	sta jcountdown
+	
+	lda gamectrl2
+	ora #g2_autojump
+	sta gamectrl2
+	
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	
+	lda #<springspd
+	sta player_vs_y
+	lda #>springspd
+	sta player_vl_y
+
+	rts
+.endproc
