@@ -791,9 +791,14 @@ xt_gety_wraparound:
 ; note:      temp1, temp2 & temp7 are used by caller
 ; note:      collision functions rely on the Y register staying as the Y position of the tile!
 ; reserves:  temp3, temp4, temp5, temp6
-; clobbers:  A, X
+; clobbers:  A, X, Y
 xt_collide:
 	pha                 ; store the collision direction
+	tya
+	pha
+	;txa
+	;pha
+	
 	jsr h_get_tile      ; get the tile
 	tax
 	lda metatile_info,x ; get collision information
@@ -804,6 +809,12 @@ xt_collide:
 	inx
 	lda xt_colljumptable,x
 	sta temp4
+	
+	;pla
+	;tax
+	
+	pla
+	tay
 	pla
 	jmp (temp3)         ; use temp3 as an indirect jump pointer
 
@@ -859,26 +870,41 @@ xt_colljtnochg:
 xt_collidespikes:
 	tax
 	lda player_vl_y
-	bmi xt_collidenone; if player is going UP, then don't do collision checks at all.
+	bmi @returnNone   ; if player is going UP, then don't do collision checks at all.
 	cpx #gc_ceil      ; if NOT moving up, then kill the player and return
-	beq xt_colliderts
+	beq @return
 	cpx #gc_floor
-	bne xt_collidespkw
+	bne @walls
+	
+	tya
+	asl
+	asl
+	asl
 	clc
+	adc #6
+	sta temp3
+	
 	lda player_yo     ; get the player old Y position, MOD 8. the bottom pixel's
-	and #$7           ; position is exactly the same as the player old Y position mod 8
-	adc player_vl_y   ; add the Y velocity that was added to get to player_y.
-	cmp #$6           ; a spike's hit box is like 2 px tall
-	bcs xt_collspkkill
-xt_collideno:
+	clc
+	adc #15
+	cmp temp3
+	bcs @returnNone   ; if player's hitbox WAS inside the spike the previous frame, return none
+	
+	lda player_y
+	clc
+	adc #15
+	cmp temp3
+	bcs @kill         ; if player's hitbox is NOW inside the spike, then return
+	
+@returnNone:
 	lda #0            ; clear the zero flag
-xt_colliderts:
+@return:
 	rts
-xt_collidespkw:
+@walls:
 	lda #pl_ground
 	bit playerctrl
-	beq xt_collideno  ; if wasn't grounded, then it's fine
-xt_collspkkill:
+	beq @returnNone   ; if wasn't grounded, then it's fine
+@kill:
 	jmp gm_killplayer
 
 ; ** SUBROUTINE: gm_applyy
