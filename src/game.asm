@@ -280,16 +280,7 @@ gm_calc_camera_nosplit:
 	adc #15     ; adds 16 because carry is set
 :	sta scroll_y
 	
-	; scroll X/Y high
-	lda #0
-	ldx camera_x_hi
-	beq :+
-	ora #pctl_highx
-:	ldx camera_y_hi
-	beq :+
-	ora #pctl_highy
-:	sta scroll_flags
-	rts
+	jmp gm_calc_camera_shake_and_hi
 
 ; ** SUBROUTINE: gm_calc_camera
 ; desc: Calculates the cameraX/cameraY and prepares it for upload to the PPU.
@@ -307,12 +298,6 @@ gm_calc_camera_split:
 	bcc :+
 	adc #15
 :	sta scroll_y
-	
-	; scroll X/Y high
-	lda camera_x_hi
-	sta temp1
-	lda camera_y_hi
-	sta temp2
 	
 	; add the scroll split offset if needed.
 	lda scrollsplit
@@ -337,17 +322,7 @@ gm_calc_camera_split:
 	sta temp2
 
 @doneAdding:
-	lda #0
-	ldx temp1
-	beq :+
-	ora #pctl_highx
-	
-:	ldx temp2
-	beq :+
-	ora #pctl_highy
-	
-:	sta scroll_flags
-	rts
+	jmp gm_calc_camera_shake_and_hi
 	
 @carryIsSet:
 	; carry was set
@@ -357,6 +332,8 @@ gm_calc_camera_split:
 	; but if you set scrolllimit to > like 80, then look here first.
 	jmp @flipHighBitAndDone
 
+; ** SUBROUTINE: gm_leave_doframe
+; desc: Completes processing of this frame early, waits for the frame to elapse, and returns.
 gm_leave_doframe:
 	jsr gm_load_hair_palette
 	jsr gm_draw_player
@@ -370,6 +347,92 @@ gm_leave_doframe:
 	
 	jsr com_clear_oam
 	jmp gm_clear_palette_allocator
+
+; ** SUBROUTINE: gm_calc_camera_shake_and_hi
+; desc: Shakes the camera according to quakeflags, and calculates the high bits of scroll.
+.proc gm_calc_camera_shake_and_hi
+	; scroll X/Y high
+	lda camera_x_hi
+	sta temp1
+	lda camera_y_hi
+	sta temp2
+	
+	lda quaketimer
+	beq noQuake
+	
+	dec quaketimer
+	
+	lda #cont_up
+	bit quakeflags
+	beq notUp
+	
+	jsr rand_m2_to_p1
+	clc
+	adc scroll_y
+	sta scroll_y
+	lda temp2
+	adc temp5
+	sta temp2
+	
+notUp:
+	lda #cont_down
+	bit quakeflags
+	beq notDown
+	
+	jsr rand_m1_to_p2
+	clc
+	adc scroll_y
+	sta scroll_y
+	lda temp2
+	adc temp5
+	sta temp2
+	
+notDown:
+	lda #cont_left
+	bit quakeflags
+	beq notLeft
+	
+	jsr rand_m2_to_p1
+	clc
+	adc scroll_x
+	sta scroll_x
+	lda temp1
+	adc temp5
+	sta temp1
+	
+notLeft:
+	lda #cont_right
+	bit quakeflags
+	beq notRight
+	
+	jsr rand_m1_to_p2
+	clc
+	adc scroll_x
+	sta scroll_x
+	lda temp1
+	adc temp5
+	sta temp1
+	
+notRight:
+	lda scroll_y
+	cmp #240
+	bcc noQuake
+	sbc #16
+	sta scroll_y
+	
+noQuake:
+	lda #0
+	ldx temp1
+	beq :+
+	ora #pctl_highx
+	
+:	ldx temp2
+	beq :+
+	ora #pctl_highy
+	
+:	sta scroll_flags
+	rts
+.endproc
 
 init_palette:
 	.byte $0f,$20,$10,$00 ; grey tiles
