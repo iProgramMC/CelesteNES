@@ -811,13 +811,10 @@ xt_gety_wraparound:
 ; note:      temp1, temp2 & temp7 are used by caller
 ; note:      collision functions rely on the Y register staying as the Y position of the tile!
 ; reserves:  temp3, temp4, temp5, temp6
-; clobbers:  A, X, Y
+; clobbers:  A, X, Y (not in this func)
 xt_collide:
 	pha                 ; store the collision direction
-	tya
-	pha
-	;txa
-	;pha
+	stx temp5
 	
 	jsr h_get_tile      ; get the tile
 	tax
@@ -830,11 +827,6 @@ xt_collide:
 	lda xt_colljumptable,x
 	sta temp4
 	
-	;pla
-	;tax
-	
-	pla
-	tay
 	pla
 	jmp (temp3)         ; use temp3 as an indirect jump pointer
 
@@ -843,8 +835,11 @@ xt_collide:
 xt_colljumptable:
 	.word xt_collidenone
 	.word xt_collidefull
-	.word xt_collidespikes
+	.word xt_collidespikesUP
 	.word xt_collidejthru
+	.word xt_collidespikesDOWN
+	.word xt_collidespikesLEFT
+	.word xt_collidespikesRIGHT
 
 xt_collidefull:
 	lda #1
@@ -887,12 +882,12 @@ xt_colljtnochg:
 	lda #0            ; on the platform's level.
 	rts
 
-xt_collidespikes:
+xt_collidespikesUP:
 	tax
 	lda player_vl_y
 	bmi @returnNone   ; if player is going UP, then don't do collision checks at all.
 	cpx #gc_ceil      ; if NOT moving up, then kill the player and return
-	beq @return
+	beq @return       ; (N.B.: not loading 0 because zf would already be set)
 	cpx #gc_floor
 	bne @walls
 	
@@ -904,7 +899,7 @@ xt_collidespikes:
 	adc #6
 	sta temp3
 	
-	lda player_yo     ; get the player old Y position, MOD 8. the bottom pixel's
+	lda player_yo     ; get the player old Y bottom position
 	clc
 	adc #15
 	cmp temp3
@@ -924,6 +919,153 @@ xt_collidespikes:
 	lda #pl_ground
 	bit playerctrl
 	beq @returnNone   ; if wasn't grounded, then it's fine
+@kill:
+	jmp gm_killplayer
+
+xt_collidespikesDOWN:
+	tax
+	lda player_vl_y
+	bmi :+            ; if player is going DOWN, then don't do collision checks at all.
+	bne @returnNone
+:	cpx #gc_floor     ; if NOT moving down, then kill the player and return
+	beq @return       ; (N.B.: not loading 0 because zf would already be set)
+	cpx #gc_ceil
+	bne @walls
+	
+	tya
+	asl
+	asl
+	asl
+	clc
+	adc #2
+	sta temp3
+	
+	lda player_yo     ; get the player old Y top position
+	clc
+	adc #plr_y_top
+	cmp temp3
+	bcc @returnNone   ; if player's hitbox WAS inside the spike in the previous frame, return none
+	
+	lda player_y
+	clc
+	adc #plr_y_top
+	cmp temp3
+	bcc @kill
+	
+@returnNone:
+	lda #0
+@return:
+	rts
+
+@walls:
+	lda player_vl_x
+	beq @returnNone
+@kill:
+	jmp gm_killplayer
+
+; the spikes point right
+xt_collidespikesRIGHT:
+	tax
+	lda player_vl_x
+	bmi :+            ; if player is going RIGHT, then don't do collision checks at all
+	bne @returnNone
+:	cpx #gc_right     ; if NOT moving right, then kill the player and return
+	beq @return       ; (N.B.: not loading 0 because zf would already be set)
+	cpx #gc_left
+	bne @returnNone
+	
+	lda temp5
+	asl
+	asl
+	asl
+	sta temp5
+	
+	lda player_x
+	sec
+	sbc player_xo
+	sta temp6
+	
+	lda player_xo
+	clc
+	adc #plr_x_left
+	clc
+	adc camera_x
+	sec
+	sbc temp5
+	cmp #8            ; if the checking X is >=6 from the tile, then return
+	bcs @returnNone
+	
+	and #7
+	
+	; check if the old thing is less than 4. if yes, then we're already inside the spike
+	cmp #4
+	bcc @returnNone
+	
+	clc
+	adc temp6
+	bmi @kill         ; if it became negative then <4
+	
+	; now compare it with two. if it's still bigger than 4, then not inside the hitbox
+	cmp #4
+	bcc @kill
+	
+@returnNone:
+	lda #0
+@return:
+	rts
+@kill:
+	jmp gm_killplayer
+
+; the spikes point left
+xt_collidespikesLEFT:
+	tax
+	lda player_vl_x
+	bmi @returnNone   ; if player is going LEFT, then don't do collision checks at all
+	cpx #gc_left      ; if NOT moving right, then kill the player and return
+	beq @return       ; (N.B.: not loading 0 because zf would already be set)
+	cpx #gc_right
+	bne @returnNone
+	
+	lda temp5
+	asl
+	asl
+	asl
+	sta temp5
+	
+	lda player_x
+	sec
+	sbc player_xo
+	sta temp6
+	
+	lda player_xo
+	clc
+	adc #plr_x_right
+	clc
+	adc camera_x
+	sec
+	sbc temp5
+	bmi @returnNone
+	;cmp #2            ; if the checking X is <2 from the tile, then return
+	;bcc @returnNone
+	
+	and #7
+	
+	; check if the old thing is more than 4. if yes, then we're already inside the spike
+	cmp #4
+	bcs @returnNone
+	
+	clc
+	adc temp6
+	;bmi @kill         ; if it became negative then <2
+	
+	; now compare it with two. if it's still bigger than 4, then not inside the hitbox
+	cmp #4
+	bcs @kill
+	
+@returnNone:
+	lda #0
+@return:
+	rts
 @kill:
 	jmp gm_killplayer
 

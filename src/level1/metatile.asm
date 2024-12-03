@@ -62,14 +62,19 @@
 	.res  27, ct_full            ; Snow
 	.res   4, ct_full            ; Dirt
 	.res   3, ct_jumpthru        ; Jump Through
-	.byte ct_deadly              ; Spikes
+	.byte ct_deadlyUP            ; Spikes
 	.res   4, ct_none            ; Grass Decals
 	.res  32, ct_full            ; Cement
 	.res   4, ct_full            ; Girder
-	.res   3, ct_deadly          ; Spikes
+	.byte ct_deadlyRT            ; Spikes
+	.byte ct_deadlyDN            ; Spikes
+	.byte ct_deadlyLT            ; Spikes
 	.res   3, ct_jumpthru        ; Grey Jump Through
 	.res  30, ct_none            ; Memorial
 	.res   4, ct_none            ; Campfire
-	.res   4, ct_deadly          ; Spikes
+	.byte ct_deadlyUP            ; Spikes
+	.byte ct_deadlyRT            ; Spikes
+	.byte ct_deadlyDN            ; Spikes
+	.byte ct_deadlyLT            ; Spikes
 
 .align $100

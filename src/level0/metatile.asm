@@ -57,7 +57,7 @@
 	.res  27, ct_full            ; Snow
 	.res   4, ct_full            ; Dirt
 	.res   3, ct_jumpthru        ; Jump Through
-	.byte ct_deadly              ; Spikes
+	.byte ct_deadlyUP            ; Spikes
 	.res   4, ct_none            ; Grass Decals
 	.res  96, ct_none            ; House Decal
 	;.res  18, ct_full            ; Bridge
