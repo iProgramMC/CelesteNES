@@ -109,6 +109,26 @@ gm_acceltable:
 ; ** SUBROUTINE: gm_updatexvel
 ; desc:    Makes the 16-bit X velocity approach a value based on the buttons held.
 gm_updatexvel:
+	lda #pl_climbing
+	bit playerctrl
+	beq @notClimbing
+	
+	ldx #0
+	stx player_vs_x
+	inx
+	stx player_vl_x
+	
+	lda #pl_left
+	bit playerctrl
+	beq :+
+	
+	dex
+	dex
+	stx player_vl_x
+	
+:	rts
+	
+@notClimbing:
 	; we need to calculate two things:
 	; first, the target velocity
 	; second, the thing we want to add to get to the target velocity
@@ -126,8 +146,8 @@ gm_updatexvel:
 	cpx #1
 	beq @right
 	; facing left
-	lda #pl_left
-	ora playerctrl
+	lda playerctrl
+	ora #pl_left
 	sta playerctrl
 	bne @donefacing
 
@@ -1952,6 +1972,27 @@ haveStamina:
 	lda table, y
 	sta temp9
 	
+	; half the Y velocity if it's too high
+	lda player_vl_y
+	bmi velocityIsMinus
+	
+	; velocity positive
+	cmp #2
+	bcc noHalving
+	
+	lsr player_vl_y
+	ror player_vs_y
+	jmp noHalving
+
+velocityIsMinus:
+	cmp #$FE
+	bcs noHalving
+	
+	sec
+	ror player_vl_y
+	ror player_vs_y
+	
+noHalving:
 	; ensure that Madeline's position resides entirely within one tile.
 	lda player_x
 	clc
