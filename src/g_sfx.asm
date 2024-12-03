@@ -20,4 +20,9 @@ gm_strawb_sfx:
 	ldx #FAMISTUDIO_SFX_CH1
 	jmp famistudio_sfx_play
 
+gm_spring_sfx:
+	lda #5
+	ldx #FAMISTUDIO_SFX_CH1
+	jmp famistudio_sfx_play
+
 

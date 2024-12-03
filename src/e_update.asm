@@ -124,6 +124,8 @@ gm_update_spring:
 	lda #5
 	sta sprspace+sp_spring_timer, y
 	
+	jsr gm_spring_sfx
+	
 	; propel the player!
 	lda temp10
 	jmp gm_superbounce
