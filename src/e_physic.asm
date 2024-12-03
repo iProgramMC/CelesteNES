@@ -234,7 +234,12 @@ failure:
 	sbc camera_x_pg
 	; this should be zero. If it is not, then the left edge is off screen.
 	beq xHighZero
+	bpl xHighPositive
 	lda #0
+	sta temp7
+	bne xHighZero
+xHighPositive:
+	lda #$FF
 	sta temp7
 xHighZero:
 	
@@ -249,6 +254,11 @@ xHighZero:
 	sbc camera_x_pg
 	; this should be zero. If it is not, then the right edge is off screen.
 	beq x2HighZero
+	bpl x2HighPositive
+	lda #0
+	sta temp9
+	bne x2HighZero
+x2HighPositive:
 	lda #$FF
 	sta temp9
 x2HighZero:
