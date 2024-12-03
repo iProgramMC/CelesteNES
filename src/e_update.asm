@@ -109,12 +109,12 @@ gm_update_spring:
 
 @idleTime:
 	; is the player colliding?
-	lda #2
-	sta temp7
 	lda #14
 	sta temp8
-	sta temp9
+	lda #0
+	sta temp7
 	lda #16
+	sta temp9
 	sta temp10
 	jsr gm_check_collision_ent
 	beq @return
