@@ -672,6 +672,46 @@ gm_getrightx:
 	lsr               ; finish dividing by the tile size
 	rts
 
+; ** SUBROUTINE: gm_getleftxceil
+; desc: Gets the tile X position where the left edge of the player's hitbox resides
+; returns: A - the X coordinate
+gm_getleftxceil:
+	clc
+	lda player_x
+	adc #plr_x_leftC  ; determine leftmost hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda camera_x_hi
+	adc #0
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
+; ** SUBROUTINE: gm_getrightxceil
+; desc:     Gets the tile X position where the right edge of the player's hitbox resides
+; returns:  A - the X coordinate
+; note:     this is NOT ALWAYS the same as the result of gm_getleftx!! though perhaps
+;           some optimizations are possible..
+gm_getrightxceil:
+	clc
+	lda player_x
+	adc #plr_x_rightC; determine right hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda camera_x_hi
+	adc #0
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
 ; ** SUBROUTINE: gm_getleftwjx
 ; desc: Gets the tile X position where the left of the wall jump check hitbox resides.
 ; returns: A - the X coordinate.
@@ -860,10 +900,6 @@ gm_applyy:
 	sty entground
 	sty temp9
 	
-	jsr gm_getleftx
-	sta temp1
-	jsr gm_getrightx
-	sta temp2
 	lda player_y
 	sta player_yo     ; backup the old Y position. Used for spike collision
 	cmp #$F0
@@ -898,6 +934,11 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	bpl gm_checkfloor
 
 ;gm_checkceil:
+	jsr gm_getleftxceil
+	sta temp1
+	jsr gm_getrightxceil
+	sta temp2
+	
 	jsr xt_collentceil
 	bne @snapToCeilArbitrary
 	
@@ -935,6 +976,10 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	beq gm_applyy_checkdone
 
 gm_checkfloor:
+	jsr gm_getleftx
+	sta temp1
+	jsr gm_getrightx
+	sta temp2
 	jsr xt_collentfloor
 	bne @snapToFloorArbitrary
 	
@@ -1032,6 +1077,10 @@ gm_applyx:
 	sta temp2                ; temp2 - bottom Y
 	lda player_vl_x
 	bmi @checkLeft
+	; >=0
+	bne @checkRight
+	lda player_vs_x
+	beq @checkLeft
 
 @checkRight:
 	lda #(maxvelxhi+2)
@@ -1093,6 +1142,13 @@ gm_applyx:
 	bpl xt_scroll_r_cond_   ; if moving positively, scroll if needed
 	jmp xt_scroll_l_cond
 
+@checkDone2:
+	lda player_vl_x
+	bne @checkDone
+	lda player_vs_x
+	bne @checkDone
+	beq @checkRight         ; also check right, if player is not moving at all
+
 @callLeaveRoomR:
 	jsr gm_leaveroomR
 	bne @doneLeavingRoom
@@ -1104,7 +1160,7 @@ gm_applyx:
 
 @checkLeftLoop:
 	dec temp10
-	beq @checkDone           ; nope, out of here with your stupid games
+	beq @checkDone2          ; nope, out of here with your stupid games
 	
 	jsr gm_collentleft
 	bne @collidedLeft
@@ -1120,7 +1176,7 @@ gm_applyx:
 	ldx y_crd_temp
 	lda #gc_left
 	jsr xt_collide
-	beq @checkDone
+	beq @checkDone2
 
 @collidedLeft:
 	ldx #$FF                 ; set the velocity to a minuscule value to
@@ -1137,7 +1193,7 @@ gm_applyx:
 	sta wjumpcoyote
 	ldx player_x
 	cpx #$F0                 ; compare to [screenWidth-16]
-	bcs @checkDone           ; if bigger or equal, just bail, we might be stuck in a wall
+	bcs @checkDone2          ; if bigger or equal, just bail, we might be stuck in a wall
 	inx
 	stx player_x
 	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
