@@ -330,6 +330,42 @@ gm_gravity:
 ; ** SUBROUTINE: gm_controls
 ; desc:    Check controller input and apply forces based on it.
 gm_controls:
+	lda cjwindow
+	beq @noClimbJumpWindow
+	
+	; check if we are holding a direction
+	lda p1_cont
+	and #(cont_left | cont_right)
+	cmp cjwalldir
+	bne @noClimbJumpRefund
+	
+	; this is a wall jump!  prepare the wall-jump, add stamina, then do the wall jump
+	lda cjwalldir
+	and #1
+	eor #1
+	sta cjwalldir
+	
+	lda playerctrl
+	and #<~pl_left
+	ora cjwalldir
+	sta playerctrl
+	
+	lda #1
+	sta wjumpcoyote
+	sta cjwindow
+	
+	lda #stamchgjump
+	clc
+	adc stamina
+	sta stamina
+	bcc :+
+	inc stamina+1
+	
+:	jsr gm_walljump
+	
+@noClimbJumpRefund:
+	dec cjwindow
+@noClimbJumpWindow:
 	jsr gm_updatexvel
 	lda jumpbuff
 	bne gm_jump       ; If player buffered a jump, then try to perform it.
@@ -436,6 +472,7 @@ gm_walljump:
 	beq @notClimbing
 	
 @ahead:
+	; charge the jump stamina
 	lda stamina
 	sec
 	sbc #stamchgjump
@@ -443,10 +480,26 @@ gm_walljump:
 	bcs :+
 	dec stamina+1
 	bpl :+
+	
+	; withdrew too much? return to 0
 	lda #0
 	sta stamina
 	sta stamina+1
-:	jmp gm_normaljmp2
+	
+	; set up climb-jump window
+:	lda #14
+	sta cjwindow
+	
+	; note: cjwalldir is the direction you must hold for a wall jump stamina refund!
+	lda playerctrl
+	and #pl_left    ; pl_left is equal to 1
+	sta cjwalldir
+	eor #1
+	asl
+	ora cjwalldir
+	sta cjwalldir
+	
+	jmp gm_normaljmp2
 	
 @notClimbing:
 	jsr gm_jump_sfx

@@ -246,6 +246,8 @@ climbbutton : .res 1 ; the state of the CLIMB button. Any non zero value works.
 stamina     : .res 2 ; stamina amount (16-bit integer)
 stamflashtm : .res 1 ; stamina flash timer
 climbcdown  : .res 1 ; climb cooldown (when transitioning rooms)
+cjwindow    : .res 1 ; climb jump window -- if you push the opposite direction while jumping, stamina will be refunded and a wall jump will happen
+cjwalldir   : .res 1 ; climb jump wall direction
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
