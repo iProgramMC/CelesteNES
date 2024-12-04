@@ -28,28 +28,40 @@ gm_draw_2xsprite:
 deathtable1: .byte $FC, $FD, $00, $03, $04, $03, $00, $FD
 deathtable2: .byte $00, $FD, $FC, $FD, $00, $03, $04, $03
 
-gm_dead_sub1:
+; ** SUBROUTINE: gm_dead_sub
+; desc: Multiplies temp1, temp2 by max(deathtimer, @max)
+.proc gm_dead_sub
+@max = 4
 	lda deathtimer
+	cmp #@max
+	bcc noMax
+	lda #@max
+noMax:
+	tax
 	tay
 	lda temp1
-	beq :++
-:	clc
+	beq multiplyingZeroT1
+multiply1Loop:
+	clc
 	adc temp1
 	dey
-	bne :-
+	bne multiply1Loop
 	sta temp1
-:	rts
-gm_dead_sub2:
-	lda deathtimer
+	
+multiplyingZeroT1:
+	txa
 	tay
-	beq :++
+	beq multiplyingZeroT2
 	lda temp2
-:	clc
+multiply2Loop:
+	clc
 	adc temp2
 	dey
-	bne :-
+	bne multiply2Loop
 	sta temp2
-:	rts
+multiplyingZeroT2:
+	rts
+.endproc
 
 ; NOTE: this only covers a range of PI/4.
 ; Each table is 32 items in size.
@@ -98,10 +110,13 @@ notSecondEighth:
 
 notSecondQuadrant:
 	; between PI and 2PI, it's actually the 2s complement of the other sine
-	lda #255
+	lda #0
 	sec
 	sbc temp5
-	jsr sine
+	cmp #$80
+	bne :+
+	lda #$00
+:	jsr sine
 	
 	; not done yet! we need to flip the sine now
 	sta temp5
@@ -120,22 +135,137 @@ notSecondQuadrant:
 	jmp sine
 .endproc
 
+.proc gm_dead_sub2
+	; divide each component by 8
+	lda temp1
+	cmp #128
+	ror
+	cmp #128
+	ror
+	cmp #128
+	ror
+	sta temp1
+	cmp #128
+	ror
+	;cmp #128
+	;ror
+	clc
+	adc temp1
+	sta temp1
+	
+	lda temp2
+	cmp #128
+	ror
+	cmp #128
+	ror
+	cmp #128
+	ror
+	sta temp2
+	cmp #128
+	ror
+	;cmp #128
+	;ror
+	clc
+	adc temp2
+	sta temp2
+	rts
+.endproc
+
+.proc gm_dead_sub3
+	lda deathtimer
+	cmp #8
+	bcs return
+	
+	lda #0
+	sta temp5
+	sta temp6
+	
+	ldy #3
+loop:
+	lda temp1
+	cmp #128
+	ror
+	sta temp1
+	ror temp5
+	
+	lda temp2
+	cmp #128
+	ror
+	sta temp2
+	ror temp6
+	
+	dey
+	bne loop
+	
+	ldy deathtimer
+	beq return
+	lda #0
+	sta temp7
+	sta temp8
+	sta temp9
+	sta temp10
+loop2:
+	lda temp9
+	clc
+	adc temp5
+	sta temp9
+	
+	lda temp7
+	adc temp1
+	sta temp7
+	
+	lda temp10
+	clc
+	adc temp6
+	sta temp10
+	
+	lda temp8
+	adc temp2
+	sta temp8
+	
+	dey
+	bne loop2
+	
+	lda temp7
+	sta temp1
+	lda temp8
+	sta temp2
+
+return:
+	rts
+.endproc
+
 ; ** SUBROUTINE: gm_draw_dead
 gm_draw_dead:
 	lda #pl_dead
 	bit playerctrl
-	bne :+
+	bne @notDead
 	rts
-:	ldy #0
-gm_draw_dead_loop:
-	lda deathtable1, y ; the X coordinate offset
+
+@notDead:
+	lda deathangle
+	sta temp4
+	inc deathangle
+	inc deathangle
+	
+	ldy #0
+@deadLoop:
+	lda temp4
+	jsr sine
 	sta temp1
-	lda deathtable2, y ; the Y coordinate offset
+	
+	lda temp4
+	jsr cosine
 	sta temp2
 	
+	lda temp4
+	clc
+	adc #32
+	sta temp4
+	
 	sty temp3
-	jsr gm_dead_sub1
 	jsr gm_dead_sub2
+	jsr gm_dead_sub3
 	ldy temp3
 	
 	lda player_x
@@ -158,7 +288,7 @@ gm_draw_dead_loop:
 	bcc :+
 	cpy #4
 	bcc :+
-	jmp gm_draw_dead_done
+	jmp @done
 	
 :	lda plh_attrs
 	sty temp3
@@ -174,10 +304,10 @@ gm_draw_dead_loop:
 	
 	iny
 	cpy #8
-	bne gm_draw_dead_loop
+	bne @deadLoop
 	
 	; increment death timer
-gm_draw_dead_done:
+@done:
 	ldx deathtimer
 	inx
 	cpx #16
