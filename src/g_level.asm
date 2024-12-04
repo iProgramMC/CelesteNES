@@ -1418,8 +1418,13 @@ gm_respawn:
 	ora gamectrl3
 	sta gamectrl3
 	
+	lda #nc2_clrcol
+	ora nmictrl2
+	sta nmictrl2
+	jsr gm_leave_doframe
+	
 	; perform the slide wipe
-	ldy #18
+	ldy #17
 @loop:
 	sty transtimer
 	
@@ -1427,6 +1432,8 @@ gm_respawn:
 	ora nmictrl2
 	sta nmictrl2
 	
+	inc deathtimer
+	jsr gm_draw_dead
 	jsr gm_leave_doframe
 	
 	ldy transtimer

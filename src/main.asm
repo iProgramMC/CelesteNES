@@ -60,6 +60,9 @@
 .segment "CHR_BG001"
 .incbin  "chr/b_lvl1.chr"
 
+.segment "CHR_DPLDI"
+.incbin  "chr/sp_plrdie.chr"
+
 ; Main dialog tiles
 .segment "CHR_DMAIN"
 .incbin  "chr/d_main.chr"
@@ -105,4 +108,6 @@
 .segment "CHR_UN007"
 .segment "CHR_UN008"
 .segment "CHR_UN009"
-.segment "CHR_UN010"
+.segment "CHR_U10_B"
+.segment "CHR_U10_C"
+.segment "CHR_U10_D"

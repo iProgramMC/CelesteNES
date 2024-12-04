@@ -25,44 +25,6 @@ gm_draw_2xsprite:
 	jsr oam_putsprite
 	rts
 
-deathtable1: .byte $FC, $FD, $00, $03, $04, $03, $00, $FD
-deathtable2: .byte $00, $FD, $FC, $FD, $00, $03, $04, $03
-
-; ** SUBROUTINE: gm_dead_sub
-; desc: Multiplies temp1, temp2 by max(deathtimer, @max)
-.proc gm_dead_sub
-@max = 4
-	lda deathtimer
-	cmp #@max
-	bcc noMax
-	lda #@max
-noMax:
-	tax
-	tay
-	lda temp1
-	beq multiplyingZeroT1
-multiply1Loop:
-	clc
-	adc temp1
-	dey
-	bne multiply1Loop
-	sta temp1
-	
-multiplyingZeroT1:
-	txa
-	tay
-	beq multiplyingZeroT2
-	lda temp2
-multiply2Loop:
-	clc
-	adc temp2
-	dey
-	bne multiply2Loop
-	sta temp2
-multiplyingZeroT2:
-	rts
-.endproc
-
 ; NOTE: this only covers a range of PI/4.
 ; Each table is 32 items in size.
 sintable:	.byte 0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,59,62,65,67,70,73,75,78,80,82,85,87
@@ -135,6 +97,9 @@ notSecondQuadrant:
 	jmp sine
 .endproc
 
+; ** SUBROUTINE: gm_dead_sub2
+; desc: Does some math to reduce the result of sine/cosine.
+; It's like (temp1 >> 3) + (temp1 >> 4) basically
 .proc gm_dead_sub2
 	; divide each component by 8
 	lda temp1
@@ -171,6 +136,8 @@ notSecondQuadrant:
 	rts
 .endproc
 
+; ** SUBROUTINE: gm_dead_sub3
+; desc: Does some more math to interpolate towards temp1, temp2
 .proc gm_dead_sub3
 	lda deathtimer
 	cmp #8
@@ -235,18 +202,38 @@ return:
 	rts
 .endproc
 
+; ** SUBROUTINE: gm_dead_shake
+.proc gm_dead_shake
+	lda #%00001111
+	sta quakeflags
+	lda #10
+	sta quaketimer
+	rts
+.endproc
+
 ; ** SUBROUTINE: gm_draw_dead
 gm_draw_dead:
 	lda #pl_dead
 	bit playerctrl
 	bne @notDead
+@return:
 	rts
 
 @notDead:
+	lda deathtimer
+	bne :+
+	jsr gm_dead_shake
+:	cmp #32
+	bcs @return
+	
 	lda deathangle
 	sta temp4
 	inc deathangle
 	inc deathangle
+	
+	; load the dead-player-bank. the player isn't being drawn anymore so just reuse its slots
+	lda #chrb_dpldi
+	sta spr0_bknum
 	
 	ldy #0
 @deadLoop:
@@ -293,13 +280,17 @@ gm_draw_dead:
 :	lda plh_attrs
 	sty temp3
 
-	ldy deathtimer
-	cpy #8
+	lda deathtimer
+	cmp #24
 	bcc :+
-	ldy #$96
-	bne :++
-:	ldy #$94
-:	jsr oam_putsprite
+	lda #24
+:	lsr
+	tay
+	lda @tableT, y
+	tay
+	lda #1
+	
+	jsr oam_putsprite
 	ldy temp3
 	
 	iny
@@ -310,11 +301,13 @@ gm_draw_dead:
 @done:
 	ldx deathtimer
 	inx
-	cpx #16
+	cpx #24
 	bne :+
 	jsr gm_respawn
 :	stx deathtimer
 	rts
+
+@tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
 
 ; ** SUBROUTINE: gm_draw_player
 gm_draw_player:
@@ -692,6 +685,10 @@ gm_actuallyclimbing:
 ; ** SUBROUTINE: gm_anim_banks
 ; desc: Updates the loaded bank numbers for the current animation.
 gm_anim_banks:
+	lda #pl_dead
+	bit playerctrl
+	bne @alsoUpdateFrameCounter ; don't update the bank if dead
+	
 	lda animmode
 	cmp #am_climb
 	bne @standardAnimMode

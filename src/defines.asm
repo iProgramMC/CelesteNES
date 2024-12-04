@@ -242,6 +242,7 @@ chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
 chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
 
 ; EXTRA SPRITE BANKS
+chrb_dpldi  = $68
 
 ; DIALOG DATA BANKS
 chrb_dcntr  = $6C   ; dialogue binary counting pattern
