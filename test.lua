@@ -4,9 +4,7 @@ bk=0
 
 function cb(addr, value)
 	if odd == 1 then
-		val = (value * 0x100) + bk
-		entid = emu.getState()["cpu.y"]
-		emu.log('offscreen pos for ' .. tostring(entid) .. ': ' .. tostring(val))
+		emu.log('sine: ' .. tostring(bk) .. ': ' .. tostring(value))
 		odd = 0
 	else
 		bk = value
@@ -15,4 +13,4 @@ function cb(addr, value)
 end
 
 
-emu.addMemoryCallback(cb, 1, 0xFC)
+emu.addMemoryCallback(cb, 1, 0xFF)

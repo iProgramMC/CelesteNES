@@ -91,7 +91,7 @@ gamemode_title_init_FAR:
 	
 	jsr tl_select_banks
 	jsr vblank_wait
-	
+
 gamemode_title_update_FAR:
 	jsr tl_update_snow
 	jsr tl_render_snow
