@@ -521,6 +521,11 @@ dlg_leave_doframe:
 ;       This does NOT draw new sprites, nor does it clear shadow OAM.
 ; clobbers: A
 dlg_leave_doframe_split:
+	tya
+	pha
+	jsr dlg_draw_portrait
+	pla
+	tay
 	jsr gm_calc_camera_split
 	jsr soft_nmi_on
 	jsr nmi_wait
@@ -773,16 +778,41 @@ dlg_cmd_table:
 	.word dlg_cmd_unlockinp
 	.word dlg_cmd_waitgrn
 	.word dlg_cmd_dialog2
+	.word dlg_cmd_begin
+
+dlg_cmd_begin:
+	lda #0
+	sta dlg_waittimer
+	rts
 
 dlg_cmd_wait:
-	; TODO
+	; if there is no wait timer, set one up
+	lda dlg_waittimer
+	beq @loadWaitTimer
+	
+	; then decrement the wait timer, if it's not zero, check next frame
+	dec dlg_waittimer
+	bne @stillNotZero
+	
+	; it's zero now, so move on. ip is on the number of frames to wait,
+	; so we must increment it again to move on to the next instruction
 	jsr dlg_read_script
 	lda #0
 	rts
+	
+@loadWaitTimer:
+	jsr dlg_read_script
+	sta dlg_waittimer
+	jsr dlg_recheck_next_frame ; roll it back once
+	; then roll it back again
+@stillNotZero:
+	jmp dlg_recheck_next_frame
 
 dlg_cmd_dialog2:
-	lda #1
-	sta dlg_endnoclear
+	ldy #1
+	sty dlg_endnoclear
+	dey
+	sty dlg_havenext
 	bne dlg_cmd_dialog_
 
 dlg_cmd_dialog:
@@ -820,9 +850,15 @@ dlg_cmd_speaker:
 
 dlg_cmd_dirplr:
 dlg_cmd_dirent:
+	; TODO
+	jsr dlg_read_script
+	lda #0
+	rts
+
 dlg_cmd_walkplr:
 dlg_cmd_walkent:
-	; TODO
+	jsr dlg_read_script
+	jsr dlg_read_script
 	jsr dlg_read_script
 	lda #0
 	rts

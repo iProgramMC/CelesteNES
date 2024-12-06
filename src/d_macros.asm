@@ -20,6 +20,7 @@ DOP_lock    = $0A  ; Blocks input from player - also locks camera scrolling
 DOP_unlock  = $0B  ; Unlocks input from player
 DOP_waitgrn = $0C  ; Waits until Madeline touches the ground
 DOP_dialog2 = $0D  ; Show dialog box, then close, but don't clear
+DOP_begin   = $0E  ; Initialize cutscene variables
 
 DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
@@ -100,14 +101,14 @@ name:
 
 ; Walk to position
 ; desc: Walks the player to a position.
-.macro walk_player px, py
-	.byte DOP_walkplr, px, py
+.macro walk_player px, py, dur
+	.byte DOP_walkplr, px, py, dur
 .endmacro
 
 ; Walk to position (entity)
 ; desc: Walks the spoken-to entity to a position.
-.macro walk_entity px, py
-	.byte DOP_walkent, px, py
+.macro walk_entity px, py, dur
+	.byte DOP_walkent, px, py, dur
 .endmacro
 
 ; Change expression
@@ -136,6 +137,11 @@ name:
 ; Unlock player input.
 .macro unlock_input
 	.byte DOP_unlock
+.endmacro
+
+; Initialize cutscene
+.macro begin
+	.byte DOP_begin
 .endmacro
 
 ; Finish cutscene

@@ -37,6 +37,7 @@ dlg_updc2:	.res 1
 dlg_updc3:	.res 1
 dlg_updccurr:	.res 1
 dlg_endnoclear:	.res 1
+dlg_waittimer:  .res 1
 
 .segment "PRG_DIAL"
 .include "d_test.asm"    ; piece of test dialog

@@ -1,6 +1,7 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 ch0_granny:
+	begin
 	lock_input
 	wait_ground
 	face_player 0

@@ -311,6 +311,49 @@ load_palette:
 	bne @loop
 	rts
 
+; ** SUBROUTINE: calc_approach
+; desc: Approaches an 8-bit value towards another 8-bit value.
+;
+; parameters:
+;     X - The index into the zero page of the value to update
+;     Y - The value to add
+;     A - The approached value
+;
+; note:
+;     clobbers temp1, temp2
+calc_approach:
+@end = temp1
+@add = temp2
+	sta @end
+	sty @add
+	
+	lda 0, x
+	cmp @end
+	bcs @startBiggerThanEnd
+	
+	; start < end
+	; clc
+	adc @add
+	bcc :+
+	lda @end   ; it overflew! so, just end
+:	cmp @end
+	bcc :+
+	lda @end   ; start now >= end, load end
+:	sta 0, x
+	rts
+	
+@startBiggerThanEnd:
+	; start >= end
+	; sec
+	sbc @end
+	bcs :+
+	lda @end   ; it underflew! so, just end
+:	cmp @end
+	bcs :+
+	lda @end   ; start now < end, load end
+:	sta 0, x
+	rts
+
 ; ** SUBROUTINE: ppu_nmi_off
 ; arguments: none
 ; clobbers: A
