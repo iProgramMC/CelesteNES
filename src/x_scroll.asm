@@ -5,6 +5,9 @@ xt_scroll_r_cond:
 	lda #gs_camlock
 	bit gamectrl
 	bne @scrollRet    ; if camera is locked
+	lda #g3_blockinp
+	bit gamectrl3
+	bne @scrollRet
 	
 	lda player_x
 	cmp #scrolllimit
@@ -93,6 +96,9 @@ xt_scroll_l_cond:
 	lda #gs_camlock
 	bit gamectrl
 	bne @scrollRet    ; if camera is locked
+	lda #g3_blockinp
+	bit gamectrl3
+	bne @scrollRet
 	
 	lda roomsize
 	beq @scrollRet    ; if this is a "long" room, then we CANNOT scroll left.
@@ -167,10 +173,16 @@ xt_scroll_l_cond:
 xt_scroll_d_cond:
 	lda #gs_camlock
 	bit gamectrl
-	beq :+
+	beq @dontReturn
+@scrollRet2:
 	rts
-	
-:	lda #gs_lvlend
+
+@dontReturn:	
+	lda #g3_blockinp
+	bit gamectrl3
+	bne @scrollRet2
+
+	lda #gs_lvlend
 	bit gamectrl
 	beq @scrollRet    ; if level data hasn't actually ended
 	
@@ -318,6 +330,10 @@ xt_scroll_u_cond:
 	rts
 
 @scrollDontReturn:
+	lda #g3_blockinp
+	bit gamectrl3
+	bne @scrollReturn2
+	
 	lda #gs_lvlend
 	bit gamectrl
 	beq @scrollReturn2   ; if level data hasn't actually ended
