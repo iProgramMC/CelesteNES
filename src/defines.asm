@@ -95,6 +95,7 @@ sp_l0gr_timer = sp_entspec1
 sp_l0gr_flags = sp_entspec2
 sp_l0gr_state = sp_entspec3
 sp_l0gr_ttimr = sp_wid
+sp_l0gr_cutsc = sp_hei       ; if granny initiated the cutscene
 
 ; entity flags
 ef_collidable = $01
@@ -373,6 +374,8 @@ g3_transitL = $04   ; is in a LEFT transition
 g3_transitD = $08   ; is in a DOWN transition
 g3_transitX = $10   ; is in a DEATH transition
 	g3_transitA = $1F ; all transition types, for checking whether any kind of transition is active
+g3_blockinp = $20   ; block input, set by cutscenes
+g3_updcuts  = $40   ; update the cutscene the next frame.
 ;TODO: lf_vertical = $01   ; level flag: is this level vertical
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded

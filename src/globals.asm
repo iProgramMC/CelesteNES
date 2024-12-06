@@ -85,6 +85,8 @@ dlg_curport : .res 2 ; the pointer to the current portrait
 rng_state   : .res 1
 p1_cont     : .res 2
 p1_conto    : .res 2
+game_cont   : .res 2
+game_conto  : .res 2
 ctrlscheme  : .res 1 ; active control scheme
 paladdr     : .res 2 ; currently loaded palette address.
 

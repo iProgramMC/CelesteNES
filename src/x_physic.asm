@@ -14,7 +14,7 @@ gm_gettargetindex:
 	rts
 	
 gm_gettargetindexforce:
-	lda p1_cont
+	lda game_cont
 	and #(cont_left | cont_right)
 	; since cont_left and cont_right are $02 and $01 respectively,
 	; we can simply use them as indices into a table.
@@ -266,7 +266,7 @@ gm_updatexvel:
 ; desc:    Gets the down force applied to the player.
 gm_getdownforce:
 	lda #cont_a
-	bit p1_cont
+	bit game_cont
 	beq @normal        ; not holding the A button, use normal gravity
 	
 	lda player_vs_y
@@ -354,7 +354,7 @@ gm_controls:
 	beq @noClimbJumpWindow
 	
 	; check if we are holding a direction
-	lda p1_cont
+	lda game_cont
 	and #(cont_left | cont_right)
 	cmp cjwalldir
 	bne @noClimbJumpRefund
@@ -391,9 +391,9 @@ gm_controls:
 	bne gm_jump       ; If player buffered a jump, then try to perform it.
 gm_dontjump:
 	lda #cont_b
-	bit p1_cont
+	bit game_cont
 	beq gm_dontdash   ; if the player pressed B
-	bit p1_conto
+	bit game_conto
 	bne gm_dontdash   ; if the player wasn't pressing B last frame
 	lda dashcount
 	cmp #maxdashes
@@ -429,7 +429,7 @@ gm_normaljmp2:
 	and #<~(pl_ground|pl_climbing)
 	sta playerctrl
 	lda #%00000011
-	bit p1_cont
+	bit game_cont
 	beq gm_dontjump   ; don't give a boost if we aren't moving
 	lda player_vl_x
 	bmi gm_jumpboostneg; if velocity < 0 pixels, then apply the leftward jump boost
@@ -471,7 +471,7 @@ gm_walljump:
 	beq @notClimbing
 	
 	; climbing, check if the held direction is different from the facing direction
-	lda p1_cont
+	lda game_cont
 	and #(cont_left|cont_right)
 	beq @climbJump    ; not holding any buttons, so standard jump
 	
@@ -581,9 +581,9 @@ gm_walljump:
 ;          If necessary, decrement the coyote timer.
 gm_jumpgrace:
 	lda #cont_a
-	bit p1_conto
-	bne gm_nosetbuff  ; (p1_conto & #cont_a) = 0
-	bit p1_cont
+	bit game_conto
+	bne gm_nosetbuff  ; (game_conto & #cont_a) = 0
+	bit game_cont
 	beq gm_nosetbuff  ; if A was just pressed, then assign the default buff time
 	lda #defjmpbuff
 	sta jumpbuff
@@ -1918,10 +1918,10 @@ gm_dash_read_cont:
 	jsr gm_dash_sfx
 	lda #6
 	sta quaketimer
-	lda p1_cont
+	lda game_cont
 	and #%00001111          ; check if holding any direction
 	beq gm_defaultdir       ; if not, determine the dash direction from the facing direction	
-	lda p1_cont
+	lda game_cont
 	and #%00001111          ; get all directional flags
 	; if horizontal flags are 0, then the vertical flags must NOT be zero, otherwise we ended up in gm_defaultdir
 gm_dash_nodir:
@@ -1956,13 +1956,13 @@ gm_dash_after:
 	; this label is reached when the dash is "completed", i.e. it gives no more
 	; boost to the player and physics are enabled.
 	lda #%00000011
-	bit p1_cont
+	bit game_cont
 	beq gm_dash_noflip  ; not pressing a direction, so no need to flip the character
 	lda playerctrl
 	ora #pl_left
 	sta playerctrl      ; set the left bit...
 	lda #cont_right     ; assumes cont_right == 1
-	and p1_cont
+	and game_cont
 	eor playerctrl
 	sta playerctrl      ; so that, if right is pressed, then we can flip it back
 gm_dash_noflip:
@@ -2011,7 +2011,7 @@ gm_timercheck:
 	bne @decJumpCd
 	
 	lda #cont_a
-	bit p1_cont
+	bit game_cont
 	beq @dontDecJumpCd
 
 @decJumpCd:
@@ -2281,7 +2281,7 @@ hasWall:
 	
 	; okay!!! No more conditions for the release. Means that, this frame, we can keep climbing.
 	
-	lda p1_cont
+	lda game_cont
 	and #(cont_up | cont_down)
 	pha
 	

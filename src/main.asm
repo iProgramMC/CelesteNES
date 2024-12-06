@@ -21,6 +21,8 @@
 .include "defines.asm"
 .include "globals.asm"
 
+.include "d_macros.asm"
+
 .include "level0/bank_0.asm"
 .include "level0/bank_1.asm"
 .include "level1/bank_0.asm"

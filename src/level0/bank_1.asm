@@ -3,3 +3,4 @@
 .segment "PRG_LVL0B"
 .include "metatile.asm"
 .include "music.asm"
+.include "dialog.asm"

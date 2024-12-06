@@ -103,7 +103,33 @@ level0_granny:
 	sta temp7
 	
 @dontFlip:
-	jmp gm_draw_common
+	jsr gm_draw_common
+	
+	; Check if the player is at position 96 or greater.
+	; Actually this is what normal Celeste does!
+	lda player_x
+	cmp #96
+	bcc @return
+	
+	; Check if Granny already initiated the cutscene
+	lda sprspace+sp_l0gr_cutsc, x
+	bne @return
+	
+	lda #1
+	sta sprspace+sp_l0gr_cutsc, x
+	
+	lda temp1
+	pha
+	
+	lda #0
+	ldx #<ch0_granny
+	ldy #>ch0_granny
+	jsr dlg_begin_cutscene_g
+	
+	pla
+	sta temp1
+@return:
+	rts
 
 @idleAnim:	.byte $40,$44,$48,$4C
 @laughAnim:	.byte $50,$54

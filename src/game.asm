@@ -117,6 +117,7 @@ gm_game_update:
 	sta camera_y_ho
 	
 	jsr gm_clear_palette_allocator
+	jsr gm_update_game_cont
 	jsr gm_check_climb_input
 	inc framectr
 	lda scrollsplit
@@ -133,8 +134,6 @@ gm_game_update:
 	jsr gm_update_dialog
 	jsr gm_load_level_if_vert
 	
-	jsr test_dialog
-	
 	; note: by this point, palettes should have been calculated.
 	jsr gm_check_updated_palettes
 	
@@ -142,49 +141,51 @@ gm_game_update:
 	; calculate the position of the camera so that the NMI can pick it up
 	; if scrollsplit is not zero then it was already calculated for the IRQ
 	lda scrollsplit
-	bne :+
+	bne @dontCalcNoSplit
 	jsr gm_calc_camera_nosplit
-:
+@dontCalcNoSplit:
 
-	;lda #cont_start
-	;bit p1_cont
-	;bne gm_titleswitch
+	; here, handle pause input, etc.
 	rts
 
-; ** SUBROUTINE: gm_titleswitch
-;gm_titleswitch:
-;	bit p1_conto
-;	bne @earlyReturn
-;	
-;	lda scrollsplit
-;	eor #80
-;	sta scrollsplit
-;
-;	lda #gm_title
-;	sta gamemode
-;	lda #0
-;	sta titlectrl
-;@earlyReturn:
-;	rts
-
-test_dialog:
-	lda #cont_select
-	bit p1_cont
-	beq :+
-	
-	bit p1_conto
-	bne :+
+; ** SUBROUTINE: gm_update_game_cont
+; desc: Updates the game_cont variables to the state of p1_cont.  If input is blocked, then
+;       it's actually set to zero.
+gm_update_game_cont:
+	lda #g3_blockinp
+	bit gamectrl3
+	beq @normalInput
 	
 	lda #0
-	ldx #<ch0_granny
-	ldy #>ch0_granny
-	jsr dlg_begin_cutscene_g
-
-:	rts
+	sta game_cont
+	sta game_cont+1
+	sta game_conto
+	sta game_conto+1
+	rts
+	
+@normalInput:
+	lda p1_cont
+	sta game_cont
+	lda p1_cont+1
+	sta game_cont+1
+	lda p1_conto
+	sta game_conto
+	lda p1_conto+1
+	sta game_conto+1
+	rts
 
 ; ** SUBROUTINE: gm_update_dialog
 ; desc: Updates the active dialog if needed.
 gm_update_dialog:
+	lda gamectrl3
+	and #g3_updcuts
+	beq @dontUpdateCutscene
+	
+	eor gamectrl3
+	sta gamectrl3
+	jsr dlg_run_cutscene_g
+	
+@dontUpdateCutscene:
 	lda dialogsplit
 	beq @return
 	jmp dlg_update_g
@@ -495,19 +496,19 @@ gm_check_climb_input:
 	cmp #cns_emulat
 	beq @isEmulator
 	
-	lda p1_cont
+	lda game_cont
 	and #cont_up
 	sta climbbutton
 	rts
 
 @isSNES:
-	lda p1_cont+1
+	lda game_cont+1
 	and #(cont_lsh|cont_rsh)
 	sta climbbutton
 	rts
 
 @isEmulator:
-	lda p1_cont
+	lda game_cont
 	and #cont_select
 	sta climbbutton
 	rts

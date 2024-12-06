@@ -418,7 +418,11 @@ dlg_end_dialog:
 	lda ntwrhead
 	sta dlg_temporary
 	
-	lda gamectrl
+	lda dlg_endnoclear
+	beq :+
+	rts
+	
+:	lda gamectrl
 	pha
 	
 	; ensure that the palette read head isn't modified ACROSS this call.
@@ -685,6 +689,7 @@ dlg_update_d:
 ;     [dlg_entity]                 - The index of the entity the player is engaging with.
 dlg_begin_cutscene_d:
 	; initialize things about the cutscene here TODO
+	; TODO: When you add things here, change dlg_run_cutscene_g to run dlg_run_cutscene!!
 	
 	;fallthrough: jmp dlg_run_cutscene
 
@@ -764,6 +769,10 @@ dlg_cmd_table:
 	.word dlg_cmd_walkent
 	.word dlg_cmd_express
 	.word dlg_cmd_trigger
+	.word dlg_cmd_lockinp
+	.word dlg_cmd_unlockinp
+	.word dlg_cmd_waitgrn
+	.word dlg_cmd_dialog2
 
 dlg_cmd_wait:
 	; TODO
@@ -771,12 +780,21 @@ dlg_cmd_wait:
 	lda #0
 	rts
 
+dlg_cmd_dialog2:
+	lda #1
+	sta dlg_endnoclear
+	bne dlg_cmd_dialog_
+
 dlg_cmd_dialog:
 	asl                  ; shift the high bit of the command byte into C
 	lda #0
 	rol                  ; shift it into the low bit of A
 	sta dlg_havenext     ; store it into the "have next"
-	
+
+	lda #0
+	sta dlg_endnoclear
+
+dlg_cmd_dialog_:	
 	; read address
 	jsr dlg_read_script
 	sta dlg_textptr
@@ -823,4 +841,52 @@ dlg_cmd_trigger:
 	; TODO
 	jsr dlg_read_script
 	lda #0
+	rts
+
+; Lock Input
+dlg_cmd_lockinp:
+	lda gamectrl3
+	ora #g3_blockinp
+	sta gamectrl3
+	
+	lda #0
+	rts
+
+; Unlock Input
+dlg_cmd_unlockinp:
+	lda gamectrl3
+	and #<~g3_blockinp
+	sta gamectrl3
+	
+	lda #0
+	rts
+
+dlg_cmd_waitgrn:
+	; check if player is on ground
+	lda playerctrl
+	and #pl_ground
+	bne @justExit
+	
+	; Re-check next frame
+	jmp dlg_recheck_next_frame
+	
+	; TODO
+@justExit:
+	lda #0
+	rts
+
+; ** SUBROUTINE: dlg_recheck_next_frame
+; desc: Re-runs the exact same instruction next frame.
+; Note: If you have read bytes from the cutscene stream, then you must run this function,
+;       or decrement the cutscene pointer, that many times!
+; Note: You can just `jmp` to this, it'll return a non zero value causing a return.
+dlg_recheck_next_frame:
+	lda dlg_cutsptr
+	bne :+
+	dec dlg_cutsptr+1
+:	dec dlg_cutsptr
+	
+	lda gamectrl3
+	ora #g3_updcuts
+	sta gamectrl3
 	rts

@@ -23,7 +23,10 @@ dlg_begin_cutscene_g:
 	sta dlg_entity
 	stx dlg_cutsptr
 	sty dlg_cutsptr+1
-	
+
+; NOTE: dlg_run_cutscene_g is the exact same as dlg_begin_cutscene_g right now!
+; This is because dlg_begin_cutscene_d and dlg_run_cutscene are the same as well.
+dlg_run_cutscene_g:
 	lda #<dlg_begin_cutscene_d
 	sta temp1
 	lda #>dlg_begin_cutscene_d

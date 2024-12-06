@@ -16,8 +16,12 @@ DOP_walkplr = $06  ; Walk to position
 DOP_walkent = $07  ; Walk to position (entity)
 DOP_express = $08  ; Change expression
 DOP_trigger = $09  ; Trip a hardcoded trigger
+DOP_lock    = $0A  ; Blocks input from player - also locks camera scrolling
+DOP_unlock  = $0B  ; Unlocks input from player
+DOP_waitgrn = $0C  ; Waits until Madeline touches the ground
+DOP_dialog2 = $0D  ; Show dialog box, then close, but don't clear
 
-DOP_dialog =  $82  ; Show dialog box (with more dialog boxes following it)
+DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
 DOP_end     = $00  ; Finish dialog
 
@@ -59,6 +63,12 @@ name:
 ; Dialog box
 .macro dialog line
 	.byte DOP_dialog
+	.word line
+.endmacro
+
+; Dialog box, with close, but without end
+.macro dialog2 line
+	.byte DOP_dialog2
 	.word line
 .endmacro
 
@@ -113,7 +123,22 @@ name:
 	.byte DOP_trigger, trigid
 .endmacro
 
-; Finish dialog
+; Lock player input.
+.macro lock_input
+	.byte DOP_lock
+.endmacro
+
+; Waits until the player has hit the ground.
+.macro wait_ground
+	.byte DOP_waitgrn
+.endmacro
+
+; Unlock player input.
+.macro unlock_input
+	.byte DOP_unlock
+.endmacro
+
+; Finish cutscene
 .macro end
 	.byte DOP_end
 .endmacro
