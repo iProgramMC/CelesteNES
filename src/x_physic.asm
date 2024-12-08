@@ -113,6 +113,11 @@ gm_updatexvel:
 	bit playerctrl
 	beq @notClimbing
 	
+	lda game_cont
+	and #cont_down
+	; while holding down, don't move towards the wall
+	bne @zeroAndReturn
+	
 	ldx #0
 	stx player_vs_x
 	inx
@@ -127,6 +132,12 @@ gm_updatexvel:
 	stx player_vl_x
 	
 :	rts
+
+@zeroAndReturn:
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	rts
 	
 @notClimbing:
 	; we need to calculate two things:
@@ -510,6 +521,10 @@ gm_walljump:
 :	lda #14
 	sta cjwindow
 	
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	
 	; note: cjwalldir is the direction you must hold for a wall jump stamina refund!
 	lda playerctrl
 	and #pl_left    ; pl_left is equal to 1
@@ -774,6 +789,7 @@ gm_getrightwjx:
 ; desc:     Gets the tile Y position where the top edge of the player's hitbox resides
 ; returns:  A - the Y coordinate
 gm_gettopy:
+gm_gettopy_wjc:
 	clc
 	lda player_y
 	adc #plr_y_top
@@ -1406,7 +1422,7 @@ gm_checkwjump:
 	beq @dontSet
 	
 @alwaysSet:
-	jsr gm_gettopy
+	jsr gm_gettopy_wjc
 	sta temp1
 	jsr gm_getbottomy_w
 	sta temp2
@@ -2106,6 +2122,10 @@ haveStamina:
 	
 	; set the climbing flag now
 	lda playerctrl
+	and #pl_climbing
+	tax
+	
+	lda playerctrl
 	ora #pl_climbing
 	sta playerctrl
 	
@@ -2114,28 +2134,11 @@ haveStamina:
 	lda table, y
 	sta temp9
 	
-	; half the Y velocity if it's too high
-	lda player_vl_y
-	bmi velocityIsMinus
-	
-	; velocity positive
-	cmp #2
-	bcc noHalving
-	
-	lsr player_vl_y
-	ror player_vs_y
-	jmp noHalving
-
-velocityIsMinus:
-	cmp #$FE
-	bcs noHalving
-	
-	sec
-	ror player_vl_y
-	ror player_vs_y
-	
-noHalving:
-	; ensure that Madeline's position resides entirely within one tile.
+	; don't reduce the velocity if pl_climbing was set already
+	txa
+	bne :+
+	jsr gm_reduce_vel_climb
+:	; ensure that Madeline's position resides entirely within one tile.
 	lda player_x
 	clc
 	adc camera_x
@@ -2221,9 +2224,20 @@ noLowStaminaFlash:
 :	lda playerctrl
 	ora #pl_climbing
 	sta playerctrl
+	
+	jsr gm_reduce_vel_climb
+	
+	lda gamectrl2
+	and #<~g2_autojump
+	sta gamectrl2
 	rts
 	
 alreadyClimbing:
+	; clear the autojump flag
+	lda gamectrl2
+	and #<~g2_autojump
+	sta gamectrl2
+	
 	lda climbbutton
 	bne noRelease
 release:
@@ -2383,4 +2397,27 @@ dontDecrementHighByte:
 table: .byte 0, pl_wallleft
 table2lo: .byte $00,$55,$40,$00
 table2hi: .byte $00,$01,$FF,$00
+.endproc
+
+; ** SUBROUTINE: gm_reduce_vel_climb
+; desc: Reduce the velocity by 0.25x (Celeste normally does 0.2x) when initiating a climb.
+.proc gm_reduce_vel_climb
+	; get 1/4 the Y velocity (Celeste does 0.2X but whatever)
+	lda player_vl_y
+	bmi velocityIsMinus
+	
+	; velocity positive
+	lsr player_vl_y
+	ror player_vs_y
+	lsr player_vl_y
+	ror player_vs_y
+	rts
+velocityIsMinus:
+	sec
+	ror player_vl_y
+	ror player_vs_y
+	sec
+	ror player_vl_y
+	ror player_vs_y
+	rts
 .endproc
