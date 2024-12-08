@@ -785,11 +785,19 @@ gm_getrightwjx:
 	lsr               ; finish dividing by the tile size
 	rts
 
+; ** SUBROUTINE: gm_getfacex_wj
+; desc:    Gets the tile X position of either the left or right of the player's hitbox, depending on
+;          which way they're facing. Used for climb hop checking
+gm_getfacex_wj:
+	lda playerctrl
+	and #pl_left
+	beq gm_getrightwjx
+	jmp gm_getleftwjx
+
 ; ** SUBROUTINE: gm_gettopy
 ; desc:     Gets the tile Y position where the top edge of the player's hitbox resides
 ; returns:  A - the Y coordinate
 gm_gettopy:
-gm_gettopy_wjc:
 	clc
 	lda player_y
 	adc #plr_y_top
@@ -1226,6 +1234,7 @@ gm_checkfloor:
 	sta wjumpcoyote   ; can't perform a wall jump while on the ground
 	sta player_vl_y
 	sta player_vs_y
+	sta hopcdown
 	sta dashcount
 	lda #<staminamax
 	sta stamina
@@ -1316,12 +1325,15 @@ gm_applyx:
 	beq @checkDone
 
 @collidedRight:
+	lda hopcdown
+	bne :+
+	
 	ldx #0                   ; set the velocity to a minuscule value to
 	stx player_vl_x          ; ensure the player doesn't look idle
 	inx
 	stx player_vs_x
 	
-	lda playerctrl
+:	lda playerctrl
 	ora #pl_pushing
 	and #(pl_wallleft^$FF)   ; the wall wasn't found on the left.
 	sta playerctrl
@@ -1383,11 +1395,14 @@ gm_applyx:
 	beq @checkDone2
 
 @collidedLeft:
+	lda hopcdown
+	bne :+
+	
 	ldx #$FF                 ; set the velocity to a minuscule value to
 	stx player_vl_x          ; ensure the player doesn't look idle
 	stx player_vs_x
 	
-	lda playerctrl
+:	lda playerctrl
 	ora #(pl_pushing | pl_wallleft) ; the wall was found on the left.
 	sta playerctrl
 	
@@ -1422,9 +1437,9 @@ gm_checkwjump:
 	beq @dontSet
 	
 @alwaysSet:
-	jsr gm_gettopy_wjc
+	jsr gm_gettopy
 	sta temp1
-	jsr gm_getbottomy_w
+	jsr gm_getbottomy_wjc
 	sta temp2
 	
 	lda playerctrl
@@ -2017,7 +2032,10 @@ gm_timercheck:
 	lda forcemovext
 	beq :+
 	dec forcemovext
-:	
+:	lda hopcdown
+	beq :+
+	dec hopcdown
+:
 	lda jcountdown
 	beq @return
 
@@ -2116,6 +2134,8 @@ gm_rem25pcvelYonly:
 haveStamina:
 	lda jcountdown
 	bne noEffect
+	lda hopcdown
+	bne noEffect
 	
 	lda temp9
 	sta entground ; attach the player to this entity
@@ -2190,6 +2210,8 @@ noLowStaminaFlash:
 	lda dashtime
 	bne return
 	lda jcountdown
+	bne return
+	lda hopcdown
 	bne return
 	
 	lda playerctrl
@@ -2276,7 +2298,21 @@ noEntity:
 	; The gm_checkwjump function, called above this one, tells us if a wall is near.
 	lda playerctrl
 	and #pl_nearwall
-	beq release     ; No wall was detected!
+	bne hasWall
+	
+	; No wall was detected!
+	; Release the wall but set the vel to zero
+noWallRelease:
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+release2_beq:
+	beq release
+	
+	; tables:
+tableDirs:	.byte gc_right, gc_right, gc_left, gc_right
+velsLo:		.byte <climbhopX, <(-climbhopX)
+velsHi:		.byte >climbhopX, >(-climbhopX)
 	
 hasWall:
 	; Ok, we have a wall.  Is it in our facing direction?
@@ -2291,10 +2327,60 @@ hasWall:
 	cmp table, y
 	
 	; if there is no wall *in our facing direction*, then release.
-	bne release
+	bne noWallRelease
 	
-	; okay!!! No more conditions for the release. Means that, this frame, we can keep climbing.
+	; check for climb hop
+	lda player_vl_y
+	bpl noForcedRelease
 	
+	lda game_cont
+	and #(cont_left | cont_right)
+	tax
+	lda tableDirs, x
+	pha
+	
+	jsr gm_getfacex_wj
+	sta temp1
+	tax
+	jsr gm_getbottomy_cc
+	tay
+	
+	pla
+	sta temp2
+	jsr xt_collide
+	
+	bne noForcedRelease
+	
+	; are we at least colliding with the top?
+	jsr gm_gettopy
+	tay
+	ldx temp1
+	lda temp2
+	jsr xt_collide
+	bne noForcedRelease
+	
+	; not colliding with the middle OR top of our hitbox, we must climb hop
+	lda playerctrl
+	and #pl_left     ; invariant: pl_left == $01
+	tax
+	lda velsLo, x
+	sta player_vs_x
+	lda velsHi, x
+	sta player_vl_x
+	
+	lda #<climbhopY
+	sta player_vs_y
+	lda #>climbhopY
+	sta player_vl_y
+	lda #12
+	sta forcemovext
+	lda #5
+	sta hopcdown
+	lda #0
+	sta forcemovex
+	beq release2_beq
+	
+noForcedRelease:
 	lda game_cont
 	and #(cont_up | cont_down)
 	pha

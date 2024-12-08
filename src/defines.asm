@@ -462,6 +462,10 @@ stamlowthre = 120   ; start flashing at this stamina value
 plrceiltoly = 2     ; player ceiling tolerance (Y)
 plrceiltolx = 3     ; player ceiling tolerance (X)
 
+; TODO: these only kind of calculated
+climbhopX   = 456   ; 100/60*256
+climbhopY   = -512  ; 120/60*256
+
 maxfallHI   = (maxfall >> 8)
 maxfallLO   = (maxfall & $FF)
 
@@ -483,6 +487,8 @@ sjumpvelLO  = ((-(jumpvel / 2)) & $FF)
 ; player proportions
 plr_y_bot      = 16
 plr_y_bot_wall = 14 ; for wall checking
+plr_y_bot_cc   = 11 ; for climb hop checking
+plr_y_bot_wjc  = 12 ; for wall jump checking
 plr_y_top      = (plr_y_bot - plrheight)
 plr_y_top_ceil = plr_y_top + plrceiltoly
 plr_y_mid      = (plr_y_bot_wall - plrheight / 2)

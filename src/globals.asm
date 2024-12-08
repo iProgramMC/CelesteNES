@@ -251,6 +251,7 @@ climbcdown  : .res 1 ; climb cooldown (when transitioning rooms)
 cjwindow    : .res 1 ; climb jump window -- if you push the opposite direction while jumping, stamina will be refunded and a wall jump will happen
 cjwalldir   : .res 1 ; climb jump wall direction
 deathangle  : .res 1 ; death particles angle
+hopcdown    : .res 1 ; hop countdown HACK
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.

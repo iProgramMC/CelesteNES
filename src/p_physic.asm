@@ -200,6 +200,34 @@ gm_getbottomy_f:
 	lsr
 	rts
 
+; ** SUBROUTINE: gm_getbottomy_cc
+; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
+gm_getbottomy_cc:
+	lda player_y
+	clc
+	adc #plr_y_bot_cc
+	bcs gm_gety_wraparound
+	cmp #240
+	bcs gm_gety_wraparound
+	lsr
+	lsr
+	lsr
+	rts
+
+; ** SUBROUTINE: gm_getbottomy_wjc
+; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
+gm_getbottomy_wjc:
+	lda player_y
+	clc
+	adc #plr_y_bot_wjc
+	bcs gm_gety_wraparound
+	cmp #240
+	bcs gm_gety_wraparound
+	lsr
+	lsr
+	lsr
+	rts
+
 ; ** SUBROUTINE: gm_getmidx
 ; desc:     Gets the tile X position at the middle of the player's hitbox, used for squish checking
 ; returns:  A - the X coordinate
