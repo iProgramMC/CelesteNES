@@ -1123,8 +1123,23 @@ gm_init_entity:
 	sta sprspace+sp_kind, x   ; normal refill entity with the erf_regen flag set.
 	lda #erf_regen
 	sta sprspace+sp_refill_flags, x
-	
+	rts
 @notReRefill:
+	
+	cmp #e_l1zipmovr
+	bne @notZipMover
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_wid, y
+	jsr gm_read_ent
+	sta sprspace+sp_entspec1, y
+	jsr gm_read_ent
+	sta sprspace+sp_entspec2, y
+	rts
+	
+@notZipMover:
 	; todo: more cases ...
 	rts
 	

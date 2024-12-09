@@ -220,8 +220,6 @@ gm_convert_metatiles_load_entities:
 	jmp @return
 	
 @spotFound:
-	; initialize the entity
-	jsr gm_init_entity
 	
 	; load its X coordinate.
 	lda roombeglo
@@ -238,6 +236,9 @@ gm_convert_metatiles_load_entities:
 	clc
 	adc roombeghi
 	sta sprspace + sp_x_pg, x
+	
+	; initialize the entity
+	jsr gm_init_entity
 	
 	; okay !! try loading another entity
 	jmp @entityLoadLoop

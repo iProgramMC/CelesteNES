@@ -125,6 +125,7 @@ e_l0bridge  = $0A ; LEVEL 0: bridge manager
 e_l0granny  = $0B ; LEVEL 0: granny
 e_l0birdcl  = $0C ; LEVEL 0: bird (climb)
 e_l0birdda  = $0D ; LEVEL 0: bird (dash)
+e_l1zipmovr = $0E ; LEVEL 1: zip mover
 
 ; Entity types that turn into other entities on load
 e_rerefill  = $7F ; refill with respawn flag set
@@ -440,7 +441,7 @@ defjmpbuff  = $04   ; 4 frames of buffering a jump
 defjmpcoyot = $06   ; 6 frames of coyote time
 defwjmpcoyo = $03   ; 3 frames of wall coyote time
 jmphboost   = 170   ; boost applied to the player's jump when running
-wjgrace     = 3     ; walls are checked this many pixels away from the hitbox for a wall jump. Celeste uses 3 here
+wjgrace     = 2     ; walls are checked this many pixels away from the hitbox for a wall jump. Celeste uses 3 here
 ct_none     = $00   ; no collision
 ct_full     = $01   ; the entire tile has collision
 ct_deadlyUP = $02   ; the tile is UP spike shaped

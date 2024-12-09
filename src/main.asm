@@ -50,6 +50,9 @@
 .segment "CHR_SLVL0"
 .incbin  "chr/sp_level0.chr"
 
+.segment "CHR_SLVL1"
+.incbin  "chr/sp_level1.chr"
+
 .segment "CHR_BGOWD"
 .incbin  "chr/b_overw.chr"
 
@@ -89,7 +92,6 @@
 .segment "PRG_LVL3B"
 .segment "PRG_LVL4B"
 .segment "PRG_LVL5B"
-.segment "CHR_SLVL1"
 .segment "CHR_SLV0B"
 .segment "CHR_SPR02"
 .segment "CHR_SPR03"

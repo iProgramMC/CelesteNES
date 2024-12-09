@@ -1253,7 +1253,7 @@ gm_applyy_checkdone:
 
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
-gm_applyx:
+.proc gm_applyx
 	lda player_x
 	sta player_xo
 	
@@ -1276,39 +1276,39 @@ gm_applyx:
 	lda player_vl_x
 	adc player_x
 	
-	bcs @dontCheckOffs       ; If the addition didn't overflow, we need to detour.
+	bcs dontCheckOffs        ; If the addition didn't overflow, we need to detour.
 	ldx player_vl_x          ; check if the velocity was positive
-	bpl @dontCheckOffs       ; yeah, of course it wouldn't overflow, it's positive!
+	bpl dontCheckOffs        ; yeah, of course it wouldn't overflow, it's positive!
 	lda #0                   ; we have an underflow, means the player is trying to leave the screen
 	ldy #0                   ; through the left side. we can't let that happen!
 	clc                      ; zero out the player's new position
-@dontCheckOffs:
+dontCheckOffs:
 	sta player_x
 	jsr gm_gettopy
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
 	sta temp2                ; temp2 - bottom Y
 	lda player_vl_x
-	bmi @checkLeft
+	bmi checkLeft
 	; >=0
-	bne @checkRight
+	bne checkRight
 	lda player_vs_x
-	beq @checkLeft
+	beq checkLeft
 
-@checkRight:
+checkRight:
 	lda #(maxvelxhi+2)
 	sta temp10
 
-@checkRightLoop:
+checkRightLoop:
 	dec temp10
-	beq @checkDone           ; nope, out of here with your stupid games
+	beq checkDone            ; nope, out of here with your stupid games
 	lda player_x
 	cmp #$F0
-	bcs @callLeaveRoomR      ; try to leave the room
+	bcs callLeaveRoomR       ; try to leave the room
 	
-@doneLeavingRoom:
+doneLeavingRoom:
 	jsr gm_collentright
-	bne @collidedRight
+	bne collidedRight
 	
 	jsr gm_getrightx
 	tax
@@ -1316,15 +1316,15 @@ gm_applyx:
 	ldy temp1
 	lda #gc_right
 	jsr xt_collide
-	bne @collidedRight       ; if collided, move a pixel back and try again
+	bne collidedRight        ; if collided, move a pixel back and try again
 	
 	ldy temp2                ;  snapping to the nearest tile is a BIT more complicated so
 	ldx y_crd_temp           ;  I will not bother
 	lda #gc_right
 	jsr xt_collide
-	beq @checkDone
+	beq checkDone
 
-@collidedRight:
+collidedRight:
 	lda hopcdown
 	bne :+
 	
@@ -1343,43 +1343,43 @@ gm_applyx:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
-	beq @checkDone           ; if the player X is zero... we're stuck inside a wall
+	beq checkDone            ; if the player X is zero... we're stuck inside a wall
 	
 	dex
 	stx player_x
 	ldx #$FF                 ; set the subpixel to $FF.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp @checkRightLoop      ; !! note: in case of a potential clip, this might cause lag frames!
+	jmp checkRightLoop       ; !! note: in case of a potential clip, this might cause lag frames!
 	                         ; loops will be used to avoid this unfortunate case as much as possible.
 ;
 
-@checkDone:
+checkDone:
 	lda player_vl_x
 	bpl xt_scroll_r_cond_   ; if moving positively, scroll if needed
 	jmp xt_scroll_l_cond
 
-@checkDone2:
+checkDone2:
 	lda player_vl_x
-	bne @checkDone
+	bne checkDone
 	lda player_vs_x
-	bne @checkDone
-	beq @checkRight         ; also check right, if player is not moving at all
+	bne checkDone
+	beq checkRight          ; also check right, if player is not moving at all
 
-@callLeaveRoomR:
+callLeaveRoomR:
 	jsr gm_leaveroomR
-	bne @doneLeavingRoom
+	bne doneLeavingRoom
 	rts
 
-@checkLeft:
+checkLeft:
 	lda #(maxvelxhi+2)
 	sta temp10
 
-@checkLeftLoop:
+checkLeftLoop:
 	dec temp10
-	beq @checkDone2          ; nope, out of here with your stupid games
+	beq checkDone2           ; nope, out of here with your stupid games
 	
 	jsr gm_collentleft
-	bne @collidedLeft
+	bne collidedLeft
 	
 	jsr gm_getleftx
 	tax
@@ -1387,14 +1387,14 @@ gm_applyx:
 	ldy temp1
 	lda #gc_left
 	jsr xt_collide
-	bne @collidedLeft        ; if collided, move a pixel to the right & try again
+	bne collidedLeft         ; if collided, move a pixel to the right & try again
 	ldy temp2
 	ldx y_crd_temp
 	lda #gc_left
 	jsr xt_collide
-	beq @checkDone2
+	beq checkDone2
 
-@collidedLeft:
+collidedLeft:
 	lda hopcdown
 	bne :+
 	
@@ -1412,12 +1412,16 @@ gm_applyx:
 	sta wjumpcoyote
 	ldx player_x
 	cpx #$F0                 ; compare to [screenWidth-16]
-	bcs @checkDone2          ; if bigger or equal, just bail, we might be stuck in a wall
+	bcs checkDone2           ; if bigger or equal, just bail, we might be stuck in a wall
 	inx
 	stx player_x
 	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp @checkLeftLoop
+	jmp checkLeftLoop
+.endproc
+
+gm_appx_checkleft  := gm_applyx::checkLeft
+gm_appx_checkright := gm_applyx::checkRight
 
 xt_scroll_r_cond_:
 	jmp xt_scroll_r_cond
@@ -2154,30 +2158,19 @@ haveStamina:
 	lda table, y
 	sta temp9
 	
+	jsr gm_gettopy
+	sta temp1                ; temp1 - top Y
+	jsr gm_getbottomy_w
+	sta temp2                ; temp2 - bottom Y
+	
 	; don't reduce the velocity if pl_climbing was set already
 	txa
-	bne :+
+	bne noEffect
 	jsr gm_reduce_vel_climb
-:	; ensure that Madeline's position resides entirely within one tile.
-	lda player_x
-	clc
-	adc camera_x
-	clc
-	adc table2, y
-	and #%11111000
-	sta player_x
-	lda player_x
-	sec
-	sbc camera_x
-	sec
-	sbc temp9
-	sta player_x
-	
 noEffect:
 	rts
 
 table:	.byte 3, 5  ; no left, left
-table2:	.byte 7, 8  ; no left, left
 .endproc
 
 ; ** SUBROUTINE: gm_climbcheck
@@ -2252,7 +2245,29 @@ noLowStaminaFlash:
 	lda gamectrl2
 	and #<~g2_autojump
 	sta gamectrl2
-	rts
+	
+	; ensure that Madeline's position resides entirely on the wall
+	lda playerctrl
+	and #pl_wallleft
+	bne left
+	
+	; right
+	lda player_x
+	clc
+	adc #6
+	bcc :+
+	lda #$FF
+:	sta player_x
+	jmp gm_appx_checkright
+
+left:
+	lda player_x
+	sec
+	sbc #6
+	bcs :+
+	lda #0
+:	sta player_x
+	jmp gm_appx_checkleft
 	
 alreadyClimbing:
 	; clear the autojump flag

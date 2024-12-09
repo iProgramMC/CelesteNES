@@ -232,7 +232,7 @@ level1_r4_p:
 	.byte $00,$A2,$88,$88,$88,$88,$88,$08
 	.byte $FF
 level1_r4_e:
-	.byte $90,$78,$09
+	.byte $93,$70,$0E,$20,$40,$F8
 	.byte $FF
 level1_r4_t:
 	.byte $D1,$2E,$2D,$2F,$32,$C9,$88,$2D
