@@ -24,8 +24,14 @@ retreat = 4
 	lda #16
 	sta sprspace+sp_hei, x
 	
+	lda #0
+	sta sprspace+sp_vel_x, x
+	sta sprspace+sp_vel_y, x
+	sta sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_vel_y_lo, x
+	
 	; which state are we in?
-	lda sprspace+sp_l1zm_state, x
+	jsr getState
 	beq idleState
 	cmp #charge
 	beq chargeState
@@ -41,7 +47,7 @@ idleState:
 	bne drawProcess
 	
 	; entground is this entity's index, therefore increase the state
-	inc sprspace+sp_l1zm_state, x
+	jsr incrementState
 	bne drawProcess
 
 chargeState:
@@ -51,12 +57,16 @@ chargeState:
 	bne drawProcess
 	
 	; move on to the lunge state
-	inc sprspace+sp_l1zm_state, x
+	jsr incrementState
 	lda #0
 	sta sprspace+sp_l1zm_timer, x
 	beq drawProcess
 
 lungeState:
+	lda sprspace+sp_l1zm_trajx, x
+	sta sprspace+sp_vel_x, x
+	lda sprspace+sp_l1zm_trajy, x
+	sta sprspace+sp_vel_y, x
 	jsr moveXY
 	
 	ldx temp1
@@ -66,8 +76,8 @@ lungeState:
 	bne drawProcess
 	
 	; ok, it reached 30
-incrementState:
-	inc sprspace+sp_l1zm_state, x
+incrementStateAndDraw:
+	jsr incrementState
 	lda #0
 	sta sprspace+sp_l1zm_timer, x
 	beq drawProcess
@@ -77,19 +87,20 @@ crashState:
 	lda sprspace+sp_l1zm_timer, x
 	cmp #30
 	bne drawProcess
-	beq incrementState
+	beq incrementStateAndDraw
 
 retreatState:
-	jsr moveXYHalfReverse
-
+	jsr calculateQuarterInverse
+	jsr moveXY
+	
 	inc sprspace+sp_l1zm_timer, x
 	lda sprspace+sp_l1zm_timer, x
 	cmp #120
 	bne drawProcess
 	
 	; ok, it reached 120
+	jsr resetState
 	lda #0
-	sta sprspace+sp_l1zm_state, x
 	sta sprspace+sp_l1zm_timer, x
 
 drawProcess:
@@ -149,8 +160,40 @@ notEnd:
 	
 draw:
 	tay
-	lda temp8
 	
+	lda temp8
+	pha
+	sty temp8
+	
+	jsr getState
+	beq noAnim
+	cmp #charge
+	beq noAnim
+	cmp #crash
+	beq noAnim
+	
+	cmp #lunge
+	bne noLunge
+	
+	lda sprspace+sp_l1zm_timer, x
+	lsr
+	jmp normalSpeed
+	
+noLunge:
+	lda sprspace+sp_l1zm_timer, x
+	lsr
+	lsr
+normalSpeed:
+	and #3
+	tay
+	lda tableTimer, y
+	clc
+	adc temp8
+	tay
+	
+noAnim:
+	pla
+	sta temp8
 	jsr oam_putsprite
 	
 	lda x_crd_temp
@@ -188,6 +231,7 @@ moveXY:
 	
 	pla
 	sta temp1
+	tax
 	pla
 	sta temp4
 	pla
@@ -196,24 +240,33 @@ moveXY:
 	sta temp2
 	rts
 
-moveXYHalfReverse:
-	lda sprspace+sp_vel_x, x
-	pha
-	lda sprspace+sp_vel_y, x
-	pha
-	
-	; invert and half
+getState:
+	lda sprspace+sp_flags, x
+	rol
+	rol
+	rol
+	rol
+	and #%00000111
+	rts
+
+incrementState:
+	lda sprspace+sp_flags, x
+	clc
+	adc #%00100000
+	sta sprspace+sp_flags, x
+	rts
+
+resetState:
+	lda sprspace+sp_flags, x
+	and #%00011111
+	sta sprspace+sp_flags, x
+	rts
+
+calculateQuarterInverse:
+	; invert and also shift right once
 	lda #0
 	sec
-	sbc sprspace+sp_vel_x, x
-	cmp #$80
-	ror
-	sta sprspace+sp_vel_x, x
-	lda #0
-	ror
-	sta sprspace+sp_vel_x_lo, x
-	
-	lda sprspace+sp_vel_x, x
+	sbc sprspace+sp_l1zm_trajx, x
 	cmp #$80
 	ror
 	sta sprspace+sp_vel_x, x
@@ -221,30 +274,25 @@ moveXYHalfReverse:
 	
 	lda #0
 	sec
-	sbc sprspace+sp_vel_y, x
+	sbc sprspace+sp_l1zm_trajy, x
 	cmp #$80
 	ror
 	sta sprspace+sp_vel_y, x
+	ror sprspace+sp_vel_y_lo, x
 	
-	lda #0
+	; then shift it again
+	lda sprspace+sp_vel_x, x
+	cmp #$80
 	ror
-	sta sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_vel_x, x
+	ror sprspace+sp_vel_x_lo, x
 	
 	lda sprspace+sp_vel_y, x
 	cmp #$80
 	ror
 	sta sprspace+sp_vel_y, x
 	ror sprspace+sp_vel_y_lo, x
-	
-	jsr moveXY
-	
-	ldx temp1
-	pla
-	sta sprspace+sp_vel_y, x
-	pla
-	sta sprspace+sp_vel_x, x
-	lda #0
-	sta sprspace+sp_vel_x_lo, x
-	sta sprspace+sp_vel_y_lo, x
 	rts
+
+tableTimer:	.byte 0, 10, 20, 30
 .endproc

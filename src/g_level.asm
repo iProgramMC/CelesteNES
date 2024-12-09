@@ -1140,7 +1140,6 @@ gm_init_entity:
 	sta sprspace+sp_l1zm_trajy, y
 	lda #0
 	sta sprspace+sp_l1zm_timer, y
-	sta sprspace+sp_l1zm_state, y
 	
 	tya
 	tax
