@@ -2313,6 +2313,7 @@ release2_beq:
 tableDirs:	.byte gc_right, gc_right, gc_left, gc_right
 velsLo:		.byte <climbhopX, <(-climbhopX)
 velsHi:		.byte >climbhopX, >(-climbhopX)
+ledgeCheckX:.byte $0F, $00
 	
 hasWall:
 	; Ok, we have a wall.  Is it in our facing direction?
@@ -2336,6 +2337,7 @@ hasWall:
 	lda game_cont
 	and #(cont_left | cont_right)
 	tax
+	stx temp7
 	lda tableDirs, x
 	pha
 	
@@ -2359,7 +2361,11 @@ hasWall:
 	jsr xt_collide
 	bne noForcedRelease
 	
-	; not colliding with the middle OR top of our hitbox, we must climb hop
+	; not colliding with the middle OR top of our hitbox, we must check for climb hop
+	; but first, ensure the climb hop can happen
+	jsr checkClimbHopSafety
+	bne moveDownAndNoRelease
+	
 	lda playerctrl
 	and #pl_left     ; invariant: pl_left == $01
 	tax
@@ -2379,6 +2385,9 @@ hasWall:
 	lda #0
 	sta forcemovex
 	beq release2_beq
+
+moveDownAndNoRelease:
+	inc player_y
 	
 noForcedRelease:
 	lda game_cont
@@ -2483,6 +2492,49 @@ dontDecrementHighByte:
 table: .byte 0, pl_wallleft
 table2lo: .byte $00,$55,$40,$00
 table2hi: .byte $00,$01,$FF,$00
+
+checkClimbHopSafety:
+	lda camera_x_pg
+	and #1
+	sta temp10
+	
+	; load tile X
+	lda playerctrl
+	and #pl_left
+	tax
+	lda player_x
+	clc
+	adc camera_x
+	bcc :+
+	inc temp10
+:	clc
+	adc ledgeCheckX, x
+	bcc :+
+	inc temp10
+:	pha
+	lda temp10
+	lsr
+	pla
+	ror
+	lsr
+	lsr
+	tax
+	; load tile Y
+	lda player_y
+	clc
+	adc #10
+	lsr
+	lsr
+	lsr
+	tay
+	lda temp7
+	; get the tile, and then its collision type
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
+	; if it's not ct_none, then unsafe
+	rts
+
 .endproc
 
 ; ** SUBROUTINE: gm_reduce_vel_climb
