@@ -257,27 +257,43 @@ gm_draw_dead:
 	
 	lda player_x
 	clc
-	adc #4
-	clc
 	adc temp1
 	sta x_crd_temp
+	ldx #0
+	lda temp1
+	bpl :+
+	dex
+:	txa
+	adc #0
+	bne @doneLoop
 	
-	lda player_y
+	lda x_crd_temp
 	clc
 	adc #4
+	sta x_crd_temp
+	bcs @doneLoop
+	
+	lda player_y
 	clc
 	adc temp2
 	sta y_crd_temp
 	
-	; hackhack
-	lda player_y
-	cmp #$C0
-	bcc :+
-	cpy #4
-	bcc :+
-	jmp @done
+	ldx #0
+	lda temp2
+	bpl :+
+	dex
+:	txa
+	adc #0
+	bne @doneLoop
 	
-:	lda plh_attrs
+	lda y_crd_temp
+	cmp #240
+	bcs @doneLoop
+	clc
+	adc #4
+	sta y_crd_temp
+	
+	lda plh_attrs
 	sty temp3
 
 	lda deathtimer
@@ -293,6 +309,7 @@ gm_draw_dead:
 	jsr oam_putsprite
 	ldy temp3
 	
+@doneLoop:
 	iny
 	cpy #8
 	bne @deadLoop

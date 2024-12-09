@@ -2362,6 +2362,11 @@ hasWall:
 	bne noForcedRelease
 	
 	; not colliding with the middle OR top of our hitbox, we must check for climb hop
+	; reset the Y velocity
+	lda #0
+	sta player_vl_y
+	sta player_vs_y
+	
 	; but first, ensure the climb hop can happen
 	jsr checkClimbHopSafety
 	bne moveDownAndNoRelease
