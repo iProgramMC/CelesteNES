@@ -18,7 +18,7 @@ gm_ent_move_x:
 	; the level!
 	
 	; Check if the player is standing on this tile.
-	cpx entground
+	cpy entground
 	bne @notStanding
 	
 	; Yes, so offset their position by our velocity as well to keep them on the ground.
@@ -73,7 +73,7 @@ gm_ent_move_y:
 	; the level!
 	
 	; Check if the player is standing on this tile.
-	cpx entground
+	cpy entground
 	bne @notStanding
 	
 	; Yes, so offset their position by our velocity as well to keep them on the ground.

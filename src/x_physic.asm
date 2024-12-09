@@ -1724,7 +1724,6 @@ xt_collentceil:
 
 @haveHitBox:
 	; Have a hitbox!
-	sty entground
 	lda sprspace+sp_y, y
 	clc
 	adc sprspace+sp_hei, y
@@ -2381,6 +2380,8 @@ hasWall:
 	lda #0
 	sta player_vl_y
 	sta player_vs_y
+	sta player_vl_x
+	sta player_vs_x
 	
 	; but first, ensure the climb hop can happen
 	jsr checkClimbHopSafety

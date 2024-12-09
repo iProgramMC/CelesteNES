@@ -6,13 +6,96 @@
 ;   temp4 - X High Position
 
 .proc level1_zip_mover
-	ldx temp1
+; sp_l1zm_state
+idle    = 0
+charge  = 1
+lunge   = 2
+crash   = 3
+retreat = 4
+
+	lda temp1
+	pha
+	tax
+	
 	lda sprspace+sp_flags, x
 	ora #ef_collidable
 	sta sprspace+sp_flags, x
 	
 	lda #16
 	sta sprspace+sp_hei, x
+	
+	; which state are we in?
+	lda sprspace+sp_l1zm_state, x
+	beq idleState
+	cmp #charge
+	beq chargeState
+	cmp #lunge
+	beq lungeState
+	cmp #crash
+	beq crashState
+	cmp #retreat
+	beq retreatState
+	
+idleState:
+	cpx entground
+	bne drawProcess
+	
+	; entground is this entity's index, therefore increase the state
+	inc sprspace+sp_l1zm_state, x
+	bne drawProcess
+
+chargeState:
+	inc sprspace+sp_l1zm_timer, x
+	lda sprspace+sp_l1zm_timer, x
+	cmp #6
+	bne drawProcess
+	
+	; move on to the lunge state
+	inc sprspace+sp_l1zm_state, x
+	lda #0
+	sta sprspace+sp_l1zm_timer, x
+	beq drawProcess
+
+lungeState:
+	jsr moveXY
+	
+	ldx temp1
+	inc sprspace+sp_l1zm_timer, x
+	lda sprspace+sp_l1zm_timer, x
+	cmp #30
+	bne drawProcess
+	
+	; ok, it reached 30
+incrementState:
+	inc sprspace+sp_l1zm_state, x
+	lda #0
+	sta sprspace+sp_l1zm_timer, x
+	beq drawProcess
+
+crashState:
+	inc sprspace+sp_l1zm_timer, x
+	lda sprspace+sp_l1zm_timer, x
+	cmp #30
+	bne drawProcess
+	beq incrementState
+
+retreatState:
+	jsr moveXYHalfReverse
+
+	inc sprspace+sp_l1zm_timer, x
+	lda sprspace+sp_l1zm_timer, x
+	cmp #120
+	bne drawProcess
+	
+	; ok, it reached 120
+	lda #0
+	sta sprspace+sp_l1zm_state, x
+	sta sprspace+sp_l1zm_timer, x
+
+drawProcess:
+	pla
+	sta temp1
+	tax
 	
 	lda sprspace+sp_wid, x
 	sec
@@ -83,5 +166,85 @@ draw:
 	cmp sprspace+sp_wid, x
 	bcc loop
 	
+	rts
+
+moveXY:
+	lda temp2
+	pha
+	lda temp3
+	pha
+	lda temp4
+	pha
+	lda temp1
+	pha
+	
+	tay
+	jsr gm_ent_move_y
+	
+	pla
+	pha
+	tay
+	jsr gm_ent_move_x
+	
+	pla
+	sta temp1
+	pla
+	sta temp4
+	pla
+	sta temp3
+	pla
+	sta temp2
+	rts
+
+moveXYHalfReverse:
+	lda sprspace+sp_vel_x, x
+	pha
+	lda sprspace+sp_vel_y, x
+	pha
+	
+	; invert and half
+	lda #0
+	sec
+	sbc sprspace+sp_vel_x, x
+	cmp #$80
+	ror
+	sta sprspace+sp_vel_x, x
+	lda #0
+	ror
+	sta sprspace+sp_vel_x_lo, x
+	
+	lda sprspace+sp_vel_x, x
+	cmp #$80
+	ror
+	sta sprspace+sp_vel_x, x
+	ror sprspace+sp_vel_x_lo, x
+	
+	lda #0
+	sec
+	sbc sprspace+sp_vel_y, x
+	cmp #$80
+	ror
+	sta sprspace+sp_vel_y, x
+	
+	lda #0
+	ror
+	sta sprspace+sp_vel_y_lo, x
+	
+	lda sprspace+sp_vel_y, x
+	cmp #$80
+	ror
+	sta sprspace+sp_vel_y, x
+	ror sprspace+sp_vel_y_lo, x
+	
+	jsr moveXY
+	
+	ldx temp1
+	pla
+	sta sprspace+sp_vel_y, x
+	pla
+	sta sprspace+sp_vel_x, x
+	lda #0
+	sta sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_vel_y_lo, x
 	rts
 .endproc

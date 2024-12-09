@@ -97,6 +97,11 @@ sp_l0gr_state = sp_entspec3
 sp_l0gr_ttimr = sp_wid
 sp_l0gr_cutsc = sp_hei       ; if granny initiated the cutscene
 
+sp_l1zm_timer = sp_entspec1
+sp_l1zm_trajx = sp_vel_x
+sp_l1zm_trajy = sp_vel_y
+sp_l1zm_state = sp_entspec2
+
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02

@@ -111,12 +111,19 @@ gm_shifttraceYN:
 ; ** SUBROUTINE: gm_killplayer
 ; desc:     Initiates the player death sequence.
 gm_killplayer:
-	jsr gm_death_sfx
 	lda #pl_dead
+	bit playerctrl
+	bne @return
+	
 	ora playerctrl
 	sta playerctrl
+	
+	jsr gm_death_sfx
+	lda #pl_dead
 	lda #0
 	sta deathtimer
+
+@return:
 	rts
 
 ; ** SUBROUTINE: gm_physics
@@ -234,10 +241,17 @@ gm_getbottomy_wjc:
 gm_getmidx:
 	clc
 	lda player_x
-	adc #plr_x_mid
+	adc #plr_x_mid    ; determine leftmost hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda camera_x_hi
+	adc #0
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
 	lsr
-	lsr
-	lsr
+	lsr               ; finish dividing by the tile size
 	rts
 
 ; ** SUBROUTINE: gm_collentceil

@@ -1050,7 +1050,6 @@ h_gener_ents_r:
 	; no more space found for this entity! :(
 	rts
 h_generents_spotfound:
-	
 	; a sprite slot was found. its slot number is located in the x register.
 	jsr gm_init_entity
 	
@@ -1072,6 +1071,8 @@ h_generents_spotfound:
 ;
 ; note: You can also use `gm_read_ent` here to read extra properties about
 ;       this entity (though you MUST make LevelEditor export them as well)
+;
+; note: Do NOT clobber X!
 ;
 ; note: The X coordinate is up to the loader. It won't be modified.
 ;
@@ -1134,9 +1135,15 @@ gm_init_entity:
 	jsr gm_read_ent
 	sta sprspace+sp_wid, y
 	jsr gm_read_ent
-	sta sprspace+sp_entspec1, y
+	sta sprspace+sp_l1zm_trajx, y
 	jsr gm_read_ent
-	sta sprspace+sp_entspec2, y
+	sta sprspace+sp_l1zm_trajy, y
+	lda #0
+	sta sprspace+sp_l1zm_timer, y
+	sta sprspace+sp_l1zm_state, y
+	
+	tya
+	tax
 	rts
 	
 @notZipMover:
