@@ -430,6 +430,7 @@ gm_normaljmp2:
 	sta player_vl_y
 	lda #jumpvelLO
 	sta player_vs_y
+	jsr gm_add_lift_boost
 	lda #jumpsustain
 	sta jcountdown
 	lda #0
@@ -445,7 +446,7 @@ gm_normaljmp2:
 	lda player_vl_x
 	bmi gm_jumpboostneg; if velocity < 0 pixels, then apply the leftward jump boost
 	bne gm_applyjumpboost ; if velocity >= 1 pixel, then apply the jump boost
-	jmp gm_dontjump   ; 0 < velocity < 1 so dont do a jump boost
+	beq gm_dontjump   ; 0 < velocity < 1 so dont do a jump boost
 gm_jumpboostneg:
 	cmp #$FF
 	beq gm_dontjump   ; if -1 <= velocity, then don't apply a jump boost
@@ -2563,5 +2564,20 @@ velocityIsMinus:
 	sec
 	ror player_vl_y
 	ror player_vs_y
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_add_lift_boost
+; desc: Adds lift boost to player velocity.
+.proc gm_add_lift_boost
+	lda player_vl_x
+	clc
+	adc liftboostX
+	sta player_vl_x
+	
+	lda player_vl_y
+	clc
+	adc liftboostY
+	sta player_vl_y
 	rts
 .endproc

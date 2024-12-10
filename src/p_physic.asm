@@ -140,30 +140,30 @@ gm_physics:
 ; desc: Calls xt_collide.
 ; parameters: See xt_collide.
 gm_collide:
-	sta temp10
-	stx temp8
-	sty temp9
+	sta temp11
+	stx temp9
+	sty temp10
 	lda #<xt_collide_kludge
 	sta temp1
 	lda #>xt_collide_kludge
 	sta temp2
 	ldy #prgb_xtra
 	jsr far_call
-	lda temp10
+	lda temp11
 	rts
 
 xt_collide_kludge:
-	lda temp10
-	ldx temp8
-	ldy temp9
+	lda temp11
+	ldx temp9
+	ldy temp10
 	jsr xt_collide
 xt_kludge_zeroflag:
 	bne :+
 	lda #0
-	sta temp10
+	sta temp11
 	rts
 :	lda #1
-	sta temp10
+	sta temp11
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_w
@@ -279,11 +279,12 @@ gm_collentceil:
 	ldy #prgb_xtra
 	jsr far_call
 	lda temp10
+	ldx temp11
 	rts
 xt_collentceil_kludge:
 	jsr xt_collentceil
 	sta temp10
-	rts
+	jmp xt_kludge_zeroflag
 
 ; ** SUBROUTINE: gm_collentfloor
 ; desc: Checks ground collision with entities. Calls xt_collentfloor
@@ -300,8 +301,7 @@ gm_collentfloor:
 xt_collentfloor_kludge:
 	jsr xt_collentfloor
 	sta temp10
-	stx temp11
-	rts
+	jmp xt_kludge_zeroflag
 
 ; ** SUBROUTINE: gm_superbounce
 ; desc: Bounces the player from a specific height. Equivalent to Player.SuperBounce(float) in Celeste.

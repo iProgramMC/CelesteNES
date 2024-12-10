@@ -21,6 +21,9 @@ gm_ent_move_x:
 	cpy entground
 	bne @notStanding
 	
+	lda sprspace+sp_vel_x, y
+	sta currlboostX
+	
 	; Yes, so offset their position by our velocity as well to keep them on the ground.
 	;
 	; NOTE: this can cause clipping glitches, be careful if platforms may go into walls!
@@ -75,6 +78,9 @@ gm_ent_move_y:
 	; Check if the player is standing on this entity.
 	cpy entground
 	bne @notStanding
+	
+	lda sprspace+sp_vel_y, y
+	sta currlboostY
 	
 	; Yes, so offset their position by our velocity as well to keep them on the ground.
 	;

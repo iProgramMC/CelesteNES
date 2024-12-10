@@ -118,6 +118,7 @@ gm_game_update:
 	
 	jsr gm_clear_palette_allocator
 	jsr gm_update_game_cont
+	jsr gm_update_lift_boost
 	jsr gm_check_climb_input
 	inc framectr
 	lda scrollsplit
@@ -512,3 +513,50 @@ gm_check_climb_input:
 	and #cont_select
 	sta climbbutton
 	rts
+
+; ** SUBROUTINE: gm_update_lift_boost
+; desc: Updates the lift boost.
+.proc gm_update_lift_boost
+	lda currlboostX
+	bne notZero
+	lda currlboostY
+	bne notZero
+	
+	; it's zero, check if the lift boost is zero
+	lda liftboosttm
+	bne liftBoostGraceNonZero
+	
+	; lift boost grace is zero
+	sta liftboostX
+	sta liftboostY
+	rts
+
+liftBoostGraceNonZero:
+	; not zero, so copy the last boost
+	lda lastlboostX
+	sta liftboostX
+	lda lastlboostY
+	sta liftboostY
+	dec liftboosttm
+	rts
+
+notZero:
+	; lift boost is not zero right now.
+	lda liftboostX
+	sta lastlboostX
+	lda liftboostY
+	sta lastlboostY
+	
+	lda currlboostX
+	sta liftboostX
+	lda currlboostY
+	sta liftboostY
+	
+	lda #0
+	sta currlboostX
+	sta currlboostY
+	
+	lda #8
+	sta liftboosttm
+	rts
+.endproc

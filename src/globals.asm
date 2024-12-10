@@ -135,21 +135,24 @@ p_textoffs  := pot_merged + 8
 p_texttimer := pot_merged + 9
 
 ; Game specific addresses
+lvlptrlo    := pot_merged + 0 ; : .res 1 ; level pointer
+lvlptrhi    := pot_merged + 1 ; : .res 1
+roomptrlo   := pot_merged + 2 ; : .res 1 ; room pointer
+roomptrhi   := pot_merged + 3 ; : .res 1
+arrdheadlo  := pot_merged + 4 ; : .res 1 ; area read head
+arrdheadhi  := pot_merged + 5 ; : .res 1
+entrdheadlo := pot_merged + 6 ; : .res 1 ; entity read head
+entrdheadhi := pot_merged + 7 ; : .res 1
+lvladdr     := pot_merged + 8 ; : .res 1 ; temporaries used by h_get_tile and h_set_tile
+lvladdrhi   := pot_merged + 9 ; : .res 1
+
+anfrptrlo   : .res 1 ; animation frame pointer low
+anfrptrhi   : .res 1 ; animation frame pointer high
 gamectrl2   : .res 1 ; second game control flags
 gamectrl3   : .res 1 ; third game control flags
 ntwrhead    : .res 1 ; name table write head (up to 64 columns)
 arwrhead    : .res 1 ; area space write head (up to 32 columns)
 camera_x_pg : .res 1
-lvlptrlo    : .res 1 ; level pointer
-lvlptrhi    : .res 1
-roomptrlo   : .res 1 ; room pointer
-roomptrhi   : .res 1
-arrdheadlo  : .res 1 ; area read head
-arrdheadhi  : .res 1
-entrdheadlo : .res 1 ; entity read head
-entrdheadhi : .res 1
-lvladdr     : .res 1 ; temporaries used by h_get_tile and h_set_tile
-lvladdrhi   : .res 1
 tr_scrnpos  : .res 1 ; active screen position
 entdelay    : .res 1 ; entity row delay (vertical scrolling)
 playerctrl  : .res 1
@@ -167,8 +170,6 @@ animmode    : .res 1 ; current animation mode
 animtimer   : .res 1 ; current animation timer. It has a subunitary component because
 animtimersb : .res 1 ; the upper component is directly used as the frame index.
 animflags   : .res 1 ; animation flags copied from anim data
-anfrptrlo   : .res 1 ; animation frame pointer low
-anfrptrhi   : .res 1 ; animation frame pointer high
 sprxoff     : .res 1 ; hair sprite X offset
 spryoffbase : .res 1 ; hair sprite Y offset base (used for af_oddryth)
 jumpbuff    : .res 1 ; jump buff time
@@ -206,8 +207,6 @@ plrtrahd    : .res 1 ; plr trace head
 plrstrawbs  : .res 1 ; strawberries following this player
 ntrowhead   : .res 1
 ntrowhead2  : .res 1
-camdst_x    : .res 1 ; temporary used by gm_leaveroomU
-camdst_x_pg : .res 1 ; temporary used by gm_leaveroomU
 wrcountHP1  : .res 1 ; write count for HP1
 wrcountHP2  : .res 1 ; write count for HP2
 ppuaddrHP1  : .res 2 ; ppuaddr to write palH1 to
@@ -218,13 +217,6 @@ ppuaddrHR3  : .res 2 ; ppuaddr to write row3 to
 wrcountHR1  : .res 1 ; write count for HR1
 wrcountHR2  : .res 1 ; write count for HR2
 wrcountHR3  : .res 1 ; write count for HR3
-camoff_H    : .res 1 ; temporaries used by gm_leaveroomU
-camoff_M    : .res 1
-camoff_L    : .res 1
-camoff_sub  : .res 1
-player_x_d  : .res 1
-camoff2_M   : .res 1
-camoff2_L   : .res 1
 jcountdown  : .res 1 ; jump countdown
 forcemovext : .res 1
 forcemovex  : .res 1
@@ -252,6 +244,22 @@ cjwindow    : .res 1 ; climb jump window -- if you push the opposite direction w
 cjwalldir   : .res 1 ; climb jump wall direction
 deathangle  : .res 1 ; death particles angle
 hopcdown    : .res 1 ; hop countdown HACK
+camdst_x    : .res 1 ; temporary used by gm_leaveroomU
+camdst_x_pg : .res 1 ; temporary used by gm_leaveroomU
+camoff_H    : .res 1 ; temporaries used by gm_leaveroomU
+camoff_M    : .res 1
+camoff_L    : .res 1
+camoff_sub  : .res 1
+player_x_d  : .res 1
+camoff2_M   : .res 1
+camoff2_L   : .res 1
+liftboostX  : .res 1
+liftboostY  : .res 1
+lastlboostX : .res 1 ; last lift boost velocity
+lastlboostY : .res 1
+currlboostX : .res 1 ; lift boost calculation in progress
+currlboostY : .res 1
+liftboosttm : .res 1 ; lift boost time
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
