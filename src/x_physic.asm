@@ -409,6 +409,8 @@ gm_dontjump:
 	lda dashcount
 	cmp #maxdashes
 	bcs gm_dontdash   ; and if the dashcount is < maxdashes
+	
+	; dash!!
 	inc dashcount
 	ldx #defdashtime
 	stx dashtime
@@ -572,6 +574,7 @@ gm_walljump:
 	sta player_vl_y
 	lda #jumpvelLO
 	sta player_vs_y
+	jsr gm_add_lift_boost
 	lda #jumpsustain
 	sta jcountdown
 	lda #0
@@ -1907,6 +1910,7 @@ gm_superjump:
 	lda #jumpvelLO
 	sta player_vs_y         ; super jump speed is the same as normal jump speed
 @continue:
+	jsr gm_add_lift_boost
 	lda #superjmphhi
 	sta player_vl_x
 	lda #superjmphlo
@@ -1965,6 +1969,7 @@ gm_dash_nodir:
 	sta player_vs_y
 	inx
 	; we pushed the value of player_vl_x such that it can be quickly loaded and checked
+	jsr gm_add_lift_boost
 	pla
 	bpl gm_dash_update_done
 	; dashing left
@@ -2010,6 +2015,7 @@ gm_dash_update_done:
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
+	jsr gm_checkoffgnd
 	jsr gm_checkwjump
 	jsr gm_climbcheck
 	jsr gm_addtrace
@@ -2018,6 +2024,9 @@ gm_dash_update_done:
 ; ** SUBROUTINE: gm_timercheck
 ; desc: Checks and decreases relevant timers.
 gm_timercheck:
+	lda playerctrl
+	sta prevplrctrl
+	
 	lda forcemovext
 	beq :+
 	dec forcemovext
@@ -2579,5 +2588,31 @@ velocityIsMinus:
 	clc
 	adc liftboostY
 	sta player_vl_y
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_checkoffgnd
+; desc: Checks if the player ran off a ledge and apply lift boost if so.
+;
+; if (LiftBoost.Y < 0f && wasOnGround && !onGround && Speed.Y >= 0f)
+;     Speed.Y = LiftBoost.Y;
+.proc gm_checkoffgnd
+	lda playerctrl
+	eor prevplrctrl
+	and #pl_ground
+	beq return        ; if the grounded state differs
+	
+	lda playerctrl
+	and #pl_ground
+	bne return        ; if you are on the ground NOW
+	
+	lda liftboostY
+	bpl return        ; liftboostY negative
+	
+	lda player_vl_y
+	bmi return        ; and player Y vel positive
+	
+	jmp gm_add_lift_boost
+return:
 	rts
 .endproc

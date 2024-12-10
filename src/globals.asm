@@ -260,6 +260,7 @@ lastlboostY : .res 1
 currlboostX : .res 1 ; lift boost calculation in progress
 currlboostY : .res 1
 liftboosttm : .res 1 ; lift boost time
+prevplrctrl : .res 1 ; last player control flags
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
