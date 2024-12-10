@@ -794,21 +794,6 @@ gm_getfacex_wj:
 	beq gm_getrightwjx
 	jmp gm_getleftwjx
 
-; ** SUBROUTINE: gm_gettopy
-; desc:     Gets the tile Y position where the top edge of the player's hitbox resides
-; returns:  A - the Y coordinate
-gm_gettopy:
-	clc
-	lda player_y
-	adc #plr_y_top
-	bcs xt_gety_wraparound
-	cmp #240
-	bcs xt_gety_wraparound
-	lsr
-	lsr
-	lsr
-	rts
-
 ; ** SUBROUTINE: gm_getmidy
 ; desc:     Gets the tile Y position at the middle of the player's hitbox, used for wall jump checking
 ; returns:  A - the Y coordinate

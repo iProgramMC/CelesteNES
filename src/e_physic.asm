@@ -72,7 +72,7 @@ gm_ent_move_y:
 	; NOTE: I (iProgramInCpp) must be careful where enemies go to avoid them going outside
 	; the level!
 	
-	; Check if the player is standing on this tile.
+	; Check if the player is standing on this entity.
 	cpy entground
 	bne @notStanding
 	
@@ -81,7 +81,7 @@ gm_ent_move_y:
 	; NOTE: this can cause clipping glitches, be careful if platforms may go into walls!
 	lda sprspace+sp_vel_y, y
 	eor player_vl_y
-	bne :+
+	bmi :+
 	
 	; the signs are the same therefore, copy the velocity of the platform onto the player.
 	lda sprspace+sp_vel_y_lo, y
@@ -142,9 +142,40 @@ gm_ent_move_y:
 :	rts
 	
 @checkSquishUP:
-	; TODO
+	jsr gm_collentfloor
+	bne :+
 	
+	; no collision here!
 	rts
+	
+:	; Platform has collided with player. It returned a Y position, so snap there.
+	sta player_y
+	
+	; Ok, now check if a ceiling is here
+	jsr gm_getmidx
+	tax
+	jsr gm_gettopy
+	tay
+	lda #gc_ceil
+	jsr gm_collide
+	beq :+
+	
+	; Collided with a ceiling also!
+	lda player_y
+	clc
+	adc #plr_y_top
+	and #%11111000
+	clc
+	adc #(8-(16-plrheight))
+	sta player_y
+	
+	; one more collision check for good measure
+	jsr gm_collentfloor
+	beq :+
+	
+	; ok, we know for SURE the player was squished in between this platform and the ceiling. Die :(
+	jsr gm_killplayer
+:	rts
 
 ; ** SUBROUTINE: gm_check_collision_ent
 ; desc: Checks for collision between the player and an entity.

@@ -235,6 +235,21 @@ gm_getbottomy_wjc:
 	lsr
 	rts
 
+; ** SUBROUTINE: gm_gettopy
+; desc:     Gets the tile Y position where the top edge of the player's hitbox resides
+; returns:  A - the Y coordinate
+gm_gettopy:
+	clc
+	lda player_y
+	adc #plr_y_top
+	bcs gm_gety_wraparound
+	cmp #240
+	bcs gm_gety_wraparound
+	lsr
+	lsr
+	lsr
+	rts
+
 ; ** SUBROUTINE: gm_getmidx
 ; desc:     Gets the tile X position at the middle of the player's hitbox, used for squish checking
 ; returns:  A - the X coordinate
@@ -279,11 +294,14 @@ gm_collentfloor:
 	sta temp2
 	ldy #prgb_xtra
 	jsr far_call
-	lda wr_str_temp
+	lda temp10
+	ldx temp11
 	rts
 xt_collentfloor_kludge:
 	jsr xt_collentfloor
-	jmp xt_kludge_zeroflag
+	sta temp10
+	stx temp11
+	rts
 
 ; ** SUBROUTINE: gm_superbounce
 ; desc: Bounces the player from a specific height. Equivalent to Player.SuperBounce(float) in Celeste.
