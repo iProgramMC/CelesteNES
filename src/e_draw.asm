@@ -234,6 +234,8 @@ gm_draw_ent_call:
 	lda sprspace+sp_y, x
 	sec
 	sbc camera_y_sub
+	sec
+	sbc temp10
 	sta temp3
 	
 	lda sprspace+sp_strawb_flags, x
@@ -254,6 +256,8 @@ gm_draw_ent_call:
 	sbc camera_y_bs
 	sec
 	sbc camera_y_sub
+	sec
+	sbc temp10
 	sta temp3
 	
 @doNotAddCamY:
@@ -292,8 +296,11 @@ gm_entjtable_hi: .hibytes entity_jump_table
 ; desc:     Checks if an entity is off of the screen.
 ; parms:    Y - entity index
 ; returns:  ZF - entity is off-screen
-; clobbers: A, X, temp3, temp4. not Y
+; clobbers: A, X, temp3, temp4, temp10. not Y
 gm_check_ent_onscreen:
+	lda #0
+	sta temp10
+	
 	lda sprspace+sp_flags, x
 	and #ef_limbo
 	bne @returnZero             ; if entity is in limbo
@@ -311,21 +318,56 @@ gm_check_ent_onscreen:
 	; result = 0: sprite is in view.
 	; result > 0: sprite is to the right.
 	bmi @checkLeft
-	bne @returnZero
+	beq @moreChecking
 	
 	; result is 0.
-@returnOne:
-	lda #1
+@returnZero:
+	lda #0
 	rts
 	
 @checkLeft:
 	; result is different from 0. we should check if the low byte is > $F8
 	lda temp2
 	cmp #$F8
-	bcs @returnOne
+	bcc @returnZero
+
+@moreChecking:
+	; ok, totally in bounds, now see if we're in an up room transition
+	lda #g3_transitU
+	bit gamectrl3
+	beq @returnOne
 	
-@returnZero:
+	; if the room numbers are different
+	lda sprspace+sp_flags, x
+	; ef_oddroom == $02
+	lsr
+	eor roomnumber
+	and #1
+	asl
+	asl
+	asl
+	asl
+	sta temp10
+	
+	lda sprspace+sp_y, x
+	sec
+	sbc camera_y
+	
+	; carry SET -- return zero for OLD ROOM
 	lda #0
+	rol
+	; ef_oddroom == $02
+	asl
+	eor sprspace+sp_flags, x
+	lsr
+	eor roomnumber
+	and #1
+	
+	; carry ^ (entityRoomNumberParity ^ activeRoomNumberParity)
+	beq @returnZero
+	
+@returnOne:
+	lda #1
 	rts
 
 ; ** SUBROUTINE: gm_unload_ents_room
