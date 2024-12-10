@@ -420,7 +420,7 @@ gm_draw_entities:
 	beq @evenFrame
 	
 	; odd frame
-	ldx #15
+	ldx #(sp_max - 1)
 @loopOdd:
 	lda sprspace+sp_kind, x
 	beq :+             ; this is an empty entity slot. waste no time

@@ -12,6 +12,7 @@ charge  = 1
 lunge   = 2
 crash   = 3
 retreat = 4
+cooldn  = 5
 
 	lda temp1
 	pha
@@ -24,12 +25,13 @@ retreat = 4
 	lda #16
 	sta sprspace+sp_hei, x
 	
-	lda #0
-	sta sprspace+sp_vel_x, x
-	sta sprspace+sp_vel_y, x
-	sta sprspace+sp_vel_x_lo, x
-	sta sprspace+sp_vel_y_lo, x
+	lda gamectrl3
+	and #g3_transitA
+	beq noTransition
 	
+	jsr resetState
+	
+noTransition:
 	; which state are we in?
 	jsr getState
 	beq idleState
@@ -41,10 +43,18 @@ retreat = 4
 	beq crashState
 	cmp #retreat
 	beq retreatState
+	cmp #cooldn
+	beq cooldownState
 	
 idleState:
 	cpx entground
 	bne drawProcess
+	
+	; Store the home coordinates
+	lda sprspace+sp_x, x
+	sta sprspace+sp_vel_x, x
+	lda sprspace+sp_y, x
+	sta sprspace+sp_vel_y, x
 	
 	; entground is this entity's index, therefore increase the state
 	jsr incrementState
@@ -63,19 +73,15 @@ chargeState:
 	beq drawProcess
 
 lungeState:
-	lda sprspace+sp_l1zm_trajx, x
-	sta sprspace+sp_vel_x, x
-	lda sprspace+sp_l1zm_trajy, x
-	sta sprspace+sp_vel_y, x
-	jsr moveXY
+	jsr level1_zip_mover_lunge_move
 	
 	ldx temp1
 	inc sprspace+sp_l1zm_timer, x
 	lda sprspace+sp_l1zm_timer, x
-	cmp #30
+	cmp #32  ; note: +2
 	bne drawProcess
 	
-	; ok, it reached 30
+	; ok, it reached 32
 incrementStateAndDraw:
 	jsr incrementState
 	lda #0
@@ -85,20 +91,37 @@ incrementStateAndDraw:
 crashState:
 	inc sprspace+sp_l1zm_timer, x
 	lda sprspace+sp_l1zm_timer, x
-	cmp #30
+	cmp #1
+	bne noShakeOnCrash
+	lda #15
+	sta quakeflags
+	lda #8
+	sta quaketimer
+noShakeOnCrash:
+	cmp #28  ; note: -2
 	bne drawProcess
 	beq incrementStateAndDraw
 
 retreatState:
-	jsr calculateQuarterInverse
-	jsr moveXY
+	jsr level1_zip_mover_retreat_move
 	
 	inc sprspace+sp_l1zm_timer, x
 	lda sprspace+sp_l1zm_timer, x
-	cmp #120
+	cmp #128 ; note: +8
 	bne drawProcess
 	
-	; ok, it reached 120
+	; ok, it reached 128
+	jsr incrementState
+	lda #0
+	sta sprspace+sp_l1zm_timer, x
+	beq drawProcess
+	
+cooldownState:
+	inc sprspace+sp_l1zm_timer, x
+	lda sprspace+sp_l1zm_timer, x
+	cmp #10
+	bne drawProcess
+	
 	jsr resetState
 	lda #0
 	sta sprspace+sp_l1zm_timer, x
@@ -211,35 +234,6 @@ noAnim:
 	
 	rts
 
-moveXY:
-	lda temp2
-	pha
-	lda temp3
-	pha
-	lda temp4
-	pha
-	lda temp1
-	pha
-	
-	tay
-	jsr gm_ent_move_y
-	
-	pla
-	pha
-	tay
-	jsr gm_ent_move_x
-	
-	pla
-	sta temp1
-	tax
-	pla
-	sta temp4
-	pla
-	sta temp3
-	pla
-	sta temp2
-	rts
-
 getState:
 	lda sprspace+sp_flags, x
 	rol
@@ -262,37 +256,145 @@ resetState:
 	sta sprspace+sp_flags, x
 	rts
 
-calculateQuarterInverse:
-	; invert and also shift right once
-	lda #0
-	sec
-	sbc sprspace+sp_l1zm_trajx, x
-	cmp #$80
-	ror
-	sta sprspace+sp_vel_x, x
-	ror sprspace+sp_vel_x_lo, x
+tableTimer:	.byte 0, 10, 20, 30
+.endproc
+
+.proc level1_zip_mover_lunge_move
+	lda temp4
+	pha
+	lda temp3
+	pha
+	lda temp2
+	pha
+	lda temp1
+	pha
+	
+	lda sprspace+sp_l1zm_timer, x
+	bne dontSetHome
 	
 	lda #0
-	sec
-	sbc sprspace+sp_l1zm_trajy, x
-	cmp #$80
-	ror
-	sta sprspace+sp_vel_y, x
-	ror sprspace+sp_vel_y_lo, x
-	
-	; then shift it again
-	lda sprspace+sp_vel_x, x
-	cmp #$80
-	ror
 	sta sprspace+sp_vel_x, x
-	ror sprspace+sp_vel_x_lo, x
-	
-	lda sprspace+sp_vel_y, x
-	cmp #$80
-	ror
 	sta sprspace+sp_vel_y, x
-	ror sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_vel_y_lo, x
+	
+	lda sprspace+sp_x, x
+	sta sprspace+sp_l1zm_homex, x
+	lda sprspace+sp_y, x
+	sta sprspace+sp_l1zm_homey, x
+	
+dontSetHome:
+	; Currently, velX and velY are the home coordinates. We need to preserve
+	; that quality.
+	
+	ldy #0
+	lda sprspace+sp_l1zm_desty, x
+	bpl :+
+	dey
+:	clc
+	adc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_vel_y_lo, x
+	
+	tya
+	adc sprspace+sp_vel_y, x
+	sta sprspace+sp_vel_y, x
+	
+	ldy #0
+	lda sprspace+sp_l1zm_destx, x
+	bpl :+
+	dey
+:	clc
+	adc sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_vel_x_lo, x
+	
+	tya
+	adc sprspace+sp_vel_x, x
+	sta sprspace+sp_vel_x, x
+	
+	jsr moveXY
+	
+epilogue:
+	pla
+	sta temp1
+	tax
+	pla
+	sta temp2
+	pla
+	sta temp3
+	pla
+	sta temp4
 	rts
 
-tableTimer:	.byte 0, 10, 20, 30
+moveXY:
+	txa
+	pha
+	tay
+	jsr gm_ent_move_y
+	
+	pla
+	tay
+	jmp gm_ent_move_x
+.endproc
+
+.proc level1_zip_mover_retreat_move
+	lda temp4
+	pha
+	lda temp3
+	pha
+	lda temp2
+	pha
+	lda temp1
+	pha
+	
+	lda sprspace+sp_l1zm_timer, x
+	bne dontPrepare
+	
+	lda #0
+	sta sprspace+sp_x_lo, x
+	sta sprspace+sp_y_lo, x
+	sta temp2
+	sta temp4
+	
+	; [temp2, temp1], respectively [temp4, temp3] would hold the velocity to be applied over 128 frames.
+	; Instead of storing to temp2, temp4 and dividing by 2^7, just store to temp1, temp3 and multiply by 2.
+	; It has the same effect
+	
+	ldy #$FF
+	lda sprspace+sp_l1zm_homex, x
+	sec
+	sbc sprspace+sp_x, x
+	cmp #$80
+	sta temp1
+	bcc :+
+	sty temp2
+
+:	lda sprspace+sp_l1zm_homey, x
+	sec
+	sbc sprspace+sp_y, x
+	cmp #$80
+	sta temp3
+	bcc :+
+	sty temp4
+
+:	; now multiply by 4
+	asl temp1
+	rol temp2
+	
+	asl temp3
+	rol temp4
+	
+	; ok, now apply the velocity
+	lda temp2
+	sta sprspace+sp_vel_x, x
+	lda temp1
+	sta sprspace+sp_vel_x_lo, x
+	lda temp4
+	sta sprspace+sp_vel_y, x
+	lda temp3
+	sta sprspace+sp_vel_y_lo, x
+	
+dontPrepare:
+	jsr level1_zip_mover_lunge_move::moveXY
+	
+	jmp level1_zip_mover_lunge_move::epilogue
 .endproc

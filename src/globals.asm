@@ -244,12 +244,6 @@ cjwindow    : .res 1 ; climb jump window -- if you push the opposite direction w
 cjwalldir   : .res 1 ; climb jump wall direction
 deathangle  : .res 1 ; death particles angle
 hopcdown    : .res 1 ; hop countdown HACK
-camdst_x    : .res 1 ; temporary used by gm_leaveroomU
-camdst_x_pg : .res 1 ; temporary used by gm_leaveroomU
-camoff_H    : .res 1 ; temporaries used by gm_leaveroomU
-camoff_M    : .res 1
-camoff_L    : .res 1
-camoff_sub  : .res 1
 player_x_d  : .res 1
 camoff2_M   : .res 1
 camoff2_L   : .res 1
@@ -261,6 +255,14 @@ currlboostX : .res 1 ; lift boost calculation in progress
 currlboostY : .res 1
 liftboosttm : .res 1 ; lift boost time
 prevplrctrl : .res 1 ; last player control flags
+
+tmpRoomTran : .res 6 ; temporaries used by leaveroomU, 
+	camdst_x    := tmpRoomTran + 0
+	camdst_x_pg := tmpRoomTran + 1
+	camoff_H    := tmpRoomTran + 2
+	camoff_M    := tmpRoomTran + 3
+	camoff_L    := tmpRoomTran + 4
+	camoff_sub  := tmpRoomTran + 5
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.

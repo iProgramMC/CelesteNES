@@ -529,13 +529,25 @@ main_loop:
 	jsr soft_nmi_off
 	jsr game_update
 	jsr soft_nmi_on
+	;jsr debug_profiler
 	jsr nmi_wait
 	jmp main_loop
+
+debug_profiler:
+	lda #$FF
+	sta ppu_mask
+	ldy #$90
+:	dey
+	bne :-
+	lda #def_ppu_msk
+	sta ppu_mask
+	rts
 
 .include "update.asm"
 .include "gam_main.asm"
 .include "audio/audio.asm"
 .include "nmi.asm"
+.include "math.asm"
 
 gm_clear_aux:
 	stx camlefthi

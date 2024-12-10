@@ -45,7 +45,7 @@ mmc3bk_prg1 = 7   ; prg1 controls $A000-$BFFF
 ; This allows easy indexing via the X/Y registers as you can simply do:
 ;   lda sprspace + sp_kind, x
 
-sp_max      = $10   ; maximum of 16 sprites.
+sp_max      = $0C   ; maximum of 12 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
 sp_flags    = (sp_max * 1)   ; flags
@@ -63,6 +63,9 @@ sp_vel_y_lo = (sp_max *12)   ; sprite velocity X low / entity specific (used by 
 sp_entspec1 = (sp_max *13)   ; entity specific 1
 sp_entspec2 = (sp_max *14)   ; entity specific 2
 sp_entspec3 = (sp_max *15)   ; entity specific 3
+sp_entspec4 = (sp_max *16)   ; entity specific 4
+sp_entspec5 = (sp_max *17)   ; entity specific 5
+; max: 21
 
 ; synonyms for entspec fields
 sp_oscill_timer = sp_entspec1
@@ -98,8 +101,10 @@ sp_l0gr_ttimr = sp_wid
 sp_l0gr_cutsc = sp_hei       ; if granny initiated the cutscene
 
 sp_l1zm_timer = sp_entspec1
-sp_l1zm_trajx = sp_entspec2
-sp_l1zm_trajy = sp_entspec3
+sp_l1zm_destx = sp_entspec2
+sp_l1zm_desty = sp_entspec3
+sp_l1zm_homex = sp_entspec4
+sp_l1zm_homey = sp_entspec5
 
 ; entity flags
 ef_collidable = $01

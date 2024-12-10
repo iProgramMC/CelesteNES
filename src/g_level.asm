@@ -1135,9 +1135,9 @@ gm_init_entity:
 	jsr gm_read_ent
 	sta sprspace+sp_wid, y
 	jsr gm_read_ent
-	sta sprspace+sp_l1zm_trajx, y
+	sta sprspace+sp_l1zm_destx, y
 	jsr gm_read_ent
-	sta sprspace+sp_l1zm_trajy, y
+	sta sprspace+sp_l1zm_desty, y
 	lda #0
 	sta sprspace+sp_l1zm_timer, y
 	
