@@ -411,6 +411,7 @@ gm_dontjump:
 	bcs gm_dontdash   ; and if the dashcount is < maxdashes
 	
 	; dash!!
+	jsr gm_add_lift_boost
 	inc dashcount
 	ldx #defdashtime
 	stx dashtime
@@ -1969,7 +1970,6 @@ gm_dash_nodir:
 	sta player_vs_y
 	inx
 	; we pushed the value of player_vl_x such that it can be quickly loaded and checked
-	jsr gm_add_lift_boost
 	pla
 	bpl gm_dash_update_done
 	; dashing left
@@ -2584,6 +2584,24 @@ velocityIsMinus:
 	adc liftboostX
 	sta player_vl_x
 	
+	; Now for Y it's a bit more complicated.
+	; You see, lift boost Y should be more than -0x022A == 0xFDD6.
+	lda liftboostY
+	bpl normalLiftBoostY
+	cmp #$FE
+	bcs normalLiftBoostY
+	
+	; it's $FD, so add #$FDD6
+	lda player_vs_y
+	clc
+	adc #$D6
+	sta player_vs_y
+	lda player_vl_y
+	adc #$FD
+	sta player_vl_y
+	rts	
+	
+normalLiftBoostY:
 	lda player_vl_y
 	clc
 	adc liftboostY

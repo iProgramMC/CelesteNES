@@ -70,8 +70,25 @@ gm_ent_move_y:
 	sta sprspace+sp_y_lo, y
 	
 	lda sprspace+sp_vel_y, y
+	bmi @velNegative
+	
 	adc sprspace+sp_y, y
 	sta sprspace+sp_y, y
+	bcs @overflow
+	bcc @continue
+	
+@velNegative:
+	adc sprspace+sp_y, y
+	sta sprspace+sp_y, y
+	bcc @overflow
+	bcs @continue
+	
+@overflow:
+	lda sprspace+sp_flags, y
+	eor #ef_limbo
+	sta sprspace+sp_flags, y
+	
+@continue:
 	; NOTE: I (iProgramInCpp) must be careful where enemies go to avoid them going outside
 	; the level!
 	

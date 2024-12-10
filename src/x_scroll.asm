@@ -296,6 +296,17 @@ xt_shift_entities_and_player_up:
 	;sta sprspace+sp_kind, y
 @dontSet:
 	sta sprspace+sp_y, y
+	
+	lda sprspace+sp_kind, y
+	cmp #e_l1zipmovr
+	bne @notZipMover
+	
+	lda sprspace+sp_l1zm_homey, y
+	sec
+	sbc #8
+	sta sprspace+sp_l1zm_homey, y
+	
+@notZipMover:
 	iny
 	cpy #sp_max
 	bne @entShiftLoop
@@ -469,6 +480,17 @@ xt_shift_entities_and_player_down:
 	;bcs @wentOffScreen
 @dontSet:
 	sta sprspace+sp_y, y
+	
+	lda sprspace+sp_kind, y
+	cmp #e_l1zipmovr
+	bne @notZipMover
+	
+	lda sprspace+sp_l1zm_homey, y
+	clc
+	adc #8
+	sta sprspace+sp_l1zm_homey, y
+	
+@notZipMover:
 	iny
 	cpy #sp_max
 	bne @entShiftLoop

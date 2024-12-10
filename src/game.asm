@@ -529,7 +529,7 @@ gm_check_climb_input:
 	; lift boost grace is zero
 	sta liftboostX
 	sta liftboostY
-	rts
+	jmp ensureSane
 
 liftBoostGraceNonZero:
 	; not zero, so copy the last boost
@@ -538,7 +538,7 @@ liftBoostGraceNonZero:
 	lda lastlboostY
 	sta liftboostY
 	dec liftboosttm
-	rts
+	jmp ensureSane
 
 notZero:
 	; lift boost is not zero right now.
@@ -558,5 +558,14 @@ notZero:
 	
 	lda #8
 	sta liftboosttm
+
+ensureSane:
+	lda liftboostY
+	bpl boostPositive
+	rts
+
+boostPositive:
+	lda #0
+	sta liftboostY
 	rts
 .endproc
