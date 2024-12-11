@@ -28,11 +28,11 @@
 .include "level1/bank_0.asm"
 .include "level1/bank_1.asm"
 
+.include "prg_xtra.asm"
 .include "prg_game.asm"
 .include "prg_main.asm"
 .include "prg_ttle.asm"
 .include "prg_dial.asm"
-.include "prg_xtra.asm"
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
 .segment "CHR_SPMAD"

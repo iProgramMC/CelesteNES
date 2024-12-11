@@ -299,6 +299,8 @@ tableTimer:	.byte 0, 10, 20, 30
 	sta sprspace+sp_vel_x_lo, x
 	sta sprspace+sp_vel_y_lo, x
 	
+	lda sprspace+sp_x_pg, x
+	sta sprspace+sp_l1zm_homxh, x
 	lda sprspace+sp_x, x
 	sta sprspace+sp_l1zm_homex, x
 	lda sprspace+sp_y, x
@@ -380,16 +382,16 @@ moveXY:
 	; Instead of storing to temp2, temp4 and dividing by 2^7, just store to temp1, temp3 and multiply by 2.
 	; It has the same effect
 	
-	ldy #$FF
 	lda sprspace+sp_l1zm_homex, x
 	sec
 	sbc sprspace+sp_x, x
-	cmp #$80
 	sta temp1
-	bcc :+
-	sty temp2
+	lda sprspace+sp_l1zm_homxh, x
+	sbc sprspace+sp_x_pg, x
+	sta temp2
 
-:	lda sprspace+sp_l1zm_homey, x
+	ldy #$FF
+	lda sprspace+sp_l1zm_homey, x
 	sec
 	sbc sprspace+sp_y, x
 	cmp #$80

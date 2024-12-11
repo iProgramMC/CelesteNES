@@ -74,8 +74,74 @@ gm_ent_move_x:
 @doneAdding:
 	
 @notStanding:
-	; TODO: Collision?  Ideally would depend on whether the collidable flag is set.
+;	; check if player is colliding anyway
+;	lda #0
+;	sta temp7
+;	sta temp8
+;	lda sprspace+sp_wid, x
+;	sta temp9
+;	lda sprspace+sp_hei, x
+;	sta temp10
+;	jsr gm_check_collision_ent
+;	beq @return
+;	
+;	lda sprspace+sp_vel_x, y
+;	bmi @velMinus2
+;	beq @return
+;	
+;	jmp gm_ent_call_check_left_plr
+;	
+;@velMinus2:
+;	jmp gm_ent_call_check_right_plr
+;
+;@return:
 	rts
+
+;.proc gm_ent_call_check_left_plr
+;	lda temp1
+;	pha
+;	lda temp2
+;	pha
+;	lda temp3
+;	pha
+;	lda temp4
+;	pha
+;	
+;	lda #<gm_applyx::checkLeft
+;	sta temp1
+;	lda #>gm_applyx::checkLeft
+;	sta temp1+1
+;doit:
+;	ldy #prgb_xtra
+;	jsr far_call
+;	
+;	pla
+;	sta temp4
+;	pla
+;	sta temp3
+;	pla
+;	sta temp2
+;	pla
+;	sta temp1
+;	rts
+;.endproc
+;
+;.proc gm_ent_call_check_right_plr
+;	lda temp1
+;	pha
+;	lda temp2
+;	pha
+;	lda temp3
+;	pha
+;	lda temp4
+;	pha
+;
+;	lda #<gm_applyx::checkRight
+;	sta temp1
+;	lda #>gm_applyx::checkRight
+;	sta temp1+1
+;	jmp gm_ent_call_check_left_plr::doit
+;.endproc
 
 ; ** SUBROUTINE: gm_ent_move_y
 ; desc: Applies the Y velocity component the specified entity.
