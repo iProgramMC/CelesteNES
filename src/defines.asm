@@ -418,8 +418,8 @@ af_lockto1  = $40   ; lock the anim timer to 1
 af_6frame   = $80   ; 6 frame animation. Faster than normal
 tilesahead  = 36    ; tiles ahead of camera X
 camspeed    = 8     ; maximum pixels advanced per frame by camera
-maxvelyhi   = $06   ; max Y velocity in pixels
-maxvelxhi   = $06   ; max X velocity in pixels
+maxvelyhi   = $08   ; max Y velocity in pixels
+maxvelxhi   = $08   ; max X velocity in pixels
 gravity     = $40   ; Celeste uses a value of 900 px/s^2, converted it would be about 0.25 spx/fr^2 for us
 lograthresh = $C0   ; if Math.Abs(Speed.Y) <= lograthresh (40f in Celeste), and holding C, then apply half the gravity
 ctrpull     = $18   ; acceleration imposed by player pressing buttons

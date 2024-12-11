@@ -6,6 +6,14 @@
 ; parameters:
 ;       Y reg - The index of the entity to move
 gm_ent_move_x:
+	sty tmpRoomTran
+	
+	lda sprspace+sp_vel_x, y
+	bne @notZero
+	lda sprspace+sp_vel_x_lo, y
+	beq @return
+@notZero:
+	
 	lda sprspace+sp_vel_x_lo, y
 	clc
 	adc sprspace+sp_x_lo, y
@@ -62,6 +70,7 @@ gm_ent_move_x:
 	bcc :+
 	lda #$F0
 :	sta player_x
+	
 	jmp @doneAdding
 	
 @addMinus:
@@ -72,76 +81,53 @@ gm_ent_move_x:
 :	sta player_x     ; case that they wrapped around.
 	
 @doneAdding:
-	
 @notStanding:
-;	; check if player is colliding anyway
-;	lda #0
-;	sta temp7
-;	sta temp8
-;	lda sprspace+sp_wid, x
-;	sta temp9
-;	lda sprspace+sp_hei, x
-;	sta temp10
-;	jsr gm_check_collision_ent
-;	beq @return
-;	
-;	lda sprspace+sp_vel_x, y
-;	bmi @velMinus2
-;	beq @return
-;	
-;	jmp gm_ent_call_check_left_plr
-;	
-;@velMinus2:
-;	jmp gm_ent_call_check_right_plr
-;
-;@return:
+	; note: apparently this is NOT that expensive!
+	jmp gm_ent_call_check_plr
+
+@return:
 	rts
 
-;.proc gm_ent_call_check_left_plr
-;	lda temp1
-;	pha
-;	lda temp2
-;	pha
-;	lda temp3
-;	pha
-;	lda temp4
-;	pha
-;	
-;	lda #<gm_applyx::checkLeft
-;	sta temp1
-;	lda #>gm_applyx::checkLeft
-;	sta temp1+1
-;doit:
-;	ldy #prgb_xtra
-;	jsr far_call
-;	
-;	pla
-;	sta temp4
-;	pla
-;	sta temp3
-;	pla
-;	sta temp2
-;	pla
-;	sta temp1
-;	rts
-;.endproc
-;
-;.proc gm_ent_call_check_right_plr
-;	lda temp1
-;	pha
-;	lda temp2
-;	pha
-;	lda temp3
-;	pha
-;	lda temp4
-;	pha
-;
-;	lda #<gm_applyx::checkRight
-;	sta temp1
-;	lda #>gm_applyx::checkRight
-;	sta temp1+1
-;	jmp gm_ent_call_check_left_plr::doit
-;.endproc
+.proc gm_ent_call_check_plr
+	lda temp1
+	pha
+	lda temp2
+	pha
+	lda temp3
+	pha
+	lda temp4
+	pha
+	
+	lda #<kludge
+	sta temp1
+	lda #>kludge
+	sta temp1+1
+	ldy #prgb_xtra
+	jsr far_call
+	
+	pla
+	sta temp4
+	pla
+	sta temp3
+	pla
+	sta temp2
+	pla
+	sta temp1
+	rts
+
+kludge:
+	jsr gm_gettopy
+	sta temp1                ; temp1 - top Y
+	jsr gm_getbottomy_w
+	sta temp2                ; temp2 - bottom Y
+	jsr gm_appx_checkleft
+	
+	jsr gm_gettopy
+	sta temp1                ; temp1 - top Y
+	jsr gm_getbottomy_w
+	sta temp2                ; temp2 - bottom Y
+	jmp gm_appx_checkright
+.endproc
 
 ; ** SUBROUTINE: gm_ent_move_y
 ; desc: Applies the Y velocity component the specified entity.
