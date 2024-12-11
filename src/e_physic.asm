@@ -12,8 +12,27 @@ gm_ent_move_x:
 	sta sprspace+sp_x_lo, y
 	
 	lda sprspace+sp_vel_x, y
+	bmi @velMinus
+	
 	adc sprspace+sp_x, y
 	sta sprspace+sp_x, y
+	bcc @doneAddingX
+	
+	lda sprspace+sp_x_pg, y
+	adc #0
+	sta sprspace+sp_x_pg, y
+	jmp @doneAddingX
+	
+@velMinus:
+	adc sprspace+sp_x, y
+	sta sprspace+sp_x, y
+	bcs @doneAddingX
+	
+	lda sprspace+sp_x_pg, y
+	sbc #0
+	sta sprspace+sp_x_pg, y
+
+@doneAddingX:
 	; NOTE: I (iProgramInCpp) must be careful where enemies go to avoid them going outside
 	; the level!
 	

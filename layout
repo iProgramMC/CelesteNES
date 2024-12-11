@@ -67,7 +67,8 @@ MEMORY
 	# Level Specific Sprite Banks
 	CHR_SLVL0: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$08;
 	CHR_SLVL1: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$09;
-	CHR_SPR02: start=$0000, size=$0800, fill=yes, fillval=$FF, bank=$0A;
+	CHR_SLV1B: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0A;
+	CHR_SPR02: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0B;
 	CHR_SPR03: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$0C;
 	
 	# Overworld Sprite Banks
@@ -150,6 +151,7 @@ SEGMENTS
 	CHR_SLVL0: load = CHR_SLVL0, type = ro;
 	CHR_SLVL1: load = CHR_SLVL1, type = ro;
 	CHR_SLV0B: load = CHR_SLV0B, type = ro;
+	CHR_SLV1B: load = CHR_SLV1B, type = ro;
 	CHR_SPR02: load = CHR_SPR02, type = ro;
 	CHR_SPR03: load = CHR_SPR03, type = ro;
 	CHR_SPOWD: load = CHR_SPOWD, type = ro;

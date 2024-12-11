@@ -287,6 +287,7 @@ gm_draw_ent_call:
 	level0_granny,          \
 	level0_bird_climb,      \
 	level0_bird_dash,       \
+	level1_zip_mover,       \
 	level1_zip_mover
 
 gm_entjtable_lo: .lobytes entity_jump_table

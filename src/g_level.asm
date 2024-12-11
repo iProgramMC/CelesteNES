@@ -1128,8 +1128,11 @@ gm_init_entity:
 @notReRefill:
 	
 	cmp #e_l1zipmovr
+	beq @isZipMover
+	cmp #e_l1zipmovt
 	bne @notZipMover
 	
+@isZipMover:
 	txa
 	tay
 	jsr gm_read_ent

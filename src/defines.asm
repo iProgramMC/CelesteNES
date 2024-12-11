@@ -135,6 +135,7 @@ e_l0granny  = $0B ; LEVEL 0: granny
 e_l0birdcl  = $0C ; LEVEL 0: bird (climb)
 e_l0birdda  = $0D ; LEVEL 0: bird (dash)
 e_l1zipmovr = $0E ; LEVEL 1: zip mover
+e_l1zipmovt = $0F ; LEVEL 1: tall zip mover
 
 ; Entity types that turn into other entities on load
 e_rerefill  = $7F ; refill with respawn flag set
@@ -224,9 +225,9 @@ chrb_anisp3 = $07   ;
 
 chrb_splvl0 = $08   ; sprites for level 0
 chrb_splvl1 = $09   ; sprites for level 1
+chrb_splv1b = $0A   ; sprites for level 1
 
 ; don't know when these will be used.
-chrb_gesp12 = $0A
 chrb_gesp13 = $0B
 chrb_gesp20 = $0C   ; generic sprite 2
 chrb_gesp21 = $0D
