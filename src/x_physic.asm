@@ -1344,9 +1344,10 @@ collidedRight:
 ;
 
 checkDone:
-	lda player_vl_x
-	bpl xt_scroll_r_cond_   ; if moving positively, scroll if needed
-	jmp xt_scroll_l_cond
+	;lda player_vl_x
+	;bpl xt_scroll_r_cond_   ; if moving positively, scroll if needed
+	;jmp xt_scroll_l_cond
+	rts
 
 checkDone2:
 	lda player_vl_x
@@ -2015,11 +2016,20 @@ gm_dash_update_done:
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
+	jsr gm_scroll
 	jsr gm_checkoffgnd
 	jsr gm_checkwjump
 	jsr gm_climbcheck
 	jsr gm_addtrace
 	jmp gm_timercheck
+
+; ** SUBROUTINE: gm_scroll
+; desc: Updates the scrolling camera.
+gm_scroll:
+	jsr xt_scroll_l_cond
+	jsr xt_scroll_r_cond
+	jsr xt_scroll_u_cond
+	jmp xt_scroll_d_cond
 
 ; ** SUBROUTINE: gm_timercheck
 ; desc: Checks and decreases relevant timers.
