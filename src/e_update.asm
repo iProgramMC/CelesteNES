@@ -108,9 +108,6 @@ gm_update_spring:
 	sta sprspace+sp_spring_timer, y
 
 @idleTime:
-	lda player_vl_y
-	bmi @return
-	
 	; is the player colliding?
 	lda #14
 	sta temp8
