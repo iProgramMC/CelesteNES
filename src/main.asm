@@ -27,6 +27,7 @@
 .include "level0/bank_1.asm"
 .include "level1/bank_0.asm"
 .include "level1/bank_1.asm"
+.include "level1/bank_2.asm"
 
 .include "prg_xtra.asm"
 .include "prg_game.asm"

@@ -1299,6 +1299,11 @@ gm_on_level_init:
 	lda startpy
 	sta player_y
 	
+	; select the music bank
+	lda #mmc3bk_prg1
+	ldy musicbank
+	jsr mmc3_set_bank
+	
 	lda musicdiff
 	beq @dontReloadMusic
 	
@@ -1318,22 +1323,30 @@ gm_on_level_init:
 	jsr famistudio_music_play
 	
 @dontReloadMusic:
+	; then set it back to level data
+	lda #mmc3bk_prg1
+	ldy lvldatabank
+	jsr mmc3_set_bank
+	
 	rts
 
 ; ** SUBROUTINE: gm_set_level
 ; args: X - level number
 ; assumes: vblank is off and you're loading a new level
 gm_set_level:
-	lda musicbank
+	lda lvldatabank
 	pha
 	
-	ldy level_banks, x
+	ldy level_banks_mus, x
 	sty musicbank
+	
+	ldy level_banks, x
+	sty lvldatabank
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank
 	
 	ldy level_banks2, x
-	sty musicbank2
+	sty lvldatabank2
 	lda #mmc3bk_prg0
 	jsr mmc3_set_bank
 	
@@ -1379,7 +1392,7 @@ gm_set_level:
 	beq :+
 	inc musicdiff
 :	pla
-	cmp musicbank
+	cmp lvldatabank
 	beq :+
 	inc musicdiff
 

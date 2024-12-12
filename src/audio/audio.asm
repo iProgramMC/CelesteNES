@@ -39,7 +39,26 @@ FAMISTUDIO_DPCM_OFF           = $c000
 
 ; ** SUBROUTINE: aud_run
 ; desc: Run a 1/60 tick of the audio engine.
-aud_run = famistudio_update
+;
+; note: MUST run in an interrupt-context!
+aud_run:
+	; load the music bank
+	lda #(mmc3bk_prg1 | def_mmc3_bn)
+	sta mmc3_bsel
+	lda musicbank
+	sta mmc3_bdat
+	
+	jsr famistudio_update
+	
+	lda #(mmc3bk_prg1 | def_mmc3_bn)
+	sta mmc3_bsel
+	lda currA000bank
+	sta mmc3_bdat
+	
+	; Restore the old selector
+	lda mmc3_shadow
+	sta mmc3_bsel
+	rts
 
 ; ** SUBROUTINE: aud_init
 ; desc: Initializes the audio engine.

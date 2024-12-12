@@ -455,7 +455,7 @@ dlg_end_dialog:
 	sta temp1
 	lda #>h_gener_col_r
 	sta temp2
-	ldy musicbank
+	ldy lvldatabank
 	jsr far_call
 	
 	lda #nc_flshpalv

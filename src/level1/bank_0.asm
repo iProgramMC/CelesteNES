@@ -2,4 +2,3 @@
 
 .segment "PRG_LVL1A"
 .include "roomdata.asm"
-.include "entity.asm"

@@ -267,17 +267,16 @@ chrb_dgran  = $7C   ; graphics bank for dialog with Granny
 
 ; PRG ROM BANKS
 prgb_lvl0a  = $00   ; Main level data ($A000)
-prgb_lvl1a  = $01
-prgb_lvl2a  = $02
-prgb_lvl3a  = $03
-prgb_lvl4a  = $04
-prgb_lvl5a  = $05
-prgb_lvl0b  = $06
-prgb_lvl1b  = $07
-prgb_lvl2b  = $08
-prgb_lvl3b  = $09
-prgb_lvl4b  = $0A   ; Shared level data ($C000)
-;prgb_lvl5b  = $0B
+prgb_lvl0b  = $01   ; Shared level data ($C000)
+prgb_lvl1a  = $02
+prgb_lvl1b  = $03
+prgb_lvl1c  = $04
+prgb_lvl2a  = $05
+prgb_lvl2b  = $06
+prgb_lvl3a  = $07
+prgb_lvl3b  = $08
+prgb_lvl4a  = $09
+prgb_lvl4b  = $0A
 prgb_xtra   = $0B   ; extra game code
 prgb_dial   = $0C
 prgb_ttle   = $0D

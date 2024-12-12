@@ -6,5 +6,9 @@
 music_data_ch1_dmc:
 .incbin "level1.dmc"
 
-.include "music.asm"
+level1_music:
+	.word music_data_ch1 ; song list
+	.byte $00            ; default song
+
+.include "entity.asm"
 

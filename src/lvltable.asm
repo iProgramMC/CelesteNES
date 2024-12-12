@@ -9,7 +9,6 @@ level_table:
 	.word level0 ; 5
 	.word level0 ; 6
 	.word level0 ; 7
-level_table_end:
 
 level_banks:
 	.byte prgb_lvl0a
@@ -20,7 +19,6 @@ level_banks:
 	.byte prgb_lvl0a
 	.byte prgb_lvl0a
 	.byte prgb_lvl0a
-level_banks_end:
 
 level_banks2:
 	.byte prgb_lvl0b
@@ -31,7 +29,16 @@ level_banks2:
 	.byte prgb_lvl0b
 	.byte prgb_lvl0b
 	.byte prgb_lvl0b
-level_banks2_end:
+
+level_banks_mus:
+	.byte prgb_lvl0a
+	.byte prgb_lvl1c
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
 
 level_banks_spr:
 	.byte chrb_splvl0
@@ -42,6 +49,3 @@ level_banks_spr:
 	.byte chrb_splvl0
 	.byte chrb_splvl0
 	.byte chrb_splvl0
-level_banks_spr_end:
-
-level_table_size = level_table_end - level_table

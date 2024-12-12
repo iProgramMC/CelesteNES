@@ -146,6 +146,9 @@ entrdheadhi := pot_merged + 7 ; : .res 1
 lvladdr     := pot_merged + 8 ; : .res 1 ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   := pot_merged + 9 ; : .res 1
 
+lvldatabank : .res 1 ; mobile level data is active in this bank
+lvldatabank2: .res 1 ; fixed (DPCM-sample) level data is active in this bank
+musicbank   : .res 1 ; music data is active in this bank
 anfrptrlo   : .res 1 ; animation frame pointer low
 anfrptrhi   : .res 1 ; animation frame pointer high
 gamectrl2   : .res 1 ; second game control flags
@@ -226,8 +229,6 @@ l0crshidx   : .res 1
 plattemp1   : .res 1 ; TODO: replace with a regular temp
 plattemp2   : .res 1 ; TODO: replace with a regular temp
 entground   : .res 1 ; entity ID the player is interacting with (standing on or climbing)
-musicbank   : .res 1 ; music is active in this bank
-musicbank2  : .res 1
 defsprbank  : .res 1 ; the default level specific sprite bank
 musictable  : .res 2 ; currently active table of songs
 musicdiff   : .res 1 ; should the music be re-initialized?

@@ -35,7 +35,7 @@ xt_gener_col_r:
 	sta temp1
 	lda #>h_gener_col_r
 	sta temp1+1
-	ldy musicbank
+	ldy lvldatabank
 	jmp far_call
 
 xt_gener_tiles_below:
@@ -43,7 +43,7 @@ xt_gener_tiles_below:
 	sta temp1
 	lda #>gm_gener_tiles_below
 	sta temp1+1
-	ldy musicbank
+	ldy lvldatabank
 	jmp far_call
 
 xt_gener_tiles_above:
@@ -51,7 +51,7 @@ xt_gener_tiles_above:
 	sta temp1
 	lda #>gm_gener_tiles_above
 	sta temp1+1
-	ldy musicbank
+	ldy lvldatabank
 	jmp far_call
 
 xt_gener_mts_ents_r:
@@ -59,7 +59,7 @@ xt_gener_mts_ents_r:
 	sta temp1
 	lda #>x_gener_mts_ents_r_fixed
 	sta temp1+1
-	ldy musicbank
+	ldy lvldatabank
 	jmp far_call
 
 xt_leave_doframe:
@@ -67,7 +67,7 @@ xt_leave_doframe:
 	sta temp1
 	lda #>gm_leave_doframe
 	sta temp1+1
-	ldy musicbank
+	ldy lvldatabank
 	jmp far_call
 
 xt_gener_row_u:
@@ -75,14 +75,14 @@ xt_gener_row_u:
 	sta temp1
 	lda #>h_gener_row_u
 	sta temp1+1
-	ldy musicbank
+	ldy lvldatabank
 	jmp far_call
 
 xt_set_room:
 	tya
 	tax                 ; save room # in X
 	
-	ldy musicbank
+	ldy lvldatabank
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank   ; change bank
 	
@@ -100,7 +100,7 @@ x_gener_mts_ents_r_fixed:
 
 ; generate palette data for vertical transition
 xt_generate_palette_data_V:
-	ldy musicbank
+	ldy lvldatabank
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank   ; change bank
 	
