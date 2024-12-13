@@ -68,14 +68,14 @@ gm_draw_2xsprite:
 ; desc: Does some more math to interpolate towards temp1, temp2
 .proc gm_dead_sub3
 	lda deathtimer
-	cmp #8
+	cmp plattemp1
 	bcs return
 	
 	lda #0
 	sta temp5
 	sta temp6
 	
-	ldy #3
+	ldy temp11
 loop:
 	lda temp1
 	cmp #128
@@ -148,6 +148,11 @@ return:
 	rts
 
 notDead:
+	lda #8
+	sta plattemp1
+	lda #3
+	sta temp11
+	
 	lda deathtimer
 	bne :+
 	jsr gm_dead_shake
@@ -245,12 +250,17 @@ doneLoop:
 	
 	; increment death timer
 done:
+	ldx respawntmr
+	bne return2
+	
 	ldx deathtimer
 	inx
 	cpx #24
-	bne :+
-	jsr gm_respawn
-:	stx deathtimer
+	bne dontRespawn
+	jmp gm_respawn
+dontRespawn:
+	stx deathtimer
+return2:
 	rts
 
 tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
@@ -686,9 +696,14 @@ gm_animspeeds:	.byte animspd,animspd2
 	lda respawntmr
 	beq return
 	
-	lsr
 	sta deathtimer
 	dec respawntmr
+	
+	; temp11 is the divider count in like gm_dead_sub3 or something
+	lda #16
+	sta plattemp1
+	lda #4
+	sta temp11
 	
 	jmp gm_draw_dead::respawnOverride
 	
