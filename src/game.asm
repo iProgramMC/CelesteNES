@@ -205,6 +205,7 @@ gm_game_clear_all_wx:
 ; desc: Clears game variables with the X register.
 gm_game_clear_wx:
 	;stx gamectrl2
+	stx gamectrl4
 	stx transoff
 	stx tr_scrnpos
 	stx gamectrl      ; clear game related fields to zero
@@ -232,6 +233,17 @@ gm_game_clear_wx:
 	stx roombeglo
 	stx roombeghi
 	stx roombeglo2
+	stx liftboosttm
+	stx liftboostX
+	stx liftboostY
+	stx lastlboostX
+	stx lastlboostY
+	stx currlboostX
+	stx currlboostY
+	stx player_x_d
+	stx hopcdown
+	stx cjwindow
+	stx climbcdown
 	jsr gm_clear_aux
 	
 	lda #<~g3_transitX
@@ -263,6 +275,8 @@ gm_game_clear_wx:
 	sta stamina+1
 	lda #g2_flashed
 	sta gamectrl2
+	lda #$FF
+	sta entground
 	rts
 
 ; ** SUBROUTINE: gm_calc_camera_nosplit

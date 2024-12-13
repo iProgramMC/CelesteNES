@@ -423,7 +423,7 @@ gm_dontdash:
 
 gm_jump:
 	lda wjumpcoyote
-	bne gm_walljump
+	bne gm_maybewalljump
 gm_normaljump:
 	lda jumpcoyote
 	beq gm_dontjump   ; if no coyote time, then can't jump
@@ -474,6 +474,26 @@ gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	adc player_vl_x
 	sta player_vl_x
 	jmp gm_dontjump
+
+gm_maybewalljump:
+	lda #pl_ground
+	bit playerctrl
+	bne gm_normaljump
+	
+	lda climbbutton
+	beq gm_walljump
+	
+	; climb button is held, do we have stamina?
+	lda stamina+1
+	bne :+
+	lda stamina
+	beq gm_walljump
+
+:	; we do.
+	; set the climbing flag and fall into gm_walljump
+	lda playerctrl
+	ora #pl_climbing
+	sta playerctrl
 	
 gm_walljump:
 	lda #pl_ground
@@ -522,7 +542,7 @@ gm_walljump:
 	sta stamina+1
 	
 	; set up climb-jump window
-:	lda #14
+:	lda #12
 	sta cjwindow
 	
 	lda #0
@@ -858,6 +878,7 @@ xt_colljumptable:
 xt_collidefull:
 	lda #1
 	rts
+
 xt_collidejthru:
 	sty $FF
 	tax
@@ -898,6 +919,10 @@ xt_colljtnochg:
 
 xt_collidespikesUP:
 	tax
+	lda gamectrl4
+	and #g4_nodeath
+	bne @returnNone
+	
 	lda player_vl_y
 	bmi @returnNone   ; if player is going UP, then don't do collision checks at all.
 	cpx #gc_ceil      ; if NOT moving up, then kill the player and return
@@ -930,21 +955,33 @@ xt_collidespikesUP:
 @return:
 	rts
 @walls:
+	lda player_vl_y
+	bmi @returnNone
 	lda #pl_ground
 	bit playerctrl
 	beq @returnNone   ; if wasn't grounded, then it's fine
+	; is grounded, check if they are climbing or pushing now or were before
+	; if they were pushing it means they were pushing a tile *different* from ours.
+	lda prevplrctrl
+	ora playerctrl
+	and #(pl_climbing | pl_pushing)
+	bne @returnNone
 @kill:
 	jmp gm_killplayer
 
 xt_collidespikesDOWN:
 	tax
+	lda gamectrl4
+	and #g4_nodeath
+	bne @returnNone
+	
 	lda player_vl_y
 	bmi :+            ; if player is going DOWN, then don't do collision checks at all.
 	bne @returnNone
 :	cpx #gc_floor     ; if NOT moving down, then kill the player and return
 	beq @return       ; (N.B.: not loading 0 because zf would already be set)
 	cpx #gc_ceil
-	bne @walls
+	bne @returnNone   ; @walls
 	
 	tya
 	asl
@@ -971,15 +1008,19 @@ xt_collidespikesDOWN:
 @return:
 	rts
 
-@walls:
-	lda player_vl_x
-	beq @returnNone
+;@walls:
+;	lda player_vl_x
+;	bpl @returnNone
 @kill:
 	jmp gm_killplayer
 
 ; the spikes point right
 xt_collidespikesRIGHT:
 	tax
+	lda gamectrl4
+	and #g4_nodeath
+	bne @returnNone
+	
 	lda player_vl_x
 	bmi :+            ; if player is going RIGHT, then don't do collision checks at all
 	bne @returnNone
@@ -1033,6 +1074,10 @@ xt_collidespikesRIGHT:
 ; the spikes point left
 xt_collidespikesLEFT:
 	tax
+	lda gamectrl4
+	and #g4_nodeath
+	bne @returnNone
+	
 	lda player_vl_x
 	bmi @returnNone   ; if player is going LEFT, then don't do collision checks at all
 	cpx #gc_left      ; if NOT moving right, then kill the player and return
@@ -1417,6 +1462,10 @@ gm_checkwjump:
 	and #<~pl_nearwall
 	sta playerctrl
 	
+	lda gamectrl4
+	ora #g4_nodeath
+	sta gamectrl4
+	
 	and #pl_ground
 	beq @alwaysSet           ; if player is grounded, and they aren't pushing the climb button, simply return.
 	
@@ -1482,6 +1531,9 @@ gm_checkwjump:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 @dontSet:
+	lda gamectrl4
+	and #<~g4_nodeath
+	sta gamectrl4
 	rts
 @setL:
 	lda playerctrl
@@ -2316,7 +2368,6 @@ noWallRelease:
 	lda #0
 	sta player_vl_x
 	sta player_vs_x
-release2_beq:
 	beq release
 	
 	; tables:
@@ -2324,7 +2375,7 @@ tableDirs:	.byte gc_right, gc_right, gc_left, gc_right
 velsLo:		.byte <climbhopX, <(-climbhopX)
 velsHi:		.byte >climbhopX, >(-climbhopX)
 ledgeCheckX:.byte $0F, $00
-	
+
 hasWall:
 	; Ok, we have a wall.  Is it in our facing direction?
 	; (Note: gm_checkwjump no longer checks the left wall first, it checks the wall in our facing direction first
@@ -2345,11 +2396,19 @@ hasWall:
 	bpl noForcedRelease
 	
 	lda game_cont
+	and #cont_up
+	beq noForcedRelease
+	
+	lda game_cont
 	and #(cont_left | cont_right)
 	tax
 	stx temp7
 	lda tableDirs, x
 	pha
+	
+	lda gamectrl4
+	ora #g4_nodeath
+	sta gamectrl4
 	
 	jsr gm_getfacex_wj
 	sta temp1
@@ -2401,12 +2460,21 @@ hasWall:
 	sta hopcdown
 	lda #0
 	sta forcemovex
-	beq release2_beq
+	
+	lda gamectrl4
+	and #<~g4_nodeath
+	sta gamectrl4
+	
+	jmp release
 
 moveDownAndNoRelease:
 	inc player_y
 	
 noForcedRelease:
+	lda gamectrl4
+	and #<~g4_nodeath
+	sta gamectrl4
+	
 	lda game_cont
 	and #(cont_up | cont_down)
 	pha
