@@ -244,6 +244,8 @@ gm_game_clear_wx:
 	stx hopcdown
 	stx cjwindow
 	stx climbcdown
+	stx camera_x_lo
+	stx camera_y_lo
 	jsr gm_clear_aux
 	
 	lda #<~g3_transitX

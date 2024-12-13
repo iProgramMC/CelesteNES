@@ -106,6 +106,8 @@ vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a 
 gettiletmp  : .res 1 ; temporary used by h_get_tile
 camera_y_min: .res 1
 camera_y_max: .res 1
+camera_x_lo : .res 1 ; for linear interpolation
+camera_y_lo : .res 1
 
 ; merged from individual variables between Prologue, Title and Overworld.
 ; note: these may be used as extra temporaries for the Game mode too!
@@ -153,6 +155,7 @@ anfrptrlo   : .res 1 ; animation frame pointer low
 anfrptrhi   : .res 1 ; animation frame pointer high
 gamectrl2   : .res 1 ; second game control flags
 gamectrl3   : .res 1 ; third game control flags
+gamectrl4   : .res 1 ; fourth game control flags
 ntwrhead    : .res 1 ; name table write head (up to 64 columns)
 arwrhead    : .res 1 ; area space write head (up to 32 columns)
 camera_x_pg : .res 1
@@ -257,7 +260,6 @@ currlboostY : .res 1
 liftboosttm : .res 1 ; lift boost time
 prevplrctrl : .res 1 ; last player control flags
 respawntmr  : .res 1 ; respawn timer
-gamectrl4   : .res 1 ; fourth game control flags
 
 tmpRoomTran : .res 6 ; temporaries used by leaveroomU, 
 	camdst_x    := tmpRoomTran + 0

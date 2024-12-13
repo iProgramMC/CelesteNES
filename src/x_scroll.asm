@@ -4,26 +4,55 @@
 xt_scroll_r_cond:
 	lda #gs_camlock
 	bit gamectrl
-	bne @scrollRet    ; if camera is locked
+	bne @scrollRet2   ; if camera is locked
 	lda #g3_blockinp
 	bit gamectrl3
-	bne @scrollRet
-	
+	beq @dontReturn
+@scrollRet2:
+	rts
+@dontReturn:
 	lda player_x
 	cmp #scrolllimit
-	bcc @scrollRet    ; A < scrolllimit
-	beq @scrollRet    ; A = scrolllimit
+	bcc @scrollRet2   ; A < scrolllimit
+	beq @scrollRet2   ; A = scrolllimit
 	sec
 	sbc #scrolllimit
-	cmp #camspeed     ; see the difference we need to scroll
-	bcc @noFix        ; A < camspeed
-	lda #camspeed
-@noFix:               ; A now contains the delta we need to scroll by
+;	cmp #camspeed     ; see the difference we need to scroll
+;	bcc @noFix        ; A < camspeed
+;	lda #camspeed
+;noFix:               ; A now contains the delta we need to scroll by
+	; A holds the difference. divide it by 1/4
 	sta temp1
+	lda #0
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	sta temp2
+	
+	lda temp1
+	cmp #camspeed
+	bcc @noFix
+	lda #camspeed
+@noFix:
+	sta temp1
+	
+	lda temp2
 	clc
+	adc camera_x_lo
+	sta camera_x_lo
+	
+	; note: loads the difference *PLUS* the carry, we need THAT later
+	lda temp1
+	adc #0
+	clc
+	sta temp1
 	tax               ; save the delta as we'll need it later
 	adc camera_x      ; add the delta to the camera X
 	sta camera_x
+	
 	lda #0
 	adc camera_x_pg
 	sta camera_x_pg
@@ -57,6 +86,10 @@ xt_scroll_r_cond:
 	
 @noLimit:
 	;lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
+	;lda player_sp_x
+	;sec
+	;sbc temp2
+	;sta player_sp_x
 	lda player_x
 	sec
 	sbc temp1
@@ -95,13 +128,16 @@ xt_scroll_r_cond:
 xt_scroll_l_cond:
 	lda #gs_camlock
 	bit gamectrl
-	bne @scrollRet    ; if camera is locked
+	bne @scrollRet2   ; if camera is locked
 	lda #g3_blockinp
 	bit gamectrl3
-	bne @scrollRet
+	beq @dontReturn
+@scrollRet2:
+	rts
+@dontReturn:
 	
 	lda roomsize
-	beq @scrollRet    ; if this is a "long" room, then we CANNOT scroll left.
+	beq @scrollRet2   ; if this is a "long" room, then we CANNOT scroll left.
 	
 	lda player_x
 	cmp #scrolllimit
@@ -111,7 +147,23 @@ xt_scroll_l_cond:
 	lda #scrolllimit
 	sec
 	sbc player_x
-	cmp #camspeed     ; see the difference we need to scroll
+;	cmp #camspeed     ; see the difference we need to scroll
+;	bcc @noFix
+;	lda #camspeed
+;@noFix:
+	sta temp1
+	
+	lda #0
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	sta temp2
+	
+	lda temp1
+	cmp #camspeed
 	bcc @noFix
 	lda #camspeed
 @noFix:
@@ -121,11 +173,29 @@ xt_scroll_l_cond:
 	and gamectrl
 	sta gamectrl
 	
+	lda camera_x_lo
 	sec
-	lda camera_x
-	tax               ; save the delta as we'll need it later
-	sbc temp1         ; take the delta from the camera X
+	sbc temp2
+	sta camera_x_lo
+	
+	; carry set - no borrow
+	; carry clear - borrow (subtract 1 more)
+	bcs :+
+	inc temp1
+	sec
+:	lda camera_x
+	sbc temp1
 	sta camera_x
+	
+	;lda camera_x
+	;sbc temp1
+	;sta camera_x
+	
+	;sec
+	;lda camera_x
+	;tax               ; save the delta as we'll need it later
+	;sbc temp1         ; take the delta from the camera X
+	;sta camera_x
 	lda camera_x_pg
 	sbc #0
 	bmi @limit
@@ -149,6 +219,10 @@ xt_scroll_l_cond:
 	
 	; no limitation. also move the PLAYER's x coordinate
 @shouldNotLimit:
+	;lda player_sp_x
+	;clc
+	;adc temp2
+	;sta player_sp_x
 	lda player_x
 	clc
 	adc temp1
