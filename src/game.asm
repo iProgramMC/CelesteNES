@@ -279,6 +279,7 @@ gm_game_clear_wx:
 	sta gamectrl2
 	lda #$FF
 	sta entground
+	sta chopentity
 	rts
 
 ; ** SUBROUTINE: gm_calc_camera_nosplit

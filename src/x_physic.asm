@@ -1287,6 +1287,54 @@ gm_applyy_checkdone:
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
 .proc gm_applyx
+	; Climb Hop Solid Movement
+	ldy chopentity
+	bmi applyXSub
+	
+	lda sprspace+sp_flags, y
+	and #ef_collidable
+	bne isCHopEntCollidable
+	
+	lda #$FF
+	sta chopentity
+	bne applyXSub
+
+isCHopEntCollidable:
+	lda player_vl_x
+	pha
+	lda player_vl_y
+	pha
+	
+	; add the amount the climb hop solid moved in 1 frame, to the vel, then
+	; apply that new velocity, then restore the old one
+	lda sprspace+sp_x, y
+	sec
+	sbc choplastX
+	clc
+	adc player_vl_x
+	sta player_vl_x
+	
+	lda sprspace+sp_y, y
+	sec
+	sbc choplastY
+	clc
+	adc player_vl_y
+	sta player_vl_y
+	
+	lda sprspace+sp_x, y
+	sta choplastX
+	lda sprspace+sp_y, y
+	sta choplastY
+	
+	jsr applyXSub
+	
+	pla
+	sta player_vl_y
+	pla
+	sta player_vl_x
+	rts
+	
+applyXSub:
 	lda player_x
 	sta player_xo
 	
@@ -2081,13 +2129,22 @@ gm_timercheck:
 	sta prevplrctrl
 	
 	lda forcemovext
-	beq :+
+	
+	; if forcemovext == 0, then remove the reference to the climb hop entity
+	bne @fmxtNotZero
+	lda #$FF
+	sta chopentity
+	bne @doneWithFmxt
+	
+@fmxtNotZero:
+	; if forcemovext != 0, then decrement forcemovext
 	dec forcemovext
-:	lda hopcdown
+
+@doneWithFmxt:
+	lda hopcdown
 	beq :+
 	dec hopcdown
-:
-	lda jcountdown
+:	lda jcountdown
 	beq @return
 
 	; jump countdown is active. Check if the A button is still being held.
@@ -2328,6 +2385,9 @@ release:
 	lda playerctrl
 	and #<~pl_climbing
 	sta playerctrl
+	lda gamectrl4
+	and #<~g4_nodeath
+	sta gamectrl4
 	lda #$FF
 	sta entground
 return:
@@ -2393,11 +2453,22 @@ hasWall:
 	
 	; check for climb hop
 	lda player_vl_y
-	bpl noForcedRelease
+	bmi :+
+	jmp noForcedRelease
 	
-	lda game_cont
+:	lda game_cont
 	and #cont_up
-	beq noForcedRelease
+	beq noForcedReleaseBeq
+	
+	; Are we on the ground?  If yes, there are no possibilities for climb hopping.
+	lda gamectrl
+	and #pl_ground
+	bne noForcedReleaseBne
+	
+	; Are we on an entity? We must be climbing it, if so. Otherwise, we would be
+	; standing on that entity and pl_ground would be set.
+	ldy entground
+	bpl handleEntityClimbHop
 	
 	lda game_cont
 	and #(cont_left | cont_right)
@@ -2420,7 +2491,7 @@ hasWall:
 	sta temp2
 	jsr xt_collide
 	
-	bne noForcedRelease
+	bne noForcedReleaseBne
 	
 	; are we at least colliding with the top?
 	jsr gm_gettopy
@@ -2428,7 +2499,7 @@ hasWall:
 	ldx temp1
 	lda temp2
 	jsr xt_collide
-	bne noForcedRelease
+	bne noForcedReleaseBne
 	
 	; not colliding with the middle OR top of our hitbox, we must check for climb hop
 	; reset the Y velocity
@@ -2442,6 +2513,7 @@ hasWall:
 	jsr checkClimbHopSafety
 	bne moveDownAndNoRelease
 	
+initiateClimbHop:
 	lda playerctrl
 	and #pl_left     ; invariant: pl_left == $01
 	tax
@@ -2454,6 +2526,18 @@ hasWall:
 	sta player_vs_y
 	lda #>climbhopY
 	sta player_vl_y
+	
+	; Add lift boost, if we were riding an entity
+	ldy entground
+	sty chopentity
+	bmi @noEntity
+	
+	lda sprspace+sp_x, y
+	sta choplastX
+	lda sprspace+sp_y, y
+	sta choplastY
+	
+@noEntity:
 	lda #12
 	sta forcemovext
 	lda #5
@@ -2461,11 +2545,26 @@ hasWall:
 	lda #0
 	sta forcemovex
 	
-	lda gamectrl4
-	and #<~g4_nodeath
-	sta gamectrl4
-	
 	jmp release
+
+noForcedReleaseBeq:
+	beq noForcedRelease
+noForcedReleaseBne:
+	bne noForcedRelease
+
+handleEntityClimbHop:
+	; We are on an entity (whose index is loaded into Y), and we need to check for climb hopping
+	; This check is much simpler than the tile based check, as all we need to do is check whether
+	; the player is above a certain Y position relative to the entity.
+	lda player_y
+	clc
+	adc #plr_y_bot_cc
+	cmp sprspace+sp_y, y
+	bcs noForcedRelease   ; lower than the top Y of the entity
+	
+	; Higher, so check if the climb hop is safe
+	jsr checkClimbHopSafety
+	beq initiateClimbHop
 
 moveDownAndNoRelease:
 	inc player_y
@@ -2555,6 +2654,9 @@ dontDecrementHighByte:
 	ldy temp5
 	sty player_vl_y
 @LBB0_7:
+	lda gamectrl4
+	and #<~g4_nodeath
+	sta gamectrl4
 	rts
 @LBB0_8:
 	clc
