@@ -391,6 +391,7 @@ gm_leave_doframe:
 	sta scroll_y
 	lda temp2
 	adc temp5
+	and #1
 	sta temp2
 	
 notUp:
@@ -404,6 +405,7 @@ notUp:
 	sta scroll_y
 	lda temp2
 	adc temp5
+	and #1
 	sta temp2
 	
 notDown:
@@ -417,6 +419,7 @@ notDown:
 	sta scroll_x
 	lda temp1
 	adc temp5
+	and #1
 	sta temp1
 	
 notLeft:
@@ -430,6 +433,7 @@ notLeft:
 	sta scroll_x
 	lda temp1
 	adc temp5
+	and #1
 	sta temp1
 	
 notRight:
