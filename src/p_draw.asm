@@ -140,20 +140,21 @@ return:
 .endproc
 
 ; ** SUBROUTINE: gm_draw_dead
-gm_draw_dead:
+.proc gm_draw_dead
 	lda #pl_dead
 	bit playerctrl
-	bne @notDead
-@return:
+	bne notDead
+return:
 	rts
 
-@notDead:
+notDead:
 	lda deathtimer
 	bne :+
 	jsr gm_dead_shake
 :	cmp #32
-	bcs @return
-	
+	bcs return
+
+respawnOverride:
 	lda deathangle
 	sta temp4
 	inc deathangle
@@ -164,7 +165,7 @@ gm_draw_dead:
 	sta spr0_bknum
 	
 	ldy #0
-@deadLoop:
+deadLoop:
 	lda temp4
 	jsr sine
 	sta temp1
@@ -193,13 +194,13 @@ gm_draw_dead:
 	dex
 :	txa
 	adc #0
-	bne @doneLoop
+	bne doneLoop
 	
 	lda x_crd_temp
 	clc
 	adc #4
 	sta x_crd_temp
-	bcs @doneLoop
+	bcs doneLoop
 	
 	lda player_y
 	clc
@@ -212,11 +213,11 @@ gm_draw_dead:
 	dex
 :	txa
 	adc #0
-	bne @doneLoop
+	bne doneLoop
 	
 	lda y_crd_temp
 	cmp #240
-	bcs @doneLoop
+	bcs doneLoop
 	clc
 	adc #4
 	sta y_crd_temp
@@ -230,20 +231,20 @@ gm_draw_dead:
 	lda #24
 :	lsr
 	tay
-	lda @tableT, y
+	lda tableT, y
 	tay
 	lda #1
 	
 	jsr oam_putsprite
 	ldy temp3
 	
-@doneLoop:
+doneLoop:
 	iny
 	cpy #8
-	bne @deadLoop
+	bne deadLoop
 	
 	; increment death timer
-@done:
+done:
 	ldx deathtimer
 	inx
 	cpx #24
@@ -252,15 +253,23 @@ gm_draw_dead:
 :	stx deathtimer
 	rts
 
-@tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
+tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
+.endproc
 
 ; ** SUBROUTINE: gm_draw_player
 gm_draw_player:
+	; Initial conditions to prevent this function from running
 	lda #pl_dead
-	bit playerctrl       ; don't draw player if dead
-	beq :+
+	bit playerctrl
+	beq @dontReturn
+@return:
 	rts
-:	lda #pl_left
+
+@dontReturn:
+	lda respawntmr
+	bne @return
+	
+	lda #pl_left
 	bit playerctrl
 	bne gm_facingleft
 	lda #0
@@ -634,6 +643,9 @@ gm_anim_banks:
 	bit playerctrl
 	bne @alsoUpdateFrameCounter ; don't update the bank if dead
 	
+	lda respawntmr
+	bne @alsoUpdateFrameCounter
+	
 	lda animmode
 	cmp #am_climb
 	bne @standardAnimMode
@@ -663,3 +675,23 @@ gm_anim_banks:
 	rts
 
 gm_animspeeds:	.byte animspd,animspd2
+
+; ** SUBROUTINE: gm_draw_respawn
+; desc: Draws the player while respawning. Repurposes gm_draw_dead.
+.proc gm_draw_respawn
+	lda playerctrl
+	and #pl_dead
+	bne return
+	
+	lda respawntmr
+	beq return
+	
+	lsr
+	sta deathtimer
+	dec respawntmr
+	
+	jmp gm_draw_dead::respawnOverride
+	
+return:
+	rts
+.endproc

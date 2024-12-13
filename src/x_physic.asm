@@ -1236,10 +1236,8 @@ gm_checkfloor:
 	
 @done:
 gm_applyy_checkdone:
-	lda player_vl_y
-	bpl :+
-	jmp xt_scroll_u_cond
-:	jmp xt_scroll_d_cond
+	jsr xt_scroll_u_cond
+	jmp xt_scroll_d_cond
 
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
@@ -1344,9 +1342,8 @@ collidedRight:
 ;
 
 checkDone:
-	lda player_vl_x
-	bpl xt_scroll_r_cond_   ; if moving positively, scroll if needed
-	jmp xt_scroll_l_cond
+	jsr xt_scroll_l_cond
+	jmp xt_scroll_r_cond
 
 checkDone2:
 	lda player_vl_x
@@ -1412,9 +1409,6 @@ collidedLeft:
 
 gm_appx_checkleft  := gm_applyx::checkLeft
 gm_appx_checkright := gm_applyx::checkRight
-
-xt_scroll_r_cond_:
-	jmp xt_scroll_r_cond
 
 ; ** SUBROUTINE: gm_checkwjump
 ; desc: Assigns coyote time if wall is detected near the player.
@@ -2001,17 +1995,19 @@ gm_dash_nosj:
 
 ; ** SUBROUTINE: xt_physics
 ; desc: Runs one frame of player physics.
-xt_physics:
+.proc xt_physics
 	lda #pl_dead
 	bit playerctrl
-	beq :+
-	rts
-:	jsr gm_jumpgrace
+	bne return
+	lda respawntmr
+	bne return
+	
+	jsr gm_jumpgrace
 	lda dashtime
 	bne gm_dash_update
 	jsr gm_gravity
 	jsr gm_controls
-gm_dash_update_done:
+dash_update_done:
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
@@ -2020,6 +2016,11 @@ gm_dash_update_done:
 	jsr gm_climbcheck
 	jsr gm_addtrace
 	jmp gm_timercheck
+return:
+	rts
+.endproc
+
+gm_dash_update_done := xt_physics::dash_update_done
 
 ; ** SUBROUTINE: gm_timercheck
 ; desc: Checks and decreases relevant timers.

@@ -132,6 +132,7 @@ gm_game_update:
 	jsr gm_draw_entities
 	jsr gm_update_ptstimer
 	jsr gm_draw_dead
+	jsr gm_draw_respawn
 	jsr gm_update_dialog
 	jsr gm_load_level_if_vert
 	

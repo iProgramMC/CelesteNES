@@ -256,6 +256,7 @@ currlboostX : .res 1 ; lift boost calculation in progress
 currlboostY : .res 1
 liftboosttm : .res 1 ; lift boost time
 prevplrctrl : .res 1 ; last player control flags
+respawntmr  : .res 1 ; respawn timer
 
 tmpRoomTran : .res 6 ; temporaries used by leaveroomU, 
 	camdst_x    := tmpRoomTran + 0

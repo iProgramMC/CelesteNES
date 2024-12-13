@@ -1451,6 +1451,9 @@ gm_respawn:
 	lsr
 	sta ntwrhead
 	
+	lda #32
+	sta respawntmr
+	
 	lda #g3_transitX
 	ora gamectrl3
 	sta gamectrl3
