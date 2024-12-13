@@ -11,19 +11,21 @@ xt_scroll_r_cond:
 @scrollRet2:
 	rts
 @dontReturn:
+	lda #0
+	sec
+	sbc camera_x_lo
+	sta temp2
+	
 	lda player_x
 	cmp #scrolllimit
 	bcc @scrollRet2   ; A < scrolllimit
 	beq @scrollRet2   ; A = scrolllimit
-	sec
+	;sec
 	sbc #scrolllimit
-;	cmp #camspeed     ; see the difference we need to scroll
-;	bcc @noFix        ; A < camspeed
-;	lda #camspeed
-;noFix:               ; A now contains the delta we need to scroll by
-	; A holds the difference. divide it by 1/4
 	sta temp1
-	lda #0
+	
+	; A holds the difference. divide it by 1/4
+	lda temp2
 	lsr temp1
 	ror
 	lsr temp1
@@ -35,10 +37,13 @@ xt_scroll_r_cond:
 	lda temp1
 	cmp #camspeed
 	bcc @noFix
-	lda #camspeed
-@noFix:
-	sta temp1
 	
+	lda #camspeed
+	sta temp1
+	lda #0
+	sta temp2
+
+@noFix:
 	lda temp2
 	clc
 	adc camera_x_lo
@@ -139,21 +144,21 @@ xt_scroll_l_cond:
 	lda roomsize
 	beq @scrollRet2   ; if this is a "long" room, then we CANNOT scroll left.
 	
+	lda #0
+	sec
+	sbc camera_x_lo
+	sta temp2
+	
 	lda player_x
 	cmp #scrolllimit
 	bcs @scrollRet
-	;bcc @scrollRet
 	
 	lda #scrolllimit
 	sec
 	sbc player_x
-;	cmp #camspeed     ; see the difference we need to scroll
-;	bcc @noFix
-;	lda #camspeed
-;@noFix:
 	sta temp1
 	
-	lda #0
+	lda temp2
 	lsr temp1
 	ror
 	lsr temp1
@@ -166,8 +171,10 @@ xt_scroll_l_cond:
 	cmp #camspeed
 	bcc @noFix
 	lda #camspeed
-@noFix:
 	sta temp1
+	lda #0
+	sta temp2
+@noFix:
 	
 	lda #(gs_scrstodR^$FF)
 	and gamectrl
@@ -187,15 +194,6 @@ xt_scroll_l_cond:
 	sbc temp1
 	sta camera_x
 	
-	;lda camera_x
-	;sbc temp1
-	;sta camera_x
-	
-	;sec
-	;lda camera_x
-	;tax               ; save the delta as we'll need it later
-	;sbc temp1         ; take the delta from the camera X
-	;sta camera_x
 	lda camera_x_pg
 	sbc #0
 	bmi @limit
