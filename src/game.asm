@@ -246,20 +246,27 @@ gm_game_clear_wx:
 	stx climbcdown
 	stx camera_x_lo
 	stx camera_y_lo
-	jsr gm_clear_aux
+	stx camlefthi
+	stx plrtrahd
+	stx plrstrawbs
+	stx scrollsplit
+	stx dialogsplit
+	stx camera_y_sub
+	stx stamflashtm
+	stx camleftlo	
 	
 	lda #<~g3_transitX
 	and gamectrl3
 	sta gamectrl3
 	
-	; before waiting on vblank, clear game reserved spaces ($0300 - $0700)
+	; before waiting on vblank, clear game reserved spaces ($0300 - $05FF)
 	; note: ldx #$00 was removed because it's already 0!
 	txa
 :	sta $200,x
 	sta $300,x
 	sta $400,x
 	sta $500,x
-	sta $600,x
+	; N.B. don't clear $600 as it holds the background chr banks which won't be restored
 	inx
 	bne :-
 	dex

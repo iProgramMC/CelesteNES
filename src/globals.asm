@@ -26,11 +26,18 @@ temp9       : .res 1
 temp10      : .res 1
 temp11      : .res 1
 
-; temporaries ONLY touchable in the IRQ!
+; temporaries specific to the IRQ (touching them WILL result in a
+; race condition if the IRQ is active!)
+;
+; note: for the death wipe, the NMI will take care of updating these!
 irqtmp1     : .res 1
 irqtmp2     : .res 1
 irqtmp3     : .res 1
 irqtmp4     : .res 1
+;irqtmp5     : .res 1
+;irqtmp6     : .res 1
+;irqtmp7     : .res 1
+;irqtmp8     : .res 1
 
 gamemode    : .res 1 ; active game mode
 framectr    : .res 1 ; continuously increasing frame counter
@@ -46,19 +53,6 @@ gamestate   : .res 1 ; reused by every game mode
 nmictrl     : .res 1 ; nc_*
 nmictrl2    : .res 1 ; nc2_*
 
-spr0_bknum  : .res 1
-spr1_bknum  : .res 1
-spr2_bknum  : .res 1
-spr3_bknum  : .res 1
-bg0_bknum   : .res 1
-bg1_bknum   : .res 1
-
-spr0_bkspl  : .res 1
-spr1_bkspl  : .res 1
-spr2_bkspl  : .res 1
-spr3_bkspl  : .res 1
-bg0_bkspl   : .res 1
-bg1_bkspl   : .res 1
 splgapaddr  : .res 2
 
 mmc3_shadow : .res 1
@@ -327,6 +321,23 @@ spritepalso : .res 9    ; 9 bytes  - previous frame's loaded sprite palettes
 sprpalcount : .res 1    ; 1 byte   - amount of palettes written
 sprpaltemp  : .res 1    ; 1 byte   - just a temporary variable
 palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
+
+; Loaded sprite banks
+spr0_bknum  : .res 1
+spr1_bknum  : .res 1
+spr2_bknum  : .res 1
+spr3_bknum  : .res 1
+bg0_bknum   : .res 1
+bg1_bknum   : .res 1
+
+spr0_bkspl  : .res 1
+spr1_bkspl  : .res 1
+spr2_bkspl  : .res 1
+spr3_bkspl  : .res 1
+bg0_bkspl   : .res 1
+bg1_bkspl   : .res 1
+
+; Loaded Sprite Banks (updated every NMI)
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

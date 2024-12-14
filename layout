@@ -14,7 +14,7 @@ MEMORY
 	OAMBUF:   start=$0200, size=$0100, type=rw, file="";
 	ENTITIES: start=$0300, size=$0100, type=rw, file="";
 	PLTRACES: start=$0400, size=$0080, type=rw, file="";
-	DLGRAM:   start=$04C0, size=$0080, type=rw, file="";
+	DLGRAM:   start=$0480, size=$0080, type=rw, file="";
 	DRAWTEMP: start=$0500, size=$0200, type=rw, file="";
 	FMSRAM:   start=$0700, size=$0100, type=rw, file="";
 	

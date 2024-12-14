@@ -7,7 +7,7 @@ dialog_border_upp = 20
 dialog_port_size  = 40
 dialog_port_brdr  = 8
 
-.segment "DLGRAM" ; 96 bytes
+.segment "DLGRAM" ; 104 bytes
 dlg_chartimer: .res 1 ; when this timer ticks down to zero, show a new character
 dlg_cursor_x:  .res 1 ; the X position of the cursor
 dlg_cursor_y:  .res 1 ; the Y position of the cursor

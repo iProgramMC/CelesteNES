@@ -549,17 +549,6 @@ debug_profiler:
 .include "nmi.asm"
 .include "math.asm"
 
-gm_clear_aux:
-	stx camlefthi
-	stx plrtrahd
-	stx plrstrawbs
-	stx scrollsplit
-	stx dialogsplit
-	stx camera_y_sub
-	stx stamflashtm
-	stx camleftlo	
-	rts
-
 .segment "PRG_VECS"
 	.word nmi_
 	.word reset
