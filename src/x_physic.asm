@@ -478,6 +478,7 @@ gm_jumphboostR:       ; allow speed buildup up to the physical limit
 gm_maybewalljump:
 	lda #pl_ground
 	bit playerctrl
+gm_normaljump_bne:
 	bne gm_normaljump
 	
 	lda climbbutton
@@ -489,7 +490,18 @@ gm_maybewalljump:
 	lda stamina
 	beq gm_walljump
 
-:	; we do.
+:	; finally, check if we're facing the right way
+	lda playerctrl
+	and #pl_left
+	sta temp11
+	lda playerctrl
+	and #pl_wallleft
+	lsr
+	lsr
+	lsr        ; pl_wallleft == $08
+	eor temp11 ; the condition is: (wallLeft && !left) || (!wallLeft && left) <==> wallLeft != left
+	bne gm_walljump
+	
 	; set the climbing flag and fall into gm_walljump
 	lda playerctrl
 	ora #pl_climbing
@@ -498,7 +510,7 @@ gm_maybewalljump:
 gm_walljump:
 	lda #pl_ground
 	bit playerctrl
-	bne gm_normaljump ; if player is grounded, ALWAYS perform a standard jump
+	bne gm_normaljump_bne ; if player is grounded, ALWAYS perform a standard jump
 	
 	; check if player is climbing right now
 	lda playerctrl
