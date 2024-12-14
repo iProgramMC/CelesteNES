@@ -415,8 +415,9 @@ gm_dontjump:
 	inc dashcount
 	ldx #defdashtime
 	stx dashtime
-	lda #pl_dashed
-	ora playerctrl
+	lda playerctrl
+	ora #pl_dashed
+	and #<~(pl_climbing|pl_nearwall|pl_pushing|pl_wallleft)
 	sta playerctrl
 gm_dontdash:
 	rts
