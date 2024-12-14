@@ -478,7 +478,7 @@ reset:
 	stx ppu_mask     ; disable rendering
 	stx apu_dmc_cfg  ; disable APU DMC IRQs
 	bit ppu_status   ; clear status
-	jsr vblank_wait
+	;jsr vblank_wait
 	
 	ldx #$00
 reset_clrmem:
@@ -498,7 +498,8 @@ reset_clrmem:
 	
 	; TODO: other setup here
 	
-	jsr vblank_wait  ; second vblank wait
+	bit ppu_status   ; clear status
+	jsr vblank_wait
 	
 	ldy #<init_palette
 	jsr load_palette ; move palette to palette RAM
