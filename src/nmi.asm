@@ -3,8 +3,12 @@
 ; ** NMI
 nmi_:
 	inc nmicount
-	sta mmc3_irqdi  ; disable IRQ for this frame
+	sta mmc3_irqdi       ; disable IRQ for this frame
 	pha
+	
+	lda nmi_disable
+	bne @dontRunNmi      ; if the game is resetting, don't run the NMI thread
+	
 	txa
 	pha
 	tya
@@ -31,6 +35,7 @@ nmi_:
 	tay
 	pla
 	tax
+@dontRunNmi:
 	pla
 	rti
 

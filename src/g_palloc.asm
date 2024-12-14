@@ -130,3 +130,4 @@ sprite_palettes:
 	.byte $30,$27,$07 ; golden palette
 	.byte $20,$37,$09 ; Granny's palette
 	.byte $27,$21,$11 ; Bird palette
+	.byte $30,$21,$01 ; Bird Tutorial palette

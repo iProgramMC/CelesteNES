@@ -14,6 +14,7 @@
 
 .segment "ZEROPAGE"
 
+nmi_disable : .res 1 ; HARD NMI disable - used when resetting the game. Must be zero to run NMIs.
 temp1       : .res 1
 temp2       : .res 1
 temp3       : .res 1

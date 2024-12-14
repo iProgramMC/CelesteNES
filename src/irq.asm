@@ -53,7 +53,7 @@ dontRescheduleInterrupt:
 	rti
 .endproc
 
-; ***** N.B. Insert code here to save space *****
+.include "m_auxil.asm"
 
 .align $100
 irq_deathwipe_:        ; +1 cycle from the BNE

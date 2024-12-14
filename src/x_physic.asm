@@ -1338,6 +1338,9 @@ applyXSub:
 	lda player_x
 	sta player_xo
 	
+	lda #$FF
+	sta temp9
+	
 	clc
 	lda player_vl_x
 	rol                      ; store the upper bit in carry
@@ -2256,11 +2259,6 @@ haveStamina:
 	lda playerctrl
 	ora #pl_climbing
 	sta playerctrl
-	
-	and #pl_left
-	tay
-	lda table, y
-	sta temp9
 	
 	jsr gm_gettopy
 	sta temp1                ; temp1 - top Y

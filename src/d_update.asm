@@ -513,7 +513,10 @@ dlg_leave_doframe:
 	jsr gm_calc_camera_nosplit
 	jsr soft_nmi_on
 	jsr nmi_wait
-	jmp soft_nmi_off
+	jsr soft_nmi_off
+	lda #0
+	sta oam_wrhead
+	rts
 
 ; ** SUBROUTINE: dlg_leave_doframe_split
 ; desc: Waits for a new frame to start to continue operation while calculating
@@ -529,7 +532,10 @@ dlg_leave_doframe_split:
 	jsr gm_calc_camera_split
 	jsr soft_nmi_on
 	jsr nmi_wait
-	jmp soft_nmi_off
+	jsr soft_nmi_off
+	lda #0
+	sta oam_wrhead
+	rts
 
 ; ** SUBROUTINE: dlg_advance_text
 ; desc: Advances the active text in a dialog.

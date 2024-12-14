@@ -9,6 +9,8 @@ game_sfx:
 	.word @sfx_ntsc_sfx_death   ; death
 	.word @sfx_ntsc_coin        ; strawberry collect
 	.word @sfx_ntsc_spring      ; spring
+	.word @sfx_ntsc_caw         ; bird caw
+	.word @sfx_ntsc_whoosh      ; whooshing sound
 
 ; TODO: BORROWED FROM some kind of mega man game. Provide original version ASAP.
 ;@sfx_ntsc_megamanhit:
@@ -83,3 +85,15 @@ game_sfx:
 	.byte $89,$33,$01,$81,$f1,$80,$33,$89,$32,$01,$81,$f2,$80,$34,$89,$30
 	.byte $01,$81,$f1,$80,$33,$01,$81,$f0,$80,$34,$01,$81,$f1,$80,$33,$01
 	.byte $81,$f2,$01,$81,$f1,$80,$32,$01,$81,$f0,$80,$31,$01,$00
+
+@sfx_ntsc_caw: ; from iProgram - Placeholder
+	.byte $81,$4b,$82,$00,$80,$3f,$89,$f0,$01,$81,$3b,$80,$3e,$01,$81,$42
+	.byte $01,$81,$3b,$80,$3d,$01,$81,$46,$80,$3c,$01,$81,$42,$80,$3b,$01
+	.byte $81,$46,$01,$81,$42,$80,$3a,$01,$81,$46,$80,$39,$01,$81,$42,$80
+	.byte $38,$01,$81,$46,$80,$37,$01,$80,$36,$02,$80,$35,$01,$80,$34,$01
+	.byte $80,$33,$02,$80,$32,$01,$80,$31,$01,$00
+
+@sfx_ntsc_whoosh: ; from iProgram - Placeholder
+	.byte $8a,$05,$89,$32,$01,$89,$33,$01,$89,$35,$01,$89,$36,$01,$89,$3f
+	.byte $01,$89,$3d,$01,$89,$3a,$01,$89,$38,$01,$89,$37,$01,$89,$35,$01
+	.byte $89,$34,$01,$89,$33,$01,$89,$32,$01,$89,$31,$02,$00

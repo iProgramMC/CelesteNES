@@ -25,4 +25,14 @@ gm_spring_sfx:
 	ldx #FAMISTUDIO_SFX_CH1
 	jmp famistudio_sfx_play
 
+gm_bird_caw_sfx:
+	lda #6
+	ldx #FAMISTUDIO_SFX_CH0
+	jmp famistudio_sfx_play
+
+gm_whoosh_sfx:
+	lda #7
+	ldx #FAMISTUDIO_SFX_CH0
+	jmp famistudio_sfx_play
+
 

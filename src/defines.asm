@@ -101,6 +101,9 @@ sp_l0gr_state = sp_entspec3
 sp_l0gr_ttimr = sp_wid
 sp_l0gr_cutsc = sp_hei       ; if granny initiated the cutscene
 
+sp_l0bc_state = sp_entspec1  ; climb bird tutorial phase
+sp_l0bc_timer = sp_entspec2
+
 sp_l1zm_timer = sp_entspec1
 sp_l1zm_destx = sp_entspec2
 sp_l1zm_desty = sp_entspec3
@@ -309,7 +312,8 @@ pal_gray    = $04
 pal_gold    = $05
 pal_granny  = $06
 pal_bird    = $07
-pal_max     = $08
+pal_bubble  = $08 ; palette for tutorial bubble
+pal_max     = $09
 
 ; Controller Buttons
 cont_a      = $80  ; SNES controller B

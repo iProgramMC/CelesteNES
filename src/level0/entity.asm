@@ -137,16 +137,231 @@ level0_granny:
 
 ; ** ENTITY: level0_bird_climb
 ; desc: This is the tutorial bird that teaches you how to climb.
-level0_bird_climb:
+.proc level0_bird_climb
+	
+	; update the bird
+	lda sprspace+sp_l0bc_state, x
+	beq @idleState
+	cmp #1
+	beq @climbHintState
+	cmp #2
+	beq @fleeState
+	
+@idleState:
+	lda #$72
+	sta temp6
+	lda #$70
+	sta temp7
+	
+	lda temp2
+	sec
+	sbc #60
+	cmp player_x
+	bcs @drawBankB
+	
+	; move on to the "tutorial" phase
+	inc sprspace+sp_l0bc_state, x
+	lda #0
+	sta sprspace+sp_l0bc_timer, x
+
+@drawBankB:
+	; ensure the bird's bank is loaded
+	lda #chrb_splv0b
+	sta spr1_bknum
+
+@draw:
 	lda #pal_bird
 	jsr gm_allocate_palette
+	ora #obj_fliphz
+@draw2:
 	sta temp5
 	sta temp8
-	lda #$70
-	sta temp6
-	lda #$72
-	sta temp7
 	jmp gm_draw_common
+
+@climbHintState:
+	; draw the climb hint bubble
+	jsr drawClimbingHint
+	
+	; check if the player's higher than the bird and on the ground
+	lda playerctrl
+	and #pl_ground
+	beq @dontFlee
+	
+	lda temp3
+	cmp player_y
+	bcc @dontFlee
+	
+	inc sprspace+sp_l0bc_state, x
+	lda #0
+	sta sprspace+sp_l0bc_timer, x
+	
+	lda #(cont_up | cont_left)
+	sta quakeflags
+	lda #1
+	sta quaketimer
+	
+	jsr gm_whoosh_sfx
+	
+@dontFlee:
+	; finally, draw the bird, cawing
+	lda sprspace+sp_l0bc_timer, x
+	inc sprspace+sp_l0bc_timer, x
+	cmp #24
+	bcc :+
+	lda #24
+	sta sprspace+sp_l0bc_timer, x
+:	cmp #10
+	bne :+
+	jsr playSoundEffect
+:	lsr
+	lsr
+	lsr
+	tay
+	lda spriteIndicesCaw, y
+	sta temp7
+	clc
+	adc #2
+	sta temp6
+	bne @drawBankB
+
+@fleeState:
+	; we need the full bird frame set
+	lda #chrb_splvl0
+	sta spr1_bknum
+	
+	lda sprspace+sp_l0bc_timer, x
+	inc sprspace+sp_l0bc_timer, x
+	
+	cmp #32
+	bcs @notInitialLeap
+	; initial leap
+	jsr addOneToXPosition
+	lda sprspace+sp_y, x
+	sec
+	sbc #1
+	sta sprspace+sp_y, x
+	
+	lda sprspace+sp_l0bc_timer, x
+	lsr
+	lsr
+	tay
+	lda spriteIndicesFleeInitial, y
+	sta temp7
+	clc
+	adc #2
+	sta temp6
+	jmp @draw
+
+@notInitialLeap:
+	jsr addOneToXPosition
+	
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc #$20
+	sta sprspace+sp_vel_y_lo, x
+	bcc :+
+	inc sprspace+sp_vel_y, x
+
+:	lda sprspace+sp_y_lo, x
+	sec
+	sbc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_y_lo, x
+	
+	lda sprspace+sp_y, x
+	sbc sprspace+sp_vel_y, x
+	sta sprspace+sp_y, x
+	
+	; if went off screen, despawn
+	bcc @despawn
+	
+	lda sprspace+sp_l0bc_timer, x
+	lsr
+	lsr
+	and #3
+	tay
+	lda spriteIndicesFleeNormal, y
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	
+	lda #pal_bird
+	jsr gm_allocate_palette
+	jmp @draw2
+
+@despawn:
+	lda #0
+	sta sprspace+sp_kind, x
+	rts
+
+drawClimbingHint:
+	lda #pal_bubble
+	jsr gm_allocate_palette
+	sta temp9
+	
+	lda temp2      ; X position
+	sec
+	sbc #(40-16)/2
+	sta x_crd_temp
+	
+	lda temp3
+	sec
+	sbc #32
+	sta temp8
+	sta y_crd_temp
+	clc
+	adc #16
+	sta temp7
+	
+.repeat 5, I
+	lda temp9
+	ldy #$40 + I * 2
+	jsr oam_putsprite
+	
+	lda temp7
+	sta y_crd_temp
+	
+	.if I <> 3
+		ldy #$60 + I * 2
+	.else
+		ldy ctrlscheme
+		lda tableContSchemes, y
+		tay
+	.endif
+	lda temp9
+	jsr oam_putsprite
+	
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	
+	lda temp8
+	sta y_crd_temp
+.endrepeat
+	
+	ldx temp1
+	rts
+
+tableContSchemes:	.byte $66, $66, $5A, $58
+
+addOneToXPosition:
+	inc sprspace+sp_x, x
+	bne :+
+	inc sprspace+sp_x_pg, x
+:	rts
+
+playSoundEffect:
+	pha
+	jsr gm_bird_caw_sfx
+	pla
+	ldx temp1
+	rts
+
+spriteIndicesCaw:			.byte $74, $78, $78, $70
+spriteIndicesFleeInitial:	.byte $60, $60, $60, $64, $64, $64
+spriteIndicesFleeNormal:	.byte $60, $64, $68, $6C
+.endproc
 
 ; ** ENTITY: level0_bird_dash
 ; desc: This is the tutorial bird that teaches you how to dash.
