@@ -233,9 +233,29 @@ boxSize = tmpRoomTran + 5
 
 @fleeState:
 	; we need the full bird frame set
+	lda sprspace+sp_l0bc_timer, x
+	inc sprspace+sp_l0bc_timer, x
+	cmp #11
+	bcc @stayOnNormalBank
+	
 	lda #chrb_splvl0
 	sta spr1_bknum
+
+@stayOnNormalBank:
+	lda boxSize
+	beq @boxSizeIsZero
 	
+	dec boxSize
+	beq @boxSizeIsZero  ; fail-safe
+	dec boxSize
+	beq @boxSizeIsZero  ; fail-safe
+	
+	jsr drawClimbingHint
+	
+	; since it incremented the size, decrement it again
+	dec boxSize
+	
+@boxSizeIsZero:
 	lda sprspace+sp_l0bc_timer, x
 	inc sprspace+sp_l0bc_timer, x
 	
@@ -282,6 +302,7 @@ boxSize = tmpRoomTran + 5
 	bcc @despawn
 	
 	lda sprspace+sp_l0bc_timer, x
+	lsr
 	lsr
 	lsr
 	and #3
@@ -394,8 +415,8 @@ playSoundEffect:
 	rts
 
 spriteIndicesCaw:			.byte $74, $78, $78, $70
-spriteIndicesFleeInitial:	.byte $60, $60, $60, $64, $64, $64
-spriteIndicesFleeNormal:	.byte $60, $64, $68, $6C
+spriteIndicesFleeInitial:	.byte $7C, $7C, $7C, $64, $64, $64
+spriteIndicesFleeNormal:	.byte $6C, $68, $7C, $64
 .endproc
 
 ; ** ENTITY: level0_bird_dash
