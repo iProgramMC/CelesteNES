@@ -1458,23 +1458,25 @@ gm_respawn:
 	ora gamectrl3
 	sta gamectrl3
 	
-	lda #nc2_clrcol
-	ora nmictrl2
-	sta nmictrl2
-	jsr gm_leave_doframe
+	jsr gm_init_death_wipe
+	
+	jsr gm_respawn_leave_doframe2
 	
 	; perform the slide wipe
-	ldy #17
+	ldy #32
 @loop:
 	sty transtimer
 	
+	cpy #23
+	bcs @dontClearCol
+	
 	lda #nc2_clrcol
 	ora nmictrl2
 	sta nmictrl2
 	
+@dontClearCol:
 	inc deathtimer
-	jsr gm_draw_dead
-	jsr gm_leave_doframe
+	jsr gm_respawn_leave_doframe
 	
 	ldy transtimer
 	dey
@@ -1490,6 +1492,7 @@ gm_respawn:
 	; disable rendering
 	lda #0
 	sta ppu_mask
+	sta deathsplit
 	jsr vblank_wait
 	
 	lda nmictrl

@@ -30,14 +30,25 @@ temp11      : .res 1
 ; race condition if the IRQ is active!)
 ;
 ; note: for the death wipe, the NMI will take care of updating these!
-irqtmp1     : .res 1
-irqtmp2     : .res 1
-irqtmp3     : .res 1
-irqtmp4     : .res 1
-;irqtmp5     : .res 1
-;irqtmp6     : .res 1
-;irqtmp7     : .res 1
-;irqtmp8     : .res 1
+irqtmp      : .res 10
+	irqtmp1 = irqtmp+0
+	irqtmp2 = irqtmp+1
+	irqtmp3 = irqtmp+2
+	irqtmp4 = irqtmp+3
+	irqtmp5 = irqtmp+4
+	irqtmp6 = irqtmp+5
+	irqtmp7 = irqtmp+6
+	irqtmp8 = irqtmp+7
+	irqtmp9 = irqtmp+8
+	irqtmp10= irqtmp+9
+
+; if the IRQ controls a death wipe. this is equal to:
+; - $00 if the death wipe is disabled
+; - the PPU mask for the first half of the wipe.
+deathwipe   : .res 1
+
+; This is the value to set the PPUMASK to for the second half of the wipe.
+deathwipe2  : .res 1
 
 gamemode    : .res 1 ; active game mode
 framectr    : .res 1 ; continuously increasing frame counter
@@ -68,6 +79,7 @@ scroll_flags: .res 1 ; the FLAGS for the scroll split part of PPUCTRL
 ; dialog stuff in the zeropage
 scrollsplit : .res 1 ; Y position of the scroll split
 dialogsplit : .res 1 ; Y position of the dialog split (1)
+deathsplit  : .res 1 ; Y position of the death wipe IRQ split
 irqcounter  : .res 1 ; (2)
 dlg_updates : .res 1 ; row update bitmask
 dlg_entity  : .res 1 ; entity engaged with in a cutscene

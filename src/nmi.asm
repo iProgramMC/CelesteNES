@@ -21,12 +21,9 @@ nmi_:
 	jsr nmi_anims_update
 	
 @onlyAudioPlease:
-	lda dialogsplit
-	bne @dontRunAudio
-	
-	; Audio is NOT run after vblank during NMI split. Why?
-	; Sometimes, it just takes too long (like 25 scanlines!)
-	; So we'll delay it to the IRQ.
+	; Enable interrupts to run audio. Sometimes, running audio takes a long time
+	; (25 scanlines+!), so let it be interrupted, since our IRQs won't mess with it.
+	cli
 	jsr aud_run
 	
 @dontRunAudio:
@@ -415,9 +412,10 @@ nmi_anims_scrollsplit:
 nmi_scrollsplit:
 	lda #0
 	sta irqcounter
+	sta mmc3_irqdi  ; disable IRQ for this frame, except when we need to enable it
 	
 	lda scrollsplit
-	beq @normalScrolling
+	beq @almostNormalScrolling
 	
 	lda ctl_flags   ; ctl_flags notably does NOT set X-high, Y-high. they're controlled separately
 	ora scroll_flags
@@ -441,7 +439,6 @@ nmi_scrollsplit:
 @ahead:
 	sta ppu_scroll
 	
-	sta mmc3_irqdi  ; disable IRQ
 	lda dialogsplit ; -- dialogsplit takes priority over scrollsplit
 	bne :+
 	lda scrollsplit
@@ -449,6 +446,18 @@ nmi_scrollsplit:
 	sta mmc3_irqrl  ; reload
 	sta mmc3_irqen  ; enable IRQs!
 	rts
+
+@almostNormalScrolling:
+	lda deathsplit
+	beq @normalScrolling
+	
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	sta mmc3_irqen
+	; fall through to normal scrolling
+	
+	lda #36
+	sta irqcounter
 	
 @normalScrolling:
 	lda scroll_flags
@@ -458,5 +467,4 @@ nmi_scrollsplit:
 	sta ppu_scroll
 	lda scroll_y
 	sta ppu_scroll
-	sta mmc3_irqdi  ; disable IRQ for this frame
 	rts

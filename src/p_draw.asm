@@ -686,8 +686,70 @@ gm_anim_banks:
 
 gm_animspeeds:	.byte animspd,animspd2
 
+; ** SUBROUTINE: gm_init_respawn
+; desc: Performs the respawn animation.
+.proc gm_do_respawn
+	lda nmictrl
+	ora #nc_turnon
+	sta nmictrl
+	
+	jsr gm_init_death_wipe
+	
+	lda deathwipe
+	ldx deathwipe2
+	sta deathwipe2
+	stx deathwipe
+	
+	;lda #0
+	;sta deathsplit
+	
+	jsr gm_respawn_leave_doframe2
+	
+loop:
+	lda respawntmr
+	sta deathtimer
+	sta transtimer
+	
+	; temp11 is the divider count in like gm_dead_sub3 or something
+	lda #16
+	sta plattemp1
+	lda #4
+	sta temp11
+	
+	jsr gm_draw_dead::respawnOverride
+	
+	lda respawntmr
+	cmp #$10
+	bcs doWindWipeUpdate
+	
+	lda #0
+	sta deathsplit
+	lda #def_ppu_msk
+	sta deathwipe
+	sta deathwipe2
+	bne doneWipe
+	
+doWindWipeUpdate:
+	jsr gm_wind_wipe_update
+
+doneWipe:
+	jsr gm_respawn_leave_doframe2
+	
+	dec respawntmr
+	bne loop
+	
+	lda #0
+	sta deathsplit
+	sta deathwipe
+	sta deathwipe2
+	lda #def_ppu_msk
+	sta ppu_mask
+	
+	jsr gm_leave_doframe
+	rts
+.endproc
+
 ; ** SUBROUTINE: gm_draw_respawn
-; desc: Draws the player while respawning. Repurposes gm_draw_dead.
 .proc gm_draw_respawn
 	lda playerctrl
 	and #pl_dead
@@ -696,16 +758,7 @@ gm_animspeeds:	.byte animspd,animspd2
 	lda respawntmr
 	beq return
 	
-	sta deathtimer
-	dec respawntmr
-	
-	; temp11 is the divider count in like gm_dead_sub3 or something
-	lda #16
-	sta plattemp1
-	lda #4
-	sta temp11
-	
-	jmp gm_draw_dead::respawnOverride
+	jmp gm_do_respawn
 	
 return:
 	rts

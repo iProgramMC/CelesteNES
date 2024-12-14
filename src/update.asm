@@ -96,6 +96,9 @@ com_clear_oam:
 @loop:
 	sta oam_buf, x
 	inx
+	inx
+	inx
+	inx
 	bne @loop
 	rts
 

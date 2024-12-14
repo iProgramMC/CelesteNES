@@ -1,10 +1,69 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+.align $100
+.proc irq_deathwipe
+	; This code runs at a 15 cycle delay from the interrupt, or 45 px.
+	; This jitter can be up to 7 cycles (21px) from the start of h-blank.
+	; H-blank is a total of around 84 pixels wide, so we have about 1/4,
+	; or 21 pixels / 7 cycles, of h-blank left
+	;
+	; Store the value we loaded from deathwipe.  This is the PPU mask for
+	; the first half.
+	sta ppu_mask       ; 4 cycles
+	
+	stx irqtmp9        ; 3 cycles
+	sty irqtmp10       ; 3 cycles
+	
+	; load the PPU mask for the second half
+	ldx deathwipe2     ; 3 cycles
+	
+.repeat 4, rep
+	.if rep <> 0
+		sta ppu_mask       ; 4 cycles
+	.endif
+	; load the first counter, and decrement
+	ldy a:irqtmp+rep*2+0 ; 4 cycles
+:	dey                ; 2 cycles
+	bne :-             ; 3 cycles (2 if fell out)
+	; ^^this construction lasts (Y-1) * 5 + 7 cycles
+	
+	; entering the second half
+	stx ppu_mask       ; 4 cycles
+	
+	ldy a:irqtmp+rep*2+1 ; 4 cycles
+:	dey                ; 2 cycles
+	bne :-             ; 3 cycles (2 if fell out)
+.endrepeat
+	
+	sta mmc3_irqdi
+	dec irqcounter
+	beq dontRescheduleInterrupt
+	
+	lda #1
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	sta mmc3_irqen
+	
+dontRescheduleInterrupt:
+	lda #def_ppu_msk
+	sta ppu_mask
+	ldx irqtmp9
+	ldy irqtmp10
+	pla
+	rti
+.endproc
+
+; ***** N.B. Insert code here to save space *****
+
+.align $100
+irq_deathwipe_:        ; +1 cycle from the BNE
+	jmp irq_deathwipe  ; 3 cycles
 ; ** IRQ
 ; thanks NESDev Wiki for providing an example of loopy's scroll method
-.align $100
 irq:
-	pha
+	pha                ; 3 cycles
+	lda deathwipe      ; 3 cycles
+	bne irq_deathwipe_ ; 2 cycles
 	txa
 	pha
 	tya
@@ -53,11 +112,6 @@ irq:
 	stx scroll_x
 	
 	jsr nmi_anims_normal
-	
-	lda dialogsplit
-	beq @otherGameMode
-	
-	jsr aud_run
 	
 @otherGameMode:
 	pla
@@ -119,10 +173,9 @@ irq:
 	ora irqtmp3
 	
 	; carefully timed code!
-;	ldy #$2
-;:	dey        ; 2 cycles
-;	bne :-     ; 3 cycles (if branch succeeds)
-	jsr @actuallyReturn
+	;jsr @actuallyReturn ; was 12 cycles.  Since we added 5 cycles at the start
+	pha        ; 3 cycles
+	pla        ; 4 cycles
 	
 @loopSkip:
 	nop

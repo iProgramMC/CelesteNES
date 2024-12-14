@@ -9,6 +9,7 @@
 .include "p_physic.asm"
 .include "g_sfx.asm"
 .include "g_palloc.asm"
+.include "g_wipe.asm"
 .include "xtraif.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer
@@ -101,8 +102,10 @@ gm_game_init:
 	
 	lda nmictrl
 	and #((nc_flushcol|nc_flshpalv|nc_flushrow|nc_flushpal)^$FF)
+	ldy respawntmr
+	bne :+          ; do not instantly turn on the screen if we're respawning. Let that routine handle it
 	ora #nc_turnon
-	sta nmictrl
+:	sta nmictrl
 	
 	jsr vblank_wait
 	jmp gm_game_update
@@ -113,6 +116,8 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	jsr gm_draw_respawn
+	
 	lda camera_y_hi
 	sta camera_y_ho
 	
@@ -128,11 +133,10 @@ gm_game_update:
 	jsr gm_anim_player
 	jsr gm_anim_banks
 	jsr gm_draw_player
+	jsr gm_draw_dead
 	jsr gm_unload_os_ents
 	jsr gm_draw_entities
 	jsr gm_update_ptstimer
-	jsr gm_draw_dead
-	jsr gm_draw_respawn
 	jsr gm_update_dialog
 	jsr gm_load_level_if_vert
 	
@@ -253,7 +257,18 @@ gm_game_clear_wx:
 	stx dialogsplit
 	stx camera_y_sub
 	stx stamflashtm
-	stx camleftlo	
+	stx camleftlo
+	stx irqtmp1
+	stx irqtmp2
+	stx irqtmp3
+	stx irqtmp4
+	stx irqtmp5
+	stx irqtmp6
+	stx irqtmp7
+	stx irqtmp8
+	stx deathwipe
+	stx deathwipe2
+	stx deathsplit
 	
 	lda #<~g3_transitX
 	and gamectrl3
@@ -287,7 +302,8 @@ gm_game_clear_wx:
 	lda #$FF
 	sta entground
 	sta chopentity
-	rts
+	
+	jmp com_clear_oam
 
 ; ** SUBROUTINE: gm_calc_camera_nosplit
 ; desc: Calculate the quake scroll offsets, and adds them to cameraX/cameraY.
