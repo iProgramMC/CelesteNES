@@ -357,6 +357,8 @@ dlg_start_dialog:
 	rts
 
 @wasAlreadyOpen:
+	jsr dlg_draw_portrait
+	
 	ldy #0
 @loopAlreadyOpenClear:
 	jsr @enqueueColumnsForClearing
@@ -514,8 +516,6 @@ dlg_leave_doframe:
 	jsr soft_nmi_on
 	jsr nmi_wait
 	jsr soft_nmi_off
-	lda #0
-	sta oam_wrhead
 	rts
 
 ; ** SUBROUTINE: dlg_leave_doframe_split
@@ -524,17 +524,10 @@ dlg_leave_doframe:
 ;       This does NOT draw new sprites, nor does it clear shadow OAM.
 ; clobbers: A
 dlg_leave_doframe_split:
-	tya
-	pha
-	jsr dlg_draw_portrait
-	pla
-	tay
 	jsr gm_calc_camera_split
 	jsr soft_nmi_on
 	jsr nmi_wait
 	jsr soft_nmi_off
-	lda #0
-	sta oam_wrhead
 	rts
 
 ; ** SUBROUTINE: dlg_advance_text
