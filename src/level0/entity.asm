@@ -138,6 +138,7 @@ level0_granny:
 ; ** ENTITY: level0_bird_climb
 ; desc: This is the tutorial bird that teaches you how to climb.
 .proc level0_bird_climb
+boxSize = tmpRoomTran + 5
 	
 	; update the bird
 	lda sprspace+sp_l0bc_state, x
@@ -148,6 +149,9 @@ level0_granny:
 	beq @fleeState
 	
 @idleState:
+	lda #0
+	sta boxSize
+	
 	lda #$72
 	sta temp6
 	lda #$70
@@ -155,7 +159,7 @@ level0_granny:
 	
 	lda temp2
 	sec
-	sbc #60
+	sbc #100
 	cmp player_x
 	bcs @drawBankB
 	
@@ -180,10 +184,13 @@ level0_granny:
 
 @climbHintState:
 	; draw the climb hint bubble
+	lda sprspace+sp_l0bc_timer, x
+	cmp #14
+	bcc :+
 	jsr drawClimbingHint
 	
 	; check if the player's higher than the bird and on the ground
-	lda playerctrl
+:	lda playerctrl
 	and #pl_ground
 	beq @dontFlee
 	
@@ -299,9 +306,36 @@ drawClimbingHint:
 	jsr gm_allocate_palette
 	sta temp9
 	
+	inc boxSize
+	lda boxSize
+	cmp #8
+	bcc @bigEnough
+	lda #8
+	sta boxSize
+@bigEnough:
+	
+	lda boxSize
+	asl
+	asl
+	; carry is already clear I hope! (since we just shifted out zeroes)
+	adc boxSize
+	lsr
+	sta temp11
+	
 	lda temp2      ; X position
+	clc
+	adc #8
 	sec
-	sbc #(40-16)/2
+	sbc temp11
+	sta x_crd_temp
+	
+	; note: hardcoded offset left
+	lda boxSize
+	lsr
+	tay
+	lda x_crd_temp
+	sec
+	sbc hardcodedLeftOffset, y
 	sta x_crd_temp
 	
 	lda temp3
@@ -333,7 +367,7 @@ drawClimbingHint:
 	
 	lda x_crd_temp
 	clc
-	adc #8
+	adc boxSize
 	sta x_crd_temp
 	
 	lda temp8
@@ -343,7 +377,8 @@ drawClimbingHint:
 	ldx temp1
 	rts
 
-tableContSchemes:	.byte $66, $66, $5A, $58
+hardcodedLeftOffset:	.byte 4, 3, 2, 1, 0
+tableContSchemes:		.byte $66, $66, $5A, $58
 
 addOneToXPosition:
 	inc sprspace+sp_x, x

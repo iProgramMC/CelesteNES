@@ -12,7 +12,6 @@ gm_respawn_leave_doframe:
 gm_respawn_leave_doframe2:
 	jsr gm_calc_camera_nosplit
 	jsr soft_nmi_on
-	jsr aud_run
 	jsr nmi_wait
 	jsr soft_nmi_off
 	ldx #$00
