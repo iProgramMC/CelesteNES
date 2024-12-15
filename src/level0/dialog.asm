@@ -26,7 +26,7 @@ ch0_granny:
 	
 	; walk
 	speaker     SPK_madeline
-	expression  MAD_normal
+	expression  MAD_sad
 	face_player 1
 	face_ent    0
 	dialog2     @d3
