@@ -23,6 +23,7 @@ dlg_start_dialog:
 	jmp @wasAlreadyOpen
 	
 :	ldy #0
+	sty dlg_speaktimer
 @loopOpen:
 	; TODO LIMITATION:
 	; once a dialog is initiated, you CANNOT scroll left.
@@ -533,6 +534,24 @@ dlg_update_d:
 	beq @advanceGo
 
 @advanced:
+	
+	; check if the character is speaking, if so, advance the speak timer, else make it stop
+	ldy #0
+	lda (dlg_textptr), y
+	bne @dontSet
+	
+	; check if there's still some frames to advance through
+	lda dlg_speaktimer
+	and #%00000111
+	bne @dontSet
+	
+	sta dlg_speaktimer
+	beq @dontIncrement
+	
+@dontSet:
+	inc dlg_speaktimer
+	
+@dontIncrement:
 	jsr dlg_draw_portrait
 	rts
 

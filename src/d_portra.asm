@@ -108,50 +108,121 @@ dlg_set_expression:
 
 ; ** SUBROUTINE: dlg_draw_portrait
 ; desc: Draws the active portrait.
-dlg_draw_portrait:
+.proc dlg_draw_portrait
 	ldx #0
-	jsr @homeX
+	jsr homeX
 	lda #(dialog_border_upp-8)
 	sta y_crd_temp
-@loop:
+loop:
 	txa
 	tay
 	lda dlg_portrait, y
 	tay
 	lda dlg_port_pal
 	jsr oam_putsprite
-	jsr @incrementX
+	jsr incrementX
 	inx
 	; if it's 15, return
 	cpx #15
-	beq @return
+	beq break
 	; if it's 5 or 10, move on to the next row
 	cpx #5
-	beq @detour
+	beq detour
 	cpx #10
-	beq @detour
-	bne @loop
-@return:
+	beq detour
+	bne loop
+break:
+	; ok, now draw extra features depending on the portrait
+	; this compares the active bank
+	lda spr0_bkspl
+	cmp #chrb_dgran
+	beq grannyExtra
+	cmp #chrb_dmade
+	beq madelineExtra_
+return:
 	rts
 
-@detour:
-	jsr @homeX
-	jsr @incrementY
-	jmp @loop
+madelineExtra_:
+	jmp madelineExtra
 
-@incrementX:
+grannyExtra:
+	lda dlg_portrait+11
+	cmp #$4C
+	bne return
+	
+	; draw Granny's tongue in red. I was careful not to overstep the 8sp/sl limit
+	lda #$11
+	sta x_crd_temp
+	lda #$1A
+	sta y_crd_temp
+	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	ldy #$14
+	jsr oam_putsprite
+	
+	jsr incrementX
+	lda #1
+	ldy #$16
+	jsr oam_putsprite
+	jsr incrementX
+	lda #1
+	ldy #$18
+	jmp oam_putsprite
+
+detour:
+	jsr homeX
+	jsr incrementY
+	jmp loop
+
+incrementX:
 	lda x_crd_temp
 	clc
 	adc #8
 	sta x_crd_temp
 	rts
-@incrementY:
+incrementY:
 	lda y_crd_temp
 	clc
 	adc #16
 	sta y_crd_temp
 	rts
-@homeX:
+homeX:
 	lda #dialog_border
 	sta x_crd_temp
 	rts
+
+madelineExtra:
+	lda dlg_portrait+11
+	cmp #$42
+	bne @notNormal
+	
+	; normal, so select mouth frame
+	lda dlg_speaktimer
+	cmp #$FF
+	beq @setNormal
+	
+	cmp #32
+	bcc :+
+	lda #0
+	sta dlg_speaktimer
+:	lsr
+	lsr
+	lsr
+	tay
+	lda @mouthFrames, y
+	sta dlg_portrait+12
+	clc
+	adc #2
+	sta dlg_portrait+13
+	rts
+
+@setNormal:
+	lda #$44
+	sta dlg_portrait+12
+	lda #$46
+	sta dlg_portrait+13
+@notNormal:
+	rts
+
+@mouthFrames:	.byte $44, $6A, $72, $6E
+
+.endproc
