@@ -3,7 +3,7 @@
 ; some defines:
 dialog_char_timer = 3
 dialog_border     = 8
-dialog_border_upp = 20
+dialog_border_upp = 12
 dialog_port_size  = 40
 dialog_port_brdr  = 8
 
@@ -39,8 +39,10 @@ dlg_updccurr:	.res 1
 dlg_endnoclear:	.res 1
 dlg_waittimer:  .res 1
 
+dlg_portrait:	.res 25
+
 .segment "PRG_DIAL"
-.include "d_test.asm"    ; piece of test dialog
 .include "d_font.asm"
 .include "d_update.asm"
+.include "d_portra.asm"
 .include "d_nmi.asm"

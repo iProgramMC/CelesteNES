@@ -87,7 +87,6 @@ dlg_entity  : .res 1 ; entity engaged with in a cutscene
 dlg_cutsptr : .res 2 ; pointer to the current cutscene script command
 dlg_textptr : .res 2 ; the pointer to the current character
 dlg_porttbl : .res 2 ; the pointer to the portrait table
-dlg_curport : .res 2 ; the pointer to the current portrait
 
 rng_state   : .res 1
 p1_cont     : .res 2
