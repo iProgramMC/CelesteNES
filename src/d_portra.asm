@@ -193,8 +193,12 @@ homeX:
 madelineExtra:
 	lda dlg_portrait+11
 	cmp #$42
-	bne @notNormal
+	beq @normalSpeak
+	cmp #$4C
+	beq @normalSpeak
+	rts
 	
+@normalSpeak:
 	; normal, so select mouth frame
 	lda dlg_speaktimer
 	cmp #$FF
@@ -208,6 +212,7 @@ madelineExtra:
 	lsr
 	lsr
 	tay
+	jsr transformYBasedOnExpression
 	lda @mouthFrames, y
 	sta dlg_portrait+12
 	clc
@@ -220,9 +225,22 @@ madelineExtra:
 	sta dlg_portrait+12
 	lda #$46
 	sta dlg_portrait+13
-@notNormal:
 	rts
 
-@mouthFrames:	.byte $44, $6A, $72, $6E
+@mouthFrames:
+	.byte $44, $6A, $72, $6E
+	.byte $4E, $8A, $92, $8E
+
+transformYBasedOnExpression:
+	lda dlg_portrait+11
+	cmp #$4C
+	beq @sad
+	rts
+@sad:
+	iny
+	iny
+	iny
+	iny
+	rts
 
 .endproc
