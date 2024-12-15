@@ -264,82 +264,51 @@ gm_leaveroomU_FAR:
 	lda #29
 	sta ntrowhead2
 	
-	lda ntwrhead
-	sec
-	sbc #$20
-	and #%00111100
-	sta ntwrhead
-	lda arwrhead
-	sec
-	sbc #$21
-	and #%00111100
-	sta arwrhead
-	
 	; add the X offset of this room to the name table and area table write heads
 	lda temp3
 	clc
-	adc ntwrhead
+	adc roombeglo2
 	and #$3F
-	sta ntwrhead
 	sta roombeglo2
-	
-	lda temp3
-	clc
-	adc arwrhead
-	and #$3F
+	sta ntwrhead
 	sta arwrhead
 	
-	; add the X offset to the current camera X.
-	lda #32
-	sec
-	sbc camera_x
-	and #%00011111
-	sta temp1
-	
+	; multiply the X offset by 8, then add it to [roombeglo, roombeghi], and store to [camdst_x_pg, camdst_x]
+	ldx #0
 	lda temp3
+	bpl :+
+	dex
+:	stx temp4	
 	asl
+	rol temp4
 	asl
+	rol temp4
 	asl
-	clc
-	adc temp1
-	sta temp1
-	lda temp3
-	lsr
-	lsr
-	lsr
-	lsr
-	lsr
-	sta temp2
+	rol temp4
+	sta temp3
 	
+	lda roombeglo
 	clc
-	lda camera_x
-	adc temp1
+	adc temp3
 	sta camdst_x
-	lda camera_x_pg
-	adc temp2
+	lda roombeghi
+	adc temp4
 	sta camdst_x_pg
 	
 	lda camdst_x
-	clc
-	adc #7
-	and #%11111000   ; add the remainder to get a multiple of eight.
-	sta camdst_x
-	bcc :+
-	inc camdst_x_pg
-:
+	sec
+	sbc camera_x
+	sta temp1
 	
 	; subtract it from the player X to determine the destination player X
-	sec
 	lda player_x
+	sec
 	sbc temp1
 	sta player_x_d
 	
 	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
 	; scroll the camera
 	jsr @compute_camoff
-	
-	; shift the entirety of camoff by 3 to allow for a course correction during some frames
-	jsr @compute_camoff2
 	
 	lda camdst_x
 	sta roombeglo
@@ -600,7 +569,7 @@ gm_leaveroomU_FAR:
 	adc camoff2_M
 	sta camera_x
 	lda camera_x_pg
-	adc #0
+	adc camoff2_H
 	sta camera_x_pg
 	and #1
 	sta camera_x_hi
@@ -640,34 +609,20 @@ gm_leaveroomU_FAR:
 	; camoff_H    camoff_M    camoff_L
 	; 00000xxx xxxxxyyy yyyyy000
 	
-	lda camoff_M
-	asl
-	asl
-	asl
+	lda #0
 	sta camoff_L
 	
-	lda camoff_M
-	rol
-	rol
-	rol
-	rol
-	and #%00000111
-	sta temp7
-	
 	lda camoff_H
-	asl
-	asl
-	asl
-	ora temp7
-	sta camoff_M
-	
-	lda camoff_H
-	lsr
-	lsr
-	lsr
+.repeat 5, idx
+	cmp #$80
+	ror
+	ror camoff_M
+	ror camoff_L
+.endrepeat
 	sta camoff_H
-
-@compute_camoff2:
+	
+	; shift the entirety of camoff by 3 to allow for a course correction during some frames
+	
 	; calculate the difference in [camoff_H, camoff_M] (high to low)
 	lda camdst_x
 	sec
@@ -676,6 +631,11 @@ gm_leaveroomU_FAR:
 	lda camdst_x_pg
 	sbc camera_x_pg
 	sta camoff2_M
+	ldx #0
+	cmp #$80
+	bcc :+
+	dex
+:	stx camoff2_H
 	rts
 
 .proc gm_leaveroomU_newModeTran

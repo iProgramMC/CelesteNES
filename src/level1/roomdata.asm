@@ -64,7 +64,7 @@ level1_r1:
 	.byte 40, 0, 0
 	.byte 16, 160
 	.byte 2, 255, 255, 255
-	.byte 20, 0, 0, 0
+	.byte 28, 0, 0, 0
 	.byte 0
 	.word level1_r1_t
 	.word level1_r1_p
@@ -143,7 +143,7 @@ level1_r2:
 	.byte 44, 0, 0
 	.byte 32, 168
 	.byte 4, 255, 255, 255
-	.byte 20, 255, 255, 255
+	.byte 32, 255, 255, 255
 	.byte 0
 	.word level1_r2_t
 	.word level1_r2_p
@@ -213,7 +213,7 @@ level1_r3:
 	.byte 44, 0, 0
 	.byte 40, 176
 	.byte 6, 255, 255, 255
-	.byte 20, 0, 0, 0
+	.byte 32, 0, 0, 0
 	.byte 0
 	.word level1_r3_t
 	.word level1_r3_p
@@ -275,7 +275,7 @@ level1_r4:
 	.byte 40, 0, 0
 	.byte 32, 168
 	.byte 8, 255, 255, 8
-	.byte 8, 0, 0, 0
+	.byte 16, 0, 0, 0
 	.byte 0
 	.word level1_r4_t
 	.word level1_r4_p
@@ -346,7 +346,7 @@ level1_r5:
 	.byte 44, 0, 0
 	.byte 48, 160
 	.byte 10, 255, 255, 255
-	.byte 8, 0, 0, 0
+	.byte 20, 0, 0, 0
 	.byte 0
 	.word level1_r5_t
 	.word level1_r5_p
@@ -460,7 +460,7 @@ level1_r6:
 	.byte 40, 15, 0
 	.byte 32, 184
 	.byte 12, 255, 255, 255
-	.byte 24, 0, 0, 0
+	.byte 32, 0, 0, 0
 	.byte 0
 	.word level1_r6_t
 	.word level1_r6_p
@@ -740,7 +740,7 @@ level1_r10:
 	.byte 40, 0, 0
 	.byte 0, 176
 	.byte 20, 255, 255, 255
-	.byte 20, 0, 0, 0
+	.byte 28, 0, 0, 0
 	.byte 3
 	.word level1_r10_t
 	.word level1_r10_p
@@ -801,7 +801,7 @@ level1_r11:
 	.byte 40, 0, 0
 	.byte 48, 176
 	.byte 22, 255, 255, 255
-	.byte 8, 0, 0, 0
+	.byte 16, 0, 0, 0
 	.byte 3
 	.word level1_r11_t
 	.word level1_r11_p
@@ -954,7 +954,7 @@ level1_r13:
 	.byte 40, 0, 0
 	.byte 0, 96
 	.byte 26, 255, 255, 255
-	.byte 20, 0, 0, 0
+	.byte 28, 0, 0, 0
 	.byte 2
 	.word level1_r13_t
 	.word level1_r13_p
@@ -1032,62 +1032,10 @@ level1_r14:
 	.word level1_r14_t
 	.word level1_r14_p
 	.word level1_r14_e
-level1_rEnd_p:
-	.byte $00,$00,$00,$00,$00,$A0,$08,$00
-	.byte $00,$00,$00,$00,$00,$60,$22,$02
-	.byte $00,$00,$00,$00,$00,$90,$AA,$0A
-	.byte $00,$00,$00,$00,$00,$A0,$0A,$00
-	.byte $00,$00,$00,$00,$00,$2A,$00,$00
-	.byte $00,$00,$00,$00,$00,$0A,$00,$00
-	.byte $00,$00,$00,$00,$00,$8A,$00,$00
-	.byte $00,$00,$00,$00,$00,$54,$00,$00
-	.byte $00,$00,$00,$00,$00,$51,$00,$00
-	.byte $00,$00,$00,$00,$00,$A0,$00,$00
-	.byte $FF
-level1_rEnd_e:
-	.byte $FF
-level1_rEnd_t:
-	.byte $D6,$21,$2F,$C6,$96,$1E,$36,$86
-	.byte $96,$00,$22,$33,$85,$97,$23,$2B
-	.byte $85,$97,$21,$2C,$2C,$33,$30,$2F
-	.byte $2B,$97,$1E,$29,$A5,$2A,$97,$3D
-	.byte $C6,$97,$3C,$86,$97,$3E,$86,$97
-	.byte $01,$28,$27,$27,$27,$28,$27,$97
-	.byte $22,$2D,$33,$33,$30,$32,$2D,$97
-	.byte $23,$30,$C5,$97,$21,$2D,$85,$97
-	.byte $22,$2C,$85,$97,$21,$32,$85,$96
-	.byte $1D,$37,$C6,$95,$1D,$37,$C7,$92
-	.byte $A1,$87,$1D,$28,$37,$C8,$8C,$70
-	.byte $74,$78,$7C,$7F,$A1,$83,$A1,$88
-	.byte $23,$30,$C9,$8B,$6E,$71,$75,$79
-	.byte $7D,$80,$A1,$84,$A1,$89,$21,$2D
-	.byte $89,$8B,$6F,$72,$76,$7A,$7D,$A1
-	.byte $81,$A1,$85,$82,$33,$89,$8B,$00
-	.byte $73,$77,$7B,$7E,$A1,$82,$A1,$86
-	.byte $A1,$8A,$21,$30,$89,$8C,$C6,$A1
-	.byte $8B,$1E,$36,$2D,$88,$92,$00,$00
-	.byte $23,$89,$95,$2E,$88,$94,$1E,$36
-	.byte $88,$94,$00,$21,$31,$87,$95,$1E
-	.byte $36,$87,$95,$00,$05,$87,$96,$07
-	.byte $13,$86,$95,$A1,$8C,$07,$14,$86
-	.byte $95,$A1,$8D,$05,$17,$86,$95,$A1
-	.byte $8E,$05,$1A,$86,$95,$A1,$8F,$07
-	.byte $13,$86,$95,$00,$06,$19,$86,$97
-	.byte $C7,$96,$22,$87,$97,$2E,$86,$96
-	.byte $23,$2B,$86,$96,$22,$32,$86,$FF
-level1_rEnd:
-	.byte 40, 0, 0
-	.byte 48, 168
-	.byte 255, 255, 255, 255
-	.byte 0, 0, 0, 0
-	.byte 0
-	.word level1_rEnd_t
-	.word level1_rEnd_p
-	.word level1_rEnd_e
 level1:
 	.word level1_music	; music table
 	.byte $01	; environment type
-	.byte $0F	; room count
+	.byte $0E	; room count
 	.word level1_r1
 	.word level1_r2
 	.word level1_r3
@@ -1102,4 +1050,3 @@ level1:
 	.word level1_r12
 	.word level1_r13
 	.word level1_r14
-	.word level1_rEnd

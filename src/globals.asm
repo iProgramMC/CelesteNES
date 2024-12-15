@@ -255,8 +255,6 @@ cjwalldir   : .res 1 ; climb jump wall direction
 deathangle  : .res 1 ; death particles angle
 hopcdown    : .res 1 ; hop countdown HACK
 player_x_d  : .res 1
-camoff2_M   : .res 1
-camoff2_L   : .res 1
 liftboostX  : .res 1
 liftboostY  : .res 1
 lastlboostX : .res 1 ; last lift boost velocity
@@ -270,13 +268,16 @@ chopentity  : .res 1 ; reference to the climb hop solid
 choplastX   : .res 1
 choplastY   : .res 1
 
-tmpRoomTran : .res 6 ; temporaries used by leaveroomU, 
+tmpRoomTran : .res 9 ; temporaries used by leaveroomU, 
 	camdst_x    := tmpRoomTran + 0
 	camdst_x_pg := tmpRoomTran + 1
 	camoff_H    := tmpRoomTran + 2
 	camoff_M    := tmpRoomTran + 3
 	camoff_L    := tmpRoomTran + 4
 	camoff_sub  := tmpRoomTran + 5
+	camoff2_M   := tmpRoomTran + 6
+	camoff2_L   := tmpRoomTran + 7
+	camoff2_H   := tmpRoomTran + 8
 
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
