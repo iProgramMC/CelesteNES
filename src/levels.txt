@@ -3,8 +3,10 @@
 ; This file is NOT a source code file, only included for my level editor.
 ; This file describes a level and its constituent files.
 
+; Note: Commands starting with BANK_ mean, that the word in the bank list in roomlist.asm connects to rooms_$.asm
+
 level0:
-	leveldata_path:  level0/roomdata.asm
+	roomlist_path:   level0/roomlist.asm
 	metatile_path:   level0/metatile.asm
 	metapale_path:   level0/mpalette.txt
 	tilegroups_path: level0/tgroups.txt
@@ -13,9 +15,11 @@ level0:
 	spr2_path:       chr/sp_gener.chr
 	spr3_path:       chr/sp_anim.chr
 	bg_path:         chr/b_lvl0.chr
+	roomdata_path:   level1/rooms_$.asm
+	BANK_prgb_lvl0a: 0
 
 level1:
-	leveldata_path:  level1/roomdata.asm
+	roomlist_path:   level1/roomlist.asm
 	metatile_path:   level1/metatile.asm
 	metapale_path:   level1/mpalette.txt
 	tilegroups_path: level1/tgroups.txt
@@ -24,3 +28,7 @@ level1:
 	spr2_path:       chr/sp_gener.chr
 	spr3_path:       chr/sp_anim.chr
 	bg_path:         chr/b_lvl1.chr
+	roomdata_path:   level1/rooms_$.asm
+	BANK_prgb_lvl1a: 0
+	BANK_prgb_lvl1b: 1
+	BANK_prgb_lvl1c: 2
