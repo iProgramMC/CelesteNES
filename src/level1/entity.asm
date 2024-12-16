@@ -287,8 +287,9 @@ spikesLoop:
 	bne notSpikey
 	
 	lda playerctrl
-	and #pl_ground
-	beq notSpikey
+	and #(pl_ground | pl_climbing)
+	cmp #pl_ground
+	bne notSpikey
 	
 	jmp gm_killplayer
 	
