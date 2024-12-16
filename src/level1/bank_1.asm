@@ -11,4 +11,4 @@ level1_music:
 	.byte $00            ; default song
 
 .include "entity.asm"
-
+.include "roomlist.asm"

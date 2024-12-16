@@ -154,6 +154,7 @@ entrdheadhi := pot_merged + 7 ; : .res 1
 lvladdr     := pot_merged + 8 ; : .res 1 ; temporaries used by h_get_tile and h_set_tile
 lvladdrhi   := pot_merged + 9 ; : .res 1
 
+lvlbktbl    : .res 2 ; pointer to list of banks occupied by which rooms
 lvldatabank : .res 1 ; mobile level data is active in this bank
 lvldatabank2: .res 1 ; fixed (DPCM-sample) level data is active in this bank
 musicbank   : .res 1 ; music data is active in this bank

@@ -2,3 +2,4 @@
 
 .segment "PRG_LVL1C"
 .include "music.asm"
+.include "rooms_1.asm"

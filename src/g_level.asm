@@ -1175,10 +1175,6 @@ gm_set_level_ptr:
 	stx lvlptrlo
 	sty lvlptrhi
 	rts
-gm_set_room_ptr:
-	stx roomptrlo
-	sty roomptrhi
-	rts
 ; ** SUBROUTINE: gm_set_tile_head
 ; ** SUBROUTINE: gm_set_pal_head
 ; ** SUBROUTINE: gm_set_ent_head
@@ -1254,12 +1250,30 @@ gm_adv_pal:
 ; desc: loads a room, initializes the tile and entity streams
 gm_fetch_room:
 	; load room pointer from lvl pointer
+	
+	; push the level index, then multiply by 2, and index into the level table
+	; note: the level table MUST reside in bank 1! bank 0 is not automatically loaded anymore
+	tya
+	pha
+	asl
+	tay
+	iny ; skip the two bytes (environment type and room count)
+	iny
+	
 	lda (lvlptrlo),y
-	tax
+	sta roomptrlo
 	iny
 	lda (lvlptrlo),y
+	sta roomptrhi
+	
+	; pull the level index and then load its corresponding bank
+	pla
 	tay
-	jsr gm_set_room_ptr
+	lda (lvlbktbl),y
+	tay
+	sty lvldatabank
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank
 	
 	ldy #0
 
@@ -1352,11 +1366,6 @@ gm_set_level:
 	ldy level_banks_mus, x
 	sty musicbank
 	
-	ldy level_banks, x
-	sty lvldatabank
-	lda #mmc3bk_prg1
-	jsr mmc3_set_bank
-	
 	ldy level_banks2, x
 	sty lvldatabank2
 	lda #mmc3bk_prg0
@@ -1371,10 +1380,10 @@ gm_set_level:
 	tax
 	
 	lda level_table, x
+	sta lvlptrlo
 	inx
-	ldy level_table, x
-	tax
-	jsr gm_set_level_ptr
+	lda level_table, x
+	sta lvlptrhi
 	
 	; load the music table
 	lda musictable
@@ -1389,6 +1398,14 @@ gm_set_level:
 	
 	lda (lvlptrlo), y
 	sta musictable+1
+	inc lvlptrlo
+	
+	lda (lvlptrlo), y
+	sta lvlbktbl
+	inc lvlptrlo
+	
+	lda (lvlptrlo), y
+	sta lvlbktbl+1
 	inc lvlptrlo
 	
 	; check if any details changed
@@ -1433,8 +1450,6 @@ gm_set_level:
 ; assumes: you're loading a new level
 gm_set_room:
 	sty currroom
-	iny
-	iny
 	jmp gm_fetch_room
 
 ; ** SUBROUTINE: gm_load_generics

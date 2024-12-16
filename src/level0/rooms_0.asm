@@ -77,7 +77,7 @@ level0_r1_t:
 level0_r1:
 	.byte 56, 0, 0
 	.byte 16, 144
-	.byte 255, 255, 255, 2
+	.byte 255, 255, 255, 1
 	.byte 255, 255, 255, 254
 	.byte 0
 	.word level0_r1_t
@@ -156,7 +156,7 @@ level0_r2_t:
 level0_r2:
 	.byte 60, 0, 0
 	.byte 16, 176
-	.byte 255, 255, 255, 4
+	.byte 255, 255, 255, 2
 	.byte 255, 255, 255, 248
 	.byte 7
 	.word level0_r2_t
@@ -217,7 +217,7 @@ level0_r3_t:
 level0_r3:
 	.byte 40, 0, 0
 	.byte 16, 160
-	.byte 0, 0, 0, 6
+	.byte 255, 255, 255, 3
 	.byte 0, 0, 0, 252
 	.byte 5
 	.word level0_r3_t
@@ -395,17 +395,9 @@ level0_r4_t:
 level0_r4:
 	.byte 0, 0, 0
 	.byte 16, 160
-	.byte 0, 0, 0, 0
+	.byte 255, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 4
 	.word level0_r4_t
 	.word level0_r4_p
 	.word level0_r4_e
-level0:
-	.word level0_music	; music table
-	.byte $00	; environment type
-	.byte $04	; room count
-	.word level0_r1
-	.word level0_r2
-	.word level0_r3
-	.word level0_r4
