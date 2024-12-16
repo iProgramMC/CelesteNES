@@ -20,19 +20,19 @@ level1:
 	.word level1_r15
 	.word level1_r16
 level1_banks:
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
-	.byte prgb_lvl1a
+	.byte prgb_lvl1c	; level1_r1
+	.byte prgb_lvl1c	; level1_r2
+	.byte prgb_lvl1c	; level1_r3
+	.byte prgb_lvl1c	; level1_r4
+	.byte prgb_lvl1c	; level1_r5
+	.byte prgb_lvl1a	; level1_r6
+	.byte prgb_lvl1a	; level1_r7
+	.byte prgb_lvl1c	; level1_r8
+	.byte prgb_lvl1a	; level1_r9
+	.byte prgb_lvl1a	; level1_r10
+	.byte prgb_lvl1a	; level1_r11
+	.byte prgb_lvl1a	; level1_r12
+	.byte prgb_lvl1a	; level1_r13
+	.byte prgb_lvl1a	; level1_r14
+	.byte prgb_lvl1a	; level1_r15
+	.byte prgb_lvl1a	; level1_r16
