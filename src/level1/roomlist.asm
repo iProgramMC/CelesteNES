@@ -20,8 +20,8 @@ level1:
 	.word level1_r15
 	.word level1_r16
 level1_banks:
-	.byte prgb_lvl1c
-	.byte prgb_lvl1c
+	.byte prgb_lvl1a
+	.byte prgb_lvl1a
 	.byte prgb_lvl1a
 	.byte prgb_lvl1a
 	.byte prgb_lvl1a
