@@ -112,7 +112,7 @@ crashState:
 	lda #8
 	sta quaketimer
 noShakeOnCrash:
-	cmp #28  ; note: -2
+	cmp #48
 	bne drawProcess
 	beq incrementStateAndDraw
 
@@ -252,7 +252,47 @@ noAnim:
 	adc #8
 	cmp sprspace+sp_wid, x
 	bcc loop
+
+spikeyProcessing:
+	lda sprspace+sp_l1zm_flags, x
+	and #sp_l1zmf_spikyUP
+	beq notSpikey
 	
+	lda temp2
+	sta x_crd_temp
+	lda temp3
+	sec
+	sbc #16
+	sta y_crd_temp
+	lda #0
+spikesLoop:
+	sta temp10
+	
+	ldy #$7E
+	lda temp8
+	jsr oam_putsprite
+	
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	
+	lda temp10
+	clc
+	adc #8
+	cmp sprspace+sp_wid, x
+	bcc spikesLoop
+	
+	cpx entground
+	bne notSpikey
+	
+	lda playerctrl
+	and #pl_ground
+	beq notSpikey
+	
+	jmp gm_killplayer
+	
+notSpikey:
 	rts
 
 getState:
@@ -539,7 +579,7 @@ noAnim:
 	cmp sprspace+sp_wid, x
 	bcc loop
 	
-	rts
+	jmp level1_zip_mover::spikeyProcessing
 
 add16ToYTemp:
 	lda y_crd_temp

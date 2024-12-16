@@ -66,6 +66,7 @@ sp_entspec3 = (sp_max *15)   ; entity specific 3
 sp_entspec4 = (sp_max *16)   ; entity specific 4
 sp_entspec5 = (sp_max *17)   ; entity specific 5
 sp_entspec6 = (sp_max *18)   ; entity specific 6
+sp_entspec7 = (sp_max *19)   ; entity specific 7
 ; max: 21
 
 ; synonyms for entspec fields
@@ -110,6 +111,8 @@ sp_l1zm_desty = sp_entspec3
 sp_l1zm_homex = sp_entspec4
 sp_l1zm_homey = sp_entspec5
 sp_l1zm_homxh = sp_entspec6
+sp_l1zm_flags = sp_entspec7
+sp_l1zmf_spikyUP = $01 ; entity is spiky above
 
 ; entity flags
 ef_collidable = $01

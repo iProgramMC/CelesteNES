@@ -1135,8 +1135,20 @@ gm_init_entity:
 @isZipMover:
 	txa
 	tay
+	lda #0
+	sta sprspace+sp_l1zm_flags, y
+	
 	jsr gm_read_ent
 	sta sprspace+sp_wid, y
+	cmp #0
+	
+	bpl @notSpiky
+	and #$7F
+	sta sprspace+sp_wid, y
+	lda #sp_l1zmf_spikyUP
+	sta sprspace+sp_l1zm_flags, y
+
+@notSpiky:
 	jsr gm_read_ent
 	sta sprspace+sp_l1zm_destx, y
 	jsr gm_read_ent
