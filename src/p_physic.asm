@@ -129,12 +129,16 @@ gm_killplayer:
 ; ** SUBROUTINE: gm_physics
 ; desc: Runs one frame of player physics.
 gm_physics:
-	lda #<xt_physics
-	sta temp1
-	lda #>xt_physics
-	sta temp2
 	ldy #prgb_xtra
-	jmp far_call
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank
+	
+	jsr xt_physics
+	
+	; the level data bank CAN CHANGE 
+	ldy lvldatabank
+	lda #mmc3bk_prg1
+	jmp mmc3_set_bank
 
 ; ** SUBROUTINE: gm_collide
 ; desc: Calls xt_collide.
