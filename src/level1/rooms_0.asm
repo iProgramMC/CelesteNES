@@ -1012,7 +1012,7 @@ level1_r19_t:
 	.byte $52,$53,$FF
 level1_r19:
 	.byte 40, 15, 0
-	.byte 0, 0
+	.byte 0, 160
 	.byte 19, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0

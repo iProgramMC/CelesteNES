@@ -159,6 +159,7 @@ drawProcess:
 	lda temp3
 	sta y_crd_temp
 	
+	
 	ldx temp1
 	ldy sprspace+sp_kind, x
 	cpy #e_l1zipmovt
@@ -166,9 +167,11 @@ drawProcess:
 	jmp level1_tall_zip_mover_draw
 	
 notTallZipMover2:
+	lda #0
+	sta temp10
 	jsr skipLeftSpriteIfNeeded
 	
-	lda #0
+	lda temp10
 loop:
 	sta temp10
 	
@@ -267,12 +270,14 @@ spikeyProcessing:
 	sbc #16
 	sta y_crd_temp
 	
-	jsr skipLeftSpriteIfNeeded
-	
 	lda #0
-spikesLoop:
 	sta temp10
 	
+	jsr skipLeftSpriteIfNeeded
+	
+	lda temp10
+spikesLoop:
+	sta temp10
 	ldy #$7E
 	lda temp8
 	jsr oam_putsprite
@@ -312,7 +317,7 @@ getState:
 	rts
 
 skipLeftSpriteIfNeeded:
-	lda x_crd_temp
+	lda temp2
 	cmp #$F8
 	bcc :+
 	
@@ -506,6 +511,9 @@ cooldn  = level1_zip_mover::cooldn
 	; It executed the movement code, and then allocated a palette into temp8, and setup an X limit in temp9
 	; It also copied temp2, temp3 into x_crd_temp, y_crd_temp
 	lda #0
+	sta temp10
+	jsr level1_zip_mover::skipLeftSpriteIfNeeded
+	lda temp10
 loop:
 	sta temp10
 	
