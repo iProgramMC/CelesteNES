@@ -370,8 +370,10 @@ xt_shift_entities_and_player_up:
 	sta sprspace+sp_y, y
 	
 	lda sprspace+sp_kind, y
-	cmp #e_l1zipmovr
-	bne @notZipMover
+	sec
+	sbc	#e_l1zipmovr
+	cmp #2
+	bcs @notZipMover
 	
 	lda sprspace+sp_l1zm_homey, y
 	sec
@@ -554,8 +556,10 @@ xt_shift_entities_and_player_down:
 	sta sprspace+sp_y, y
 	
 	lda sprspace+sp_kind, y
-	cmp #e_l1zipmovr
-	bne @notZipMover
+	sec
+	sbc	#e_l1zipmovr
+	cmp #2
+	bcs @notZipMover
 	
 	lda sprspace+sp_l1zm_homey, y
 	clc

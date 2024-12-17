@@ -166,6 +166,8 @@ drawProcess:
 	jmp level1_tall_zip_mover_draw
 	
 notTallZipMover2:
+	jsr skipLeftSpriteIfNeeded
+	
 	lda #0
 loop:
 	sta temp10
@@ -243,7 +245,7 @@ noAnim:
 	lda x_crd_temp
 	clc
 	adc #8
-	; TODO: carry here means it overflew!
+	bcs spikeyProcessing   ; if carried, break
 	sta x_crd_temp
 	
 	ldx temp1
@@ -264,6 +266,9 @@ spikeyProcessing:
 	sec
 	sbc #16
 	sta y_crd_temp
+	
+	jsr skipLeftSpriteIfNeeded
+	
 	lda #0
 spikesLoop:
 	sta temp10
@@ -280,6 +285,7 @@ spikesLoop:
 	lda temp10
 	clc
 	adc #8
+	bcs notSpikey   ; if carried, return
 	cmp sprspace+sp_wid, x
 	bcc spikesLoop
 	
@@ -303,6 +309,31 @@ getState:
 	rol
 	rol
 	and #%00000111
+	rts
+
+skipLeftSpriteIfNeeded:
+	lda x_crd_temp
+	cmp #$F8
+	bcc :+
+	
+	; sprite X is bigger than $F8, because either the sprite is to the
+	; left of the screen (so fraudulently got there via overflow), or
+	; legitimately to the right
+	lda temp4
+	bmi @skipLeftSprite
+	lda temp2
+
+:	sta x_crd_temp
+	rts
+
+@skipLeftSprite:
+	lda x_crd_temp
+	and #7
+	sta x_crd_temp
+	lda temp10
+	clc
+	adc #8
+	sta temp10
 	rts
 
 incrementState:
