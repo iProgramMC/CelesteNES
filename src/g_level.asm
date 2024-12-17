@@ -530,6 +530,9 @@ h_gener_row_u:
 	sbc temp2
 	sta temp2
 	
+	lda roomloffs
+	bne @loop       ; don't use a filler if there are tiles to the left
+	
 	; sike! don't use an offset for HR1 either.
 	lda ppuaddrHR1
 	and #%00011111
@@ -539,8 +542,7 @@ h_gener_row_u:
 	
 	; write a bunch of fillers.
 	lda #0
-	iny
-	dey
+	cpy #0
 	beq @loop       ; don't actually write anything
 	
 :	ldx wrcountHR1

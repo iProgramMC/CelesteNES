@@ -328,27 +328,35 @@ actuallyWarp:
 	sta camdst_x_pg
 	
 	lda camdst_x
-	sec
-	sbc camera_x
-	sta temp1
-	
-	; subtract it from the player X to determine the destination player X
-	lda player_x
-	sec
-	sbc temp1
-	sta player_x_d
-	
-	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
-	; scroll the camera
-	jsr compute_camoff
-	
-	lda camdst_x
 	sta roombeglo
 	sta camleftlo
 	lda camdst_x_pg
 	sta roombeghi
 	sta camlefthi
 	
+	lda roomloffs
+	asl
+	asl
+	asl
+	clc
+	adc camdst_x
+	sta camdst_x
+	bcc :+
+	inc camdst_x_pg
+	
+	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
+	; scroll the camera
+:	
+	; subtract it from the player X to determine the destination player X
+	lda player_x
+	clc
+	adc camera_x
+	sec
+	sbc camdst_x
+	sta player_x_d
+	
+	jsr compute_camoff
+
 	lda #0
 	sta temp7                ; temp7 will now hold the camera's "sub X" position
 	
@@ -377,6 +385,22 @@ actuallyWarp:
 	lda nmictrl
 	and #((nc_flushcol|nc_flshpalv)^$FF)
 	sta nmictrl
+	
+	; generate left offset, if needed.
+	lda roomloffs
+	pha
+	beq @dontOffsetLeft
+
+@offsetLeftLoop:
+	jsr xt_gener_col_r
+	jsr xt_leave_doframe
+	
+	dec roomloffs
+	bne @offsetLeftLoop
+	
+@dontOffsetLeft:
+	pla
+	sta roomloffs
 	
 	; pre-generate all metatiles
 	ldy #0
@@ -486,12 +510,12 @@ dontdeccamy:
 	and #1
 	sta camera_x_hi
 	
-	lda camera_x
-	sta roombeglo
-	sta camleftlo
-	lda camera_x_pg
-	sta roombeghi
-	sta camlefthi
+	;lda camera_x
+	;sta roombeglo
+	;sta camleftlo
+	;lda camera_x_pg
+	;sta roombeghi
+	;sta camlefthi
 	
 	lda player_x_d
 	sta player_x

@@ -283,7 +283,7 @@ tmpRoomTran : .res 9 ; temporaries used by leaveroomU,
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
 roomflags   : .res 1 ; room flags
-roomspare3  : .res 1 ; spare bytes
+roomloffs   : .res 1 ; used for stub rooms.  The amount of tiles the room is shifted left.
 startpx     : .res 1 ; starting player X position
 startpy     : .res 1 ; starting player Y position
 warp_u      : .res 1 ; destination warp numbers

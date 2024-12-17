@@ -124,6 +124,7 @@ rf_godown     = $01 ; room descends
 rf_goup       = $02 ; room ascends
 rf_new        = $04 ; new format, level is decompressed in memory and used
 rf_inverted   = $08 ; new format: inverted (starts on the bottom)
+rf_stub       = $10 ; stub room
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)

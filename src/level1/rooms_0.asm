@@ -1095,9 +1095,20 @@ level1_r7a_t:
 level1_r7a:
 	.byte 40, 0, 0
 	.byte 0, 0
-	.byte 11, 255, 255, 255
+	.byte 21, 255, 255, 255
 	.byte 232, 0, 0, 0
 	.byte 3
 	.word level1_r7a_t
 	.word level1_r7a_p
 	.word level1_r7a_e
+
+level1_r8_from_r7a:
+	.byte 40, 16, 12
+	.byte 176, 192
+	.byte 255, 20, 255, 12
+	.byte 0, 24, 0, 252
+	.byte 3
+	.word level1_r8_t
+	.word level1_r8_p
+	.word level1_r8_e
+	.word level1_r8
