@@ -407,7 +407,7 @@ gm_read_palette_data_horiz:
 	sec
 	sbc #8
 	; idx ^= 64
-	eor #$64
+	eor #$40
 	sta @idx
 @returnFromIncrement:
 	; return idx;

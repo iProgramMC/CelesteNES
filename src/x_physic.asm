@@ -1191,10 +1191,16 @@ gm_applyy:
 	bcc gm_velapplied
 	cpx #1
 	beq :+
+	
+	lda warp_d
+	cmp #$FF
+	bne gm_leaveroomD_
 	jmp gm_killplayer
 :
 gm_leaveroomU_:
 	jmp gm_leaveroomU
+gm_leaveroomD_:
+	jmp gm_leaveroomD
 
 gm_velapplied:        ; this is the return label from gm_velminus4
 	lda player_y

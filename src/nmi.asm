@@ -64,7 +64,7 @@ nmi_check_flags:
 	
 	eor nmictrl
 	sta nmictrl
-	jsr h_flush_row_u
+	jsr h_flush_row
 
 @tryHPal:
 	lda #nc_flushpal

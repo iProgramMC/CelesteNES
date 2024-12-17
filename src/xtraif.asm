@@ -30,6 +30,14 @@ gm_leaveroomU:
 	ldy #prgb_xtra
 	jmp far_call
 
+gm_leaveroomD:
+	lda #<gm_leaveroomD_FAR
+	sta temp1
+	lda #>gm_leaveroomD_FAR
+	sta temp1+1
+	ldy #prgb_xtra
+	jmp far_call
+
 xt_gener_col_r:
 	lda #<h_gener_col_r
 	sta temp1

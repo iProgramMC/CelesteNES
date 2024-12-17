@@ -191,10 +191,10 @@ h_flush_pal_u:
 @dontflushHP2:
 	rts
 
-; ** SUBROUTINE: h_flush_row_u
+; ** SUBROUTINE: h_flush_row
 ; desc:    Flushes a generated row in temprow to the screen.
 ; assumes: we're in vblank or rendering is disabled
-h_flush_row_u:
+h_flush_row:
 	ldy wrcountHR1
 	beq @dontflushHR1
 	
@@ -243,13 +243,27 @@ h_flush_row_u:
 	bne :-
 	
 @dontflushHR3:
+	; Determine how to advance ntrowhead, depending on which transition type we're in
+	lda gamectrl3
+	and #g3_transitD
+	bne @downTransition
+	
 	; advance the row head but keep it within 30
 	ldx ntrowhead
 	bne :+
 	ldx #30
 :	dex
 	stx ntrowhead
-	
+	rts
+
+@downTransition:
+	; advance the row head but keep it within 30
+	ldx ntrowhead
+	cpx #29
+	bne :+
+	ldx #$FF
+:	inx
+	stx ntrowhead
 	rts
 
 ; ** SUBROUTINE: h_enqueued_clear

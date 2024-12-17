@@ -1,34 +1,59 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+; ** SUBROUTINE: gm_calculate_lvlyoff
+; desc: Calculates the new lvlyoff if this level was a vertically scrolling one
+.proc gm_calculate_lvlyoff
+	lda #rf_new
+	bit roomflags
+	beq dontTouch
+	
+	; is new format room
+	lda camera_y
+	lsr
+	lsr
+	lsr
+	sec
+	sbc camera_y_min
+	; difference now added to lvlyoff
+	clc
+	adc lvlyoff
+	cmp #$1E
+	bcc :+
+	sbc #$1E
+:	sta lvlyoff
+dontTouch:
+	rts
+.endproc
+
 cspeed = 8
 
 ; ** SUBROUTINE: gm_leaveroomR_FAR
 ; desc: Performs a transition, across multiple frames, going right.
-gm_leaveroomR_FAR:
+.proc gm_leaveroomR_FAR
 	lda #$F0
 	sta player_x
 	
 	; * If the camera is locked then we have no reason to leave
 	lda #gs_camlock
 	bit gamectrl
-	bne @returnEarly
+	bne returnEarly
 	
 	; * If the rightward camera limit wasn't reached yet then we have no reason to leave
 	lda #gs_scrstodR
 	bit gamectrl
-	beq @returnEarly
+	beq returnEarly
 	
 	; Now leave the room through the right side
 	ldy warp_r_y
 	sty transoff
 	ldy warp_r
 	cpy #$FF
-	bne @actuallyTransition
+	bne actuallyTransition
 	
-@returnEarly:
+returnEarly:
 	lda #1
 	rts                      ; no warp was assigned there so return
-@actuallyTransition:
+actuallyTransition:
 	lda #0
 	sta camera_y_min
 	sta camera_y_max
@@ -212,24 +237,25 @@ gm_roomRtrangen:
 	sbc #8
 	sta camera_rev
 	jmp gm_roomRtrangenbk
+.endproc
 
 ; ** SUBROUTINE: gm_leaveroomU_FAR
 ; desc: Performs a transition, across multiple frames, going up.
-gm_leaveroomU_FAR:
+.proc gm_leaveroomU_FAR
 	lda #gs_camlock
 	bit gamectrl
-	bne @returnEarly
+	bne returnEarly
 	
 	; try to leave the room above
 	ldy warp_u
 	cpy #$FF
-	bne @actuallyWarp
+	bne actuallyWarp
 	; no warp assigned, return and continue with normal logic
 
-@returnEarly:
+returnEarly:
 	rts
 
-@actuallyWarp:
+actuallyWarp:
 	lda #0
 	sta player_y
 	
@@ -314,7 +340,7 @@ gm_leaveroomU_FAR:
 	
 	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
 	; scroll the camera
-	jsr @compute_camoff
+	jsr compute_camoff
 	
 	lda camdst_x
 	sta roombeglo
@@ -354,13 +380,13 @@ gm_leaveroomU_FAR:
 	
 	; pre-generate all metatiles
 	ldy #0
-@genloop:
+genloop:
 	sty transtimer
 	jsr xt_gener_mts_ents_r
 	ldy transtimer
 	iny
 	cpy #36
-	bne @genloop
+	bne genloop
 	
 	jsr xt_generate_palette_data_V
 	
@@ -389,12 +415,13 @@ gm_leaveroomU_FAR:
 	
 	lda roomflags
 	and #rf_new
-	beq @skipNewMode
-	jsr gm_leaveroomU_newModeTran
-@skipNewMode:
+	beq skipNewMode
+	jsr newModeTran
+	
+skipNewMode:
 	; write 30 rows - these are not subject to camera limitations
 	ldy #0
-@writeloop:
+writeloop:
 	sty transtimer
 	jsr xt_gener_row_u
 	
@@ -416,29 +443,29 @@ gm_leaveroomU_FAR:
 	sbc #cspeed
 	cmp #$F0
 	bcc :+
-	sec
+	;sec
 	sbc #$10
 :	sta camera_y
 	sta camera_y_bs
 	
 	; add the relevant displacement [camoff_H, camoff_M, camoff_L] to the camera's position...
 	; camoff_H is the low byte, camoff_M is the high byte.
-	jsr @addtocameraX
+	jsr addtocameraX
 	
 	; every some frames, add slightly more to the camera and player X to perform a course correction
 	lda transtimer
 	and #1
 	bne :+
-	jsr @add2ndtocameraX
+	jsr add2ndtocameraX
 	
 :	dec ntrowhead2
 	jsr xt_leave_doframe
 	
-@dontdeccamy:
+dontdeccamy:
 	ldy transtimer
 	iny
 	cpy #30
-	bne @writeloop
+	bne writeloop
 	
 	; add 32 to the name table write head
 	lda ntwrhead
@@ -473,7 +500,7 @@ gm_leaveroomU_FAR:
 	
 	lda #gs_scrstopR
 	bit gamectrl
-	bne @dontdomore
+	bne dontdomore
 	; camera wasn't stopped so draw 4 more cols
 	ldy #0
 :	sty transtimer
@@ -487,11 +514,11 @@ gm_leaveroomU_FAR:
 	; generate one more column
 	lda #gs_scrstopR
 	bit gamectrl
-	bne @dontdomore
+	bne dontdomore
 	
 	jsr xt_gener_mts_ents_r
 	
-@dontdomore:
+dontdomore:
 	lda gamectrl
 	and #(gs_dontgen ^ $FF)
 	sta gamectrl
@@ -499,23 +526,23 @@ gm_leaveroomU_FAR:
 	; pranked. we will do one final loop to bring the player Y up to the start
 	lda player_y
 	cmp startpy
-	bcc @finalloopdone
+	bcc finalloopdone
 	
-@finalloop:
+finalloop:
 	lda player_y
 	sec
 	sbc #4
 	sta player_y
 	jsr gm_addtrace
-	bcc @messedupcase
+	bcc messedupcase
 	cmp startpy
-	bcc @finalloopdone
-	beq @finalloopdone
+	bcc finalloopdone
+	beq finalloopdone
 	
 	jsr xt_leave_doframe
-	jmp @finalloop
+	jmp finalloop
 	
-@finalloopdone:
+finalloopdone:
 	lda lvlyoff
 	asl
 	asl
@@ -530,16 +557,14 @@ gm_leaveroomU_FAR:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
-	jsr gm_calculate_vert_offs
+	jmp gm_calculate_vert_offs
 	
-	rts
-	
-@messedupcase:
+messedupcase:
 	lda #0
 	sta player_y
-	beq @finalloopdone
+	beq finalloopdone
 
-@addtocameraX:
+addtocameraX:
 	lda camoff_sub
 	clc
 	adc camoff_L
@@ -566,7 +591,7 @@ gm_leaveroomU_FAR:
 	
 	rts
 
-@add2ndtocameraX:
+add2ndtocameraX:
 	lda camoff_sub
 	clc
 	adc camoff2_L
@@ -595,7 +620,7 @@ gm_leaveroomU_FAR:
 	sta climbcdown
 	rts
 
-@compute_camoff:
+compute_camoff:
 	; calculate the difference in [camoff_H, camoff_M] (high to low)
 	lda camdst_x
 	sec
@@ -644,24 +669,24 @@ gm_leaveroomU_FAR:
 :	stx camoff2_H
 	rts
 
-.proc gm_leaveroomU_newModeTran
+newModeTran:
 	; prepare row to generate
 	lda #1
 	ldy #0
-newModeLoop2:
+@newModeLoop2:
 	sta temprow1, y
 	sta temprow2, y
 	iny
 	cpy #32
-	bne newModeLoop2
+	bne @newModeLoop2
 	
 	lda #32
 	sta wrcountHR1
 	sta wrcountHR2
 	
-newModeLoop:
+@newModeLoop:
 	lda camera_y
-	beq endNewModeLoop
+	beq @endNewModeLoop
 	sec
 	sbc #8
 	sta camera_y
@@ -695,9 +720,9 @@ newModeLoop:
 	sta nmictrl
 	
 	jsr xt_leave_doframe
-	jmp newModeLoop
+	jmp @newModeLoop
 
-endNewModeLoop:
+@endNewModeLoop:
 	lda #29
 	sta ntrowhead
 	lda #0
@@ -705,27 +730,4 @@ endNewModeLoop:
 	rts
 .endproc
 
-; ** SUBROUTINE: gm_calculate_lvlyoff
-; desc: Calculates the new lvlyoff if this level was a vertically scrolling one
-.proc gm_calculate_lvlyoff
-	lda #rf_new
-	bit roomflags
-	beq dontTouch
-	
-	; is new format room
-	lda camera_y
-	lsr
-	lsr
-	lsr
-	sec
-	sbc camera_y_min
-	; difference now added to lvlyoff
-	clc
-	adc lvlyoff
-	cmp #$1E
-	bcc :+
-	sbc #$1E
-:	sta lvlyoff
-dontTouch:
-	rts
-.endproc
+.include "noconfusion.asm"
