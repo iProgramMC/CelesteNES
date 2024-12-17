@@ -2,7 +2,7 @@ level1:
 	.word level1_music	; music table
 	.word level1_banks	; list of banks for each room
 	.byte $01	; environment type
-	.byte $10	; room count
+	.byte $12	; room count
 	.word level1_r1
 	.word level1_r2
 	.word level1_r3
@@ -19,6 +19,8 @@ level1:
 	.word level1_r14
 	.word level1_r15
 	.word level1_r16
+	.word level1_r17
+	.word level1_r18
 level1_banks:
 	.byte prgb_lvl1c	; level1_r1
 	.byte prgb_lvl1c	; level1_r2
@@ -36,3 +38,5 @@ level1_banks:
 	.byte prgb_lvl1a	; level1_r14
 	.byte prgb_lvl1a	; level1_r15
 	.byte prgb_lvl1a	; level1_r16
+	.byte prgb_lvl1a	; level1_r17
+	.byte prgb_lvl1a	; level1_r18

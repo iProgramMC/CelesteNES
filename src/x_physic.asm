@@ -364,6 +364,16 @@ gm_controls:
 	lda cjwindow
 	beq @noClimbJumpWindow
 	
+	; check if that climb jump window is valid
+	lda playerctrl
+	and #pl_nearwall
+	bne @isNearWall
+	
+	lda #0
+	sta cjwindow
+	beq @noClimbJumpWindow
+	
+@isNearWall:
 	; check if we are holding a direction
 	lda game_cont
 	and #(cont_left | cont_right)

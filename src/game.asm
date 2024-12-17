@@ -220,7 +220,6 @@ gm_game_clear_wx:
 	stx camera_x
 	stx camera_y
 	stx camera_x_hi
-	stx camera_x_pg
 	stx lvladdr
 	stx lvladdrhi
 	stx playerctrl
@@ -303,6 +302,15 @@ gm_game_clear_wx:
 	sta entground
 	sta chopentity
 	
+	; start from 64 screens ahead, remaining with 192 screens to scroll right
+	; and 64 screens to scroll left.  While most things still work if camera_x_pg
+	; overflows to the negatives, it turns out that my screen scroll check code
+	; does not. And I'm too lazy to fix it.
+	lda #$40
+	sta camera_x_pg
+	sta roombeghi
+	sta camlefthi
+	
 	jmp com_clear_oam
 
 ; ** SUBROUTINE: gm_calc_camera_nosplit
@@ -380,7 +388,6 @@ gm_calc_camera_split:
 gm_leave_doframe:
 	jsr gm_load_hair_palette
 	jsr gm_draw_player
-	jsr gm_unload_os_ents
 	jsr gm_draw_entities
 	jsr gm_calc_camera_nosplit
 	jsr gm_check_updated_palettes

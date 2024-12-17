@@ -175,7 +175,12 @@ gm_ent_move_y:
 	; NOTE: this can cause clipping glitches, be careful if platforms may go into walls!
 	lda sprspace+sp_vel_y, y
 	eor player_vl_y
-	bmi :+
+	bmi @doNotCopy
+	
+	; though, never copy if the player's climbing
+	lda playerctrl
+	and #pl_climbing
+	bne @doNotCopy
 	
 	; the signs are the same therefore, copy the velocity of the platform onto the player.
 	lda sprspace+sp_vel_y_lo, y
@@ -184,7 +189,8 @@ gm_ent_move_y:
 	sta player_vl_y
 	
 	; now add the Y delta to the player
-:	lda sprspace+sp_vel_y_lo, y
+@doNotCopy:
+	lda sprspace+sp_vel_y_lo, y
 	clc
 	adc player_sp_y
 	sta player_sp_y

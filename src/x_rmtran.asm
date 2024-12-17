@@ -99,6 +99,7 @@ gm_roomRtransdone:
 gm_roomRtranloopI:
 	sty transtimer
 	jsr xt_gener_col_r
+	jsr gm_unload_os_ents
 	jsr xt_leave_doframe
 	ldy transtimer
 	dey
@@ -248,6 +249,11 @@ gm_leaveroomU_FAR:
 	sta temp3
 	
 	inc roomnumber
+	
+	; TODO: screw it, just do this. if we keep this hack in, also reduce the hacks that I did to try to make things work
+	lda roomnumber
+	eor #1
+	jsr gm_unload_ents_room
 	
 	lda #g3_transitU
 	ora gamectrl3
