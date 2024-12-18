@@ -344,10 +344,7 @@ actuallyWarp:
 	bcc :+
 	inc camdst_x_pg
 	
-	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
-	; scroll the camera
-:	
-	; subtract it from the player X to determine the destination player X
+:	; subtract it from the player X to determine the destination player X
 	lda player_x
 	clc
 	adc camera_x
@@ -355,6 +352,8 @@ actuallyWarp:
 	sbc camdst_x
 	sta player_x_d
 	
+	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
+	; scroll the camera
 	jsr compute_camoff
 
 	lda #0
@@ -390,6 +389,8 @@ actuallyWarp:
 	lda roomloffs
 	pha
 	beq @dontOffsetLeft
+	
+	jsr xt_gener_mts_ents_r
 
 @offsetLeftLoop:
 	jsr xt_gener_col_r
