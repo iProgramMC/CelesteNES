@@ -26,8 +26,15 @@ gm_update_ptstimer:
 gm_load_room_fully:
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r
+	
+	lda #tilesahead
+	clc
+	adc roomloffs
+	sta tmpRoomTran
+	
 	ldy #$00          ; generate tilesahead columns
-:	tya
+@writeLoop:
+	tya
 	pha
 	jsr h_gener_col_r
 	jsr h_flush_col_r
@@ -38,8 +45,21 @@ gm_load_room_fully:
 	pla
 	tay
 	iny
-	cpy #tilesahead
-	bne :-
+	cpy roomloffs
+	bne @dontMarkBeginning
+	
+	lda roomloffs
+	asl
+	asl
+	asl
+	clc
+	adc camera_x
+	sta camera_x
+	bcc @dontMarkBeginning
+	inc camera_x_pg
+@dontMarkBeginning:
+	cpy tmpRoomTran
+	bne @writeLoop
 	rts
 
 ; ** SUBROUTINE: gamemode_init
@@ -77,9 +97,9 @@ gm_game_init:
 	lda #0
 	sta ntwrhead
 	sta arwrhead
-	asl
-	asl
-	asl
+	;asl
+	;asl
+	;asl
 	sta camera_x
 	
 	lda rm_paloffs
