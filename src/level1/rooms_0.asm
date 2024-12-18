@@ -1094,7 +1094,7 @@ level1_r7a_t:
 	.byte $9E,$82,$BC,$01,$9E,$9E,$9E,$FF
 level1_r7a:
 	.byte 40, 0, 0
-	.byte 0, 0
+	.byte 40, 48
 	.byte 21, 255, 255, 255
 	.byte 232, 0, 0, 0
 	.byte 3
@@ -1131,7 +1131,7 @@ level1_r9z_t:
 	.byte $9E,$83,$BB,$02,$9E,$9E,$FF
 level1_r9z:
 	.byte 40, 0, 0
-	.byte 0, 0
+	.byte 232, 176
 	.byte 255, 24, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 3
@@ -1140,7 +1140,7 @@ level1_r9z:
 	.word level1_r9z_e
 level1_r9z_from_r8:
 	.byte 40, 16, 8
-	.byte 136, 64
+	.byte 168, 176
 	.byte 255, 24, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 3
@@ -1150,7 +1150,7 @@ level1_r9z_from_r8:
 	.word level1_r9z
 level1_r8_from_r9z:
 	.byte 44, 16, 12
-	.byte 0, 0
+	.byte 128, 80
 	.byte 23, 20, 255, 12
 	.byte 0, 24, 0, 252
 	.byte 3
