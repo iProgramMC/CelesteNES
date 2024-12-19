@@ -115,13 +115,14 @@ camera_y_max: .res 1
 camera_x_lo : .res 1 ; for linear interpolation
 camera_y_lo : .res 1
 
+tl_timer    : .res 1 ; used for weather
+
 ; merged from individual variables between Prologue, Title and Overworld.
 ; note: these may be used as extra temporaries for the Game mode too!
 pot_merged  : .res 10
 
 ; title
-tl_timer    := pot_merged + 0
-tl_gametime := pot_merged + 1
+tl_gametime := pot_merged + 0
 ; overworld
 ow_temp1    := pot_merged + 0
 ow_temp2    := pot_merged + 1
