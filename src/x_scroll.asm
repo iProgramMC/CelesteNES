@@ -249,43 +249,71 @@ xt_scroll_d_cond:
 @scrollRet2:
 	rts
 
-@dontReturn:	
+@dontReturn:
 	lda #g3_blockinp
 	bit gamectrl3
 	bne @scrollRet2
 
 	lda #gs_lvlend
 	bit gamectrl
-	beq @scrollRet    ; if level data hasn't actually ended
+	beq @scrollRet2   ; if level data hasn't actually ended
 	
 	lda #g2_scrstopD
 	bit gamectrl2
-	bne @scrollRet
+	bne @scrollRet2
 	
 	lda #rf_godown
 	bit roomflags
-	beq @scrollRet
+	beq @scrollRet2
+	
+	lda #0
+	sec
+	sbc camera_x_lo
+	sta temp2
 	
 	lda player_y
 	sec
 	sbc camera_y_sub
-	bcc @scrollRet
+	bcc @scrollRet2
+	sta temp1
 	
 	cmp #vscrolllimit
-	bcc @scrollRet
-	beq @scrollRet
+	bcc @scrollRet2
+	beq @scrollRet2
 	
 	sec
 	sbc #vscrolllimit
-	cmp #camspeed
-	bcc @noFix
-	lda #camspeed
-@noFix:
-	
 	sta temp1          ; store the difference here as we'll need it later
 	
+	; A holds the difference. divide it by 1/4
+	lda temp2
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	sta temp2
+	
+	lda temp1
+	cmp #camspeed
+	bcc @noFix
+	
+	lda #camspeed
+	sta temp1
+	lda #0
+	sta temp2
+@noFix:
+	
+	lda temp2
+	clc
+	adc camera_x_lo
+	sta camera_x_lo
+	bcc :+
+	inc temp1
+	
 	; first of all, check if the camera should be locked
-	lda #rf_new
+:	lda #rf_new
 	bit roomflags
 	beq @dontCheckCamLimit
 	
@@ -425,34 +453,62 @@ xt_scroll_u_cond:
 	
 	lda #g2_scrstopD
 	bit gamectrl2
-	bne @scrollRet
+	bne @scrollReturn2
 	
 	lda #rf_goup
 	bit roomflags
-	beq @scrollRet
+	beq @scrollReturn2
+	
+	lda #0
+	sec
+	sbc camera_y_lo
+	sta temp2
 	
 	lda player_y
 	sec
 	sbc camera_y_sub
-	bcc @scrollRet
+	bcc @scrollReturn2
+	sta temp1
 	
 	cmp #vscrolllimit
-	bcs @scrollRet
+	bcs @scrollReturn2
 	
-	sta temp1
 	lda #vscrolllimit
 	sec
 	sbc temp1
+	sta temp1            ; store the difference here as we'll need it later
 	
+	; A holds the difference. divide it by 1/4
+	lda temp2
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	lsr temp1
+	ror
+	sta temp2
+	
+	lda temp1
 	cmp #camspeed
 	bcc @noFix
 	lda #camspeed
+	sta temp1
+	lda #0
+	sta temp2
 @noFix:
 	
-	sta temp1            ; store the difference here as we'll need it later
+	lda camera_y_lo
+	sec
+	sbc temp2
+	sta camera_y_lo
 	
+	; carry set - no borrow
+	; carry clear - borrow (subtract 1 more)
+	bcs :+
+	inc temp1
+
 	; this is an up scroll, so the row that was revealed is the old camera_y
-	jsr @calculateUpScrollRow
+:	jsr @calculateUpScrollRow
 	
 	; first of all, check if the camera should be locked
 	lda #rf_new
