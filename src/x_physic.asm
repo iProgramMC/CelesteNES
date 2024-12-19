@@ -2708,6 +2708,23 @@ table2lo: .byte $00,$55,$40,$00
 table2hi: .byte $00,$01,$FF,$00
 
 checkClimbHopSafety:
+	ldy entground
+	bmi @skipEntityChecking
+	
+	lda sprspace+sp_kind, y
+	sec
+	sbc #e_l1zipmovr
+	cmp #2
+	bcs @skipEntityChecking
+	
+	lda sprspace+sp_l1zm_flags, y
+	and #sp_l1zmf_spikyUP
+	beq @skipEntityChecking
+	
+	; spikey! so, don't allow climb hops
+	rts
+	
+@skipEntityChecking:
 	lda camera_x_pg
 	and #1
 	sta temp10
