@@ -200,14 +200,9 @@ camlimit    : .res 1
 camlimithi  : .res 1
 camleftlo   : .res 1
 camlefthi   : .res 1
-transtimer  : .res 1
-trantmp3    : .res 1
-trarwrhead  : .res 1
-scrchklo    : .res 1 ; temporaries used for scroll checking
-scrchkhi    : .res 1
 lvlyoff     : .res 1 ; level Y offset when writing name table data
-trantmp1    : .res 1 ; temporaries used for transitioning
-trantmp2    : .res 1
+trarwrhead  : .res 1
+transtimer  : .res 1
 camera_rev  : .res 1 ; revealed pixels - if it goes above 8, request a column to be generated
 plr_spr_l   : .res 1 ; player sprite left
 plr_spr_r   : .res 1 ; player sprite right
@@ -216,7 +211,7 @@ plh_spr_r   : .res 1 ; player hair sprite right
 deathtimer  : .res 1
 roombeglo   : .res 1 ; beginning of room in pixels.  Used for entity placement
 roombeghi   : .res 1
-roombeglo2  : .res 1 ; beginning of room in tiles.
+roombeglo2  : .res 1 ; beginning of room in the 2 loaded nametables.
 plrtrahd    : .res 1 ; plr trace head
 plrstrawbs  : .res 1 ; strawberries following this player
 ntrowhead   : .res 1
@@ -237,8 +232,6 @@ forcemovex  : .res 1
 quaketimer  : .res 1
 quakeflags  : .res 1 ; directions are the same as controller flags
 l0crshidx   : .res 1
-plattemp1   : .res 1 ; TODO: replace with a regular temp
-plattemp2   : .res 1 ; TODO: replace with a regular temp
 entground   : .res 1 ; entity ID the player is interacting with (standing on or climbing)
 defsprbank  : .res 1 ; the default level specific sprite bank
 musictable  : .res 2 ; currently active table of songs
@@ -269,6 +262,14 @@ respawntmr  : .res 1 ; respawn timer
 chopentity  : .res 1 ; reference to the climb hop solid
 choplastX   : .res 1
 choplastY   : .res 1
+
+scrchklo    : .res 1 ; temporaries used for scroll checking
+scrchkhi    : .res 1
+trantmp1    : .res 1 ; temporaries used for transitioning
+trantmp2    : .res 1
+trantmp3    : .res 1
+plattemp1   : .res 1 ; TODO: replace with a regular temp
+plattemp2   : .res 1 ; TODO: replace with a regular temp
 
 tmpRoomTran : .res 9 ; temporaries used by leaveroomU, 
 	camdst_x    := tmpRoomTran + 0

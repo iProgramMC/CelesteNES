@@ -1388,15 +1388,19 @@ applyXSub:
 	sta player_sp_x
 	lda player_vl_x
 	adc player_x
+	sta player_x
 	
 	bcs dontCheckOffs        ; If the addition didn't overflow, we need to detour.
 	ldx player_vl_x          ; check if the velocity was positive
 	bpl dontCheckOffs        ; yeah, of course it wouldn't overflow, it's positive!
+	
 	lda #0                   ; we have an underflow, means the player is trying to leave the screen
-	ldy #0                   ; through the left side. we can't let that happen!
-	clc                      ; zero out the player's new position
-dontCheckOffs:
 	sta player_x
+	jsr gm_leaveroomL
+	bne dontCheckOffs
+	rts
+
+dontCheckOffs:
 	jsr gm_gettopy
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w

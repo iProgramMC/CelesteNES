@@ -3,7 +3,7 @@
 ; This code belongs in the MAIN segment and is an
 ; interface to things in the PRG_XTRA bank.
 
-gm_leaveroomR:
+.proc gm_leaveroomR
 	lda temp1
 	pha
 	lda temp2
@@ -13,80 +13,114 @@ gm_leaveroomR:
 	sta temp1
 	lda #>gm_leaveroomR_FAR
 	sta temp1+1
+doit:
 	ldy #prgb_xtra
 	jsr far_call
-	
+	sta temp1
 	pla
 	sta temp2
 	pla
+	ldx temp1
 	sta temp1
+	txa
 	rts
+.endproc
 
-gm_leaveroomU:
+.proc gm_leaveroomL
+	lda temp1
+	pha
+	lda temp2
+	pha
+	
+	lda #<gm_leaveroomL_FAR
+	sta temp1
+	lda #>gm_leaveroomL_FAR
+	sta temp1+1
+	jmp gm_leaveroomR::doit
+.endproc
+
+.proc gm_leaveroomU
 	lda #<gm_leaveroomU_FAR
 	sta temp1
 	lda #>gm_leaveroomU_FAR
 	sta temp1+1
 	ldy #prgb_xtra
 	jmp far_call
+.endproc
 
-gm_leaveroomD:
+.proc gm_leaveroomD
 	lda #<gm_leaveroomD_FAR
 	sta temp1
 	lda #>gm_leaveroomD_FAR
 	sta temp1+1
 	ldy #prgb_xtra
 	jmp far_call
+.endproc
 
-xt_gener_col_r:
+.proc xt_gener_col_r
 	lda #<h_gener_col_r
 	sta temp1
 	lda #>h_gener_col_r
 	sta temp1+1
 	ldy lvldatabank
 	jmp far_call
+.endproc
 
-xt_gener_tiles_below:
+.proc xt_palette_data_column
+	lda #<h_palette_data_column
+	sta temp1
+	lda #>h_palette_data_column
+	sta temp1+1
+	ldy lvldatabank
+	jmp far_call
+.endproc
+
+.proc xt_gener_tiles_below
 	lda #<gm_gener_tiles_below
 	sta temp1
 	lda #>gm_gener_tiles_below
 	sta temp1+1
 	ldy lvldatabank
 	jmp far_call
+.endproc
 
-xt_gener_tiles_above:
+.proc xt_gener_tiles_above
 	lda #<gm_gener_tiles_above
 	sta temp1
 	lda #>gm_gener_tiles_above
 	sta temp1+1
 	ldy lvldatabank
 	jmp far_call
+.endproc
 
-xt_gener_mts_ents_r:
+.proc xt_gener_mts_ents_r
 	lda #<x_gener_mts_ents_r_fixed
 	sta temp1
 	lda #>x_gener_mts_ents_r_fixed
 	sta temp1+1
 	ldy lvldatabank
 	jmp far_call
+.endproc
 
-xt_leave_doframe:
+.proc xt_leave_doframe
 	lda #<gm_leave_doframe
 	sta temp1
 	lda #>gm_leave_doframe
 	sta temp1+1
 	ldy lvldatabank
 	jmp far_call
+.endproc
 
-xt_gener_row_u:
+.proc xt_gener_row_u
 	lda #<h_gener_row_u
 	sta temp1
 	lda #>h_gener_row_u
 	sta temp1+1
 	ldy lvldatabank
 	jmp far_call
+.endproc
 
-xt_set_room:
+.proc xt_set_room
 	tya
 	tax                 ; save room # in X
 	
@@ -101,10 +135,12 @@ xt_set_room:
 	ldy #prgb_xtra
 	lda #mmc3bk_prg1
 	jmp mmc3_set_bank   ; change bank back
+.endproc
 
-x_gener_mts_ents_r_fixed:
+.proc x_gener_mts_ents_r_fixed
 	jsr h_gener_ents_r
 	jmp h_gener_mts_r
+.endproc
 
 ; generate palette data for vertical transition
 xt_generate_palette_data_V:

@@ -98,39 +98,46 @@ actuallyTransition:
 	
 	clc
 	lda transoff
-	bmi gm_roomRtransneg
+	bmi transneg
+	
 	lda lvlyoff              ; transoff is a positive value.
 	adc transoff
 	cmp #$1E
-	bcc gm_roomRtransdone
-	sbc #$1E                 ; carry set, means it's >= 28
-	jmp gm_roomRtransdone
-gm_roomRtransneg:
+	bcc transdone
+	sbc #$1E                 ; carry set, means it's >= 30
+	jmp transdone
+	
+transneg:
 	lda lvlyoff              ; transoff is a negative value.
 	adc transoff
-	bcs gm_roomRtransdone
+	bcs transdone
 	adc #$1E                 ; carry clear, means it went into the negatives
-	jmp gm_roomRtransdone
-gm_roomRtransdone:
+	;jmp transdone
+
+transdone:
 	sta lvlyoff
+	
 	lda gamectrl             ; clear the camera stop bits
 	and #((gs_scrstopR|gs_scrstodR|gs_lvlend)^$FF)
 	sta gamectrl
+	
 	lda camera_x
 	and #%11111100
 	sta camera_x
 	jsr xt_gener_mts_ents_r
+	
 	ldy #4
-gm_roomRtranloopI:
+transLoopInitial:
 	sty transtimer
 	jsr xt_gener_col_r
 	jsr gm_unload_os_ents
 	jsr xt_leave_doframe
 	ldy transtimer
 	dey
-	bne gm_roomRtranloopI
+	bne transLoopInitial
+
 	ldy #32
-gm_roomRtranloop:
+transLoopMain:
 	sty transtimer
 	sec
 	lda player_x
@@ -151,59 +158,20 @@ gm_roomRtranloop:
 	lda #cspeed
 	jsr gm_shifttrace
 	
-	ldx transoff
-	stx trantmp2
-	lsr trantmp2
-	lda #0
-	ror
-	lsr trantmp2
-	ror
-	sta trantmp1
-	txa
-	bpl :+
-	lda #%11100000
-	ora trantmp2
-	sta trantmp2
-:	clc
-	lda trantmp3
-	adc trantmp1
-	sta trantmp3
-	lda camera_y
-	adc trantmp2
-	sta camera_y
-	cmp #$F0
-	bcc gm_roomRtrannocap
-	lda trantmp2
-	bpl gm_roomRtranpluscap
-	lda camera_y
-	sbc #$10
-	sta camera_y
-	jmp gm_roomRtrannocap
-gm_roomRtranpluscap:
-	lda camera_y
-	clc
-	adc #$10
-	sta camera_y
-gm_roomRtrannocap:
-	sta camera_y_bs
-	sec
-	lda player_sp_y
-	sbc trantmp1
-	sta player_sp_y
-	lda player_y
-	sbc trantmp2
-	sta player_y
+	jsr shiftPlayerY
 	
 	lda #cspeed
 	adc camera_rev
 	sta camera_rev
 	cmp #8
-	bcs gm_roomRtrangen
-gm_roomRtrangenbk:
+	bcs transGenerate
+transGenerateBack:
+	
 	jsr xt_leave_doframe
 	ldy transtimer
 	dey
-	bne gm_roomRtranloop
+	bne transLoopMain
+	
 	lda #0
 	sta dashcount            ; reset some things on room transition
 	lda lvlyoff
@@ -230,13 +198,58 @@ gm_roomRtrangenbk:
 	sta climbbutton
 	rts
 
-gm_roomRtrangen:
+transGenerate:
 	jsr xt_gener_col_r
 	lda camera_rev
 	sec
 	sbc #8
 	sta camera_rev
-	jmp gm_roomRtrangenbk
+	jmp transGenerateBack
+
+shiftPlayerY:
+	ldx transoff
+	stx trantmp2
+	lsr trantmp2
+	lda #0
+	ror
+	lsr trantmp2
+	ror
+	sta trantmp1
+	txa
+	bpl :+
+	lda #%11100000
+	ora trantmp2
+	sta trantmp2
+:	clc
+	lda trantmp3
+	adc trantmp1
+	sta trantmp3
+	lda camera_y
+	adc trantmp2
+	sta camera_y
+	cmp #$F0
+	bcc transNoCap
+	lda trantmp2
+	bpl transAddCap
+	lda camera_y
+	sbc #$10
+	sta camera_y
+	jmp transNoCap
+transAddCap:
+	lda camera_y
+	clc
+	adc #$10
+	sta camera_y
+transNoCap:
+	sta camera_y_bs
+	sec
+	lda player_sp_y
+	sbc trantmp1
+	sta player_sp_y
+	lda player_y
+	sbc trantmp2
+	sta player_y
+	rts
 .endproc
 
 ; ** SUBROUTINE: gm_leaveroomU_FAR
