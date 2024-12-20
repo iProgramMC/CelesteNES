@@ -10,12 +10,13 @@ level0:
 	metatile_path:   level0/metatile.asm
 	metapale_path:   level0/mpalette.txt
 	tilegroups_path: level0/tgroups.txt
+	layout_path:     level0/layout.txt
 	spr0_path:       chr/sp_player.chr
 	spr1_path:       chr/sp_level0.chr
 	spr2_path:       chr/sp_gener.chr
 	spr3_path:       chr/sp_anim.chr
 	bg_path:         chr/b_lvl0.chr
-	roomdata_path:   level1/rooms_$.asm
+	roomdata_path:   level0/rooms_$.asm
 	BANK_prgb_lvl0a: 0
 
 level1:
@@ -23,6 +24,7 @@ level1:
 	metatile_path:   level1/metatile.asm
 	metapale_path:   level1/mpalette.txt
 	tilegroups_path: level1/tgroups.txt
+	layout_path:     level1/layout.txt
 	spr0_path:       chr/sp_player.chr
 	spr1_path:       chr/sp_level1.chr
 	spr2_path:       chr/sp_gener.chr
