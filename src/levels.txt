@@ -7,6 +7,7 @@
 
 level0:
 	roomlist_path:   level0/roomlist.asm
+	warplist_path:   level0/warplist.asm
 	metatile_path:   level0/metatile.asm
 	metapale_path:   level0/mpalette.txt
 	tilegroups_path: level0/tgroups.txt
@@ -21,6 +22,7 @@ level0:
 
 level1:
 	roomlist_path:   level1/roomlist.asm
+	warplist_path:   level1/warplist.asm
 	metatile_path:   level1/metatile.asm
 	metapale_path:   level1/mpalette.txt
 	tilegroups_path: level1/tgroups.txt

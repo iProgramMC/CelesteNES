@@ -282,12 +282,15 @@ tmpRoomTran : .res 9 ; temporaries used by leaveroomU,
 	camoff2_L   := tmpRoomTran + 7
 	camoff2_H   := tmpRoomTran + 8
 
+; NEW level format
+roomwidth   : .res 1
+roomheight  : .res 1
+roomreadidx : .res 2 ; read index in first name table row
+roomcurrcol : .res 1 ; current column index in first name table row
+
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
 roomflags   : .res 1 ; room flags
-roomloffs   : .res 1 ; used for stub rooms.  The amount of tiles the room is shifted left.
-startpx     : .res 1 ; starting player X position
-startpy     : .res 1 ; starting player Y position
 warp_u      : .res 1 ; destination warp numbers
 warp_d      : .res 1
 warp_l      : .res 1
@@ -298,11 +301,10 @@ warp_l_y    : .res 1
 warp_r_y    : .res 1
 rm_paloffs  : .res 1
 
-; NEW level format
-roomwidth   : .res 1
-roomheight  : .res 1
-roomreadidx : .res 2 ; read index in first name table row
-roomcurrcol : .res 1 ; current column index in first name table row
+; this is the warp header is copied, when a room warp is processed
+roomloffs   : .res 1 ; used for stub rooms.  The amount of tiles the room is shifted left.
+startpx     : .res 1 ; starting player X position
+startpy     : .res 1 ; starting player Y position
 
 roomhdrfirst = roomsize
 roomhdrlast  = rm_paloffs + 1

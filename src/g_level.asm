@@ -1277,10 +1277,10 @@ gm_fetch_room:
 	iny
 	
 	lda (lvlptrlo),y
-	sta roomptrlo
+	sta temp1
 	iny
 	lda (lvlptrlo),y
-	sta roomptrhi
+	sta temp1+1
 	
 	; pull the level index and then load its corresponding bank
 	pla
@@ -1291,6 +1291,25 @@ gm_fetch_room:
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank
 	
+	; ok, so currently we want to look at the *warp*, we need to load some details
+	; and load roomptrlo as well
+	ldy #0
+	lda (temp1), y
+	sta roomloffs
+	iny
+	lda (temp1), y
+	sta startpx
+	iny
+	lda (temp1), y
+	sta startpy
+	iny
+	lda (temp1), y
+	sta roomptrlo
+	iny
+	lda (temp1), y
+	sta roomptrhi
+	
+	; now load the actual room pointer
 	ldy #0
 
 @fetchRoomLoop:
