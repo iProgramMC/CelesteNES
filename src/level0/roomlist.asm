@@ -3,7 +3,7 @@ level0:
 	.word level0_banks	; list of banks for each room
 	.byte $00	; environment type
 	.byte $07	; warp count
-	.word level0_init
+	.word level0_w_init
 	.word level0_w_0_to_1
 	.word level0_w_1_to_0
 	.word level0_w_1_to_2

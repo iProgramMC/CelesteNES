@@ -1,4 +1,4 @@
-level0_init:
+level0_w_init:
 	.byte 0		; room left offset
 	.byte 0, 144	; player spawn X/Y
 	.word level0_r1
