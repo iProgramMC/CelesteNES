@@ -1,4 +1,11 @@
 level0_r1,0,0
+Spawn,level0_r1,0,144
+Spawn,level0_r1,432,160
 level0_r2,448,-16
+Spawn,level0_r2,464,96
+Spawn,level0_r2,0,176
 level0_r3,928,-80
+Spawn,level0_r3,0,160
+Spawn,level0_r3,304,128
 level0_r4,1248,-112
+Spawn,level0_r4,0,160
