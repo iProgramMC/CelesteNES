@@ -1419,7 +1419,13 @@ checkRight:
 checkRightLoop:
 	dec temp10
 	beq checkDone            ; nope, out of here with your stupid games
-	lda player_x
+	
+	lda player_vl_x
+	bne :+
+	lda player_vs_x
+	beq doneLeavingRoom
+	
+:	lda player_x
 	cmp #$F0
 	bcs callLeaveRoomR       ; try to leave the room
 	
