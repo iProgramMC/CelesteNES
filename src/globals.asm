@@ -374,7 +374,10 @@ warp_ralt_yo: .res 1
 warp_t_no   : .res 1 ; temporary warp number
 
 roomhdrfirst = roomsize
-roomhdrlast  = warp_ralt_yo + 1
+roomhdrlast  = rm_paloffs + 1
+
+roomaltwarpsfirst = warp_ualt_x + 1
+roomaltwarpslast  = warp_ralt_yo + 1
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

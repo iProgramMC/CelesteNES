@@ -1319,7 +1319,30 @@ gm_fetch_room:
 	cpy #<(roomhdrlast-roomhdrfirst)
 	bne @fetchRoomLoop
 	
-	; load tile pointer from room pointer, Y=10
+	; ok, now zero out the altwarps. in case we don't load them,
+	; they'll be zero, so inactivated
+	lda #0
+	sta warp_ualt_x
+	sta warp_dalt_x
+	sta warp_lalt_y
+	sta warp_ralt_y
+	
+	; ok. now, load the alternative warps, if any
+	lda (roomptrlo), y
+	iny
+	cmp #$FF
+	beq @skipLoadingAltWarps
+	
+	sta warp_ualt_x
+@fetchRoomLoop2:
+	lda (roomptrlo),y
+	sta roomhdrfirst,y
+	iny
+	cpy #<(roomaltwarpslast-roomhdrfirst)
+	bne @fetchRoomLoop2
+	
+@skipLoadingAltWarps:
+	; load tile pointer from room pointer
 	lda (roomptrlo),y
 	tax
 	iny

@@ -71,6 +71,39 @@ justReturnNormal:
 	rts
 .endproc
 
+; ** SUBROUTINE: xt_calc_player_x
+; desc: Gets the player's X position, relative to the room's beginning. Stores the result in temp1.
+; clobbers: temp1, temp2, A reg
+.proc xt_calc_player_x
+	lda player_x
+	clc
+	adc camera_x
+	sta temp1
+	lda camera_x_pg
+	adc #0
+	sta temp2
+	
+	lda temp1
+	sec
+	sbc roombeglo
+	sta temp1
+	lda temp2
+	sbc roombeghi
+	sta temp2
+	
+	lda temp2
+	bmi @returnZero
+	bne @return255
+	lda temp1
+	rts
+@returnZero:
+	lda #0
+	rts
+@return255:
+	lda #$FF
+	rts
+.endproc
+
 ; ** SUBROUTINE: xt_get_warp_u
 ; desc: Gets the Up warp number and X offset, depending on the player's X position,
 ;       and stores them in the A register, and transoff, respectively.
@@ -78,7 +111,9 @@ justReturnNormal:
 	lda warp_ualt_x
 	beq justReturnNormal
 	
-	cmp player_x
+	jsr xt_calc_player_x
+	lda warp_ualt_x
+	cmp temp1
 	bcc justReturnNormal
 	
 	lda warp_ualt_xo
@@ -100,7 +135,9 @@ justReturnNormal:
 	lda warp_dalt_x
 	beq justReturnNormal
 	
-	cmp player_x
+	jsr xt_calc_player_x
+	lda warp_dalt_x
+	cmp temp1
 	bcc justReturnNormal
 	
 	lda warp_dalt_xo
