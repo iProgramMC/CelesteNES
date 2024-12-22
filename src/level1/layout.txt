@@ -72,3 +72,4 @@ Spawn,level1_r12a,0,160
 level1_rend,3936,-3744
 Props,level1_rend,4,0
 Spawn,level1_rend,72,168
+Filler,3584,-2752,128,96

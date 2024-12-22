@@ -873,7 +873,9 @@ level1_r9b:
 	.byte 24, 255, 23, 255
 	.byte 16, 0, 10, 0
 	.byte 7
-	.byte 255
+	.byte 128, 0, 0, 0
+	.byte 255, 0, 0, 0
+	.byte 0, 0, 0, 0
 	.word level1_r9b_t
 	.word level1_r9b_p
 	.word level1_r9b_e
