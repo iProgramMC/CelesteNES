@@ -54,6 +54,7 @@
 	.byte $E4,$E5,$E6,$E8,$E9 ; Memorial
 	.byte $DA,$DB,$DC,$DD ; Campfire
 	.byte $C8,$C9,$CA,$CB ; Spikes (Blue)
+	.byte $9F,$CC,$CD,$CE,$CF,$DF ; Snow
 
 ;metatile_info:
 .align $100
@@ -76,5 +77,6 @@
 	.byte ct_deadlyRT            ; Spikes
 	.byte ct_deadlyDN            ; Spikes
 	.byte ct_deadlyLT            ; Spikes
+	.res   6, ct_full            ; Dirt
 
 .align $100

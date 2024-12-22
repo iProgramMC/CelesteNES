@@ -1366,7 +1366,16 @@ gm_fetch_room:
 	iny
 	jsr gm_set_ent_head
 	
-	; check if this is new level
+	; check if we are allowed to respawn here
+	lda roomflags
+	and #rf_norespawn
+	bne @dontChangeRespawn
+	
+	lda currroom
+	sta respawnroom
+	
+@dontChangeRespawn:
+	; check if this is a new level
 	lda #rf_new
 	bit roomflags
 	beq :+
@@ -1589,7 +1598,7 @@ gm_respawn:
 	
 	jsr com_clear_oam
 	
-	ldy currroom
+	ldy respawnroom
 	jsr gm_set_room
 	
 	lda #0

@@ -179,6 +179,7 @@ dashtime    : .res 1
 dashcount   : .res 1 ; times player has dashed
 dashdir     : .res 1 ; dash direction X (controller inputs at time of dash SHIFTED LEFT by 2)
 currroom    : .res 1 ; current room
+respawnroom : .res 1 ; room to respawn to when the player dies
 spryoff     : .res 1 ; hair sprite Y offset
 animmode    : .res 1 ; current animation mode
 animtimer   : .res 1 ; current animation timer. It has a subunitary component because
