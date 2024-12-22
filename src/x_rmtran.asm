@@ -98,9 +98,11 @@ justReturnNormal:
 	rts
 @returnZero:
 	lda #0
+	sta temp1
 	rts
 @return255:
 	lda #$FF
+	sta temp1
 	rts
 .endproc
 
