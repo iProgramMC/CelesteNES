@@ -288,26 +288,11 @@ roomheight  : .res 1
 roomreadidx : .res 2 ; read index in first name table row
 roomcurrcol : .res 1 ; current column index in first name table row
 
-; this is where the room header is copied, when a room is loaded.
-roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
-roomflags   : .res 1 ; room flags
-warp_u      : .res 1 ; destination warp numbers
-warp_d      : .res 1
-warp_l      : .res 1
-warp_r      : .res 1
-warp_u_x    : .res 1 ; destination X or Y coordinates depending on warp side
-warp_d_x    : .res 1
-warp_l_y    : .res 1
-warp_r_y    : .res 1
-rm_paloffs  : .res 1
 
 ; this is the warp header is copied, when a room warp is processed
 roomloffs   : .res 1 ; used for stub rooms.  The amount of tiles the room is shifted left.
 startpx     : .res 1 ; starting player X position
 startpy     : .res 1 ; starting player Y position
-
-roomhdrfirst = roomsize
-roomhdrlast  = rm_paloffs + 1
 
 .segment "OAMBUF"
 oam_buf     : .res $100
@@ -355,7 +340,39 @@ spr3_bkspl  : .res 1
 bg0_bkspl   : .res 1
 bg1_bkspl   : .res 1
 
-; Loaded Sprite Banks (updated every NMI)
+; this is where the room header is copied, when a room is loaded.
+roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
+roomflags   : .res 1 ; room flags
+; destination warp numbers
+warp_u      : .res 1
+warp_d      : .res 1
+warp_l      : .res 1
+warp_r      : .res 1
+; room offsets when transitioning in that direction
+warp_u_x    : .res 1
+warp_d_x    : .res 1
+warp_l_y    : .res 1
+warp_r_y    : .res 1
+; palette offset
+rm_paloffs  : .res 1
+; X/Y coordinates below which the alternate warp will activate
+warp_ualt_x : .res 1
+warp_dalt_x : .res 1
+warp_lalt_y : .res 1
+warp_ralt_y : .res 1
+; alternate warp destination
+warp_ualt   : .res 1
+warp_dalt   : .res 1
+warp_lalt   : .res 1
+warp_ralt   : .res 1
+; alternate warp destination room offsets
+warp_ualt_xo: .res 1
+warp_dalt_xo: .res 1
+warp_lalt_yo: .res 1
+warp_ralt_yo: .res 1
+
+roomhdrfirst = roomsize
+roomhdrlast  = warp_ralt_yo + 1
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

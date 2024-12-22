@@ -79,6 +79,9 @@ level0_r1:
 	.byte 255, 255, 255, 1
 	.byte 0, 0, 0, 254
 	.byte 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
 	.word level0_r1_t
 	.word level0_r1_p
 	.word level0_r1_e
@@ -157,6 +160,9 @@ level0_r2:
 	.byte 255, 255, 2, 3
 	.byte 0, 0, 2, 248
 	.byte 7
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
 	.word level0_r2_t
 	.word level0_r2_p
 	.word level0_r2_e
@@ -216,6 +222,9 @@ level0_r3:
 	.byte 255, 255, 4, 5
 	.byte 0, 0, 8, 252
 	.byte 5
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
 	.word level0_r3_t
 	.word level0_r3_p
 	.word level0_r3_e
@@ -393,6 +402,9 @@ level0_r4:
 	.byte 255, 255, 6, 255
 	.byte 0, 0, 4, 0
 	.byte 4
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
+	.byte 0, 0, 0, 0
 	.word level0_r4_t
 	.word level0_r4_p
 	.word level0_r4_e

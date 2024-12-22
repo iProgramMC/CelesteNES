@@ -73,4 +73,4 @@ level1_banks:
 	.byte prgb_lvl1a	; level1_w_r10a_to_r11
 	.byte prgb_lvl1a	; level1_w_r11_to_r12
 	.byte prgb_lvl1a	; level1_w_r12_to_r12a
-	.byte prgb_lvl1a	; level1_w_r12a_to_rend
+	.byte prgb_lvl1d	; level1_w_r12a_to_rend

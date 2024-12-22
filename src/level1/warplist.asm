@@ -8,7 +8,7 @@ level1_w_r1_to_r2:
 	.word level1_r2
 level1_w_r1_to_rtest:
 	.byte 12			; room left offset
-	.byte 240, 168	; player spawn X/Y
+	.byte 240, 32	; player spawn X/Y
 	.word level1_rtest
 level1_w_r2_to_r3:
 	.byte 0			; room left offset
