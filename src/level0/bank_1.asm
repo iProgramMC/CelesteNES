@@ -5,3 +5,4 @@
 .include "music.asm"
 .include "dialog.asm"
 .include "roomlist.asm"
+.include "warplist.asm"

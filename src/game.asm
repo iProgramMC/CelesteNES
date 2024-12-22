@@ -97,9 +97,6 @@ gm_game_init:
 	lda #0
 	sta ntwrhead
 	sta arwrhead
-	;asl
-	;asl
-	;asl
 	sta camera_x
 	
 	lda rm_paloffs
@@ -116,7 +113,7 @@ gm_game_init:
 	jsr gm_load_room_fully
 	
 	lda gamectrl
-	and #(gs_scrstodR|gs_scrstopR)
+	and #(gs_scrstodR|gs_scrstopR|gs_lvlend)
 	ora #gs_1stfr
 	sta gamectrl
 	

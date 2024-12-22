@@ -1277,10 +1277,10 @@ gm_fetch_room:
 	iny
 	
 	lda (lvlptrlo),y
-	sta roomptrlo
+	sta temp1
 	iny
 	lda (lvlptrlo),y
-	sta roomptrhi
+	sta temp1+1
 	
 	; pull the level index and then load its corresponding bank
 	pla
@@ -1291,6 +1291,25 @@ gm_fetch_room:
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank
 	
+	; ok, so currently we want to look at the *warp*, we need to load some details
+	; and load roomptrlo as well
+	ldy #0
+	lda (temp1), y
+	sta roomloffs
+	iny
+	lda (temp1), y
+	sta startpx
+	iny
+	lda (temp1), y
+	sta startpy
+	iny
+	lda (temp1), y
+	sta roomptrlo
+	iny
+	lda (temp1), y
+	sta roomptrhi
+	
+	; now load the actual room pointer
 	ldy #0
 
 @fetchRoomLoop:
@@ -1300,7 +1319,30 @@ gm_fetch_room:
 	cpy #<(roomhdrlast-roomhdrfirst)
 	bne @fetchRoomLoop
 	
-	; load tile pointer from room pointer, Y=10
+	; ok, now zero out the altwarps. in case we don't load them,
+	; they'll be zero, so inactivated
+	lda #0
+	sta warp_ualt_x
+	sta warp_dalt_x
+	sta warp_lalt_y
+	sta warp_ralt_y
+	
+	; ok. now, load the alternative warps, if any
+	lda (roomptrlo), y
+	iny
+	cmp #$FF
+	beq @skipLoadingAltWarps
+	
+	sta warp_ualt_x
+@fetchRoomLoop2:
+	lda (roomptrlo),y
+	sta roomhdrfirst,y
+	iny
+	cpy #<(roomaltwarpslast-roomhdrfirst)
+	bne @fetchRoomLoop2
+	
+@skipLoadingAltWarps:
+	; load tile pointer from room pointer
 	lda (roomptrlo),y
 	tax
 	iny

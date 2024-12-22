@@ -27,6 +27,131 @@ dontTouch:
 
 cspeed = 8
 
+; ** SUBROUTINE: xt_get_warp_l
+; desc: Gets the Left warp number and Y offset, depending on the player's Y position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_l
+	lda warp_lalt_y
+	beq justReturnNormal
+	
+	cmp player_y
+	bcc justReturnNormal
+	
+	lda warp_lalt_yo
+	sta transoff
+	lda warp_lalt
+	rts
+	
+justReturnNormal:
+	lda warp_l_y
+	sta transoff
+	lda warp_l
+	rts
+.endproc
+
+; ** SUBROUTINE: xt_get_warp_r
+; desc: Gets the Right warp number and Y offset, depending on the player's Y position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_r
+	lda warp_ralt_y
+	beq justReturnNormal
+	
+	cmp player_y
+	bcc justReturnNormal
+	
+	lda warp_ralt_yo
+	sta transoff
+	lda warp_ralt
+	rts
+	
+justReturnNormal:
+	lda warp_r_y
+	sta transoff
+	lda warp_r
+	rts
+.endproc
+
+; ** SUBROUTINE: xt_calc_player_x
+; desc: Gets the player's X position, relative to the room's beginning. Stores the result in temp1.
+; clobbers: temp1, temp2, A reg
+.proc xt_calc_player_x
+	lda player_x
+	clc
+	adc camera_x
+	sta temp1
+	lda camera_x_pg
+	adc #0
+	sta temp2
+	
+	lda temp1
+	sec
+	sbc roombeglo
+	sta temp1
+	lda temp2
+	sbc roombeghi
+	sta temp2
+	
+	lda temp2
+	bmi @returnZero
+	bne @return255
+	lda temp1
+	rts
+@returnZero:
+	lda #0
+	rts
+@return255:
+	lda #$FF
+	rts
+.endproc
+
+; ** SUBROUTINE: xt_get_warp_u
+; desc: Gets the Up warp number and X offset, depending on the player's X position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_u
+	lda warp_ualt_x
+	beq justReturnNormal
+	
+	jsr xt_calc_player_x
+	lda warp_ualt_x
+	cmp temp1
+	bcc justReturnNormal
+	
+	lda warp_ualt_xo
+	sta transoff
+	lda warp_ualt
+	rts
+	
+justReturnNormal:
+	lda warp_u_x
+	sta transoff
+	lda warp_u
+	rts
+.endproc
+
+; ** SUBROUTINE: xt_get_warp_d
+; desc: Gets the Down warp number and X offset, depending on the player's X position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_d
+	lda warp_dalt_x
+	beq justReturnNormal
+	
+	jsr xt_calc_player_x
+	lda warp_dalt_x
+	cmp temp1
+	bcc justReturnNormal
+	
+	lda warp_dalt_xo
+	sta transoff
+	lda warp_dalt
+	rts
+	
+justReturnNormal:
+	lda warp_d_x
+	sta transoff
+	lda warp_d
+	rts
+.endproc
+
 ; ** SUBROUTINE: gm_leaveroomR_FAR
 ; desc: Performs a transition, across multiple frames, going right.
 .proc gm_leaveroomR_FAR
@@ -44,9 +169,8 @@ cspeed = 8
 	beq returnEarly
 	
 	; Now leave the room through the right side
-	ldy warp_r_y
-	sty transoff
-	ldy warp_r
+	jsr xt_get_warp_r
+	tay
 	cpy #$FF
 	bne actuallyTransition
 	
@@ -260,7 +384,8 @@ transNoCap:
 	bne returnEarly
 	
 	; try to leave the room above
-	ldy warp_u
+	jsr xt_get_warp_u
+	tay
 	cpy #$FF
 	bne actuallyWarp
 	; no warp assigned, return and continue with normal logic
@@ -272,7 +397,7 @@ actuallyWarp:
 	lda #0
 	sta player_y
 	
-	lda warp_u_x
+	lda transoff
 	pha
 	
 	lda #0
@@ -281,7 +406,7 @@ actuallyWarp:
 	
 	jsr gm_calculate_lvlyoff
 	
-	ldy warp_u
+	;ldy warp_u
 	jsr xt_set_room
 	
 	pla

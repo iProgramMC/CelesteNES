@@ -1419,7 +1419,13 @@ checkRight:
 checkRightLoop:
 	dec temp10
 	beq checkDone            ; nope, out of here with your stupid games
-	lda player_x
+	
+	lda player_vl_x
+	bne :+
+	lda player_vs_x
+	beq doneLeavingRoom
+	
+:	lda player_x
 	cmp #$F0
 	bcs callLeaveRoomR       ; try to leave the room
 	
@@ -2234,30 +2240,24 @@ gm_rem25pcvel:
 	
 gm_rem25pcvelYonly:
 	; take off 25% of the Y velocity
-	lda player_vl_y
-	sta temp1
 	lda player_vs_y
 	sta temp2
-	
-	lsr temp1
+	lda player_vl_y
+	cmp #$80
+	ror
 	ror temp2
-	lsr temp1
+	cmp #$80
+	ror
 	ror temp2
-	
-	; minor correction
-	lda #%11100000
-	bit temp1
-	beq :+
-	ora temp1
 	sta temp1
-	
-:	sec
+
+	lda player_vs_y
+	sec
+	sbc temp2
+	sta player_vs_y
 	lda player_vl_y
 	sbc temp1
 	sta player_vl_y
-	lda player_vs_y
-	sbc temp2
-	sta player_vs_y
 	rts
 
 ; ** SUBROUTINE: gm_check_attach_wall

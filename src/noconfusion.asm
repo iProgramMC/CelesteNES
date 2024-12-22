@@ -8,7 +8,8 @@
 	bne returnEarly
 	
 	; try to leave the room above
-	ldy warp_d
+	jsr xt_get_warp_d
+	tay
 	cpy #$FF
 	bne actuallyWarp
 	; no warp assigned, return and continue with normal logic
@@ -20,7 +21,7 @@ actuallyWarp:
 	lda #0
 	sta player_y
 	
-	lda warp_d_x
+	lda transoff
 	pha
 	
 	lda #0
@@ -29,7 +30,7 @@ actuallyWarp:
 	
 	jsr gm_calculate_lvlyoff
 	
-	ldy warp_d
+	;ldy warp_d
 	jsr xt_set_room
 	
 	pla
@@ -387,10 +388,10 @@ newModeTran:
 	cmp camlefthi
 	bne returnEarly
 	
+	jsr xt_get_warp_l
+	
 	; Now leave the room through the right side
-	ldy warp_l_y
-	sty transoff
-	ldy warp_l
+	tay
 	cpy #$FF
 	bne actuallyTransition
 	
@@ -467,11 +468,11 @@ actuallyTransition:
 	sta quaketimer
 	
 	; calculate the new level Y offset
+	clc
 	lda transoff
 	bmi transneg
 	
 	lda lvlyoff              ; transoff is a positive value.
-	clc
 	adc transoff
 	cmp #$1E
 	bcc transdone

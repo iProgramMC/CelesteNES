@@ -7,6 +7,7 @@
 
 level0:
 	roomlist_path:   level0/roomlist.asm
+	warplist_path:   level0/warplist.asm
 	metatile_path:   level0/metatile.asm
 	metapale_path:   level0/mpalette.txt
 	tilegroups_path: level0/tgroups.txt
@@ -21,6 +22,7 @@ level0:
 
 level1:
 	roomlist_path:   level1/roomlist.asm
+	warplist_path:   level1/warplist.asm
 	metatile_path:   level1/metatile.asm
 	metapale_path:   level1/mpalette.txt
 	tilegroups_path: level1/tgroups.txt
@@ -34,3 +36,20 @@ level1:
 	BANK_prgb_lvl1a: 0
 	BANK_prgb_lvl1b: 1
 	BANK_prgb_lvl1c: 2
+	BANK_prgb_lvl1d: 3
+
+level2:
+	roomlist_path:   level2/roomlist.asm
+	warplist_path:   level2/warplist.asm
+	metatile_path:   level2/metatile.asm
+	metapale_path:   level2/mpalette.txt
+	tilegroups_path: level2/tgroups.txt
+	layout_path:     level2/layout.txt
+	spr0_path:       chr/sp_player.chr
+	spr1_path:       chr/sp_level2.chr
+	spr2_path:       chr/sp_gener.chr
+	spr3_path:       chr/sp_anim.chr
+	bg_path:         chr/b_lvl1.chr
+	roomdata_path:   level2/rooms_$.asm
+	BANK_prgb_lvl2a: 0
+	BANK_prgb_lvl2b: 1

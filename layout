@@ -38,12 +38,12 @@ MEMORY
 	PRG_LVL1A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$02;
 	PRG_LVL1B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$03;
 	PRG_LVL1C: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$04;
-	PRG_LVL2A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$05;
-	PRG_LVL2B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$06;
-	PRG_LVL3A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$07;
-	PRG_LVL3B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$08;
-	PRG_LVL4A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$09;
-	PRG_LVL4B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0A;
+	PRG_LVL1D: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$05;
+	PRG_LVL2A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$06;
+	PRG_LVL2B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$07;
+	PRG_LVL3A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$08;
+	PRG_LVL3B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$09;
+	PRG_LVL4A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0A;
 	
 	PRG_XTRA: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	PRG_DIAL: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0C;
@@ -131,12 +131,12 @@ SEGMENTS
 	PRG_LVL1A: load = PRG_LVL1A, type = ro, align=$100;
 	PRG_LVL1B: load = PRG_LVL1B, type = ro, align=$100;
 	PRG_LVL1C: load = PRG_LVL1C, type = ro, align=$100;
+	PRG_LVL1D: load = PRG_LVL1D, type = ro, align=$100;
 	PRG_LVL2A: load = PRG_LVL2A, type = ro, align=$100;
 	PRG_LVL2B: load = PRG_LVL2B, type = ro, align=$100;
 	PRG_LVL3A: load = PRG_LVL3A, type = ro, align=$100;
 	PRG_LVL3B: load = PRG_LVL3B, type = ro, align=$100;
 	PRG_LVL4A: load = PRG_LVL4A, type = ro, align=$100;
-	PRG_LVL4B: load = PRG_LVL4B, type = ro, align=$100;
 	PRG_XTRA:  load = PRG_XTRA,  type = ro, align=$100;
 	PRG_DIAL:  load = PRG_DIAL,  type = ro, align=$100;
 	PRG_TTLE:  load = PRG_TTLE,  type = ro, align=$100;
