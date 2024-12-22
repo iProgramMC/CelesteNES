@@ -4,12 +4,6 @@ Spawn,level1_r1,16,160
 level1_r2,224,-240
 Props,level1_r2,4,0
 Spawn,level1_r2,40,168
-level1_rtest,-352,128
-Props,level1_rtest,0,0
-Spawn,level1_rtest,336,32
-level1_rtest2,-320,-112
-Props,level1_rtest2,0,0
-Spawn,level1_rtest2,304,200
 level1_r3,480,-480
 Props,level1_r3,4,0
 Spawn,level1_r3,40,176

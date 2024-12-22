@@ -2,16 +2,10 @@ level1:
 	.word level1_music	; music table
 	.word level1_banks	; list of banks for each room
 	.byte $01	; environment type
-	.byte $24	; warp count
+	.byte $1E	; warp count
 	.word level1_w_init
 	.word level1_w_r1_to_r2
-	.word level1_w_r1_to_rtest
-	.word level1_w_r1_to_rtest2
 	.word level1_w_r2_to_r3
-	.word level1_w_rtest_to_r1
-	.word level1_w_rtest_to_rtest2
-	.word level1_w_rtest2_to_r1
-	.word level1_w_rtest2_to_rtest
 	.word level1_w_r3_to_r4
 	.word level1_w_r4_to_r3b
 	.word level1_w_r3b_to_r5
@@ -42,13 +36,7 @@ level1:
 level1_banks:
 	.byte prgb_lvl1c	; level1_w_init
 	.byte prgb_lvl1c	; level1_w_r1_to_r2
-	.byte prgb_lvl1c	; level1_w_r1_to_rtest
-	.byte prgb_lvl1d	; level1_w_r1_to_rtest2
 	.byte prgb_lvl1c	; level1_w_r2_to_r3
-	.byte prgb_lvl1c	; level1_w_rtest_to_r1
-	.byte prgb_lvl1d	; level1_w_rtest_to_rtest2
-	.byte prgb_lvl1c	; level1_w_rtest2_to_r1
-	.byte prgb_lvl1c	; level1_w_rtest2_to_rtest
 	.byte prgb_lvl1c	; level1_w_r3_to_r4
 	.byte prgb_lvl1a	; level1_w_r4_to_r3b
 	.byte prgb_lvl1a	; level1_w_r3b_to_r5
