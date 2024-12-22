@@ -444,7 +444,6 @@ gm_normaljmp2:
 	sta player_vl_y
 	lda #jumpvelLO
 	sta player_vs_y
-	jsr gm_add_lift_boost
 	lda #jumpsustain
 	sta jcountdown
 	lda #0
@@ -456,14 +455,14 @@ gm_normaljmp2:
 	sta playerctrl
 	lda #%00000011
 	bit game_cont
-	beq gm_dontjump   ; don't give a boost if we aren't moving
+	beq gm_dontjump2  ; don't give a boost if we aren't moving
 	lda player_vl_x
 	bmi gm_jumpboostneg; if velocity < 0 pixels, then apply the leftward jump boost
 	bne gm_applyjumpboost ; if velocity >= 1 pixel, then apply the jump boost
-	beq gm_dontjump   ; 0 < velocity < 1 so dont do a jump boost
+	beq gm_dontjump2  ; 0 < velocity < 1 so dont do a jump boost
 gm_jumpboostneg:
 	cmp #$FF
-	beq gm_dontjump   ; if -1 <= velocity, then don't apply a jump boost
+	beq gm_dontjump2  ; if -1 <= velocity, then don't apply a jump boost
 gm_applyjumpboost:
 	lda #pl_left
 	bit playerctrl
@@ -475,7 +474,8 @@ gm_applyjumpboost:
 	lda player_vl_x
 	sbc #0
 	sta player_vl_x
-	jmp gm_dontjump   ; that would be pretty stupid as it would
+	jsr gm_add_lift_boost
+	jmp gm_dontjump2  ; that would be pretty stupid as it would
 gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	clc
 	lda #jmphboost
@@ -484,6 +484,9 @@ gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	lda #0
 	adc player_vl_x
 	sta player_vl_x
+	;jmp gm_dontjump2
+gm_dontjump2:
+	jsr gm_add_lift_boost
 	jmp gm_dontjump
 
 gm_maybewalljump:
