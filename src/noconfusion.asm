@@ -387,10 +387,10 @@ newModeTran:
 	cmp camlefthi
 	bne returnEarly
 	
+	jsr xt_get_warp_l
+	
 	; Now leave the room through the right side
-	ldy warp_l_y
-	sty transoff
-	ldy warp_l
+	tay
 	cpy #$FF
 	bne actuallyTransition
 	
@@ -467,11 +467,11 @@ actuallyTransition:
 	sta quaketimer
 	
 	; calculate the new level Y offset
+	clc
 	lda transoff
 	bmi transneg
 	
 	lda lvlyoff              ; transoff is a positive value.
-	clc
 	adc transoff
 	cmp #$1E
 	bcc transdone

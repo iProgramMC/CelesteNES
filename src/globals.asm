@@ -371,6 +371,8 @@ warp_dalt_xo: .res 1
 warp_lalt_yo: .res 1
 warp_ralt_yo: .res 1
 
+warp_t_no   : .res 1 ; temporary warp number
+
 roomhdrfirst = roomsize
 roomhdrlast  = warp_ralt_yo + 1
 

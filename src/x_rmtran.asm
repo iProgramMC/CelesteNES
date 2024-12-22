@@ -27,6 +27,94 @@ dontTouch:
 
 cspeed = 8
 
+; ** SUBROUTINE: xt_get_warp_l
+; desc: Gets the Left warp number and Y offset, depending on the player's Y position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_l
+	lda warp_lalt_y
+	beq justReturnNormal
+	
+	cmp player_y
+	bcc justReturnNormal
+	
+	lda warp_lalt_yo
+	sta transoff
+	lda warp_lalt
+	rts
+	
+justReturnNormal:
+	lda warp_l_y
+	sta transoff
+	lda warp_l
+	rts
+.endproc
+
+; ** SUBROUTINE: xt_get_warp_r
+; desc: Gets the Right warp number and Y offset, depending on the player's Y position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_r
+	lda warp_ralt_y
+	beq justReturnNormal
+	
+	cmp player_y
+	bcc justReturnNormal
+	
+	lda warp_ralt_yo
+	sta transoff
+	lda warp_ralt
+	rts
+	
+justReturnNormal:
+	lda warp_r_y
+	sta transoff
+	lda warp_r
+	rts
+.endproc
+
+; ** SUBROUTINE: xt_get_warp_u
+; desc: Gets the Up warp number and X offset, depending on the player's X position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_u
+	lda warp_ualt_x
+	beq justReturnNormal
+	
+	cmp player_x
+	bcc justReturnNormal
+	
+	lda warp_ualt_xo
+	sta transoff
+	lda warp_ualt
+	rts
+	
+justReturnNormal:
+	lda warp_u_x
+	sta transoff
+	lda warp_u
+	rts
+.endproc
+
+; ** SUBROUTINE: xt_get_warp_d
+; desc: Gets the Down warp number and X offset, depending on the player's X position,
+;       and stores them in the A register, and transoff, respectively.
+.proc xt_get_warp_d
+	lda warp_dalt_x
+	beq justReturnNormal
+	
+	cmp player_x
+	bcc justReturnNormal
+	
+	lda warp_dalt_xo
+	sta transoff
+	lda warp_dalt
+	rts
+	
+justReturnNormal:
+	lda warp_d_x
+	sta transoff
+	lda warp_d
+	rts
+.endproc
+
 ; ** SUBROUTINE: gm_leaveroomR_FAR
 ; desc: Performs a transition, across multiple frames, going right.
 .proc gm_leaveroomR_FAR
