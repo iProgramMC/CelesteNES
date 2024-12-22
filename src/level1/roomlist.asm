@@ -37,7 +37,7 @@ level1_banks:
 	.byte prgb_lvl1c	; level1_w_init
 	.byte prgb_lvl1c	; level1_w_r1_to_r2
 	.byte prgb_lvl1c	; level1_w_r2_to_r3
-	.byte prgb_lvl1c	; level1_w_r3_to_r4
+	.byte prgb_lvl1a	; level1_w_r3_to_r4
 	.byte prgb_lvl1a	; level1_w_r4_to_r3b
 	.byte prgb_lvl1a	; level1_w_r3b_to_r5
 	.byte prgb_lvl1a	; level1_w_r5_to_r6
@@ -49,7 +49,7 @@ level1_banks:
 	.byte prgb_lvl1a	; level1_w_r6c_to_r7
 	.byte prgb_lvl1a	; level1_w_r7_to_r8
 	.byte prgb_lvl1a	; level1_w_r8_to_r7
-	.byte prgb_lvl1d	; level1_w_r8_to_r7a
+	.byte prgb_lvl1c	; level1_w_r8_to_r7a
 	.byte prgb_lvl1d	; level1_w_r8_to_r9z
 	.byte prgb_lvl1a	; level1_w_r8_to_r8b
 	.byte prgb_lvl1a	; level1_w_r7a_to_r8
@@ -63,4 +63,4 @@ level1_banks:
 	.byte prgb_lvl1a	; level1_w_r10a_to_r11
 	.byte prgb_lvl1a	; level1_w_r11_to_r12
 	.byte prgb_lvl1a	; level1_w_r12_to_r12a
-	.byte prgb_lvl1d	; level1_w_r12a_to_rend
+	.byte prgb_lvl1c	; level1_w_r12a_to_rend

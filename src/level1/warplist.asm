@@ -52,7 +52,7 @@ level1_w_r6c_to_r7:
 	.word level1_r7
 level1_w_r7_to_r8:
 	.byte 0			; room left offset
-	.byte 40, 168	; player spawn X/Y
+	.byte 32, 168	; player spawn X/Y
 	.word level1_r8
 level1_w_r8_to_r7:
 	.byte 0			; room left offset
@@ -60,11 +60,11 @@ level1_w_r8_to_r7:
 	.word level1_r7
 level1_w_r8_to_r7a:
 	.byte 0			; room left offset
-	.byte 48, 48	; player spawn X/Y
+	.byte 40, 56	; player spawn X/Y
 	.word level1_r7a
 level1_w_r8_to_r9z:
-	.byte 8			; room left offset
-	.byte 136, 176	; player spawn X/Y
+	.byte 12			; room left offset
+	.byte 136, 184	; player spawn X/Y
 	.word level1_r9z
 level1_w_r8_to_r8b:
 	.byte 0			; room left offset
