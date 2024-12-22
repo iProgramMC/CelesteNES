@@ -8,7 +8,8 @@
 	bne returnEarly
 	
 	; try to leave the room above
-	ldy warp_d
+	jsr xt_get_warp_d
+	tay
 	cpy #$FF
 	bne actuallyWarp
 	; no warp assigned, return and continue with normal logic
@@ -20,7 +21,7 @@ actuallyWarp:
 	lda #0
 	sta player_y
 	
-	lda warp_d_x
+	lda transoff
 	pha
 	
 	lda #0
@@ -29,7 +30,7 @@ actuallyWarp:
 	
 	jsr gm_calculate_lvlyoff
 	
-	ldy warp_d
+	;ldy warp_d
 	jsr xt_set_room
 	
 	pla

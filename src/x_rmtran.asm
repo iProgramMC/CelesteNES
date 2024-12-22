@@ -132,9 +132,8 @@ justReturnNormal:
 	beq returnEarly
 	
 	; Now leave the room through the right side
-	ldy warp_r_y
-	sty transoff
-	ldy warp_r
+	jsr xt_get_warp_r
+	tay
 	cpy #$FF
 	bne actuallyTransition
 	
@@ -348,7 +347,8 @@ transNoCap:
 	bne returnEarly
 	
 	; try to leave the room above
-	ldy warp_u
+	jsr xt_get_warp_u
+	tay
 	cpy #$FF
 	bne actuallyWarp
 	; no warp assigned, return and continue with normal logic
@@ -360,7 +360,7 @@ actuallyWarp:
 	lda #0
 	sta player_y
 	
-	lda warp_u_x
+	lda transoff
 	pha
 	
 	lda #0
@@ -369,7 +369,7 @@ actuallyWarp:
 	
 	jsr gm_calculate_lvlyoff
 	
-	ldy warp_u
+	;ldy warp_u
 	jsr xt_set_room
 	
 	pla
