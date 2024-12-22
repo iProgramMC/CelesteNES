@@ -83,9 +83,19 @@ gm_ent_oscillate:
 	rts
 
 @overflow:
+	lda #g3_transitA
+	bit gamectrl3
+	bne @continue           ; in transition, so can't be in limbo
+	
+	lda #rf_new
+	bit roomflags
+	beq @continue           ; can't go in limbo in a normal room
+	
 	lda sprspace+sp_flags,x
 	eor #ef_limbo
 	sta sprspace+sp_flags,x
+	
+@continue:
 	rts
 
 gm_update_spring:
