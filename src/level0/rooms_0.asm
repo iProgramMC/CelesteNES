@@ -178,6 +178,7 @@ level0_r3_p:
 	.byte $00,$00,$F0,$06,$00,$00,$00,$00
 	.byte $00,$FF
 level0_r3_e:
+	.byte $B8,$70,$0B
 	.byte $FF
 level0_r3_t:
 	.byte $D6,$05,$19,$C6,$97,$18,$86,$97
