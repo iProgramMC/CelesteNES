@@ -68,8 +68,8 @@ level1_rtest2_t:
 	.byte $C5,$2F,$24,$86,$31,$00,$FF
 level1_rtest2:
 	.byte 40, 0
-	.byte 255, 255, 255, 11
-	.byte 0, 0, 0, 14
+	.byte 255, 8, 255, 7
+	.byte 0, 252, 0, 14
 	.byte 4
 	.byte 0, 0, 0, 0
 	.byte 0, 0, 0, 0
@@ -98,7 +98,7 @@ level1_r7a_t:
 	.byte $9E,$82,$BC,$01,$9E,$9E,$9E,$FF
 level1_r7a:
 	.byte 40, 0
-	.byte 30, 255, 29, 255
+	.byte 26, 255, 25, 255
 	.byte 232, 0, 0, 0
 	.byte 3
 	.byte 0, 0, 0, 0
@@ -127,7 +127,7 @@ level1_r9z_t:
 	.byte $9E,$83,$BB,$02,$9E,$9E,$FF
 level1_r9z:
 	.byte 40, 0
-	.byte 255, 31, 255, 32
+	.byte 255, 27, 255, 28
 	.byte 0, 252, 0, 26
 	.byte 3
 	.byte 0, 0, 0, 0
