@@ -45,12 +45,12 @@ Spawn,level1_r8,272,192
 level1_r7a,2880,-2064
 Props,level1_r7a,0,0
 Spawn,level1_r7a,48,48
+level1_r9z,2720,-2544
+Props,level1_r9z,0,8
+Spawn,level1_r9z,200,176
 level1_r8b,3040,-2336
 Props,level1_r8b,4,0
 Spawn,level1_r8b,0,96
-level1_r9z,2720,-2544
-Props,level1_r9z,0,0
-Spawn,level1_r9z,200,176
 level1_r9,3264,-2576
 Props,level1_r9,4,0
 Spawn,level1_r9,40,184

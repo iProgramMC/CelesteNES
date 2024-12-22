@@ -45,7 +45,7 @@ level1_r9z_t:
 	.byte $9E,$83,$BB,$02,$9E,$9E,$FF
 level1_r9z:
 	.byte 40, 0
-	.byte 255, 26, 255, 27
+	.byte 255, 23, 255, 24
 	.byte 0, 252, 0, 26
 	.byte 3
 	.word level1_r9z_t
