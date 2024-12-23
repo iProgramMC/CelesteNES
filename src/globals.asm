@@ -373,6 +373,8 @@ warp_lalt_yo: .res 1
 warp_ralt_yo: .res 1
 
 warp_t_no   : .res 1 ; temporary warp number
+old_lvlyoff : .res 1 ; temporary for transitions
+old_roomflgs: .res 1 ; temporary for transitions
 
 roomhdrfirst = roomsize
 roomhdrlast  = rm_paloffs + 1

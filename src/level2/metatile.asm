@@ -33,14 +33,16 @@
 	.byte $89,$8A,$99     ; Jump Through
 	.byte $C8             ; Spikes
 	.byte $C4,$C5,$C6,$C7 ; Grass Decals
-	.byte $A0,$A4,$B0,$B4 ; Cement Corners
-	.byte $A5,$A6,$B5,$B6 ; Cement Corners Alt
-	.byte $A1,$A2,$A3     ; Cement Tops
-	.byte $B1,$B2,$B3     ; Cement Bottoms
-	.byte $A9,$B9         ; Cement Left
-	.byte $AA,$BA         ; Cement Right
-	.byte $AB,$AC,$AD,$AE,$AF,$BB,$BC,$BD,$BE,$BF ; Cement Middles
-	.byte $A7,$A8,$B7,$B8 ; Cement Corners
+	.byte $A0,$A4,$B0,$B4 ; Tower Corners
+	.byte $A5,$A6,$B5,$B6 ; Tower Corners Alt
+	.byte $A1,$A2,$A3     ; Tower Tops
+	.byte $B1,$B2,$B3     ; Tower Bottoms
+	.byte $A9,$B9         ; Tower Left
+	.byte $AA,$BA         ; Tower Right
+	.byte $AB,$AC,$AD,$AE,$AF,$BB,$BC,$BD
+	.byte $BE             ; Tower Connection
+	.byte $00             ; Tower >>> FREE SPACE <<<
+	.byte $A7,$A8,$B7,$B8 ; Tower Corners
 	.byte $C0,$C1,$C2,$C3 ; Girders
 	.byte $C9,$CA,$CB     ; Spikes
 	.byte $89,$8A,$99     ; Grey Jump Through
@@ -64,7 +66,7 @@
 	.res   3, ct_jumpthru        ; Jump Through
 	.byte ct_deadlyUP            ; Spikes
 	.res   4, ct_none            ; Grass Decals
-	.res  32, ct_full            ; Cement
+	.res  32, ct_full            ; Tower
 	.res   4, ct_full            ; Girder
 	.byte ct_deadlyRT            ; Spikes
 	.byte ct_deadlyDN            ; Spikes

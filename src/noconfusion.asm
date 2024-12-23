@@ -404,7 +404,6 @@ actuallyTransition:
 	sta camera_y_max
 	
 	jsr gm_calculate_lvlyoff
-	
 	jsr xt_set_room
 	
 	inc roomnumber
@@ -466,6 +465,8 @@ actuallyTransition:
 	lda #0
 	sta tr_scrnpos
 	sta quaketimer
+	
+	jsr gm_leaveroomR_FAR::adjustTransitionOffset
 	
 	; calculate the new level Y offset
 	clc
@@ -662,7 +663,8 @@ transLoopAfter:
 	
 	lda #0
 	sta climbbutton
-	rts
+	
+	jmp gm_calculate_vert_offs
 
 updatePalettes:
 	; ntwrhead: 00HXXXxx (x - ignored)

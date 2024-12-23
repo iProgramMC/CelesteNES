@@ -457,7 +457,7 @@ level1_r6b_t:
 level1_r6b:
 	.byte 40, 15
 	.byte 255, 255, 10, 11
-	.byte 0, 0, 12, 242
+	.byte 0, 0, 12, 238
 	.byte 0
 	.byte 255
 	.word level1_r6b_t

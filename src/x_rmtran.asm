@@ -3,8 +3,12 @@
 ; ** SUBROUTINE: gm_calculate_lvlyoff
 ; desc: Calculates the new lvlyoff if this level was a vertically scrolling one
 .proc gm_calculate_lvlyoff
-	lda #rf_new
-	bit roomflags
+	lda lvlyoff
+	sta old_lvlyoff
+	lda roomflags
+	sta old_roomflgs
+	
+	and #rf_new
 	beq dontTouch
 	
 	; is new format room
@@ -222,6 +226,8 @@ actuallyTransition:
 	sta tr_scrnpos
 	sta quaketimer
 	
+	jsr adjustTransitionOffset
+	
 	clc
 	lda transoff
 	bmi transneg
@@ -375,6 +381,38 @@ transNoCap:
 	lda player_y
 	sbc trantmp2
 	sta player_y
+	rts
+
+adjustTransitionOffset:
+	lda #rf_new
+	bit old_roomflgs
+	beq @return
+	
+	; In new style rooms, the current scroll Y may be different from what it's supposed to be.
+	; Note, we entered the room with a camera Y of 0, so it's enough to see the amount that it diverged by
+	lda camera_y
+	sec
+	sbc camera_y_bs
+	cmp #240
+	bcc :+
+	sbc #16
+:	sta warp_t_no
+	
+	lda #240
+	sec
+	sbc warp_t_no   ; [0, 239] becomes [239, 0]
+	lsr
+	lsr
+	lsr             ; [0, 29]
+	sec
+	sbc old_lvlyoff ; old_lvlyoff between [0, 29]
+	bcs :+
+	adc #$1E
+:	clc
+	adc transoff
+	sta transoff
+	
+@return:
 	rts
 .endproc
 

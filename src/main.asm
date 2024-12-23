@@ -73,6 +73,9 @@
 .segment "CHR_BG001"
 .incbin  "chr/b_lvl1.chr"
 
+.segment "CHR_BG002"
+.incbin  "chr/b_lvl2.chr"
+
 .segment "CHR_DPLDI"
 .incbin  "chr/sp_plrdie.chr"
 
@@ -92,7 +95,6 @@
 .incbin  "chr/d_gran.chr"
 
 ; UNUSED segments
-.segment "PRG_LVL2A"
 .segment "PRG_LVL3A"
 .segment "PRG_LVL4A"
 .segment "PRG_LVL5A"

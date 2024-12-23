@@ -1,7 +1,7 @@
 level2:
 	.word level2_music	; music table
 	.word level2_banks	; list of banks for each room
-	.byte $01	; environment type
+	.byte $02	; environment type
 	.byte $03	; warp count
 	.word level2_w_init
 	.word level2_w_start_to_0

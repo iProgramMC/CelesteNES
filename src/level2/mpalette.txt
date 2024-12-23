@@ -9,7 +9,7 @@ metatile_palette:
 	.res   3, $1 ; Jump Through
 	.byte     $0 ; Spikes
 	.res   4, $3 ; Grass Decals
-	.res  32, $0 ; Cement
+	.res  32, $0 ; Tower
 	.res   4, $0 ; Girder
 	.res   3, $0 ; Spikes
 	.res   3, $0 ; Grey Jump Through
