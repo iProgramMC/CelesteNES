@@ -32,21 +32,21 @@ print_logo:
 	; write the "PRESS START" text
 	lda #$22
 	sta ppu_addr
-	lda #$EA
+	lda #$EB
 	sta ppu_addr
 	ldx #<logo_pressstart
 	ldy #>logo_pressstart
-	lda #11
+	lda #9
 	jsr ppu_wrstring
 	
 	; write iProgramInCpp's name
 	lda #$23
 	sta ppu_addr
-	lda #$4C
+	lda #$48
 	sta ppu_addr
 	ldx #<logo_iprogram
 	ldy #>logo_iprogram
-	lda #7
+	lda #15
 	jsr ppu_wrstring
 	rts
 	

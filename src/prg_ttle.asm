@@ -16,5 +16,5 @@ title_palette:
 	.byte $0f,$20,$21,$11
 	.byte $0f,$30,$29,$09
 
-logo_pressstart: .byte "PRESS START"
-logo_iprogram:   .byte $60,$61,$62,$63,$64,$65,$66
+logo_pressstart: .byte $70,$71,$72,$73,$74,$75,$76,$77,$78
+logo_iprogram:   .byte $60,$61,$62,$63,$64,$65,$66,$67,$68,$69,$6A,$6B,$6C,$6D,$6E
