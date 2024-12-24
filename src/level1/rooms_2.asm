@@ -296,7 +296,7 @@ level1_r7a_t:
 	.byte $5C,$5B,$5C,$58,$C5,$FF
 level1_r7a:
 	.byte 44, 0
-	.byte 26, 255, 255, 255
+	.byte 32, 255, 255, 255
 	.byte 232, 0, 0, 0
 	.byte 3
 	.byte 255
