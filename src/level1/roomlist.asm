@@ -2,7 +2,7 @@ level1:
 	.word level1_music	; music table
 	.word level1_banks	; list of banks for each room
 	.byte $01	; environment type
-	.byte $30	; warp count
+	.byte $36	; warp count
 	.word level1_w_init
 	.word level1_w_r1_to_r2
 	.word level1_w_r2_to_r3
@@ -26,23 +26,29 @@ level1:
 	.word level1_w_r6z_to_r6zb
 	.word level1_w_r6b_to_r6a
 	.word level1_w_r6b_to_r6c
-	.word level1_w_r6b_to_rs0
 	.word level1_w_r7zb_to_r6z
 	.word level1_w_r7zb_to_r6zb
 	.word level1_w_r6zb_to_r6z
 	.word level1_w_r6zb_to_r7zb
 	.word level1_w_r6c_to_r6b
 	.word level1_w_r6c_to_r7
-	.word level1_w_rs0_to_r6b
+	.word level1_w_r6c_to_r7z
 	.word level1_w_r7_to_r8
+	.word level1_w_r7z_to_r6c
+	.word level1_w_r7z_to_r8z
 	.word level1_w_r8_to_r7
 	.word level1_w_r8_to_r7a
 	.word level1_w_r8_to_r9z
 	.word level1_w_r8_to_r8b
+	.word level1_w_r8z_to_r7z
+	.word level1_w_rs0_to_rs1
+	.word level1_w_rs1a_to_rs1
 	.word level1_w_r7a_to_r8
 	.word level1_w_r9z_to_r8
 	.word level1_w_r8b_to_r8
 	.word level1_w_r8b_to_r9
+	.word level1_w_rs1_to_rs0
+	.word level1_w_rs1_to_rs1a
 	.word level1_w_r9_to_r9b
 	.word level1_w_r9b_to_r9
 	.word level1_w_r9b_to_r10a
@@ -75,23 +81,29 @@ level1_banks:
 	.byte prgb_lvl1d	; level1_w_r6z_to_r6zb
 	.byte prgb_lvl1a	; level1_w_r6b_to_r6a
 	.byte prgb_lvl1a	; level1_w_r6b_to_r6c
-	.byte prgb_lvl1d	; level1_w_r6b_to_rs0
 	.byte prgb_lvl1d	; level1_w_r7zb_to_r6z
 	.byte prgb_lvl1d	; level1_w_r7zb_to_r6zb
 	.byte prgb_lvl1d	; level1_w_r6zb_to_r6z
 	.byte prgb_lvl1d	; level1_w_r6zb_to_r7zb
 	.byte prgb_lvl1d	; level1_w_r6c_to_r6b
 	.byte prgb_lvl1a	; level1_w_r6c_to_r7
-	.byte prgb_lvl1d	; level1_w_rs0_to_r6b
+	.byte prgb_lvl1d	; level1_w_r6c_to_r7z
 	.byte prgb_lvl1a	; level1_w_r7_to_r8
+	.byte prgb_lvl1a	; level1_w_r7z_to_r6c
+	.byte prgb_lvl1d	; level1_w_r7z_to_r8z
 	.byte prgb_lvl1a	; level1_w_r8_to_r7
 	.byte prgb_lvl1c	; level1_w_r8_to_r7a
 	.byte prgb_lvl1d	; level1_w_r8_to_r9z
 	.byte prgb_lvl1a	; level1_w_r8_to_r8b
+	.byte prgb_lvl1d	; level1_w_r8z_to_r7z
+	.byte prgb_lvl1a	; level1_w_rs0_to_rs1
+	.byte prgb_lvl1a	; level1_w_rs1a_to_rs1
 	.byte prgb_lvl1a	; level1_w_r7a_to_r8
 	.byte prgb_lvl1a	; level1_w_r9z_to_r8
 	.byte prgb_lvl1a	; level1_w_r8b_to_r8
 	.byte prgb_lvl1a	; level1_w_r8b_to_r9
+	.byte prgb_lvl1d	; level1_w_rs1_to_rs0
+	.byte prgb_lvl1a	; level1_w_rs1_to_rs1a
 	.byte prgb_lvl1a	; level1_w_r9_to_r9b
 	.byte prgb_lvl1a	; level1_w_r9b_to_r9
 	.byte prgb_lvl1a	; level1_w_r9b_to_r10a

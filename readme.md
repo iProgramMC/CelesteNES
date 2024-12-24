@@ -30,11 +30,22 @@ One more thing, until I announce otherwise, do not post compiled ROMs or source
 code of this game. Also keep previews to a minimum, I want this project to stay
 low-key until I'm nearly done.
 
+## Licensing
+
+The *code* is licensed under [insert permissive license here, probably MIT soon].
+
+The *graphics* (all \*.chr files, except d_font.chr) and *music* (`src/level0/testmusic.asm`,
+`src/level1/testmusic.asm`, and `src/level2/testmusic.asm`) are under a **strictly**
+**non-commercial license**, meaning you **may not** use these assets for **any**
+commercial purpose.
+
 ## Copyright Notice
 
-The *Celeste* IP is owned by [Maddy Makes Games, Inc.](https://maddymakesgames.com)
+The *Celeste* IP is owned by [Maddy Makes Games, Inc.](https://maddymakesgames.com).
 
 This project is neither created nor endorsed by the Celeste team.
+
+### REMOVE THIS WHEN OPENING THE SOURCE TO THE PUBLIC ###
 
 We shall figure out a way to avoid upsetting the sales margins of Celeste.  This
 might include not providing assets (requiring conversion from the original Celeste's
