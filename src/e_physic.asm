@@ -360,6 +360,8 @@ failure:
 ; returns:
 ;     temp7, 8, 9, 10 - the hitbox itself.
 ;
+; clobbers: temp11
+;
 ; note: The entity must be at least partly on screen.
 .proc gm_calc_ent_hitbox
 	lda sprspace+sp_x, y
@@ -388,13 +390,13 @@ xHighZero:
 	sta temp9
 	lda sprspace+sp_x_pg, y
 	adc #0
-	sta plattemp1
+	sta plattemp3
 	lda temp9
 	sec
 	sbc camera_x
 	sta temp9
 	
-	lda plattemp1
+	lda plattemp3
 	sbc camera_x_pg
 	; this should be zero. If it is not, then the right edge is off screen.
 	beq x2HighZero

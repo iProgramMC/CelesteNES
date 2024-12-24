@@ -272,6 +272,7 @@ trantmp2    : .res 1
 trantmp3    : .res 1
 plattemp1   : .res 1 ; TODO: replace with a regular temp
 plattemp2   : .res 1 ; TODO: replace with a regular temp
+plattemp3   : .res 1 ; TODO: replace with a regular temp
 
 tmpRoomTran : .res 9 ; temporaries used by leaveroomU, 
 	camdst_x    := tmpRoomTran + 0
