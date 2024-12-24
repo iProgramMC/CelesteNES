@@ -385,11 +385,16 @@ xHighZero:
 	lda sprspace+sp_x, y
 	clc
 	adc temp9
+	sta temp9
+	lda sprspace+sp_x_pg, y
+	adc #0
+	sta plattemp1
+	lda temp9
 	sec
 	sbc camera_x
 	sta temp9
 	
-	lda sprspace+sp_x_pg, y
+	lda plattemp1
 	sbc camera_x_pg
 	; this should be zero. If it is not, then the right edge is off screen.
 	beq x2HighZero

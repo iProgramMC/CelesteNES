@@ -16,6 +16,9 @@ Spawn,level1_r3b,48,160
 level1_r5,1024,-1200
 Props,level1_r5,4,0
 Spawn,level1_r5,32,184
+level1_r5z,704,-1200
+Props,level1_r5z,0,0
+Spawn,level1_r5z,304,176
 level1_r6,1280,-1584
 Props,level1_r6,4,0
 Spawn,level1_r6,32,192
@@ -72,4 +75,7 @@ Spawn,level1_r12a,0,160
 level1_rend,3936,-3744
 Props,level1_rend,4,0
 Spawn,level1_rend,72,168
+level1_r5a,1344,-1104
+Props,level1_r5a,0,0
+Spawn,level1_r5a,0,88
 Filler,3584,-2752,128,96
