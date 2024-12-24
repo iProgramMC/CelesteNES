@@ -404,7 +404,10 @@ adjustTransitionOffset:
 	lsr
 	lsr
 	lsr             ; [0, 29]
-	sec
+	cmp #$1E
+	bcc :+
+	sbc #$1E
+:	sec
 	sbc old_lvlyoff ; old_lvlyoff between [0, 29]
 	bcs :+
 	adc #$1E
@@ -757,6 +760,9 @@ finalloopdone:
 	and gamectrl3
 	sta gamectrl3
 	
+	lda #2
+	sta climbcdown
+	
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
@@ -792,6 +798,14 @@ addtocameraX:
 	lda camoff_M
 	jsr gm_shifttrace
 	
+	
+	lda camera_y_sub
+	beq @return
+	and #7
+	tay
+	dey
+	sty camera_y_sub
+@return:
 	rts
 
 add2ndtocameraX:
@@ -818,9 +832,6 @@ add2ndtocameraX:
 	
 	lda camoff2_M
 	jsr gm_shifttrace
-	
-	lda #2
-	sta climbcdown
 	rts
 
 compute_camoff:
