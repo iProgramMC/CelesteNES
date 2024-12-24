@@ -27,6 +27,10 @@ level1:
 	.word level1_w_r6b_to_r6a
 	.word level1_w_r6b_to_r6c
 	.word level1_w_r6b_to_rs0
+	.word level1_w_r7zb_to_r6z
+	.word level1_w_r7zb_to_r6zb
+	.word level1_w_r6zb_to_r6z
+	.word level1_w_r6zb_to_r7zb
 	.word level1_w_r6c_to_r6b
 	.word level1_w_r6c_to_r7
 	.word level1_w_rs0_to_r6b
@@ -47,10 +51,6 @@ level1:
 	.word level1_w_r11_to_r12
 	.word level1_w_r12_to_r12a
 	.word level1_w_r12a_to_rend
-	.word level1_w_r7zb_to_r6z
-	.word level1_w_r7zb_to_r6zb
-	.word level1_w_r6zb_to_r6z
-	.word level1_w_r6zb_to_r7zb
 level1_banks:
 	.byte prgb_lvl1c	; level1_w_init
 	.byte prgb_lvl1c	; level1_w_r1_to_r2
@@ -76,6 +76,10 @@ level1_banks:
 	.byte prgb_lvl1a	; level1_w_r6b_to_r6a
 	.byte prgb_lvl1a	; level1_w_r6b_to_r6c
 	.byte prgb_lvl1d	; level1_w_r6b_to_rs0
+	.byte prgb_lvl1d	; level1_w_r7zb_to_r6z
+	.byte prgb_lvl1d	; level1_w_r7zb_to_r6zb
+	.byte prgb_lvl1d	; level1_w_r6zb_to_r6z
+	.byte prgb_lvl1d	; level1_w_r6zb_to_r7zb
 	.byte prgb_lvl1d	; level1_w_r6c_to_r6b
 	.byte prgb_lvl1a	; level1_w_r6c_to_r7
 	.byte prgb_lvl1d	; level1_w_rs0_to_r6b
@@ -96,7 +100,3 @@ level1_banks:
 	.byte prgb_lvl1a	; level1_w_r11_to_r12
 	.byte prgb_lvl1a	; level1_w_r12_to_r12a
 	.byte prgb_lvl1c	; level1_w_r12a_to_rend
-	.byte prgb_lvl1d	; level1_w_r7zb_to_r6z
-	.byte prgb_lvl1d	; level1_w_r7zb_to_r6zb
-	.byte prgb_lvl1d	; level1_w_r6zb_to_r6z
-	.byte prgb_lvl1d	; level1_w_r6zb_to_r7zb
