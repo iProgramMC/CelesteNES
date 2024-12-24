@@ -1179,6 +1179,8 @@ gm_applyy:
 	rol               ; A = (A << 1) | carry [set if A >= $F0]
 	and #1            ; A = A & 1
 	tax               ; X = (player_y >= $F0)
+	eor #1
+	sta abovescreen
 	lda playerctrl
 	and #(pl_ground ^ $FF)
 	sta playerctrl    ; remove the grounded flag - it'll be added back if we are on the ground

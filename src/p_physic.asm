@@ -190,7 +190,12 @@ gm_getbottomy_w:
 	rts
 gm_gety_wraparound:
 	lda #$FF
-	rts
+	cmp #$1D
+	bcc :+
+	lda abovescreen
+	beq :+
+	lda #$1D
+:	rts
 
 ; ** SUBROUTINE: gm_getbottomy_f
 ; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
@@ -209,7 +214,12 @@ gm_getbottomy_f:
 	lsr
 	lsr
 	lsr
-	rts
+	cmp #$1D
+	bcc :+
+	lda abovescreen
+	beq :+
+	lda #$1D
+:	rts
 
 ; ** SUBROUTINE: gm_getbottomy_cc
 ; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
@@ -223,7 +233,12 @@ gm_getbottomy_cc:
 	lsr
 	lsr
 	lsr
-	rts
+	cmp #$1D
+	bcc :+
+	lda abovescreen
+	beq :+
+	lda #$1D
+:	rts
 
 ; ** SUBROUTINE: gm_getbottomy_wjc
 ; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
@@ -237,7 +252,12 @@ gm_getbottomy_wjc:
 	lsr
 	lsr
 	lsr
-	rts
+	cmp #$1D
+	bcc :+
+	lda abovescreen
+	beq :+
+	lda #$1D
+:	rts
 
 ; ** SUBROUTINE: gm_gettopy
 ; desc:     Gets the tile Y position where the top edge of the player's hitbox resides
@@ -252,7 +272,12 @@ gm_gettopy:
 	lsr
 	lsr
 	lsr
-	rts
+	cmp #$1D
+	bcc :+
+	lda abovescreen
+	beq :+
+	lda #$1D
+:	rts
 
 ; ** SUBROUTINE: gm_getmidx
 ; desc:     Gets the tile X position at the middle of the player's hitbox, used for squish checking

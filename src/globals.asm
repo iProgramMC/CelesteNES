@@ -263,6 +263,7 @@ respawntmr  : .res 1 ; respawn timer
 chopentity  : .res 1 ; reference to the climb hop solid
 choplastX   : .res 1
 choplastY   : .res 1
+abovescreen : .res 1 ; if the player is above the screen
 
 scrchklo    : .res 1 ; temporaries used for scroll checking
 scrchkhi    : .res 1

@@ -285,6 +285,7 @@ gm_game_clear_wx:
 	stx deathwipe
 	stx deathwipe2
 	stx deathsplit
+	stx abovescreen
 	
 	lda #<~g3_transitX
 	and gamectrl3
