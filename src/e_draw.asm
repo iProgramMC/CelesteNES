@@ -30,14 +30,45 @@ gm_draw_particle:
 	rts
 
 gm_draw_berry:
+	lda temp1
+	pha
+	
 	jsr gm_update_berry
+	bne @shrinking
+	
+	; normal rendering
 	lda #pal_red
 	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
+	
+	pla
+	sta temp1
+	tax
+	
 	lda #$F8
 	sta temp6
 	lda #$FA
+	sta temp7
+	jmp gm_draw_common
+
+@shrinking:
+	; shrinking
+	lda #pal_red
+	jsr gm_allocate_palette
+	sta temp8
+	ora #obj_fliphz
+	sta temp5
+	
+	pla
+	sta temp1
+	tax
+	lda sprspace+sp_strawb_timer, x
+	and #$FC
+	lsr
+	clc
+	adc #$CC
+	sta temp6
 	sta temp7
 	jmp gm_draw_common
 

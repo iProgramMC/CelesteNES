@@ -5,6 +5,7 @@ ch0_granny:
 	lock_input
 	wait_ground
 	face_player 0
+	left
 	
 	; note: the camera should be fixed at a certain position, therefore
 	; we can get away with hardcoding walking positions
@@ -20,6 +21,7 @@ ch0_granny:
 	expression  MAD_normal
 	dialog2     @d1
 	
+	right
 	speaker     SPK_granny
 	expression  GRN_normal
 	dialog2     @d2
@@ -33,10 +35,12 @@ ch0_granny:
 	
 	trigger     0              ; "haha"
 	wait        30             ; half a sec
+	left
 	speaker     SPK_granny
 	expression  GRN_laugh
 	dialog2     @d4
 	
+	right
 	speaker     SPK_madeline
 	expression  MAD_upset
 	dialog      @d5
@@ -44,6 +48,7 @@ ch0_granny:
 	expression  MAD_angry
 	dialog2     @d6
 	
+	left
 	trigger     1              ; stop laughing
 	speaker     SPK_granny
 	expression  GRN_normal
@@ -55,6 +60,7 @@ ch0_granny:
 	dialog2     @d10
 	
 	wait        30
+	right
 	speaker     SPK_madeline
 	expression  MAD_upset
 	dialogE     @d11

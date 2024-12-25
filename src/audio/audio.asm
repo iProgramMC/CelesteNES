@@ -34,7 +34,6 @@ FAMISTUDIO_DPCM_OFF           = $c000
 .include "famistudio.asm"
 ;.include "famistudio_null.asm"
 
-; SFX from the FamiStudio Demo
 .include "sfx.asm"
 
 ; ** SUBROUTINE: aud_run

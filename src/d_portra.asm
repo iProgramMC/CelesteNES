@@ -151,7 +151,9 @@ grannyExtra:
 	bne return
 	
 	; draw Granny's tongue in red. I was careful not to overstep the 8sp/sl limit
-	lda #$11
+	lda dlg_portraitx
+	clc
+	adc #9
 	sta x_crd_temp
 	lda #$1A
 	sta y_crd_temp
@@ -186,7 +188,7 @@ incrementY:
 	sta y_crd_temp
 	rts
 homeX:
-	lda #dialog_border
+	lda dlg_portraitx
 	sta x_crd_temp
 	rts
 

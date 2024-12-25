@@ -76,6 +76,7 @@ sp_refill_oldos = sp_entspec3
 sp_strawb_flags = sp_entspec2
 sp_strawb_colid = sp_entspec3
 sp_strawb_ident = sp_entspec4
+sp_strawb_timer = sp_entspec5
 sp_points_count = sp_entspec1
 sp_points_timer = sp_entspec2
 sp_spring_timer = sp_entspec1
@@ -156,9 +157,10 @@ e_rerefill  = $7F ; refill with respawn flag set
 ec_scrnext  = $FE
 ec_dataend  = $FF
 
-; Entity flags
+; Entity-specific flags
 erf_regen   = $01
 esb_picked  = $01
+esb_shrink  = $02 ; shrinking for the collection animation
 
 ; Sprite Indices
 plr_idle1_l = $04

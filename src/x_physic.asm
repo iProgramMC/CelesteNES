@@ -2175,6 +2175,11 @@ gm_timercheck:
 	lda playerctrl
 	sta prevplrctrl
 	
+	and #pl_ground
+	beq @notOnGround
+	bne @onGround
+
+@gndReturn:
 	lda forcemovext
 	
 	; if forcemovext == 0, then remove the reference to the climb hop entity
@@ -2213,6 +2218,25 @@ gm_timercheck:
 	lda #0
 	sta jcountdown        ; nope, so clear the jump countdown and proceed with gravity as usual
 	rts
+
+@notOnGround:
+	lda #0
+	sta groundtimer
+	beq @gndReturn
+
+@onGround:
+	ldx groundtimer
+	inx
+	cpx #9
+	bcc :+
+	ldx #9
+:	stx groundtimer
+	bne @gndReturn        ; you MUST have incremented to non-zero!
+
+.ifdef DEBUG
+:	nop
+	jmp :-
+.endif
 
 ; ** SUBROUTINE: gm_rem25pcvel
 ; desc: Removes 25% of the player's velocity.
@@ -2389,7 +2413,7 @@ noLowStaminaFlash:
 	; ensure that Madeline's position resides entirely on the wall
 	lda playerctrl
 	and #pl_wallleft
-	bne left
+	bne onleft
 	
 	; right
 	lda player_x
@@ -2400,7 +2424,7 @@ noLowStaminaFlash:
 :	sta player_x
 	jmp gm_appx_checkright
 
-left:
+onleft:
 	lda player_x
 	sec
 	sbc #6

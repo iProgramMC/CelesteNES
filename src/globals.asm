@@ -263,7 +263,6 @@ respawntmr  : .res 1 ; respawn timer
 chopentity  : .res 1 ; reference to the climb hop solid
 choplastX   : .res 1
 choplastY   : .res 1
-abovescreen : .res 1 ; if the player is above the screen
 
 scrchklo    : .res 1 ; temporaries used for scroll checking
 scrchkhi    : .res 1
@@ -334,6 +333,8 @@ spare3bytes : .res 3
 
 ; Current Session
 strawberries: .res 4 ; 32 bit bitset of strawberries collected.  Note that The Summit actually has 49 strawberries.
+abovescreen : .res 1 ; if the player is above the screen
+groundtimer : .res 1 ; how long the player is on the ground, max of 9 frames
 
 ; Loaded sprite banks
 spr0_bknum  : .res 1

@@ -21,6 +21,8 @@ DOP_unlock  = $0B  ; Unlocks input from player
 DOP_waitgrn = $0C  ; Waits until Madeline touches the ground
 DOP_dialog2 = $0D  ; Show dialog box, then close, but don't clear
 DOP_begin   = $0E  ; Initialize cutscene variables
+DOP_left    = $0F  ; Place portrait on the left
+DOP_right   = $10  ; Place portrait on the right
 
 DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
@@ -147,4 +149,12 @@ name:
 ; Finish cutscene
 .macro end
 	.byte DOP_end
+.endmacro
+
+.macro left
+	.byte DOP_left
+.endmacro
+
+.macro right
+	.byte DOP_right
 .endmacro

@@ -5,3 +5,4 @@
 .include "game.asm"
 .include "lvltable.asm"
 .include "dialogif.asm"
+.include "mai_game.asm"

@@ -131,9 +131,8 @@ dlg_start_dialog:
 	lda #dialog_char_timer
 	sta dlg_chartimer
 	
-	lda #(dialog_border+dialog_port_size+dialog_port_brdr)
+	lda dlg_crsr_home
 	sta dlg_cursor_x
-	sta dlg_crsr_home
 	
 	lda #0
 	sta dlg_cursor_y
@@ -652,9 +651,12 @@ dlg_cmd_table:
 	.word dlg_cmd_waitgrn
 	.word dlg_cmd_dialog2
 	.word dlg_cmd_begin
+	.word dlg_cmd_left
+	.word dlg_cmd_right
 
 dlg_cmd_begin:
-	lda #0
+	jsr dlg_cmd_left
+	; since it returns 0, just store it to the waittimer
 	sta dlg_waittimer
 	rts
 
@@ -767,6 +769,24 @@ dlg_cmd_unlockinp:
 	and #<~g3_blockinp
 	sta gamectrl3
 	
+	lda #0
+	rts
+
+; Portrait Left
+dlg_cmd_left:
+	lda #dialog_border
+	sta dlg_portraitx
+	lda #(dialog_border+dialog_port_size+dialog_port_brdr)
+	sta dlg_crsr_home
+	lda #0
+	rts
+
+; Portrait Right
+dlg_cmd_right:
+	lda #208
+	sta dlg_portraitx
+	lda #(dialog_border)
+	sta dlg_crsr_home
 	lda #0
 	rts
 

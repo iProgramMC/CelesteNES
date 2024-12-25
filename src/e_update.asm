@@ -147,9 +147,12 @@ gm_update_spring:
 ; note: frame 2 is constantly oscillating
 
 gm_update_berry:
-	jsr gm_ent_oscillate
-	
 	ldx temp1
+	lda sprspace+sp_strawb_flags, x
+	and #esb_shrink
+	bne @shrinkingMode
+	
+	jsr gm_ent_oscillate
 	lda sprspace+sp_strawb_flags, x
 	and #esb_picked
 	beq @floatingMode
@@ -192,6 +195,24 @@ gm_update_berry:
 	lda temp3
 	sta sprspace+sp_y, x
 	
+	lda groundtimer
+	cmp #9
+	bcc @return
+	
+	lda sprspace+sp_strawb_flags, x
+	ora #esb_shrink
+	sta sprspace+sp_strawb_flags, x
+	
+	lda #0
+	sta sprspace+sp_strawb_timer, x
+	
+	jsr gm_strawb_sfx
+	
+	ldx temp1
+	jmp gm_collect_berry
+	
+@return:
+	lda #0
 	rts
 
 @floatingMode:	
@@ -209,7 +230,38 @@ gm_update_berry:
 	lda plrstrawbs
 	sta sprspace+sp_strawb_colid, x
 	
-	jmp gm_give_points
+	lda #0
+	rts
+
+@shrinkingMode:
+	; TODO
+	ldy sprspace+sp_strawb_timer, x
+	iny
+	tya
+	cmp #15
+	bcs @collect
+	sta sprspace+sp_strawb_timer, x
+	
+	; sp_strawb_timer
+	lda #1
+	rts
+
+@collect:
+	lda #0
+	sta sprspace+sp_kind, x
+	
+	lda temp3
+	pha
+	lda temp2
+	pha
+	jsr gm_give_points_ent
+	pla
+	sta temp2
+	pla
+	sta temp3
+	
+	lda #1
+	rts
 
 gm_update_refill:
 	jsr gm_ent_oscillate
@@ -261,7 +313,7 @@ gm_update_refill:
 	lda sprspace+sp_oscill_timer, x
 	sta sprspace+sp_refill_oldos, x
 	
-	lda #$F0
+	lda #$96
 	sta sprspace+sp_oscill_timer, x
 	lda #e_refillhd
 	
@@ -363,3 +415,32 @@ gm_update_box:
 	sta sprspace+sp_hei, x
 	
 	rts
+
+; ** SUBROUTINE: gm_collect_berry
+; desc: Collects a strawberry.
+; parameters: X - The entity ID of the strawberry.
+; clobbers: A, X, Y
+.proc gm_collect_berry
+	lda sprspace+sp_strawb_ident, x
+	tay             ; keep the ID into Y
+	lsr             ; byte number into X
+	lsr
+	lsr
+	tax
+	tya             ; restore the Index
+	and #7          ; get the bit number
+	tay
+	lda bitmask, y  ; 1 single bit set based on Y
+	ora strawberries, x
+	sta strawberries, x
+	lda #0
+	rts
+bitmask:	.byte $01, $02, $04, $08, $10, $20, $40, $80
+.endproc
+
+; ** SUBROUTINE: gm_remove_follower
+; desc: Removes a follower from the player's followers.
+.proc gm_remove_follower
+	
+	rts
+.endproc

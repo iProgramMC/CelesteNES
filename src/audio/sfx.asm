@@ -3,14 +3,15 @@ game_sfx:
 	.word @ntsc
 	.word @ntsc
 @ntsc:
-	.word @sfx_ntsc_sfx_dash    ; dash
+	.word @sfx_ntsc_sfx_dash     ; dash
 	.word @sfx_ntsc_mushroom
-	.word @sfx_ntsc_click       ; jump
-	.word @sfx_ntsc_sfx_death   ; death
-	.word @sfx_ntsc_coin        ; strawberry collect
-	.word @sfx_ntsc_spring      ; spring
-	.word @sfx_ntsc_caw         ; bird caw
-	.word @sfx_ntsc_whoosh      ; whooshing sound
+	.word @sfx_ntsc_click        ; jump
+	.word @sfx_ntsc_sfx_death    ; death
+	.word @sfx_ntsc_coin         ; strawberry collect
+	.word @sfx_ntsc_spring       ; spring
+	.word @sfx_ntsc_caw          ; bird caw
+	.word @sfx_ntsc_whoosh       ; whooshing sound
+	.word @sfx_ntsc_collect_berry; strawberry collect (real)
 
 ; TODO: BORROWED FROM some kind of mega man game. Provide original version ASAP.
 ;@sfx_ntsc_megamanhit:
@@ -97,3 +98,14 @@ game_sfx:
 	.byte $8a,$05,$89,$32,$01,$89,$33,$01,$89,$35,$01,$89,$36,$01,$89,$3f
 	.byte $01,$89,$3d,$01,$89,$3a,$01,$89,$38,$01,$89,$37,$01,$89,$35,$01
 	.byte $89,$34,$01,$89,$33,$01,$89,$32,$01,$89,$31,$02,$00
+
+@sfx_ntsc_collect_berry: ; from iProgram - Placeholder?! Probably not
+	.byte $8a,$03,$01,$8a,$00,$01,$8a,$0d,$89,$31,$01,$8a,$0c,$01,$8a,$09
+	.byte $01,$8a,$07,$01,$89,$32,$01,$8a,$06,$02,$89,$33,$03,$89,$34,$01
+	.byte $89,$35,$01,$89,$36,$01,$89,$37,$01,$89,$39,$01,$89,$3c,$01,$89
+	.byte $3f,$01,$89,$30,$01,$81,$5e,$82,$00,$80,$bb,$89,$3f,$01,$81,$59
+	.byte $80,$bf,$8a,$07,$89,$39,$01,$81,$54,$80,$bb,$8a,$09,$89,$36,$01
+	.byte $81,$4b,$80,$ba,$8a,$0b,$89,$33,$01,$81,$42,$80,$b8,$8a,$0e,$89
+	.byte $31,$01,$81,$38,$80,$b7,$8a,$01,$01,$8a,$02,$01,$8a,$03,$01,$80
+	.byte $b6,$03,$80,$b5,$02,$80,$b4,$05,$80,$b3,$02,$89,$f0,$02,$80,$b2
+	.byte $06,$80,$b1,$07,$00

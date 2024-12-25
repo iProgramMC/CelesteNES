@@ -142,11 +142,35 @@ gm_spawn_particle_at_ent:
 partdirx: .byte $FF,$01,$FF,$01,$00
 partdiry: .byte $FF,$FF,$01,$01,$00
 
+; ** SUBROUTINE: gm_give_points_ent
+; desc: Gives points to a player, setting the points' coordinates to an entity's.
+; parameters: X - the ID of the entity
+gm_give_points_ent:
+	lda sprspace+sp_x, x
+	sta temp1
+	lda sprspace+sp_x_pg, x
+	sta temp2
+	lda sprspace+sp_y, x
+	sta temp3
+	
+	jmp gm_give_points2
+
 ; ** SUBROUTINE: gm_give_points
 ; desc: Gives points to a player. Note: these aren't actually tracked anywhere >:)
 ;
 ;       Handles the bonus streak mechanic.
 gm_give_points:
+	lda player_x
+	clc
+	adc camera_x
+	sta temp1
+	lda camera_x_pg
+	adc #0
+	sta temp2
+	lda player_y
+	sta temp3
+	
+gm_give_points2:
 	inc ptscount
 	ldx ptscount
 	cpx #7           ; values between 1 and 6 are valid.
@@ -182,16 +206,13 @@ gm_spawn_points:
 	asl
 	sta sprspace+sp_flags, y
 	
-	clc
-	lda player_x
-	adc camera_x
+	lda temp1
 	sta sprspace+sp_x, y
 	
-	lda camera_x_pg
-	adc #0
+	lda temp2
 	sta sprspace+sp_x_pg, y
 	
-	lda player_y
+	lda temp3
 	sta sprspace+sp_y, y
 	
 	lda #60
