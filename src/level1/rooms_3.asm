@@ -115,7 +115,7 @@ level1_r5a_p:
 	.byte $0A,$02,$00,$02,$80,$88,$00,$00
 	.byte $00,$00,$00,$FF
 level1_r5a_e:
-	.byte $70,$A0,$0F,$10,$32,$E4
+	.byte $70,$A0,$0F,$10,$1B,$F2
 	.byte $E8,$48,$01,$05
 	.byte $FF
 level1_r5a_t:

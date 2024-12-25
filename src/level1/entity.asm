@@ -384,9 +384,6 @@ tableTimer:	.byte 0, 10, 20, 30
 	sta sprspace+sp_l1zm_homey, x
 	
 dontSetHome:
-	; Currently, velX and velY are the home coordinates. We need to preserve
-	; that quality.
-	
 	ldy #0
 	lda sprspace+sp_l1zm_desty, x
 	bpl :+
