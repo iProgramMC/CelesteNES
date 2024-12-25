@@ -332,6 +332,9 @@ spare3bytes : .res 3
 
 .segment "MORERAM"
 
+; Current Session
+strawberries: .res 4 ; 32 bit bitset of strawberries collected.  Note that The Summit actually has 49 strawberries.
+
 ; Loaded sprite banks
 spr0_bknum  : .res 1
 spr1_bknum  : .res 1

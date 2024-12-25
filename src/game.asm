@@ -294,11 +294,11 @@ gm_game_clear_wx:
 	; before waiting on vblank, clear game reserved spaces ($0300 - $05FF)
 	; note: ldx #$00 was removed because it's already 0!
 	txa
-:	sta $200,x
-	sta $300,x
-	sta $400,x
-	sta $500,x
-	; N.B. don't clear $600 as it holds the background chr banks which won't be restored
+:	sta $200,x  ; OAMBUF
+	sta $300,x  ; ENTITIES
+	sta $400,x  ; PLTRACES + DLGRAM
+	; N.B. don't clear $500 as it holds the "MORERAM" segment which can't be restored
+	sta $600,x  ; last 0x100 bytes of DRAWTEMP
 	inx
 	bne :-
 	dex

@@ -1142,7 +1142,22 @@ gm_init_entity:
 	sta sprspace+sp_refill_flags, x
 	rts
 @notReRefill:
+	cmp #e_strawb
+	beq @isStrawberry
+	cmp #e_strawbw
+	bne @isNotStrawberry
 	
+@isStrawberry:
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_strawb_ident, y
+	
+	tya
+	tax
+	rts
+
+@isNotStrawberry:	
 	cmp #e_l1zipmovr
 	beq @isZipMover
 	cmp #e_l1zipmovt

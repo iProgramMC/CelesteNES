@@ -75,6 +75,7 @@ sp_refill_flags = sp_entspec2
 sp_refill_oldos = sp_entspec3
 sp_strawb_flags = sp_entspec2
 sp_strawb_colid = sp_entspec3
+sp_strawb_ident = sp_entspec4
 sp_points_count = sp_entspec1
 sp_points_timer = sp_entspec2
 sp_spring_timer = sp_entspec1
@@ -148,6 +149,7 @@ e_l1zipmovr = $0E ; LEVEL 1: zip mover
 e_l1zipmovt = $0F ; LEVEL 1: tall zip mover
 
 ; Entity types that turn into other entities on load
+e_strawbw   = $7E ; TODO -- Implement this.
 e_rerefill  = $7F ; refill with respawn flag set
 
 ; Entity Commands
