@@ -591,9 +591,9 @@ level1_r7z_p:
 	.byte $00,$20,$22,$22,$AA,$A0,$00,$00
 	.byte $FF
 level1_r7z_e:
-	.byte $38,$60,$01,$09
-	.byte $70,$78,$7F
-	.byte $A8,$88,$7F
+	.byte $28,$60,$01,$09
+	.byte $60,$78,$7F
+	.byte $98,$88,$7F
 	.byte $FF
 level1_r7z_t:
 	.byte $DE,$94,$33,$31,$2F,$30,$32,$85
