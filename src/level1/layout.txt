@@ -36,7 +36,7 @@ Props,level1_r6z,0,2
 Spawn,level1_r6z,304,112
 Spawn,level1_r6z,0,120
 level1_r6b,2016,-1680
-Props,level1_r6b,6,0
+Props,level1_r6b,6,8
 Spawn,level1_r6b,0,200
 level1_r7zb,640,-1824
 Props,level1_r7zb,0,0
@@ -128,3 +128,4 @@ Filler,1360,-1168,0,16
 Filler,1376,-1168,0,16
 Filler,1344,-1360,64,320
 Filler,1264,-1072,0,16
+Filler,2272,-1680,64,128

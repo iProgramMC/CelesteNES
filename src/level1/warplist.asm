@@ -110,10 +110,6 @@ level1_w_r6zb_to_r7zb:
 	.byte 0			; room left offset
 	.byte 40, 152	; player spawn X/Y
 	.word level1_r7zb
-level1_w_r6c_to_r6b:
-	.byte 0			; room left offset
-	.byte 0, 200	; player spawn X/Y
-	.word level1_r6b
 level1_w_r6c_to_r7:
 	.byte 0			; room left offset
 	.byte 48, 176	; player spawn X/Y

@@ -148,17 +148,18 @@ gm_update_spring:
 
 gm_update_berry:
 	ldx temp1
+	
 	lda sprspace+sp_strawb_flags, x
 	and #esb_shrink
-	bne @shrinkingMode
+	bne @shrinkingMode_
 	
-	jsr gm_ent_oscillate
 	lda sprspace+sp_strawb_flags, x
 	and #esb_picked
 	beq @floatingMode
 	
 	; trailing behind player mode
 	lda sprspace+sp_strawb_colid, x
+	asl
 	asl
 	asl
 	eor #$FF
@@ -196,16 +197,21 @@ gm_update_berry:
 	sta sprspace+sp_y, x
 	
 	lda groundtimer
+	bmi @return
 	cmp #9
 	bcc @return
 	
-	lda sprspace+sp_strawb_flags, x
-	ora #esb_shrink
+	lda sprspace+sp_strawb_colid, x
+	cmp #1
+	bne @return
+	
+	lda #esb_shrink
 	sta sprspace+sp_strawb_flags, x
 	
 	lda #0
 	sta sprspace+sp_strawb_timer, x
 	
+	jsr gm_remove_follower
 	jsr gm_strawb_sfx
 	
 	ldx temp1
@@ -215,23 +221,24 @@ gm_update_berry:
 	lda #0
 	rts
 
-@floatingMode:	
+@shrinkingMode_:
+	bne @shrinkingMode
+
+@floatingMode:
+	jsr gm_ent_oscillate
 	; floating mode
 	jsr gm_check_player_bb
 	bne :+
 	rts
 	
 :	; collided, set to picked up mode
-	lda sprspace+sp_strawb_flags, x
-	ora #esb_picked
+	lda #esb_picked
 	sta sprspace+sp_strawb_flags, x
 	
 	inc plrstrawbs
 	lda plrstrawbs
 	sta sprspace+sp_strawb_colid, x
-	
-	lda #0
-	rts
+	bne @return
 
 @shrinkingMode:
 	; TODO
@@ -440,7 +447,32 @@ bitmask:	.byte $01, $02, $04, $08, $10, $20, $40, $80
 
 ; ** SUBROUTINE: gm_remove_follower
 ; desc: Removes a follower from the player's followers.
+; parameters: X - The index of the entity to remove as follower.
+; clobbers: all regs
 .proc gm_remove_follower
+	; load the following ID, to compare with the rest of the entities
+	lda sprspace+sp_strawb_colid, x
 	
+	ldx #0
+loop:
+	ldy sprspace+sp_kind, x
+	cpy #e_strawb
+	bne continue
+	
+	; compare following IDs
+	cmp sprspace+sp_strawb_colid, x
+	bcs continue
+	
+	dec sprspace+sp_strawb_colid, x
+	
+continue:
+	inx
+	cpx #sp_max
+	bne loop
+	
+	lda #$F0
+	sta groundtimer
+	
+	dec plrstrawbs
 	rts
 .endproc

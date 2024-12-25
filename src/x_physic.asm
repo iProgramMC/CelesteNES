@@ -2220,6 +2220,8 @@ gm_timercheck:
 	rts
 
 @notOnGround:
+	lda groundtimer
+	bmi @gndReturn
 	lda #0
 	sta groundtimer
 	beq @gndReturn
@@ -2227,6 +2229,7 @@ gm_timercheck:
 @onGround:
 	ldx groundtimer
 	inx
+	bmi :+
 	cpx #9
 	bcc :+
 	ldx #9

@@ -17,7 +17,7 @@ gm_death_sfx:
 
 gm_strawb_sfx:
 	lda #8
-	ldx #FAMISTUDIO_SFX_CH0
+	ldx #FAMISTUDIO_SFX_CH1
 	jmp famistudio_sfx_play
 
 gm_spring_sfx:
