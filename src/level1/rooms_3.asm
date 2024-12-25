@@ -23,7 +23,7 @@ level1_r5z_p:
 	.byte $00,$00,$00,$00,$00,$00,$00,$FF
 level1_r5z_e:
 	.byte $78,$10,$03
-	.byte $88,$A8,$01,$00
+	.byte $88,$A8,$01,$03
 	.byte $FF
 level1_r5z_t:
 	.byte $28,$28,$BE,$FE,$FE,$FE,$FE,$FE
@@ -116,7 +116,7 @@ level1_r5a_p:
 	.byte $00,$00,$00,$FF
 level1_r5a_e:
 	.byte $70,$A0,$0F,$10,$32,$E4
-	.byte $E8,$48,$01,$00
+	.byte $E8,$48,$01,$05
 	.byte $FF
 level1_r5a_t:
 	.byte $C7,$60,$4B,$C4,$4C,$5D,$5F,$5B
@@ -337,7 +337,7 @@ level1_r7zb_p:
 	.byte $88,$00,$00,$AA,$AA,$AA,$00,$00
 	.byte $22,$22,$0A,$FF
 level1_r7zb_e:
-	.byte $20,$38,$01,$00
+	.byte $20,$38,$01,$06
 	.byte $80,$68,$7F
 	.byte $E0,$A0,$03
 	.byte $FE
@@ -591,7 +591,7 @@ level1_r7z_p:
 	.byte $00,$20,$22,$22,$AA,$A0,$00,$00
 	.byte $FF
 level1_r7z_e:
-	.byte $38,$60,$01,$00
+	.byte $38,$60,$01,$09
 	.byte $70,$78,$7F
 	.byte $A8,$88,$7F
 	.byte $FF
@@ -720,7 +720,7 @@ level1_r8z_t:
 	.byte $A5,$FF
 level1_r8z:
 	.byte 40, 15
-	.byte 255, 41, 255, 42
+	.byte 255, 43, 255, 44
 	.byte 0, 252, 0, 234
 	.byte 0
 	.byte 255
@@ -741,7 +741,7 @@ level1_r9z_p:
 	.byte $00,$00,$00,$00,$00,$20,$22,$02
 	.byte $FF
 level1_r9z_e:
-	.byte $70,$A8,$01,$00
+	.byte $70,$A8,$01,$0C
 	.byte $D8,$50,$0F,$10,$D0,$00
 	.byte $FE
 	.byte $18,$90,$0F,$18,$00,$EC
@@ -799,7 +799,7 @@ level1_r9z_t:
 	.byte $9E,$FF
 level1_r9z:
 	.byte 44, 0
-	.byte 255, 44, 45, 255
+	.byte 255, 46, 47, 255
 	.byte 0, 0, 26, 0
 	.byte 3
 	.byte 255
@@ -819,7 +819,7 @@ level1_r8zb_p:
 	.byte $00,$00,$00,$A2,$8A,$88,$A2,$0A
 	.byte $FF
 level1_r8zb_e:
-	.byte $A8,$60,$01,$00
+	.byte $A8,$60,$01,$0A
 	.byte $C8,$78,$7F
 	.byte $FF
 level1_r8zb_t:
@@ -875,11 +875,11 @@ level1_r8zb_t:
 	.byte $2B,$2E,$24,$83,$21,$32,$89,$FF
 level1_r8zb:
 	.byte 40, 0
-	.byte 255, 255, 255, 48
+	.byte 255, 255, 255, 50
 	.byte 0, 0, 0, 4
 	.byte 2
 	.byte 0, 0, 0, 32
-	.byte 0, 0, 0, 49
+	.byte 0, 0, 0, 51
 	.byte 0, 0, 0, 230
 	.word level1_r8zb_t
 	.word level1_r8zb_p
