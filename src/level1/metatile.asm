@@ -22,13 +22,13 @@
 	.byte $69,$79,$6A,$7A ; Dirt Right
 	.byte $6B,$6C,$6D,$6E,$7B,$7C,$7D,$9A ; Dirt Middles
 	.byte $6F,$78         ; Dirt Left, Right Ends
-	.byte $80,$84,$90,$94 ; Snow Corners
-	.byte $81,$82,$83     ; Snow Tops
-	.byte $91,$92,$93     ; Snow Bottoms
-	.byte $87,$97         ; Snow Left
-	.byte $88,$98         ; Snow Right
-	.byte $8B,$8C,$8D,$8E,$8F,$9B,$9C,$9D,$9E ; Snow Middles
-	.byte $85,$86,$95,$96 ; Snow In-corners
+	.byte $80,$81,$92,$93 ; Snow Corners
+	.byte $8B,$8C,$8D     ; Snow Tops
+	.byte $94,$95,$96     ; Snow Bottoms
+	.byte $90,$82         ; Snow Left
+	.byte $91,$83         ; Snow Right
+	.byte $84,$85,$86,$9E,$8F,$8E,$9B,$9C,$9D ; Snow Middles
+	.byte $87,$88,$97,$98 ; Snow In-corners
 	.byte $65,$66,$75,$76 ; Dirt In-corners
 	.byte $89,$8A,$99     ; Jump Through
 	.byte $C8             ; Spikes
