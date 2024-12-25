@@ -799,7 +799,7 @@ level1_r9z_t:
 	.byte $9E,$FF
 level1_r9z:
 	.byte 44, 0
-	.byte 255, 46, 47, 255
+	.byte 255, 47, 48, 255
 	.byte 0, 0, 26, 0
 	.byte 3
 	.byte 255
@@ -875,11 +875,11 @@ level1_r8zb_t:
 	.byte $2B,$2E,$24,$83,$21,$32,$89,$FF
 level1_r8zb:
 	.byte 40, 0
-	.byte 255, 255, 255, 50
+	.byte 255, 255, 255, 51
 	.byte 0, 0, 0, 4
 	.byte 2
 	.byte 0, 0, 0, 32
-	.byte 0, 0, 0, 51
+	.byte 0, 0, 0, 52
 	.byte 0, 0, 0, 230
 	.word level1_r8zb_t
 	.word level1_r8zb_p
