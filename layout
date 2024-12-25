@@ -15,7 +15,8 @@ MEMORY
 	ENTITIES: start=$0300, size=$0100, type=rw, file="";
 	PLTRACES: start=$0400, size=$0080, type=rw, file="";
 	DLGRAM:   start=$0480, size=$0080, type=rw, file="";
-	DRAWTEMP: start=$0500, size=$0200, type=rw, file="";
+	MORERAM:  start=$0500, size=$0060, type=rw, file="";
+	DRAWTEMP: start=$0560, size=$01A0, type=rw, file="";
 	FMSRAM:   start=$0700, size=$0100, type=rw, file="";
 	
 	AREASPC:  start=$6000, size=$0800, type=rw, file="";
@@ -119,6 +120,7 @@ SEGMENTS
 	ENTITIES:  load = ENTITIES,  type = bss, align = $100;
 	PLTRACES:  load = PLTRACES,  type = bss;
 	DLGRAM:    load = DLGRAM,    type = bss;
+	MORERAM:   load = MORERAM,   type = bss;
 	DRAWTEMP:  load = DRAWTEMP,  type = bss;
 	FMSRAM:    load = FMSRAM,    type = bss;
 	AREASPC:   load = AREASPC,   type = bss;
