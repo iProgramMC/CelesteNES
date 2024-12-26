@@ -108,3 +108,14 @@ justBlack:
 	lda #$0F
 	rts
 .endproc
+
+; ** SUBROUTINE: fade_twice_if_high
+; desc: Fades twice if >= $30, fades once otherwise
+.proc fade_twice_if_high
+	cmp #$30
+	bcc fadeOnce
+	
+	jsr fade_once_color
+fadeOnce:
+	jmp fade_once_color
+.endproc

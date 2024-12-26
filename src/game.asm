@@ -681,11 +681,8 @@ dontreturn:
 	lda spr3_bknum
 	sta spr3_paubk
 	
-	lda #0
+	lda #$FF
 	sta pauseoption
-	
-	lda #%11111110
-	sta ppu_mask
 	
 	lda #chrb_pause
 	sta spr0_bknum
@@ -733,9 +730,6 @@ dontreturn:
 	sta spr2_bknum
 	lda spr3_paubk
 	sta spr3_bknum
-	
-	lda #def_ppu_msk
-	sta ppu_mask
 	
 	; restore old palette
 	ldy #0
