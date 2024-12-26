@@ -702,14 +702,19 @@ dontreturn:
 	
 	lda #$30
 	sta spritepals+3
-	; 2nd and 3rd colors of that palette are unused
+	; 2nd color of that palette are unused
 	
 	lda #$29
 	sta spritepals+6
-	; 2nd and 3rd colors of that palette are unused
+	; 2nd color of that palette are unused
+	
+	lda #$0F
+	sta spritepals+2
+	sta spritepals+5
+	sta spritepals+8
 	
 	lda nmictrl2
-	ora #(nc2_updpal1 | nc2_updpal2)
+	ora #(nc2_updpal1 | nc2_updpal2 | nc2_updpal3)
 	sta nmictrl2
 	rts
 .endproc
