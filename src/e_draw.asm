@@ -406,6 +406,7 @@ gm_check_ent_onscreen:
 ; desc: Unloads all entities with a specific room number.
 ; arguments: A - the room number to unload entities from.
 ; note: Can only be used to unload entities from the previous room.
+; note: Also marks for collection ALL strawberries.
 gm_unload_ents_room:
 	and #1
 	asl     ; set the ef_oddroom flag, depending on the parity of the room number.
@@ -441,7 +442,10 @@ gm_unload_ents_room:
 	lda sprspace+sp_strawb_flags, x
 	and #esb_picked
 	beq @isStrawBerryRemoveAnyway
-	bne @skipThisObject
+	
+	; forcefully pick it up
+	jsr gm_pick_up_berry_entity
+	jmp @skipThisObject
 
 ; ** SUBROUTINE: gm_unload_os_ents
 ; desc: Unloads entities that went off the left side of the screen.

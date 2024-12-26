@@ -255,7 +255,6 @@ level0_r4_p:
 	.byte $00,$00,$4C,$54,$01,$00,$00,$00
 	.byte $00,$00,$FF
 level0_r4_e:
-	.byte $40,$80,$01
 	.byte $40,$B0,$0A
 	.byte $A8,$B0,$0A
 	.byte $FE

@@ -159,9 +159,12 @@ gm_update_berry:
 	
 	; trailing behind player mode
 	lda sprspace+sp_strawb_colid, x
-	asl
-	asl
-	asl
+	and #7
+	beq :+
+	
+	dec sprspace+sp_strawb_colid, x
+	
+:	lda sprspace+sp_strawb_colid, x
 	eor #$FF
 	clc
 	adc plrtrahd
@@ -202,20 +205,10 @@ gm_update_berry:
 	bcc @return
 	
 	lda sprspace+sp_strawb_colid, x
-	cmp #1
-	bne @return
+	cmp #9
+	bcs @return
 	
-	lda #esb_shrink
-	sta sprspace+sp_strawb_flags, x
-	
-	lda #0
-	sta sprspace+sp_strawb_timer, x
-	
-	jsr gm_remove_follower
-	jsr gm_strawb_sfx
-	
-	ldx temp1
-	jmp gm_collect_berry
+	jmp gm_pick_up_berry_entity
 	
 @return:
 	lda #0
@@ -237,6 +230,9 @@ gm_update_berry:
 	
 	inc plrstrawbs
 	lda plrstrawbs
+	asl
+	asl
+	asl
 	sta sprspace+sp_strawb_colid, x
 	bne @return
 
@@ -474,5 +470,30 @@ continue:
 	sta groundtimer
 	
 	dec plrstrawbs
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_pick_up_berry_entity
+; desc: Picks up a berry entity.
+; parameters: X - The index of the entity to pick up.
+.proc gm_pick_up_berry_entity
+	lda temp1
+	pha
+	stx temp1
+	lda #esb_shrink
+	sta sprspace+sp_strawb_flags, x
+	
+	lda #0
+	sta sprspace+sp_strawb_timer, x
+	
+	jsr gm_remove_follower
+	jsr gm_strawb_sfx
+	
+	ldx temp1
+	jsr gm_collect_berry
+	
+	ldx temp1
+	pla
+	sta temp1
 	rts
 .endproc
