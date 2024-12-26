@@ -44,8 +44,8 @@ MEMORY
 	PRG_LVL2B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$07;
 	PRG_LVL3A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$08;
 	PRG_LVL3B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$09;
-	PRG_LVL4A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0A;
 	
+	PRG_PAUS: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0A;
 	PRG_XTRA: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	PRG_DIAL: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0C;
 	PRG_TTLE: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0D;
@@ -96,9 +96,9 @@ MEMORY
 	CHR_UN006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58;
 	CHR_UN007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C;
 	CHR_UN008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
-	CHR_UN009: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
 	
 	# Extra Banks
+	CHR_PAUSE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
 	CHR_DPLDI: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$68;
 	CHR_U10_B: start=$1400, size=$0400, fill=yes, fillval=$FF, bank=$69;
 	CHR_U10_C: start=$1800, size=$0400, fill=yes, fillval=$FF, bank=$6A;
@@ -138,7 +138,7 @@ SEGMENTS
 	PRG_LVL2B: load = PRG_LVL2B, type = ro, align=$100;
 	PRG_LVL3A: load = PRG_LVL3A, type = ro, align=$100;
 	PRG_LVL3B: load = PRG_LVL3B, type = ro, align=$100;
-	PRG_LVL4A: load = PRG_LVL4A, type = ro, align=$100;
+	PRG_PAUS:  load = PRG_PAUS,  type = ro, align=$100;
 	PRG_XTRA:  load = PRG_XTRA,  type = ro, align=$100;
 	PRG_DIAL:  load = PRG_DIAL,  type = ro, align=$100;
 	PRG_TTLE:  load = PRG_TTLE,  type = ro, align=$100;
@@ -176,7 +176,7 @@ SEGMENTS
 	CHR_UN006: load = CHR_UN006, type = ro;
 	CHR_UN007: load = CHR_UN007, type = ro;
 	CHR_UN008: load = CHR_UN008, type = ro;
-	CHR_UN009: load = CHR_UN009, type = ro;
+	CHR_PAUSE: load = CHR_PAUSE, type = ro;
 	CHR_DPLDI: load = CHR_DPLDI, type = ro;
 	CHR_U10_B: load = CHR_U10_B, type = ro;
 	CHR_U10_C: load = CHR_U10_C, type = ro;

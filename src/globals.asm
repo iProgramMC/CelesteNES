@@ -109,12 +109,11 @@ camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
 camera_y_ho : .res 1 ; camera Y high OLD
 revealedrow : .res 1 ; row revealed by an up/down scroll
 vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
-gettiletmp  : .res 1 ; temporary used by h_get_tile
 camera_y_min: .res 1
 camera_y_max: .res 1
 camera_x_lo : .res 1 ; for linear interpolation
 camera_y_lo : .res 1
-
+paused      : .res 1 ; is the game paused right now?
 tl_timer    : .res 1 ; used for weather
 
 ; merged from individual variables between Prologue, Title and Overworld.
@@ -270,8 +269,8 @@ trantmp1    : .res 1 ; temporaries used for transitioning
 trantmp2    : .res 1
 trantmp3    : .res 1
 plattemp1   : .res 1 ; TODO: replace with a regular temp
-plattemp2   : .res 1 ; TODO: replace with a regular temp
-plattemp3   : .res 1 ; TODO: replace with a regular temp
+plattemp2   : .res 1
+plattemp3   : .res 1
 
 tmpRoomTran : .res 9 ; temporaries used by leaveroomU, 
 	camdst_x    := tmpRoomTran + 0
@@ -289,7 +288,6 @@ roomwidth   : .res 1
 roomheight  : .res 1
 roomreadidx : .res 2 ; read index in first name table row
 roomcurrcol : .res 1 ; current column index in first name table row
-
 
 ; this is the warp header is copied, when a room warp is processed
 roomloffs   : .res 1 ; used for stub rooms.  The amount of tiles the room is shifted left.
@@ -335,6 +333,8 @@ spare3bytes : .res 3
 strawberries: .res 4 ; 32 bit bitset of strawberries collected.  Note that The Summit actually has 49 strawberries.
 abovescreen : .res 1 ; if the player is above the screen
 groundtimer : .res 1 ; how long the player is on the ground, max of 9 frames
+
+pauseoption : .res 1 ; selected pause option
 
 ; Loaded sprite banks
 spr0_bknum  : .res 1
@@ -391,6 +391,12 @@ roomhdrlast  = rm_paloffs + 1
 
 roomaltwarpsfirst = warp_ualt_x + 1
 roomaltwarpslast  = warp_ralt_yo + 1
+
+; pause menu stuff
+spr0_paubk  : .res 1
+spr1_paubk  : .res 1
+spr2_paubk  : .res 1
+spr3_paubk  : .res 1
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

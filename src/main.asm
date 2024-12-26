@@ -37,6 +37,7 @@
 .include "prg_main.asm"
 .include "prg_ttle.asm"
 .include "prg_dial.asm"
+.include "prg_paus.asm"
 
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
 .segment "CHR_SPMAD"
@@ -79,6 +80,9 @@
 .segment "CHR_DPLDI"
 .incbin  "chr/sp_plrdie.chr"
 
+.segment "CHR_PAUSE"
+.incbin  "chr/sp_pause.chr"
+
 ; Main dialog tiles
 .segment "CHR_DMAIN"
 .incbin  "chr/d_main.chr"
@@ -96,12 +100,7 @@
 
 ; UNUSED segments
 .segment "PRG_LVL3A"
-.segment "PRG_LVL4A"
-.segment "PRG_LVL5A"
-.segment "PRG_LVL2B"
 .segment "PRG_LVL3B"
-.segment "PRG_LVL4B"
-.segment "PRG_LVL5B"
 .segment "CHR_SLV0B"
 .segment "CHR_SPR02"
 .segment "CHR_SPR03"

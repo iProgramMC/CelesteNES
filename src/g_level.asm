@@ -46,7 +46,7 @@ h_get_tile:
 	lda vertoffshack
 	beq @noOffset
 	
-	sty gettiletmp
+	sty plattemp1
 	tya
 	clc
 	adc vertoffshack
@@ -56,7 +56,7 @@ h_get_tile:
 :	tay
 	jsr h_comp_addr
 	lda (lvladdr), y; A = (&areaspace[x * 32])[y]
-	ldy gettiletmp
+	ldy plattemp1
 	rts
 @noTile:
 	lda #0

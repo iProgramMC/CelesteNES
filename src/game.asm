@@ -133,6 +133,12 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	jsr gm_update_game_cont
+	jsr gm_check_pause
+	
+	lda paused
+	bne @gamePaused
+	
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
 	jsr gm_draw_respawn
 	
@@ -143,8 +149,7 @@ gm_game_update:
 	inc framectr
 	lda scrollsplit
 	beq :+
-:	jsr gm_update_game_cont
-	jsr gm_update_lift_boost
+:	jsr gm_update_lift_boost
 	jsr gm_check_climb_input
 	jsr gm_physics
 	jsr gm_anim_player
@@ -166,10 +171,20 @@ gm_game_update:
 	lda scrollsplit
 	bne @dontCalcNoSplit
 	jsr gm_calc_camera_nosplit
+	
 @dontCalcNoSplit:
-
-	; here, handle pause input, etc.
+	; add more here?
 	rts
+
+@gamePaused:
+	; game is paused.
+	lda #<pause_update
+	sta temp1
+	lda #>pause_update
+	sta temp1+1
+	lda #mmc3bk_prg1
+	ldy #prgb_paus
+	jmp far_call
 
 ; ** SUBROUTINE: gm_update_game_cont
 ; desc: Updates the game_cont variables to the state of p1_cont.  If input is blocked, then
@@ -286,6 +301,7 @@ gm_game_clear_wx:
 	stx deathwipe2
 	stx deathsplit
 	stx abovescreen
+	stx paused
 	
 	lda #<~g3_transitX
 	and gamectrl3
@@ -638,4 +654,134 @@ boostPositive:
 	lda #0
 	sta liftboostY
 	rts
+.endproc
+
+; ** SUBROUTINE: gm_pause
+; desc: Pauses the game.
+.proc gm_pause
+	lda dialogsplit
+	bne return
+	lda deathsplit
+	bne return
+	lda playerctrl
+	and #pl_dead
+	beq dontreturn
+return:
+	rts
+
+dontreturn:
+	inc paused
+	
+	lda spr0_bknum
+	sta spr0_paubk
+	lda spr1_bknum
+	sta spr1_paubk
+	lda spr2_bknum
+	sta spr2_paubk
+	lda spr3_bknum
+	sta spr3_paubk
+	
+	lda #0
+	sta pauseoption
+	
+	lda #%11111110
+	sta ppu_mask
+	
+	lda #chrb_pause
+	sta spr0_bknum
+	lda #chrb_pause+1
+	sta spr1_bknum
+	lda #chrb_pause+2
+	sta spr2_bknum
+	lda #chrb_pause+3
+	sta spr3_bknum
+	
+	; fill in the first 3 palettes with stuff and reupload
+	lda #$10
+	sta spritepals+0
+	lda #$00
+	sta spritepals+1
+	; 3rd color of that palette is unused.
+	
+	lda #$30
+	sta spritepals+3
+	; 2nd and 3rd colors of that palette are unused
+	
+	lda #$29
+	sta spritepals+6
+	; 2nd and 3rd colors of that palette are unused
+	
+	lda nmictrl2
+	ora #(nc2_updpal1 | nc2_updpal2)
+	sta nmictrl2
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_unpause
+; desc: Unpauses the game.
+.proc gm_unpause
+	lda paused
+	beq return
+	
+	dec paused
+	
+	lda spr0_paubk
+	sta spr0_bknum
+	lda spr1_paubk
+	sta spr1_bknum
+	lda spr2_paubk
+	sta spr2_bknum
+	lda spr3_paubk
+	sta spr3_bknum
+	
+	lda #def_ppu_msk
+	sta ppu_mask
+	
+	; restore old palette
+	ldy #0
+palettePrepLoop:
+	lda (paladdr), y
+	sta temprow1,  y
+	iny
+	cpy #16
+	bne palettePrepLoop
+	
+	; set that bit
+	lda #$3F
+	sta ppuaddrHR1+1
+	lda #$00
+	sta ppuaddrHR1
+	lda #$10
+	sta wrcountHR1
+	lda #$00
+	sta wrcountHR2
+	sta wrcountHR3
+	
+	lda nmictrl
+	ora #nc_flushrow
+	sta nmictrl
+	
+	; wait for the palette to be shifted
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jsr soft_nmi_off
+	
+return:
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_check_pause
+; desc: Checks the start button to see if the game should be paused.
+.proc gm_check_pause
+	lda game_conto
+	and #cont_start
+	bne gm_unpause::return ; the button was already pressed
+	
+	lda game_cont
+	and #cont_start
+	beq gm_unpause::return ; you didn't actually press start
+	
+	lda paused
+	bne gm_unpause
+	jmp gm_pause
 .endproc

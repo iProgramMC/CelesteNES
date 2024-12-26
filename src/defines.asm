@@ -268,6 +268,7 @@ chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
 chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
 
 ; EXTRA SPRITE BANKS
+chrb_pause  = $64
 chrb_dpldi  = $68
 
 ; DIALOG DATA BANKS
@@ -288,7 +289,7 @@ prgb_lvl2a  = $06
 prgb_lvl2b  = $07
 prgb_lvl3a  = $08
 prgb_lvl3b  = $09
-prgb_lvl4a  = $0A
+prgb_paus   = $0A   ; pause section
 prgb_xtra   = $0B   ; extra game code
 prgb_dial   = $0C
 prgb_ttle   = $0D
@@ -308,9 +309,9 @@ nc2_clrcol  = $01   ; Game: clear two columns (death cutscene)
 nc2_setl0ic = $02   ; Game: set Level 0 Intro Crusher
 nc2_clr256  = $04   ; Dialog: clear 256 bytes of columns to zero starting at the registered [clearpahi, clearpalo] address
 nc2_dlgupd  = $08   ; Dialog: columns have been updated
-nc2_updpal1 = $10   ; Game: Update first palette
-nc2_updpal2 = $20   ; Game: Update second palette
-nc2_updpal3 = $40   ; Game: Update third palette
+nc2_updpal1 = $10   ; Game: Update palette 1
+nc2_updpal2 = $20   ; Game: Update palette 2
+nc2_updpal3 = $40   ; Game: Update palette 3
 
 ; Palette types
 pal_blue    = $00

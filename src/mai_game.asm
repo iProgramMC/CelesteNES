@@ -90,3 +90,21 @@ calc_approach:
 	lda @end   ; start now < end, load end
 :	sta 0, x
 	rts
+
+; ** SUBROUTINE: fade_once_color
+; desc: Fades a color once.
+.proc fade_once_color
+	cmp #$10
+	bcc justBlack
+	
+	cmp #$1D
+	beq justBlack  ; special exception as we'd end up in $0D
+	
+	sec
+	sbc #$10
+	rts
+
+justBlack:
+	lda #$0F
+	rts
+.endproc
