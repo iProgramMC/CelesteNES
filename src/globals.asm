@@ -335,6 +335,7 @@ abovescreen : .res 1 ; if the player is above the screen
 groundtimer : .res 1 ; how long the player is on the ground, max of 9 frames
 
 pauseoption : .res 1 ; selected pause option
+pauseanim   : .res 1 ; selected option animation
 
 ; Loaded sprite banks
 spr0_bknum  : .res 1

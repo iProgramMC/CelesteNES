@@ -302,6 +302,7 @@ gm_game_clear_wx:
 	stx deathsplit
 	stx abovescreen
 	stx paused
+	stx pauseanim
 	
 	lda #<~g3_transitX
 	and gamectrl3
