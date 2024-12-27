@@ -79,7 +79,11 @@ loop:
 	dec temp1
 	bne loop
 	
-	; ok, now check what direction the player is pressing
+	; ok, now check what buttons the player is pressing
+	lda p1_cont
+	and #cont_a
+	bne maybePressedA
+	
 	lda p1_cont
 	and #cont_up
 	bne maybePressedUp
@@ -122,6 +126,48 @@ maybePressedDown:
 :	stx pauseoption
 	ldx #16
 	stx pauseanim
+	rts
+
+maybePressedA:
+	lda p1_conto
+	and #cont_a
+	bne return
+	
+	ldx pauseoption
+	beq pressedResume
+	cpx #1
+	beq pressedRetry
+	cpx #2
+	beq pressedSaveAndQuit
+	cpx #3
+	beq pressedOptions
+	cpx #4
+	beq pressedRestartChapter
+	cpx #5
+	beq pressedReturnToMap
+	rts
+
+pressedResume:
+	jsr com_clear_oam ; actually undo everything we just did
+	jmp gm_unpause
+
+pressedRetry:
+	jsr com_clear_oam ; actually undo everything we just did
+	jsr gm_unpause
+	jmp gm_killplayer
+
+pressedSaveAndQuit:
+	jmp gm_whoosh_sfx
+pressedOptions:
+	jmp gm_spring_sfx
+pressedRestartChapter:
+	jmp gm_bird_caw_sfx
+	
+pressedReturnToMap:
+	lda #gm_overwld
+	sta gamemode
+	lda #0
+	sta gamestate
 	rts
 .endproc
 
