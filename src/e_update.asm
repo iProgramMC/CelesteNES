@@ -9,38 +9,15 @@
 ; ** SUBROUTINE: gm_check_player_bb
 ; desc: Checks if the player is located within this entity's bounding box.
 gm_check_player_bb:
-	lda temp3
-	clc
-	adc #16
-	sta temp5
-	
-	clc
-	lda player_y
-	adc #8
-	cmp temp3
-	bcc gm_cpbb_nocoll    ; player_y+8 < temp3 (top of object)
-	cmp temp5
-	bcs gm_cpbb_nocoll    ; player_y+8 > temp5 (bottom of object)
-	
-	lda temp2
-	clc
-	adc #16
-	sta temp5
-	
-	clc
-	lda player_x
-	adc #8
-	cmp temp2
-	bcc gm_cpbb_nocoll    ; player_x+8 < temp2 (left of object)
-	cmp temp5
-	bcs gm_cpbb_nocoll    ; player_x+8 > temp5 (right of object)
-	
-	lda #1
-	rts
-
-gm_cpbb_nocoll:
 	lda #0
-	rts
+	sta temp7
+	sta temp8
+	lda #16
+	sta temp9
+	sta temp10
+	txa
+	tay
+	jmp gm_check_collision_ent
 
 ; ** SUBROUTINE: gm_ent_oscillate
 ; desc: Oscillates this entity using the first entity specific field as a timer.
