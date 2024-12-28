@@ -20,11 +20,15 @@ gm_addtrace:
 ; parameters:
 ;     A - the amount of pixels to decrease the player X trace by
 ; note: The player X trace is capped to 0. It will never overflow.
-gm_shifttrace:
+.proc gm_shifttrace
+	cmp #0
+	bmi actuallyNegative
+nocheck:
 	pha
 	ldx #0
 	sta temp1
-:	lda plr_trace_x, x
+loop:
+	lda plr_trace_x, x
 	sec
 	sbc temp1
 	bcs :+
@@ -32,16 +36,26 @@ gm_shifttrace:
 :	sta plr_trace_x, x
 	inx
 	cpx #$40
-	bne :--
+	bne loop
 	pla
 	rts
+actuallyNegative:
+	sta temp1
+	lda #0
+	sec
+	sbc temp1
+	jmp gm_shiftrighttrace_nocheck
+.endproc
 
 ; ** SUBROUTINE: gm_shiftrighttrace
 ; desc: Shifts the player X trace right by an amount of pixels.
 ; parameters:
 ;     A - the amount of pixels to increase the player X trace by
 ; note: The player X trace is capped to $FF. It will never overflow.
-gm_shiftrighttrace:
+.proc gm_shiftrighttrace
+	cmp #0
+	bmi actuallyNegative
+nocheck:
 	pha
 	ldx #0
 	sta temp1
@@ -56,46 +70,64 @@ gm_shiftrighttrace:
 	bne :--
 	pla
 	rts
+actuallyNegative:
+	sta temp1
+	lda #0
+	sec
+	sbc temp1
+	jmp gm_shifttrace::nocheck
+.endproc
+
+gm_shiftrighttrace_nocheck := gm_shiftrighttrace::nocheck
 	
 ; ** SUBROUTINE: gm_shifttraceYP
 ; desc: Shifts the player Y trace down by an amount of pixels
 ; parameters:
 ;     A - the amount of pixels to increase the player Y trace by
 ; note: The player X trace is capped to $F0. It will never overflow.
-gm_shifttraceYP:
+.proc gm_shifttraceYP
+	cmp #0
+	bmi actuallyNegative
+nocheck:
 	pha
 	ldx #0
 	sta temp1
-@loop:
+loop:
 	lda plr_trace_y, x
-	
 	clc
 	adc temp1
-	
 	bcc :+
 	lda #$F0
-	
 :	cmp #$F0
 	bcc :+
 	lda #$F0
-	
 :	sta plr_trace_y, x
 	inx
 	cpx #$40
-	bne @loop
+	bne loop
 	pla
 	rts
-	
+actuallyNegative:
+	sta temp1
+	lda #0
+	sec
+	sbc temp1
+	jmp gm_shifttraceYN_nocheck
+.endproc
+
 ; ** SUBROUTINE: gm_shifttraceYN
 ; desc: Shifts the player Y trace up by an amount of pixels
 ; parameters:
 ;     A - the amount of pixels to increase the player Y trace by
 ; note: The player X trace is capped to 0. It will never overflow.
-gm_shifttraceYN:
+.proc gm_shifttraceYN
+	cmp #0
+	bmi actuallyNegative
+nocheck:
 	pha
 	ldx #0
 	sta temp1
-@loop:
+loop:
 	lda plr_trace_y, x
 	sec
 	sbc temp1	
@@ -104,9 +136,18 @@ gm_shifttraceYN:
 :	sta plr_trace_y, x
 	inx
 	cpx #$40
-	bne @loop
+	bne loop
 	pla
 	rts
+actuallyNegative:
+	sta temp1
+	lda #0
+	sec
+	sbc temp1
+	jmp gm_shifttraceYP::nocheck
+.endproc
+
+gm_shifttraceYN_nocheck := gm_shifttraceYN::nocheck
 
 ; ** SUBROUTINE: gm_killplayer
 ; desc:     Initiates the player death sequence.

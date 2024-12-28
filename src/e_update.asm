@@ -436,7 +436,10 @@ loop:
 	cmp sprspace+sp_strawb_colid, x
 	bcs continue
 	
-	dec sprspace+sp_strawb_colid, x
+	lda sprspace+sp_strawb_colid, x
+	sec
+	sbc #8
+	sta sprspace+sp_strawb_colid, x
 	
 continue:
 	inx
@@ -454,9 +457,9 @@ continue:
 ; desc: Picks up a berry entity.
 ; parameters: X - The index of the entity to pick up.
 .proc gm_pick_up_berry_entity
-	lda temp1
+	lda temp11
 	pha
-	stx temp1
+	stx temp11
 	lda #esb_shrink
 	sta sprspace+sp_strawb_flags, x
 	
@@ -466,11 +469,11 @@ continue:
 	jsr gm_remove_follower
 	jsr gm_strawb_sfx
 	
-	ldx temp1
+	ldx temp11
 	jsr gm_collect_berry
 	
-	ldx temp1
+	ldx temp11
 	pla
-	sta temp1
+	sta temp11
 	rts
 .endproc

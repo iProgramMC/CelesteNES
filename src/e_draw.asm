@@ -336,7 +336,6 @@ gm_check_ent_onscreen:
 	lda sprspace+sp_flags, x
 	and #ef_limbo
 	bne @returnZero             ; if entity is in limbo
-	
 	lda sprspace+sp_x, x
 	sec
 	sbc camera_x
@@ -354,6 +353,18 @@ gm_check_ent_onscreen:
 	
 	; result is 0.
 @returnZero:
+	lda sprspace+sp_kind, x
+	cmp #e_strawb
+	bne @notStrawBerry
+	
+	lda sprspace+sp_strawb_flags, x
+	and #esb_picked
+	beq @notStrawBerry
+	
+	; ALWAYS render this
+	bne @returnOne
+	
+@notStrawBerry:
 	lda #0
 	rts
 	

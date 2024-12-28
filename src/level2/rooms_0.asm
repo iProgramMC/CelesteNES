@@ -236,7 +236,7 @@ level2_s2_p:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $FE,$FE,$FE,$FE,$FE,$FE,$FE,$FF
 level2_s2_e:
-	.byte $B0,$88,$01
+	.byte $B0,$88,$01,$00
 	.byte $FF
 level2_s2_t:
 	.byte $DE,$9E,$53,$53,$53,$52,$53,$52
