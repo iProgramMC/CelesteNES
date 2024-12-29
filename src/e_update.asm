@@ -381,21 +381,6 @@ gm_update_particle:
 	sta sprspace+sp_kind, x
 :	rts
 
-gm_update_box:
-	ldx temp1
-	
-	; set the collidable flag
-	lda #ef_collidable
-	ora sprspace+sp_flags, x
-	sta sprspace+sp_flags, x
-	
-	; and now the width / height
-	lda #16
-	sta sprspace+sp_wid, x
-	sta sprspace+sp_hei, x
-	
-	rts
-
 ; ** SUBROUTINE: gm_collect_berry
 ; desc: Collects a strawberry.
 ; parameters: X - The entity ID of the strawberry.

@@ -7,9 +7,9 @@
 
 dlg_update_g:
 	lda #<dlg_update_d
-	sta temp1
+	sta farcalladdr
 	lda #>dlg_update_d
-	sta temp1+1
+	sta farcalladdr+1
 	ldy #prgb_dial
 	jmp far_call
 
@@ -28,8 +28,8 @@ dlg_begin_cutscene_g:
 ; This is because dlg_begin_cutscene_d and dlg_run_cutscene are the same as well.
 dlg_run_cutscene_g:
 	lda #<dlg_begin_cutscene_d
-	sta temp1
+	sta farcalladdr
 	lda #>dlg_begin_cutscene_d
-	sta temp2
+	sta farcalladdr+1
 	ldy #prgb_dial
 	jmp far_call

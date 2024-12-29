@@ -179,9 +179,9 @@ gm_game_update:
 @gamePaused:
 	; game is paused.
 	lda #<pause_update
-	sta temp1
+	sta farcalladdr
 	lda #>pause_update
-	sta temp1+1
+	sta farcalladdr+1
 	lda #mmc3bk_prg1
 	ldy #prgb_paus
 	jmp far_call

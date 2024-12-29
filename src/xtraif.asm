@@ -10,9 +10,9 @@
 	pha
 	
 	lda #<gm_leaveroomR_FAR
-	sta temp1
+	sta farcalladdr
 	lda #>gm_leaveroomR_FAR
-	sta temp1+1
+	sta farcalladdr+1
 doit:
 	ldy #prgb_xtra
 	jsr far_call
@@ -41,81 +41,81 @@ doit:
 
 .proc gm_leaveroomU
 	lda #<gm_leaveroomU_FAR
-	sta temp1
+	sta farcalladdr
 	lda #>gm_leaveroomU_FAR
-	sta temp1+1
+	sta farcalladdr+1
 	ldy #prgb_xtra
 	jmp far_call
 .endproc
 
 .proc gm_leaveroomD
 	lda #<gm_leaveroomD_FAR
-	sta temp1
+	sta farcalladdr
 	lda #>gm_leaveroomD_FAR
-	sta temp1+1
+	sta farcalladdr+1
 	ldy #prgb_xtra
 	jmp far_call
 .endproc
 
 .proc xt_gener_col_r
 	lda #<h_gener_col_r
-	sta temp1
+	sta farcalladdr
 	lda #>h_gener_col_r
-	sta temp1+1
+	sta farcalladdr+1
 	ldy lvldatabank
 	jmp far_call
 .endproc
 
 .proc xt_palette_data_column
 	lda #<h_palette_data_column
-	sta temp1
+	sta farcalladdr
 	lda #>h_palette_data_column
-	sta temp1+1
+	sta farcalladdr+1
 	ldy lvldatabank
 	jmp far_call
 .endproc
 
 .proc xt_gener_tiles_below
 	lda #<gm_gener_tiles_below
-	sta temp1
+	sta farcalladdr
 	lda #>gm_gener_tiles_below
-	sta temp1+1
+	sta farcalladdr+1
 	ldy lvldatabank
 	jmp far_call
 .endproc
 
 .proc xt_gener_tiles_above
 	lda #<gm_gener_tiles_above
-	sta temp1
+	sta farcalladdr
 	lda #>gm_gener_tiles_above
-	sta temp1+1
+	sta farcalladdr+1
 	ldy lvldatabank
 	jmp far_call
 .endproc
 
 .proc xt_gener_mts_ents_r
 	lda #<x_gener_mts_ents_r_fixed
-	sta temp1
+	sta farcalladdr
 	lda #>x_gener_mts_ents_r_fixed
-	sta temp1+1
+	sta farcalladdr+1
 	ldy lvldatabank
 	jmp far_call
 .endproc
 
 .proc xt_leave_doframe
 	lda #<gm_leave_doframe
-	sta temp1
+	sta farcalladdr
 	lda #>gm_leave_doframe
-	sta temp1+1
+	sta farcalladdr+1
 	ldy lvldatabank
 	jmp far_call
 .endproc
 
 .proc xt_gener_row_u
 	lda #<h_gener_row_u
-	sta temp1
+	sta farcalladdr
 	lda #>h_gener_row_u
-	sta temp1+1
+	sta farcalladdr+1
 	ldy lvldatabank
 	jmp far_call
 .endproc

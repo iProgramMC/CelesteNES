@@ -189,9 +189,9 @@ gm_collide:
 	stx temp9
 	sty temp10
 	lda #<xt_collide_kludge
-	sta temp1
+	sta farcalladdr
 	lda #>xt_collide_kludge
-	sta temp2
+	sta farcalladdr+1
 	ldy #prgb_xtra
 	jsr far_call
 	lda temp11
@@ -343,9 +343,9 @@ gm_getmidx:
 ; desc: Checks ceiling collision with entities. Calls xt_collentceil
 gm_collentceil:
 	lda #<xt_collentceil_kludge
-	sta temp1
+	sta farcalladdr
 	lda #>xt_collentceil_kludge
-	sta temp2
+	sta farcalladdr+1
 	ldy #prgb_xtra
 	jsr far_call
 	lda temp10
@@ -360,9 +360,9 @@ xt_collentceil_kludge:
 ; desc: Checks ground collision with entities. Calls xt_collentfloor
 gm_collentfloor:
 	lda #<xt_collentfloor_kludge
-	sta temp1
+	sta farcalladdr
 	lda #>xt_collentfloor_kludge
-	sta temp2
+	sta farcalladdr+1
 	ldy #prgb_xtra
 	jsr far_call
 	lda temp10

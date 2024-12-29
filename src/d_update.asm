@@ -359,9 +359,9 @@ dlg_end_dialog:
 @loop:
 	; use far_call to load the level data bank back in
 	lda #<h_gener_col_r
-	sta temp1
+	sta farcalladdr
 	lda #>h_gener_col_r
-	sta temp2
+	sta farcalladdr+1
 	ldy lvldatabank
 	jsr far_call
 	

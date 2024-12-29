@@ -25,9 +25,9 @@ far_call:
 	jmp mmc3_set_bank
 
 @doTheCall:
-	; redirect execution to (temp2, temp1)
+	; redirect execution to (farcalladdr)
 	; this function SHOULD return. this is why we do the jsr indirection
-	jmp (temp1)
+	jmp (farcalladdr)
 
 ; ** SUBROUTINE: mmc3_horzarr
 ; desc: Sets the MMC1 to a horizontal arrangement (vertical mirroring) of nametables.

@@ -124,18 +124,6 @@ gm_draw_key:
 	sta temp7
 	jmp gm_draw_common
 
-gm_draw_box:
-	jsr gm_update_box
-	lda #pal_gray
-	jsr gm_allocate_palette
-	sta temp5
-	sta temp8
-	lda #$D4
-	sta temp6
-	lda #$D6
-	sta temp7
-	jmp gm_draw_common
-	
 gm_draw_points:
 	lda #pal_blue
 	jsr gm_allocate_palette
@@ -186,8 +174,20 @@ gm_draw_points:
 	sta temp6
 	
 	jmp gm_draw_common
-	
-; draws a common 2X sprite.
+
+gm_draw_crumble_block:
+	ldx #<xt_draw_crumble_block
+	ldy #>xt_draw_crumble_block
+	lda #prgb_xtra
+	jmp far_call2
+
+; ** SUBROUTINE: gm_draw_common
+; desc: draws a common 2X sprite.
+; parameters:
+;    temp5 - attributes for left side
+;    temp8 - attributes for right side
+;    temp6 - tile # for left side
+;    temp7 - tile # for right side
 gm_draw_common:
 	lda temp3
 	sta y_crd_temp
@@ -313,7 +313,7 @@ gm_draw_ent_call:
 	gm_draw_refillhold,     \
 	gm_draw_points,         \
 	level0_intro_crusher,   \
-	gm_draw_box,            \
+	gm_draw_crumble_block,  \
 	level0_bridge_manager,  \
 	level0_granny,          \
 	level0_bird_climb,      \

@@ -1153,11 +1153,23 @@ gm_init_entity:
 	jsr gm_read_ent
 	sta sprspace+sp_strawb_ident, y
 	
+@tyxReturn:
 	tya
 	tax
 	rts
 
-@isNotStrawberry:	
+@isNotStrawberry:
+	cmp #e_crumble
+	bne @isNotCrumbleBlock
+	
+	; is crumble block
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_crumbl_width, y
+	jmp @tyxReturn
+	
+@isNotCrumbleBlock:
 	cmp #e_l1zipmovr
 	beq @isZipMover
 	cmp #e_l1zipmovt

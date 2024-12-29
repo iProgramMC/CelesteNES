@@ -113,6 +113,18 @@ oam_dma_and_read_cont:
 	pla               ; pop the signature nybble
 	rts
 
+; ** SUBROUTINE: far_call2
+; desc: Does a far call in a slightly slower, but slimmer way
+; parameters:
+;     X - The low byte of the address
+;     Y - The low byte of the address
+;     A - The bank to load
+far_call2:
+	stx farcalladdr
+	sty farcalladdr+1
+	tay
+	jmp far_call
+
 ; ** SUBROUTINE: ppu_wrstring
 ; arguments:
 ;   x - low 8 bits of address

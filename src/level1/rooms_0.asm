@@ -1188,7 +1188,7 @@ level1_r12a_t:
 	.byte $52,$53,$FF
 level1_r12a:
 	.byte 40, 15
-	.byte 76, 255, 255, 255
+	.byte 77, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.byte 255

@@ -70,17 +70,25 @@ sp_entspec7 = (sp_max *19)   ; entity specific 7
 ; max: 21
 
 ; synonyms for entspec fields
-sp_oscill_timer = sp_entspec1
+sp_oscill_timer = sp_entspec1 ; shared by the strawberry and refill!! (or well, really any entity that calls gm_ent_oscillate)
+
 sp_refill_flags = sp_entspec2
 sp_refill_oldos = sp_entspec3
+
 sp_strawb_flags = sp_entspec2
 sp_strawb_colid = sp_entspec3 ; TODO: For keys, reuse this field
 sp_strawb_ident = sp_entspec4
 sp_strawb_timer = sp_entspec5
+
 sp_points_count = sp_entspec1
 sp_points_timer = sp_entspec2
+
 sp_spring_timer = sp_entspec1
 sp_spring_frame = sp_entspec2
+
+sp_crumbl_width = sp_entspec1
+sp_crumbl_timer = sp_entspec2
+sp_crumbl_state = sp_entspec3
 
 sp_part_entty = sp_entspec1
 sp_part_vel_x = sp_vel_x
@@ -141,7 +149,7 @@ e_particle  = $05 ; INTERNAL: shatter particle
 e_refillhd  = $06 ; INTERNAL: place holder for refill
 e_points    = $07 ; INTERNAL: points when a strawberry is collected
 e_l0introcr = $08 ; LEVEL 0: intro crusher
-e_box       = $09 ; box with collision against the player
+e_crumble   = $09 ; crumble block
 e_l0bridge  = $0A ; LEVEL 0: bridge manager
 e_l0granny  = $0B ; LEVEL 0: granny
 e_l0birdcl  = $0C ; LEVEL 0: bird (climb)

@@ -1190,7 +1190,7 @@ level1_r10zb_t:
 	.byte $85,$32,$89,$C4,$FF
 level1_r10zb:
 	.byte 36, 0
-	.byte 255, 255, 255, 78
+	.byte 255, 255, 255, 76
 	.byte 0, 0, 0, 0
 	.byte 7
 	.byte 255

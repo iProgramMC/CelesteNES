@@ -99,9 +99,9 @@ gm_ent_move_x:
 	pha
 	
 	lda #<kludge
-	sta temp1
+	sta farcalladdr
 	lda #>kludge
-	sta temp1+1
+	sta farcalladdr+1
 	ldy #prgb_xtra
 	jsr far_call
 	

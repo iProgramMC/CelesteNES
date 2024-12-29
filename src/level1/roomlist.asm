@@ -79,9 +79,9 @@ level1:
 	.word level1_w_r12_to_r12z
 	.word level1_w_r11z_to_r11
 	.word level1_w_r11z_to_r10z
+	.word level1_w_r10zb_to_r10z
 	.word level1_w_r12a_to_rend
 	.word level1_w_r12z_to_r12
-	.word level1_w_r10zb_to_r10z
 level1_banks:
 	.byte prgb_lvl1c	; level1_w_init
 	.byte prgb_lvl1c	; level1_w_r1_to_r2
@@ -159,6 +159,6 @@ level1_banks:
 	.byte prgb_lvl1c	; level1_w_r12_to_r12z
 	.byte prgb_lvl1d	; level1_w_r11z_to_r11
 	.byte prgb_lvl1c	; level1_w_r11z_to_r10z
+	.byte prgb_lvl1c	; level1_w_r10zb_to_r10z
 	.byte prgb_lvl1a	; level1_w_r12a_to_rend
 	.byte prgb_lvl1a	; level1_w_r12z_to_r12
-	.byte prgb_lvl1c	; level1_w_r10zb_to_r10z
