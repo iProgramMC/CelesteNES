@@ -149,6 +149,7 @@ okay:
 	lda x_crd_temp
 	clc
 	adc #8
+	bcs @justReturn
 	sta x_crd_temp
 	
 	lda plattemp1

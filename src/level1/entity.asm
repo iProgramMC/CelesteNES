@@ -285,6 +285,7 @@ spikesLoop:
 	lda x_crd_temp
 	clc
 	adc #8
+	bcs notSpikey
 	sta x_crd_temp
 	
 	lda temp10
@@ -606,7 +607,7 @@ noAnim:
 	lda x_crd_temp
 	clc
 	adc #8
-	; TODO: carry here means it overflew!
+	bcs @end
 	sta x_crd_temp
 	
 	ldx temp1
@@ -616,6 +617,7 @@ noAnim:
 	cmp sprspace+sp_wid, x
 	bcc loop
 	
+@end:
 	jmp level1_zip_mover::spikeyProcessing
 
 add16ToYTemp:
