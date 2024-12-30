@@ -81,10 +81,6 @@ gm_game_init:
 	
 	jsr vblank_wait
 	
-	ldy #<init_palette
-	sty paladdr
-	ldy #>init_palette
-	sty paladdr+1
 	jsr load_palette  ; load game palette into palette RAM
 	
 	lda #$20

@@ -1489,9 +1489,13 @@ gm_set_level:
 	
 	lda level_table, x
 	sta lvlptrlo
+	lda level_palettes, x
+	sta paladdr
 	inx
 	lda level_table, x
 	sta lvlptrhi
+	lda level_palettes, x
+	sta paladdr+1
 	
 	; load the music table
 	lda musictable

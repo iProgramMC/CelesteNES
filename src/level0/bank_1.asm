@@ -6,3 +6,4 @@
 .include "dialog.asm"
 .include "roomlist.asm"
 .include "warplist.asm"
+.include "palette.asm"

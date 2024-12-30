@@ -13,3 +13,4 @@ level1_music:
 .include "entity.asm"
 .include "roomlist.asm"
 .include "warplist.asm"
+.include "palette.asm"

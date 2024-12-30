@@ -49,3 +49,13 @@ level_banks_spr:
 	.byte chrb_splvl0
 	.byte chrb_splvl0
 	.byte chrb_splvl0
+
+level_palettes:
+	.word level0_palette
+	.word level1_palette
+	.word level2_palette
+	.word level0_palette
+	.word level0_palette
+	.word level0_palette
+	.word level0_palette
+	.word level0_palette
