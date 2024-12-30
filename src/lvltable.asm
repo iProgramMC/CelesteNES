@@ -43,7 +43,7 @@ level_banks_mus:
 level_banks_spr:
 	.byte chrb_splvl0
 	.byte chrb_splvl1
-	.byte chrb_splvl0
+	.byte chrb_splvl2
 	.byte chrb_splvl0
 	.byte chrb_splvl0
 	.byte chrb_splvl0

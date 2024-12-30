@@ -62,6 +62,11 @@
 .segment "CHR_SLV1B"
 .incbin  "chr/sp_level1b.chr"
 
+.segment "CHR_SLVL2"
+.incbin  "chr/sp_level2.chr"
+.segment "CHR_SLV2B"
+.incbin  "chr/sp_level2b.chr"
+
 .segment "CHR_BGOWD"
 .incbin  "chr/b_overw.chr"
 
@@ -102,8 +107,6 @@
 .segment "PRG_LVL3A"
 .segment "PRG_LVL3B"
 .segment "CHR_SLV0B"
-.segment "CHR_SPR02"
-.segment "CHR_SPR03"
 .segment "CHR_BG002"
 .segment "CHR_BG003"
 .segment "CHR_BG004"
@@ -121,6 +124,9 @@
 .segment "CHR_UN007"
 .segment "CHR_UN008"
 .segment "CHR_UN009"
+.segment "CHR_UN100"
+.segment "CHR_UN101"
+.segment "CHR_UN102"
 .segment "CHR_U10_B"
 .segment "CHR_U10_C"
 .segment "CHR_U10_D"

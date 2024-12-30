@@ -68,8 +68,11 @@ MEMORY
 	CHR_SLVL0: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$08;
 	CHR_SLVL1: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$09;
 	CHR_SLV1B: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0A;
-	CHR_SPR02: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0B;
-	CHR_SPR03: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$0C;
+	CHR_SLVL2: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0B;
+	CHR_SLV2B: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0C;
+	CHR_UN100: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0D;
+	CHR_UN101: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0E;
+	CHR_UN102: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0F;
 	
 	# Overworld Sprite Banks
 	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$10;
@@ -153,8 +156,11 @@ SEGMENTS
 	CHR_SLVL1: load = CHR_SLVL1, type = ro;
 	CHR_SLV0B: load = CHR_SLV0B, type = ro;
 	CHR_SLV1B: load = CHR_SLV1B, type = ro;
-	CHR_SPR02: load = CHR_SPR02, type = ro;
-	CHR_SPR03: load = CHR_SPR03, type = ro;
+	CHR_SLVL2: load = CHR_SLVL2, type = ro;
+	CHR_SLV2B: load = CHR_SLV2B, type = ro;
+	CHR_UN100: load = CHR_UN100, type = ro;
+	CHR_UN101: load = CHR_UN101, type = ro;
+	CHR_UN102: load = CHR_UN102, type = ro;
 	CHR_SPOWD: load = CHR_SPOWD, type = ro;
 	CHR_BGTTL: load = CHR_BGTTL, type = ro;
 	CHR_BGOWD: load = CHR_BGOWD, type = ro;

@@ -319,7 +319,8 @@ gm_draw_ent_call:
 	level0_bird_climb,      \
 	level0_bird_dash,       \
 	level1_zip_mover,       \
-	level1_zip_mover
+	level1_zip_mover,       \
+	level2_memorial
 
 gm_entjtable_lo: .lobytes entity_jump_table
 gm_entjtable_hi: .hibytes entity_jump_table
