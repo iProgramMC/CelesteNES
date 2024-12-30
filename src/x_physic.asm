@@ -900,6 +900,7 @@ xt_colljumptable:
 	.word xt_collidespikesDOWN
 	.word xt_collidespikesLEFT
 	.word xt_collidespikesRIGHT
+	.word xt_collidedream
 
 xt_collidefull:
 	lda #1
@@ -929,6 +930,7 @@ xt_colljtloop:
 	cpx player_y
 	bne xt_colljtloop
 xt_collidenone:
+xt_collidedream:
 	lda #0
 	rts
 xt_colljtnochg:

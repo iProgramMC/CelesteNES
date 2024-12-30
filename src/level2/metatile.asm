@@ -32,7 +32,7 @@
 	.byte $65,$66,$75,$76 ; Dirt In-corners
 	.byte $89,$8A,$99     ; Jump Through
 	.byte $C8             ; Spikes
-	.byte $C4,$C5,$C6,$C7 ; Grass Decals
+	.byte $C4,$C5,$C6,$C7 ; >>> FREE SPACE <<<
 	.byte $A0,$A4,$B0,$B4 ; Tower Corners
 	.byte $A5,$A6,$B5,$B6 ; Tower Corners Alt
 	.byte $A1,$A2,$A3     ; Tower Tops
@@ -43,7 +43,7 @@
 	.byte $BE             ; Tower Connection
 	.byte $00             ; Tower >>> FREE SPACE <<<
 	.byte $A7,$A8,$B7,$B8 ; Tower Corners
-	.byte $C0,$C1,$C2,$C3 ; Girders
+	.byte $C0,$C1,$C2,$C3 ; >>> FREE SPACE <<<
 	.byte $C9,$CA,$CB     ; Spikes
 	.byte $89,$8A,$99     ; Grey Jump Through
 	.byte $F4,$F5         ; Memorial
@@ -56,6 +56,12 @@
 	.byte $E4,$E5,$E6,$E8,$E9 ; Memorial
 	.byte $DA,$DB,$DC,$DD ; Campfire
 	.byte $C8,$C9,$CA,$CB ; Spikes (Blue)
+	.byte $28,$29,$2A,$2B ; Dream Corners  -- $94
+	.byte $08,$09,$0A     ; Dream Top      -- $98
+	.byte $18,$19,$1A     ; Dream Bottom   -- $9B
+	.byte $06,$16,$26     ; Dream Left     -- $9E
+	.byte $07,$17,$27     ; Dream Right    -- $A1
+	.byte $0B,$0C,$1B,$1C ; Dream Middle   -- $A4
 
 ;metatile_info:
 .align $100
@@ -78,5 +84,6 @@
 	.byte ct_deadlyRT            ; Spikes
 	.byte ct_deadlyDN            ; Spikes
 	.byte ct_deadlyLT            ; Spikes
+	.res  20, ct_dream           ; Dream Block
 
 .align $100

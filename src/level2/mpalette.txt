@@ -16,3 +16,4 @@ metatile_palette:
 	.res  30, $0 ; Memorial
 	.res   4, $1 ; Campfire
 	.res   4, $2 ; Spikes (Blue)
+	.res  20, $4 ; Dream Block

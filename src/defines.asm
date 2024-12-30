@@ -482,6 +482,7 @@ ct_jumpthru = $03   ; the tile is a jump through
 ct_deadlyDN = $04   ; the tile is DOWN spike shaped
 ct_deadlyLT = $05   ; the tile is LEFT spike shaped
 ct_deadlyRT = $06   ; the tile is RIGHT spike shaped
+ct_dream    = $07   ; dream block
 ow_maxlvl   = $07   ; maximum level number
 jtheight    = 3     ; height of jump through blocks
 swjgrace    = 5     ; grace time for a super wall jump TODO
