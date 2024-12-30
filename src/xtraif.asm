@@ -33,9 +33,9 @@ doit:
 	pha
 	
 	lda #<gm_leaveroomL_FAR
-	sta temp1
+	sta farcalladdr
 	lda #>gm_leaveroomL_FAR
-	sta temp1+1
+	sta farcalladdr+1
 	jmp gm_leaveroomR::doit
 .endproc
 
