@@ -13,7 +13,7 @@ metatile_palette:
 	.res   4, $0 ; Girder
 	.res   3, $0 ; Spikes
 	.res   3, $0 ; Grey Jump Through
-	.res  30, $0 ; Memorial
+	.res   2, $0 ; Memorial
 	.res   4, $1 ; Campfire
 	.res   4, $2 ; Spikes (Blue)
-	.res  20, $4 ; Dream Block
+	.res  56, $4 ; Dream Block

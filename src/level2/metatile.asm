@@ -46,22 +46,17 @@
 	.byte $C0,$C1,$C2,$C3 ; >>> FREE SPACE <<<
 	.byte $C9,$CA,$CB     ; Spikes
 	.byte $89,$8A,$99     ; Grey Jump Through
-	.byte $F4,$F5         ; Memorial
-	.byte $F8,$D9,$F9,$E7 ; Memorial
-	.byte $D0,$D1,$D2,$D3 ; Memorial
-	.byte $E0,$E1,$E2,$E3 ; Memorial
-	.byte $F6,$D4,$F7     ; Memorial
-	.byte $F0,$F1,$F2,$F3 ; Memorial
-	.byte $D5,$D6,$D7,$D8 ; Memorial
-	.byte $E4,$E5,$E6,$E8,$E9 ; Memorial
-	.byte $DA,$DB,$DC,$DD ; Campfire
+	.byte $0E             ; Memorial
+	.byte $0F             ; Memorial
+	.byte $2C,$2D,$2E,$2F ; Campfire
 	.byte $C8,$C9,$CA,$CB ; Spikes (Blue)
-	.byte $28,$29,$2A,$2B ; Dream Corners  -- $94
-	.byte $08,$09,$0A     ; Dream Top      -- $98
-	.byte $18,$19,$1A     ; Dream Bottom   -- $9B
-	.byte $06,$16,$26     ; Dream Left     -- $9E
-	.byte $07,$17,$27     ; Dream Right    -- $A1
-	.byte $0B,$0C,$1B,$1C ; Dream Middle   -- $A4
+	
+	.byte $C0,$C1,$C2,$C3,$D0,$D1,$D2,$D3,$E0,$E1,$E2,$E3,$F0,$F1,$F2,$F3 ; Dream Block Middles
+	.byte $C4,$D4,$E4,$F4,$C6,$D6,$E6,$F6  ; Dream Block Left
+	.byte $C5,$D5,$E5,$F5,$C7,$D7,$E7,$F7  ; Dream Block Right
+	.byte $D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF  ; Dream Block Top
+	.byte $E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF  ; Dream Block Bottom
+	.byte $F8,$FC,$F9,$FD,$FA,$FE,$FB,$FF  ; Dream Block Corners
 
 ;metatile_info:
 .align $100
@@ -78,12 +73,12 @@
 	.byte ct_deadlyDN            ; Spikes
 	.byte ct_deadlyLT            ; Spikes
 	.res   3, ct_jumpthru        ; Grey Jump Through
-	.res  30, ct_none            ; Memorial
+	.res   2, ct_none            ; Memorial
 	.res   4, ct_none            ; Campfire
 	.byte ct_deadlyUP            ; Spikes
 	.byte ct_deadlyRT            ; Spikes
 	.byte ct_deadlyDN            ; Spikes
 	.byte ct_deadlyLT            ; Spikes
-	.res  20, ct_dream           ; Dream Block
+	.res  56, ct_dream           ; Dream Block
 
 .align $100

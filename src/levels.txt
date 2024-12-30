@@ -6,6 +6,7 @@
 ; Note: Commands starting with BANK_ mean, that the word in the bank list in roomlist.asm connects to rooms_$.asm
 
 level0:
+	palette_path:    level0/palette.asm
 	roomlist_path:   level0/roomlist.asm
 	warplist_path:   level0/warplist.asm
 	metatile_path:   level0/metatile.asm
@@ -21,6 +22,7 @@ level0:
 	BANK_prgb_lvl0a: 0
 
 level1:
+	palette_path:    level1/palette.asm
 	roomlist_path:   level1/roomlist.asm
 	warplist_path:   level1/warplist.asm
 	metatile_path:   level1/metatile.asm
@@ -39,6 +41,7 @@ level1:
 	BANK_prgb_lvl1d: 3
 
 level2:
+	palette_path:    level2/palette.asm
 	roomlist_path:   level2/roomlist.asm
 	warplist_path:   level2/warplist.asm
 	metatile_path:   level2/metatile.asm
