@@ -676,7 +676,8 @@ dontdeccamy:
 	; add 32 to the name table write head
 	lda ntwrhead
 	clc
-	adc #32
+	adc #$20
+	and #$3F
 	sta ntwrhead
 	
 	; restore the camera flags

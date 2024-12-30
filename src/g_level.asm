@@ -102,13 +102,16 @@ h_ntwr_to_ppuaddr:
 	rts
 
 ; ** SUBROUTINE: h_flush_pal_r_cond
-; desc:    Flushes a generated palette column in temppal to the screen if nc_flshpalv is set
+; desc:    Flushes a generated palette column in temppal to the screen if nc_flshpalv is set.
+;          Used during init.
 ; assumes: PPUCTRL has the IRQ bit set to zero (dont generate interrupts), increment to 1
 h_flush_pal_r_cond:
 	lda #nc_flshpalv
 	bit nmictrl
-	bne h_flush_pal_r
+	bne :+
 	rts
+:	eor nmictrl
+	sta nmictrl
 
 ; ** SUBROUTINE: h_flush_pal_r
 ; desc:    Flushes a generated palette column in temppal to the screen
@@ -435,6 +438,17 @@ h_advance_wr_head:
 	and #$3F
 	sta ntwrhead
 	rts
+
+; ** SUBROUTINE: h_flush_col_r_cond
+; desc: Flushes a generated column in tempcol to the screen if the
+;       relevant flag is set in nmictrl.  Used during init
+h_flush_col_r_cond:
+	lda #nc_flushcol
+	bit nmictrl
+	bne :+
+	rts
+:	eor nmictrl
+	sta nmictrl
 
 ; ** SUBROUTINE: h_flush_col_r
 ; desc:    Flushes a generated column in tempcol to the screen

@@ -287,7 +287,7 @@ level1_r10z_t:
 	.byte $25,$85,$23,$2C,$84,$FF
 level1_r10z:
 	.byte 40, 0
-	.byte 70, 255, 71, 69
+	.byte 255, 255, 70, 69
 	.byte 0, 0, 0, 0
 	.byte 7
 	.byte 255
@@ -338,7 +338,7 @@ level1_r11z_t:
 	.byte $24,$84,$30,$86,$FF
 level1_r11z:
 	.byte 40, 0
-	.byte 255, 75, 255, 74
+	.byte 255, 255, 255, 73
 	.byte 0, 0, 0, 0
 	.byte 7
 	.byte 255
@@ -381,7 +381,7 @@ level1_r12z_t:
 	.byte $30,$2B,$25,$84,$32,$86,$FF
 level1_r12z:
 	.byte 40, 0
-	.byte 255, 255, 255, 78
+	.byte 255, 255, 255, 76
 	.byte 0, 0, 0, 16
 	.byte 3
 	.byte 255

@@ -985,6 +985,7 @@ level1_r10_p:
 	.byte $FF
 level1_r10_e:
 	.byte $90,$D0,$0E,$30,$00,$E8
+	.byte $F0,$48,$09,$18
 	.byte $FF
 level1_r10_t:
 	.byte $D1,$2B,$24,$C5,$22,$2F,$C4,$91
@@ -1193,7 +1194,7 @@ level1_r10zb_t:
 	.byte $85,$32,$89,$C4,$FF
 level1_r10zb:
 	.byte 36, 0
-	.byte 255, 255, 255, 76
+	.byte 255, 255, 255, 74
 	.byte 0, 0, 0, 0
 	.byte 7
 	.byte 255

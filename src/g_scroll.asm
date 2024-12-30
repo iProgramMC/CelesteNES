@@ -454,6 +454,7 @@ gm_gener_tiles_horiz:
 gm_gener_tiles_horiz_row_read:
 	; calculate the first PPUADDR
 	lda #$00
+	sta wrcountHR3
 	sta ppuaddrHR1
 	lda #$20
 	sta ppuaddrHR1+1

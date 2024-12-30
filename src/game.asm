@@ -37,7 +37,7 @@ gm_load_room_fully:
 	tya
 	pha
 	jsr h_gener_col_r
-	jsr h_flush_col_r
+	jsr h_flush_col_r_cond
 	jsr h_flush_pal_r_cond
 	lda nmictrl
 	and #<~(nc_flushcol|nc_flshpalv|nc_flushrow|nc_flushpal)

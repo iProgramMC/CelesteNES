@@ -246,7 +246,8 @@ dontdeccamy:
 	; add 32 to the name table write head
 	lda ntwrhead
 	clc
-	adc #32
+	adc #$20
+	and #$3F
 	sta ntwrhead
 	
 	; restore the camera flags
@@ -419,8 +420,8 @@ actuallyTransition:
 	
 	; set the beginning of the room to the proper place
 	lda roombeglo2
-	sta plattemp1   ; keep the old beginning for now
-	sta plattemp2
+	sta trantmp4    ; keep the old beginning for now
+	sta trantmp5
 	
 	sec
 	sbc roomsize
@@ -557,11 +558,11 @@ transLoopMain:
 	
 	jsr gm_leaveroomR_FAR::shiftPlayerY
 	
-	ldx plattemp1
+	ldx trantmp4
 	dex
 	txa
 	and #$3F
-	sta plattemp1
+	sta trantmp4
 	sta ntwrhead
 	
 	; don't actually try to generate new tiles now
@@ -576,11 +577,11 @@ transLoopMain:
 	pla
 	sta gamectrl
 	
-	lda plattemp1
+	lda trantmp4
 	and #$03
 	cmp #$03
 	bne :+
-	lda plattemp1
+	lda trantmp4
 	jsr updatePalettes
 	
 	; wait for a frame to prepare more graphics
@@ -636,7 +637,7 @@ transLoopAfter:
 	sta camlimithi
 	
 	; finally, done.
-	lda plattemp2
+	lda trantmp5
 	sta ntwrhead
 	sta arwrhead
 	sta trarwrhead

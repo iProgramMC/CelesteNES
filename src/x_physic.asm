@@ -1203,9 +1203,9 @@ gm_applyy:
 	jmp gm_killplayer
 :
 gm_leaveroomU_:
-	jmp gm_leaveroomU
+	jmp gm_leaveroomU_FAR
 gm_leaveroomD_:
-	jmp gm_leaveroomD
+	jmp gm_leaveroomD_FAR
 
 gm_velapplied:        ; this is the return label from gm_velminus4
 	lda player_y
@@ -1401,7 +1401,7 @@ applyXSub:
 	
 	lda #0                   ; we have an underflow, means the player is trying to leave the screen
 	sta player_x
-	jsr gm_leaveroomL
+	jsr gm_leaveroomL_FAR
 	bne dontCheckOffs
 	rts
 
@@ -1493,7 +1493,7 @@ checkDone2:
 	beq checkRight          ; also check right, if player is not moving at all
 
 callLeaveRoomR:
-	jsr gm_leaveroomR
+	jsr gm_leaveroomR_FAR
 	bne doneLeavingRoom
 	rts
 

@@ -561,6 +561,7 @@ level1_r8_p:
 	.byte $00,$00,$00,$00,$00,$A0,$00,$00
 	.byte $FF
 level1_r8_e:
+	.byte $20,$78,$09,$08
 	.byte $E0,$98,$09,$18
 	.byte $FE
 	.byte $00,$C0,$03
@@ -828,6 +829,7 @@ level1_r9b_p:
 	.byte $00,$00,$FF
 level1_r9b_e:
 	.byte $10,$57,$0F,$98,$1E,$00
+	.byte $28,$48,$09,$08
 	.byte $FE
 	.byte $20,$60,$01,$11
 	.byte $FF
@@ -1104,7 +1106,7 @@ level1_r12_t:
 	.byte $8D,$2B,$24,$8A,$2D,$84,$FF
 level1_r12:
 	.byte 52, 0
-	.byte 255, 255, 73, 72
+	.byte 255, 255, 72, 71
 	.byte 0, 0, 240, 2
 	.byte 7
 	.byte 255
@@ -1195,7 +1197,7 @@ level1_r12a_t:
 	.byte $52,$53,$FF
 level1_r12a:
 	.byte 40, 15
-	.byte 77, 255, 255, 255
+	.byte 75, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.byte 255

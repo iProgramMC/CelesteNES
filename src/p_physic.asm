@@ -395,6 +395,10 @@ xt_collentfloor_kludge:
 	ora #g2_autojump
 	sta gamectrl2
 	
+	lda playerctrl
+	and #<~(pl_climbing | pl_wallleft | pl_nearwall | pl_pushing)
+	sta playerctrl
+	
 	lda #0
 	sta player_vl_x
 	sta player_vs_x

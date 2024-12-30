@@ -269,6 +269,8 @@ scrchkhi    : .res 1
 trantmp1    : .res 1 ; temporaries used for transitioning
 trantmp2    : .res 1
 trantmp3    : .res 1
+trantmp4    : .res 1
+trantmp5    : .res 1
 plattemp1   : .res 1 ; TODO: replace with a regular temp
 plattemp2   : .res 1
 plattemp3   : .res 1
