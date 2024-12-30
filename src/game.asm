@@ -299,6 +299,7 @@ gm_game_clear_wx:
 	stx abovescreen
 	stx paused
 	stx pauseanim
+	stx dredeatmr
 	
 	lda #<~g3_transitX
 	and gamectrl3

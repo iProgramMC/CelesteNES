@@ -453,6 +453,9 @@ gm_normaljmp2:
 	lda playerctrl
 	and #<~(pl_ground|pl_climbing)
 	sta playerctrl
+	lda gamectrl4
+	and #<~g4_nosjump
+	sta gamectrl4
 	lda #%00000011
 	bit game_cont
 	beq gm_dontjump2  ; don't give a boost if we aren't moving
@@ -571,6 +574,10 @@ gm_walljump:
 :	lda #12
 	sta cjwindow
 	
+	lda gamectrl4
+	and #<~g4_nosjump
+	sta gamectrl4
+	
 	lda #0
 	sta player_vl_x
 	sta player_vs_x
@@ -646,6 +653,10 @@ gm_walljump:
 ; desc:    Update the jump grace state.  If the A button is held, start buffering a jump.
 ;          If necessary, decrement the coyote timer.
 gm_jumpgrace:
+	lda gamectrl4
+	and #<~(g4_movedX|g4_movedY)
+	sta gamectrl4
+	
 	lda #cont_a
 	bit game_conto
 	bne gm_nosetbuff  ; (game_conto & #cont_a) = 0
@@ -930,7 +941,6 @@ xt_colljtloop:
 	cpx player_y
 	bne xt_colljtloop
 xt_collidenone:
-xt_collidedream:
 	lda #0
 	rts
 xt_colljtnochg:
@@ -1156,6 +1166,100 @@ xt_collidespikesLEFT:
 @kill:
 	jmp gm_killplayer
 
+.proc xt_collidedream
+	tax
+	lda gamectrl4
+	and #g4_dreamdsh
+	bne isDreamDashing
+	
+	; not dream dashing, check if we can initiate a dream dash
+	lda dashtime
+	beq thisSolid
+	
+	; depending on direction, check if there is a dream block in the middle
+	jsr checkDreamBlockInMiddle
+	bne thisSolid
+	
+	lda gamectrl4
+	ora #(g4_dreamdsh | g4_hasdrdsh)
+	sta gamectrl4
+	lda #0
+	rts
+
+thisSolid:
+	lda #1
+	rts
+	
+isDreamDashing:
+	lda dashtime
+	cmp #(defdashtime-dashchrgtm)
+	bcs dontCorrect
+	
+	ldx dashdir
+	lda dash_table, x
+	sta player_vl_x
+	inx
+	lda dash_table, x
+	sta player_vs_x
+	inx
+	lda dash_table, x
+	sta player_vl_y
+	inx
+	lda dash_table, x
+	sta player_vs_y
+	
+dontCorrect:
+	lda gamectrl4
+	ora #g4_hasdrdsh
+	sta gamectrl4
+	
+	lda #0
+	rts
+
+; returns: ZF set - there is a dream block
+checkDreamBlockInMiddle:
+	; X contains the direction
+	cpx #gc_ceil
+	beq @ceil
+	cpx #gc_left
+	beq @left
+	cpx #gc_right
+	beq @right
+	
+	; floor
+	jsr gm_getmidx
+	tax
+	jsr gm_getbottomy_f
+	tay
+@check:
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
+	eor #ct_dream
+	rts
+
+@ceil:
+	jsr gm_getmidx
+	tax
+	jsr gm_gettopy
+	tay
+	jmp @check
+
+@left:
+	jsr gm_getleftx
+	tax
+	jsr gm_getmidy
+	tay
+	jmp @check
+
+@right:
+	jsr gm_getrightx
+	tax
+	jsr gm_getmidy
+	tay
+	jmp @check
+.endproc
+
 ; ** SUBROUTINE: gm_applyy
 ; desc:     Apply the velocity in the Y direction.
 gm_velminus:
@@ -1299,6 +1403,9 @@ gm_checkfloor:
 	ora playerctrl
 	and #(pl_dashed^$FF) ; clear the dashed flag
 	sta playerctrl
+	lda gamectrl4
+	and #<~g4_nosjump
+	sta gamectrl4
 	lda #defjmpcoyot
 	sta jumpcoyote    ; assign coyote time because we're on the ground
 	lda #0
@@ -1317,7 +1424,15 @@ gm_checkfloor:
 	
 @done:
 gm_applyy_checkdone:
-	jsr xt_scroll_u_cond
+	lda player_yo
+	cmp player_y
+	beq :+
+	
+	lda gamectrl4
+	ora #g4_movedY
+	sta gamectrl4
+	
+:	jsr xt_scroll_u_cond
 	jmp xt_scroll_d_cond
 
 ; ** SUBROUTINE: gm_applyx
@@ -1482,10 +1597,9 @@ collidedRight:
 	jmp checkRightLoop       ; !! note: in case of a potential clip, this might cause lag frames!
 	                         ; loops will be used to avoid this unfortunate case as much as possible.
 ;
-
 checkDone:
-	jsr xt_scroll_l_cond
-	jmp xt_scroll_r_cond
+	beq checkDoneX
+	bne checkDoneX
 
 checkDone2:
 	lda player_vl_x
@@ -1547,6 +1661,18 @@ collidedLeft:
 	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
 	jmp checkLeftLoop
+
+checkDoneX:
+	lda player_xo
+	cmp player_x
+	beq :+
+	
+	lda gamectrl4
+	ora #g4_movedX
+	sta gamectrl4
+	
+:	jsr xt_scroll_l_cond
+	jmp xt_scroll_r_cond
 .endproc
 
 gm_appx_checkleft  := gm_applyx::checkLeft
@@ -2002,14 +2128,6 @@ gm_checkthisenty:
 	lda #0
 	rts
 
-gm_dash_lock:
-	ldx #0
-	stx player_vl_x
-	stx player_vl_y
-	stx player_vs_x
-	stx player_vs_y
-	jmp gm_dash_update_done
-
 gm_dash_over:
 	; dash has terminated.
 	
@@ -2027,6 +2145,14 @@ gm_dash_over:
 	
 :	jmp gm_dash_update_done
 
+gm_dash_lock:
+	ldx #0
+	stx player_vl_x
+	stx player_vl_y
+	stx player_vs_x
+	stx player_vs_y
+	jmp gm_dash_update_done
+
 gm_defaultdir:
 	ldy #0                  ; player will not be dashing up or down
 	lda #pl_left
@@ -2036,10 +2162,13 @@ gm_defaultdir:
 	jmp gm_dash_nodir
 
 gm_superjump:
-	lda #pl_ground
-	bit playerctrl
+	lda jumpcoyote
 	beq @return            ; if player wasn't grounded, then ...
-	lda #(cont_down << 2)  ; if she was dashing down
+	lda #g4_nosjump
+	bit gamectrl4
+	beq :+
+	jmp gm_jump
+:	lda #(cont_down << 2)  ; if she was dashing down
 	bit dashdir
 	beq @normal
 	; half the jump height here
@@ -2054,7 +2183,6 @@ gm_superjump:
 	lda #jumpvelLO
 	sta player_vs_y         ; super jump speed is the same as normal jump speed
 @continue:
-	jsr gm_add_lift_boost
 	lda #superjmphhi
 	sta player_vl_x
 	lda #superjmphlo
@@ -2062,16 +2190,14 @@ gm_superjump:
 	lda #pl_left
 	bit playerctrl
 	beq :+
-	lda player_vl_x
-	eor #$FF
-	sta player_vl_x
-	lda player_vs_x
-	eor #$FF
-	sta player_vs_x
-:	lda #jumpsustain
-	sta jcountdown
 	lda #0
-	sta dashtime            ; no longer dashing. do this to avoid our speed being taken away.
+	sec
+	sbc player_vs_x
+	sta player_vs_x
+	lda #0
+	sbc player_vl_x
+	sta player_vl_x
+:	jmp gm_superjumpepilogue
 @return:
 	rts
 
@@ -2111,7 +2237,6 @@ gm_dash_nodir:
 	inx
 	lda dash_table, x
 	sta player_vs_y
-	inx
 	; we pushed the value of player_vl_x such that it can be quickly loaded and checked
 	pla
 	bpl gm_dash_update_done
@@ -2164,12 +2289,24 @@ dash_update_done:
 	jsr gm_checkwjump
 	jsr gm_climbcheck
 	jsr gm_addtrace
+	jsr gm_dreamcheck
 	jmp gm_timercheck
 return:
 	rts
 .endproc
 
 gm_dash_update_done := xt_physics::dash_update_done
+
+gm_superjumpepilogue:
+	jsr gm_add_lift_boost
+	lda gamectrl4
+	and #<~g4_nosjump
+	sta gamectrl4
+	lda #jumpsustain
+	sta jcountdown
+	lda #0
+	sta dashtime            ; no longer dashing. do this to avoid our speed being taken away.
+	rts
 
 ; ** SUBROUTINE: gm_timercheck
 ; desc: Checks and decreases relevant timers.
@@ -2886,4 +3023,100 @@ normalLiftBoostY:
 	jmp gm_add_lift_boost
 return:
 	rts
+.endproc
+
+; ** SUBROUTINE: gm_dreamcheck
+; desc: Checks if we should reset the dream dash state.
+.proc gm_dreamcheck
+	lda #g4_hasdrdsh
+	bit gamectrl4
+	beq resetDreamDash
+	
+	lda gamectrl4
+	and #<~g4_hasdrdsh
+	ora #g4_dreamdsh
+	sta gamectrl4
+	
+	lda dashtime
+	cmp #(defdashtime-dashchrgtm)
+	bcs return
+	
+	lda #(defdashtime-dashchrgtm-2)
+	sta dashtime
+	
+	; Check if the player's position changed
+	lda gamectrl4
+	and #(g4_movedX | g4_movedY)
+	beq noMovement
+	
+	; what do we expect based on the move direction
+	pha
+	lda dashdir
+	lsr
+	lsr
+	tay
+	lda expectedMovement, y
+	sta plattemp1
+	pla
+	cmp plattemp1
+	beq returnClearTimer
+	
+noMovement:
+	; they're the same, increment the death counter and see
+	inc dredeatmr
+	lda dredeatmr
+	cmp #2
+	bcc return
+	
+	jmp gm_killplayer
+
+returnClearTimer:
+	lda #0
+	sta dredeatmr
+
+return:
+	rts
+	
+resetDreamDash:
+	lda gamectrl4
+	and #g4_dreamdsh
+	beq return          ; if the dream dash flag wasn't set
+	
+	lda #0
+	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	lda #5
+	sta jumpcoyote
+	lda #3
+	sta dashtime
+	
+	; check the dash direction, only horizontal directions may super dream jump
+	lda dashdir
+	and #%00110000
+	beq @skipNoSJump
+	cmp #%00110000
+	beq @skipNoSJump
+	
+	lda gamectrl4
+	ora #g4_nosjump
+	sta gamectrl4
+	
+	lda #0
+	sta dredeatmr
+	
+@skipNoSJump:
+	lda gamectrl4
+	and #<~g4_dreamdsh
+	sta gamectrl4
+	rts
+
+expectedMovement:
+	; $10 - movedX, $20 - movedY
+	.byte $00,$10,$10,$10
+	.byte $20,$30,$30,$30
+	.byte $20,$30,$30,$30
+	.byte $00,$10,$10,$10
 .endproc
