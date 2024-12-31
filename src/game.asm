@@ -552,9 +552,9 @@ dash_table:
 	.byte $FD, $2C, $02, $D4 ; -DLR
 
 	.byte $00, $00, $FC, $00 ; U---
-	.byte $04, $00, $FD, $24 ; U--R
-	.byte $FD, $24, $FD, $24 ; U-L-
-	.byte $FD, $24, $FD, $24 ; U-LR
+	.byte $02, $D4, $FD, $2C ; U--R
+	.byte $FD, $2C, $FD, $2C ; U-L-
+	.byte $FD, $2C, $FD, $2C ; U-LR
 
 	.byte $00, $00, $00, $00 ; UD--
 	.byte $04, $00, $00, $00 ; UD-R

@@ -465,7 +465,7 @@ notInverted:
 	sbc #30
 	cmp #30
 	bcc :+
-	lda #128
+	lda #32
 :	asl
 	asl
 	sta camera_y_max
