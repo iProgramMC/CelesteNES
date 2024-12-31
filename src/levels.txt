@@ -56,3 +56,4 @@ level2:
 	roomdata_path:   level2/rooms_$.asm
 	BANK_prgb_lvl2a: 0
 	BANK_prgb_lvl2b: 1
+	BANK_prgb_lvl2c: 2

@@ -425,6 +425,11 @@ gm_dontjump:
 	inc dashcount
 	ldx #defdashtime
 	stx dashtime
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	sta player_vl_y
+	sta player_vs_y
 	lda playerctrl
 	ora #pl_dashed
 	and #<~(pl_climbing|pl_nearwall|pl_pushing|pl_wallleft)
