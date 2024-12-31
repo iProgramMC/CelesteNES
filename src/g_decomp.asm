@@ -464,9 +464,11 @@ notInverted:
 	sec
 	sbc #30
 	cmp #30
-	bne :+
+	bcc :+
 	lda #128
-:	sta camera_y_max
+:	asl
+	asl
+	sta camera_y_max
 	rts
 .endproc
 

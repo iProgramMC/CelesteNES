@@ -191,8 +191,6 @@ reset:
 	stx ppu_ctrl     ; disable PPU NMI
 	stx ppu_mask     ; disable rendering
 	stx apu_dmc_cfg  ; disable APU DMC IRQs
-	bit ppu_status   ; clear status
-	;jsr vblank_wait
 	
 	; clear $01 - $FF ($00 must remain different from 0 until the reset sequence finishes)
 	lda #0
@@ -213,8 +211,6 @@ reset:
 	bne :-
 	
 	jsr mmc3_initialize
-	
-	; TODO: other setup here
 	
 	bit ppu_status   ; clear status
 	jsr vblank_wait
