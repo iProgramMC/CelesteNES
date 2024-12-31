@@ -1,3 +1,4 @@
+; Copyright (C) 2024-2025 iProgramInCpp
 .feature string_escapes
 .feature line_continuations
 
