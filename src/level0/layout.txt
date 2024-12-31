@@ -13,3 +13,4 @@ Spawn,level0_r3,304,128
 level0_r4,1248,-112
 Props,level0_r4,0,0
 Spawn,level0_r4,0,160
+Filler,864,-128,64,112

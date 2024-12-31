@@ -219,7 +219,9 @@ level0_r3:
 	.byte 255, 255, 4, 5
 	.byte 0, 0, 8, 252
 	.byte 5
-	.byte 255
+	.byte 0, 0, 64, 0
+	.byte 0, 0, 255, 0
+	.byte 0, 0, 0, 0
 	.word level0_r3_t
 	.word level0_r3_p
 	.word level0_r3_e

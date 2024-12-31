@@ -443,7 +443,7 @@ level1_r6c:
 	.byte 28, 255, 255, 255
 	.byte 28, 0, 0, 0
 	.byte 3
-	.byte 0, 0, 144, 0
+	.byte 0, 0, 112, 0
 	.byte 0, 0, 29, 0
 	.byte 0, 0, 244, 0
 	.word level1_r6c_t
