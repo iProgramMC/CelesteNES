@@ -56,7 +56,7 @@
 	.byte $C5,$D5,$E5,$F5,$C7,$D7,$E7,$F7  ; Dream Block Right
 	.byte $D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF  ; Dream Block Top
 	.byte $E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF  ; Dream Block Bottom
-	.byte $F8,$FC,$F9,$FD,$FA,$FE,$FB,$FF  ; Dream Block Corners
+	.byte $F8,$FC,$F9,$FD,$FA,$5F,$FB,$FF  ; Dream Block Corners
 
 ;metatile_info:
 .align $100

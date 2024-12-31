@@ -3044,6 +3044,9 @@ return:
 	lda #(defdashtime-dashchrgtm-2)
 	sta dashtime
 	
+	lda #1
+	sta plattemp2
+	
 	; Check if the player's position changed
 	lda gamectrl4
 	and #(g4_movedX | g4_movedY)
@@ -3058,14 +3061,17 @@ return:
 	lda expectedMovement, y
 	sta plattemp1
 	pla
-	cmp plattemp1
-	beq returnClearTimer
+	eor plattemp1
+	beq returnClearTimer  ; if they are equal
+	
+	lda #4
+	sta plattemp2
 	
 noMovement:
 	; they're the same, increment the death counter and see
 	inc dredeatmr
 	lda dredeatmr
-	cmp #2
+	cmp plattemp2
 	bcc return
 	
 	jmp gm_killplayer
