@@ -547,14 +547,14 @@ dash_table:
 	.byte $FC, $00, $00, $00 ; --LR
 
 	.byte $00, $00, $04, $00 ; -D--
-	.byte $02, $D4, $02, $D4 ; -D-R
-	.byte $FD, $2C, $02, $D4 ; -DL-
-	.byte $FD, $2C, $02, $D4 ; -DLR
+	.byte $02, $DC, $02, $DC ; -D-R
+	.byte $FD, $24, $02, $DC ; -DL-
+	.byte $FD, $24, $02, $DC ; -DLR
 
 	.byte $00, $00, $FC, $00 ; U---
-	.byte $02, $D4, $FD, $2C ; U--R
-	.byte $FD, $2C, $FD, $2C ; U-L-
-	.byte $FD, $2C, $FD, $2C ; U-LR
+	.byte $02, $DC, $FD, $24 ; U--R
+	.byte $FD, $24, $FD, $24 ; U-L-
+	.byte $FD, $24, $FD, $24 ; U-LR
 
 	.byte $00, $00, $00, $00 ; UD--
 	.byte $04, $00, $00, $00 ; UD-R

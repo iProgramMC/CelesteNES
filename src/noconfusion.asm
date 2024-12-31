@@ -327,9 +327,12 @@ newModeTran:
 @newModeLoop:
 	lda camera_y
 	beq @endNewModeLoop
-	sec
-	sbc #8
-	sta camera_y
+	clc
+	adc #8
+	cmp #240
+	bcc :+
+	lda #0
+:	sta camera_y
 	
 	lda camera_y_hi
 	and #1
@@ -363,9 +366,9 @@ newModeTran:
 	jmp @newModeLoop
 
 @endNewModeLoop:
-	lda #29
-	sta ntrowhead
 	lda #0
+	sta ntrowhead
+	sta ntrowhead2
 	sta lvlyoff
 	rts
 .endproc
