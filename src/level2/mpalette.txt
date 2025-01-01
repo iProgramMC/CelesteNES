@@ -21,3 +21,4 @@ metatile_palette:
 	.res  52, $1 ; Stone
 	.res   2, $0 ; Tower
 	.res   1, $2 ; Snow
+	.res   4, $1 ; Spikes (Red)

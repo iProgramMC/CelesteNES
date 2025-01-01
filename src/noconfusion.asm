@@ -3,6 +3,7 @@
 ; ** SUBROUTINE: gm_leaveroomD_FAR
 ; desc: Performs a transition, across multiple frames, going down.
 .proc gm_leaveroomD_FAR
+loadCount := trantmp5
 	lda #gs_camlock
 	bit gamectrl
 	bne returnEarly
@@ -36,6 +37,9 @@ actuallyWarp:
 	pla
 	sta temp3
 	
+	lda #36
+	sta loadCount
+	
 	inc roomnumber
 	
 	; TODO: screw it, just do this. if we keep this hack in, also reduce the hacks that I did to try to make things work
@@ -53,6 +57,32 @@ actuallyWarp:
 	lda #0
 	sta ntrowhead2
 	
+	; if this room has a "nice" transition (both rooms are located at the same X offset with the same width)
+	lda #rf_nicevert
+	bit roomflags
+	beq @normalTransition
+	
+	lda camera_x
+	sta camdst_x
+	lda camera_x_pg
+	sta camdst_x_pg
+	
+	lda roombeglo2
+	sta ntwrhead
+	sta arwrhead
+	
+	lda player_x
+	sta player_x_d
+	
+	lda roomsize
+	sta loadCount
+	
+	lda #0
+	sta roomloffs
+	
+	jmp @dontCalculateXOffset
+
+@normalTransition:
 	; add the X offset of this room to the name table and area table write heads
 	lda temp3
 	clc
@@ -109,6 +139,7 @@ actuallyWarp:
 	sbc camdst_x
 	sta player_x_d
 	
+@dontCalculateXOffset:
 	; calculate camoff - the increment we should add over a span of 32 frames to smoothly
 	; scroll the camera
 	jsr gm_leaveroomU_FAR::compute_camoff
@@ -160,9 +191,11 @@ genloop:
 	jsr xt_gener_mts_ents_r
 	ldy transtimer
 	iny
-	cpy #36
+	cpy loadCount
 	bne genloop
 	
+	lsr loadCount
+	lsr loadCount
 	jsr xt_generate_palette_data_V
 	
 	; now, we will want to wait for vblank. NMIs are disabled at this point
@@ -271,6 +304,11 @@ dontdeccamy:
 	lda #gs_scrstopR
 	bit gamectrl
 	bne dontdomore
+	
+	lda #rf_nicevert
+	bit roomflags
+	bne dontdraw4morecols
+	
 	; camera wasn't stopped so draw 4 more cols
 	ldy #0
 :	sty transtimer
@@ -281,6 +319,7 @@ dontdeccamy:
 	cpy #4
 	bne :-
 	
+dontdraw4morecols:
 	; generate one more column
 	lda #gs_scrstopR
 	bit gamectrl
@@ -303,6 +342,9 @@ dontdomore:
 	lda #(g3_transitD ^ $FF)
 	and gamectrl3
 	sta gamectrl3
+	
+	lda #5
+	sta dreinvtmr
 	
 	lda roomnumber
 	eor #1

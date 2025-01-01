@@ -3,60 +3,6 @@
 ; This code belongs in the MAIN segment and is an
 ; interface to things in the PRG_XTRA bank.
 
-.proc gm_leaveroomR
-	lda temp1
-	pha
-	lda temp2
-	pha
-	
-	lda #<gm_leaveroomR_FAR
-	sta farcalladdr
-	lda #>gm_leaveroomR_FAR
-	sta farcalladdr+1
-doit:
-	ldy #prgb_xtra
-	jsr far_call
-	sta temp1
-	pla
-	sta temp2
-	pla
-	ldx temp1
-	sta temp1
-	txa
-	rts
-.endproc
-
-.proc gm_leaveroomL
-	lda temp1
-	pha
-	lda temp2
-	pha
-	
-	lda #<gm_leaveroomL_FAR
-	sta farcalladdr
-	lda #>gm_leaveroomL_FAR
-	sta farcalladdr+1
-	jmp gm_leaveroomR::doit
-.endproc
-
-.proc gm_leaveroomU
-	lda #<gm_leaveroomU_FAR
-	sta farcalladdr
-	lda #>gm_leaveroomU_FAR
-	sta farcalladdr+1
-	ldy #prgb_xtra
-	jmp far_call
-.endproc
-
-.proc gm_leaveroomD
-	lda #<gm_leaveroomD_FAR
-	sta farcalladdr
-	lda #>gm_leaveroomD_FAR
-	sta farcalladdr+1
-	ldy #prgb_xtra
-	jmp far_call
-.endproc
-
 .proc xt_gener_col_r
 	lda #<h_gener_col_r
 	sta farcalladdr
@@ -144,6 +90,7 @@ doit:
 
 ; generate palette data for vertical transition
 xt_generate_palette_data_V:
+@loadCount := trantmp5
 	ldy lvldatabank
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank   ; change bank
@@ -184,7 +131,7 @@ xt_generate_palette_data_V:
 	
 	ldy temp6
 	iny
-	cpy #8
+	cpy @loadCount
 	bne @palloop
 	
 	ldy #prgb_xtra

@@ -481,7 +481,7 @@ h_fls_wrloop:
 ; ** SUBROUTINE: h_gener_row_u
 ; desc:    Generates a horizontal row of characters corresponding to the respective
 ;          metatiles in area space, upwards.
-h_gener_row_u:
+.proc h_gener_row_u
 	ldy #0
 	sty wrcountHR1
 	sty wrcountHR2
@@ -489,7 +489,12 @@ h_gener_row_u:
 	sty wrcountHP1
 	sty wrcountHP2
 	
-	; determine which nametable is the first written to
+	lda #rf_nicevert
+	bit roomflags
+	beq :+
+	jmp h_gener_row_u_nice
+	
+:	; determine which nametable is the first written to
 	; the PPU address we want to start writing to is
 	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32) + ntrowhead * 0x20
 	lda #$00
@@ -611,7 +616,7 @@ h_gener_row_u:
 	cpy #$20
 	bne @loop
 	
-	; now that the row has been flushed, it's time to set the nmictrl flag
+	; now that the row has been computed, it's time to set the nmictrl flag
 	lda #nc_flushrow
 	ora nmictrl
 	sta nmictrl
@@ -705,7 +710,148 @@ h_gener_row_u:
 	
 @dontgeneratepal:
 	rts
+.endproc
+
+; ** SUBROUTINE: h_gener_row_u_nice
+; desc: Generates 
+.proc h_gener_row_u_nice
+	lda ntrowhead
+	sta ppuaddrHR1
+	lda #$00
 	
+	; multiply by 32
+	asl ppuaddrHR1
+	rol
+	asl ppuaddrHR1
+	rol
+	asl ppuaddrHR1
+	rol
+	asl ppuaddrHR1
+	rol
+	asl ppuaddrHR1
+	rol
+	sta ppuaddrHR1+1
+	
+	lda ppuaddrHR1
+	sta ppuaddrHR2
+	lda #$24
+	clc
+	adc ppuaddrHR1+1
+	sta ppuaddrHR2+1
+	
+	lda #$20
+	sta wrcountHR1
+	sta wrcountHR2
+	clc
+	adc ppuaddrHR1+1
+	sta ppuaddrHR1+1
+	
+	ldy #0
+loop:
+	sty temp1
+	tya
+	tax
+	jsr h_comp_addr
+	
+	ldy ntrowhead2
+	lda (lvladdr), y
+	tax
+	lda metatiles, x
+	
+	ldy temp1
+	sta temprow1, y
+	
+	iny
+	cpy #64
+	bne loop
+	
+	; now that the row has been computed, it's time to set the nmictrl flag
+	lda #nc_flushrow
+	ora nmictrl
+	sta nmictrl
+	
+	; check if (ntrowhead % 4) == 0
+	lda ntrowhead
+	and #$03
+	bne dontgeneratepal
+	
+	lda ntrowhead  ; 000yyyyy [0 - 29]
+	asl            ; 00yyyyy0
+	and #%00111000 ; 00yyy000
+	ora #%11000000 ; $C0
+	sta ppuaddrHP1
+	sta ppuaddrHP2
+	
+	lda #$23
+	sta ppuaddrHP1+1
+	lda #$27
+	sta ppuaddrHP2+1
+	
+	lda #8
+	sta wrcountHP1
+	sta wrcountHP2
+	
+	lda roombeglo2
+	lsr
+	lsr
+	sta temp2
+	
+	lda ntrowhead
+	lsr
+	lsr
+	sta temp3
+	
+	; start reading palette data.
+	; palette data is loaded in "loadedpals". Indexing: loadedpals[x * 8 + y].
+	; therefore we'll need to add 8 every load
+	ldy #0
+loopPalH1:
+	sty temp1
+	tya
+	asl
+	asl
+	asl
+	clc
+	adc temp3
+	tax
+	lda loadedpals, x
+	
+	pha
+	tya
+	clc
+	adc temp2
+	and #$0F
+	tay
+	pla
+	sta temppalH1, y
+	
+	ldy temp1
+	iny
+	cpy #16
+	bne loopPalH1
+	
+;	ldy #0
+;loopPalH2:
+;	tya
+;	asl
+;	asl
+;	asl
+;	clc
+;	adc temp1
+;	tax
+;	lda ntattrdata+64, x
+;	sta temppalH2, y
+;	iny
+;	cpy #8
+;	bne loopPalH2
+	
+dontgeneratepal:
+	
+	lda #nc_flushpal
+	ora nmictrl
+	sta nmictrl
+	rts
+.endproc
 
 ; ** SUBROUTINE: h_gener_col_r
 ; desc:    Generates a vertical column of characters corresponding to the respective
@@ -1228,10 +1374,10 @@ gm_init_entity:
 ; args:
 ;     x - low byte
 ;     y - high byte
-gm_set_level_ptr:
-	stx lvlptrlo
-	sty lvlptrhi
-	rts
+;gm_set_level_ptr:
+;	stx lvlptrlo
+;	sty lvlptrhi
+;	rts
 ; ** SUBROUTINE: gm_set_tile_head
 ; ** SUBROUTINE: gm_set_pal_head
 ; ** SUBROUTINE: gm_set_ent_head

@@ -46,6 +46,10 @@ level2_w_r1_to_r2_fake:
 	.byte 0			; room left offset
 	.byte 0, 168	; player spawn X/Y
 	.word level2_r2_fake
+level2_w_r1_to_d0:
+	.byte 0			; room left offset
+	.byte 144, 48	; player spawn X/Y
+	.word level2_d0
 level2_w_s1_to_s0:
 	.byte 0			; room left offset
 	.byte 224, 0	; player spawn X/Y
@@ -66,6 +70,14 @@ level2_w_r2_fake_to_r1:
 	.byte 8			; room left offset
 	.byte 240, 168	; player spawn X/Y
 	.word level2_r1
+level2_w_d0_to_r1:
+	.byte 4			; room left offset
+	.byte 120, 176	; player spawn X/Y
+	.word level2_r1
+level2_w_d0_to_d0a:
+	.byte 0			; room left offset
+	.byte 80, 16	; player spawn X/Y
+	.word level2_d0a
 level2_w_s2_to_s1:
 	.byte 0			; room left offset
 	.byte 88, 56	; player spawn X/Y
@@ -74,6 +86,14 @@ level2_w_r4_to_r5:
 	.byte 0			; room left offset
 	.byte 48, 184	; player spawn X/Y
 	.word level2_r5
+level2_w_d0a_to_d0:
+	.byte 0			; room left offset
+	.byte 112, 184	; player spawn X/Y
+	.word level2_d0
+level2_w_d0a_to_d0b:
+	.byte 8			; room left offset
+	.byte 208, 80	; player spawn X/Y
+	.word level2_d0b
 level2_w_r5_to_r6:
 	.byte 12			; room left offset
 	.byte 208, 184	; player spawn X/Y
@@ -130,3 +150,7 @@ level2_w_r2_to_r2_:
 	.byte 0			; room left offset
 	.byte 24, 0	; player spawn X/Y
 	.word level2_r2_
+level2_w_d0b_to_d0a:
+	.byte 8			; room left offset
+	.byte 208, 152	; player spawn X/Y
+	.word level2_d0a

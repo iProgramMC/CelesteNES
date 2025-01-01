@@ -68,9 +68,10 @@
 	.byte $13,$14,$15     ; Stone Bar Left $D3
 	.byte $23,$24,$25     ; Stone Bar Right $D6
 	.byte $33,$34,$35     ; Stone Bar $D9
-	.byte $4B,$4C,$4D,$4E,$5B,$5C,$5D,$5E ; Stone Middles $DB
+	.byte $4B,$4C,$4D,$4E,$5B,$5C,$5D,$5E ; Stone Middles $DC
 	.byte $18,$28         ; Tower U, D $E4
 	.byte $3A             ; Snow LR $E6
+	.byte $C8,$C9,$CA,$CB ; Spikes (Red)
 	; $E7
 
 ;metatile_info:

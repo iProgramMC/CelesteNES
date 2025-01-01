@@ -300,6 +300,7 @@ gm_game_clear_wx:
 	stx paused
 	stx pauseanim
 	stx dredeatmr
+	stx dreinvtmr
 	
 	lda #<~g3_transitX
 	and gamectrl3

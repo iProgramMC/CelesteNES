@@ -10,16 +10,6 @@ level_table:
 	.word level0 ; 6
 	.word level0 ; 7
 
-level_banks:
-	.byte prgb_lvl0a
-	.byte prgb_lvl1a
-	.byte prgb_lvl2a
-	.byte prgb_lvl0a
-	.byte prgb_lvl0a
-	.byte prgb_lvl0a
-	.byte prgb_lvl0a
-	.byte prgb_lvl0a
-
 level_banks2:
 	.byte prgb_lvl0b
 	.byte prgb_lvl1b

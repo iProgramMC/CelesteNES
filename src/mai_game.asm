@@ -58,6 +58,8 @@ oam_putsprite:
 ;
 ; note:
 ;     clobbers temp1, temp2
+.if 0
+
 calc_approach:
 @end = temp1
 @add = temp2
@@ -90,6 +92,8 @@ calc_approach:
 	lda @end   ; start now < end, load end
 :	sta 0, x
 	rts
+
+.endif
 
 ; ** SUBROUTINE: fade_once_color
 ; desc: Fades a color once.

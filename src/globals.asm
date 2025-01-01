@@ -264,6 +264,7 @@ chopentity  : .res 1 ; reference to the climb hop solid
 choplastX   : .res 1
 choplastY   : .res 1
 dredeatmr   : .res 1 ; dream death counter
+dreinvtmr   : .res 1 ; dream dash invincibility timer
 
 scrchklo    : .res 1 ; temporaries used for scroll checking
 scrchkhi    : .res 1
@@ -317,13 +318,13 @@ temprowtot  : .res $40
 tempcol     = temprowtot+$00  ; 32 bytes - temporary column to be flushed to the screen
 temppal     = temprowtot+$20  ; 8 bytes  - temp palette column to be flushed to the screen
 temppalH1   = temprowtot+$28  ; 8 bytes  - temporary row in nametable 0
-temppalH2   = temprowtot+$30  ; 8 bytes  - temporary row in nametable 1
+temppalH2   = temprowtot+$30  ; 8 bytes  - temporary row in nametable 1 (NOTE MUST BE NEXT TO temppalH1)
 ; 8 bytes here
 temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0
-temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
+temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1 (NOTE MUST BE NEXT TO TEMPROW1)
 temprow3    : .res $20  ; 32 bytes - temporary row in nametable 1
-lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 loadedpals  : .res $40  ; 64 bytes - temporary storage for loaded palettes during vertical transitions
+lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 ntattrdata  : .res $80  ; 128 bytes- loaded attribute data
 spritepals  : .res 9    ; 9 bytes  - loaded sprite palettes
 spritepalso : .res 9    ; 9 bytes  - previous frame's loaded sprite palettes

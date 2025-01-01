@@ -3058,8 +3058,13 @@ return:
 	lda #1
 	sta plattemp2
 	
+	lda dreinvtmr
+	beq :+
+	dec dreinvtmr
+	bne returnClearTimer
+	
 	; Check if the player's position changed
-	lda gamectrl4
+:	lda gamectrl4
 	and #(g4_movedX | g4_movedY)
 	beq noMovement
 	
