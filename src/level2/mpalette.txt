@@ -8,12 +8,16 @@ metatile_palette:
 	.res   4, $1 ; Dirt
 	.res   3, $1 ; Jump Through
 	.byte     $0 ; Spikes
-	.res   4, $3 ; Grass Decals
-	.res  32, $0 ; Tower
-	.res   4, $0 ; Girder
+	.res   4, $2 ; Snow Connection
+	.res  27, $0 ; Tower
+	.res   1, $2 ; Snow Connection
+	.res   8, $0 ; Tower
 	.res   3, $0 ; Spikes
 	.res   3, $0 ; Grey Jump Through
 	.res   2, $0 ; Memorial
 	.res   4, $1 ; Campfire
 	.res   4, $2 ; Spikes (Blue)
 	.res  56, $4 ; Dream Block
+	.res  52, $1 ; Stone
+	.res   2, $0 ; Tower
+	.res   1, $2 ; Snow
