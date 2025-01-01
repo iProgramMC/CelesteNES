@@ -428,7 +428,8 @@ adjustTransitionOffset:
 ; ** SUBROUTINE: gm_leaveroomU_FAR
 ; desc: Performs a transition, across multiple frames, going up.
 .proc gm_leaveroomU_FAR
-loadCount := trantmp5
+loadCount  := trantmp5
+palLoadCnt := trantmp4
 	lda #gs_camlock
 	bit gamectrl
 	bne returnEarly
@@ -464,6 +465,8 @@ actuallyWarp:
 	
 	lda #36
 	sta loadCount
+	lda #8
+	sta palLoadCnt
 	
 	inc roomnumber
 	
@@ -506,6 +509,9 @@ actuallyWarp:
 	
 	lda roomsize
 	sta loadCount
+	lsr
+	lsr
+	sta palLoadCnt
 	
 	lda #0
 	sta roomloffs
@@ -633,8 +639,8 @@ genloop:
 	cpy loadCount
 	bne genloop
 	
-	lsr loadCount
-	lsr loadCount
+	lda palLoadCnt
+	sta loadCount
 	jsr xt_generate_palette_data_V
 	
 	; now, we will want to wait for vblank. NMIs are disabled at this point

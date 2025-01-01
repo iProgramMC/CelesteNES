@@ -2,13 +2,14 @@ level2:
 	.word level2_music	; music table
 	.word level2_banks	; list of banks for each room
 	.byte $02	; environment type
-	.byte $27	; warp count
+	.byte $30	; warp count
 	.word level2_w_init
 	.word level2_w_start_to_0
 	.word level2_w_start_to_s0
 	.word level2_w_0_to_start
 	.word level2_w_0_to_r3x
 	.word level2_w_0_to_r1
+	.word level2_w_0_to_d1
 	.word level2_w_s0_to_start
 	.word level2_w_s0_to_s1
 	.word level2_w_r3x_to_r3
@@ -23,12 +24,14 @@ level2:
 	.word level2_w_r2_fake_to_r1
 	.word level2_w_d0_to_r1
 	.word level2_w_d0_to_d0a
+	.word level2_w_d0_to_d1
 	.word level2_w_s2_to_s1
 	.word level2_w_r4_to_r5
 	.word level2_w_d0a_to_d0
 	.word level2_w_d0a_to_d0b
 	.word level2_w_r5_to_r6
 	.word level2_w_d0b_to_d0a
+	.word level2_w_d0b_to_d6
 	.word level2_w_r6_to_r7
 	.word level2_w_r7_to_r8
 	.word level2_w_r8_to_r9
@@ -42,6 +45,12 @@ level2:
 	.word level2_w_r2__to_r10_
 	.word level2_w_r2__to_r2
 	.word level2_w_r2_to_r2_
+	.word level2_w_d1_to_0
+	.word level2_w_d1_to_d0
+	.word level2_w_d1_to_d0a
+	.word level2_w_d1_to_d6
+	.word level2_w_d6_to_d0a
+	.word level2_w_d6_to_d0b
 level2_banks:
 	.byte prgb_lvl2a	; level2_w_init
 	.byte prgb_lvl2a	; level2_w_start_to_0
@@ -49,6 +58,7 @@ level2_banks:
 	.byte prgb_lvl2a	; level2_w_0_to_start
 	.byte prgb_lvl2a	; level2_w_0_to_r3x
 	.byte prgb_lvl2c	; level2_w_0_to_r1
+	.byte prgb_lvl2b	; level2_w_0_to_d1
 	.byte prgb_lvl2a	; level2_w_s0_to_start
 	.byte prgb_lvl2a	; level2_w_s0_to_s1
 	.byte prgb_lvl2a	; level2_w_r3x_to_r3
@@ -63,12 +73,14 @@ level2_banks:
 	.byte prgb_lvl2c	; level2_w_r2_fake_to_r1
 	.byte prgb_lvl2c	; level2_w_d0_to_r1
 	.byte prgb_lvl2b	; level2_w_d0_to_d0a
+	.byte prgb_lvl2b	; level2_w_d0_to_d1
 	.byte prgb_lvl2a	; level2_w_s2_to_s1
 	.byte prgb_lvl2a	; level2_w_r4_to_r5
 	.byte prgb_lvl2c	; level2_w_d0a_to_d0
 	.byte prgb_lvl2b	; level2_w_d0a_to_d0b
 	.byte prgb_lvl2a	; level2_w_r5_to_r6
 	.byte prgb_lvl2b	; level2_w_d0b_to_d0a
+	.byte prgb_lvl2b	; level2_w_d0b_to_d6
 	.byte prgb_lvl2a	; level2_w_r6_to_r7
 	.byte prgb_lvl2c	; level2_w_r7_to_r8
 	.byte prgb_lvl2c	; level2_w_r8_to_r9
@@ -82,3 +94,9 @@ level2_banks:
 	.byte prgb_lvl2c	; level2_w_r2__to_r10_
 	.byte prgb_lvl2c	; level2_w_r2__to_r2
 	.byte prgb_lvl2c	; level2_w_r2_to_r2_
+	.byte prgb_lvl2a	; level2_w_d1_to_0
+	.byte prgb_lvl2c	; level2_w_d1_to_d0
+	.byte prgb_lvl2b	; level2_w_d1_to_d0a
+	.byte prgb_lvl2b	; level2_w_d1_to_d6
+	.byte prgb_lvl2b	; level2_w_d6_to_d0a
+	.byte prgb_lvl2b	; level2_w_d6_to_d0b

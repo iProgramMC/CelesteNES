@@ -45,7 +45,7 @@ level2_r4,352,-960
 Props,level2_r4,4,0
 Spawn,level2_r4,304,184
 level2_d0a,704,480
-Props,level2_d0a,0,0
+Props,level2_d0a,8,0
 Spawn,level2_d0a,80,16
 Spawn,level2_d0a,272,152
 Spawn,level2_d0a,304,80
@@ -90,6 +90,13 @@ Spawn,level2_r2_,24,0
 level2_r2,1056,-480
 Props,level2_r2,0,0
 Spawn,level2_r2,16,0
+level2_d1,384,240
+Props,level2_d1,0,0
+Spawn,level2_d1,304,72
+level2_d6,384,608
+Props,level2_d6,2,0
+Spawn,level2_d6,304,184
+Spawn,level2_d6,32,64
 Filler,288,-128,0,0
 Filler,288,-64,0,0
 Filler,0,-64,64,64
