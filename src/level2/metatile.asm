@@ -82,7 +82,7 @@
 	.res   4, ct_full            ; Dirt
 	.res   3, ct_jumpthru        ; Jump Through
 	.byte ct_deadlyUP            ; Spikes
-	.res   4, ct_none            ; Grass Decals
+	.res   4, ct_full            ; Snow Conns
 	.res  36, ct_full            ; Tower (27) + SnowConn (1) + Tower (8)
 	.byte ct_deadlyRT            ; Spikes
 	.byte ct_deadlyDN            ; Spikes
@@ -90,12 +90,16 @@
 	.res   3, ct_jumpthru        ; Grey Jump Through
 	.res   2, ct_none            ; Memorial
 	.res   4, ct_none            ; Campfire
-	.byte ct_deadlyUP            ; Spikes
-	.byte ct_deadlyRT            ; Spikes
-	.byte ct_deadlyDN            ; Spikes
-	.byte ct_deadlyLT            ; Spikes
+	.byte ct_deadlyUP            ; Spikes (Blue)
+	.byte ct_deadlyRT            ; Spikes (Blue)
+	.byte ct_deadlyDN            ; Spikes (Blue)
+	.byte ct_deadlyLT            ; Spikes (Blue)
 	.res  56, ct_dream           ; Dream Block
 	.res  52, ct_full            ; Stone
-	.res   2, ct_full            ; Tower
+	.res   3, ct_full            ; Tower + Snow
+	.byte ct_deadlyUP            ; Spikes (Red)
+	.byte ct_deadlyRT            ; Spikes (Red)
+	.byte ct_deadlyDN            ; Spikes (Red)
+	.byte ct_deadlyLT            ; Spikes (Red)
 
 .align $100

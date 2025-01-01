@@ -515,6 +515,7 @@ actuallyWarp:
 	
 	lda #0
 	sta roomloffs
+	sta temp3
 	
 	jmp @dontCalculateXOffset
 

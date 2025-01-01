@@ -57,3 +57,4 @@ level2:
 	BANK_prgb_lvl2a: 0
 	BANK_prgb_lvl2b: 1
 	BANK_prgb_lvl2c: 2
+	BANK_prgb_lvl2d: 3

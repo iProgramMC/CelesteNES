@@ -33,6 +33,7 @@
 .include "level2/bank_0.asm"
 .include "level2/bank_1.asm"
 .include "level2/bank_2.asm"
+.include "level2/bank_3.asm"
 
 .include "prg_xtra.asm"
 .include "prg_game.asm"
@@ -106,8 +107,6 @@
 .incbin  "chr/d_gran.chr"
 
 ; UNUSED segments
-.segment "PRG_LVL3A"
-.segment "PRG_LVL3B"
 .segment "CHR_SLV0B"
 .segment "CHR_BG002"
 .segment "CHR_BG003"
