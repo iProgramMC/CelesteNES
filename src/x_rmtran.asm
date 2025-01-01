@@ -815,6 +815,9 @@ finalloopdone:
 	lda #2
 	sta climbcdown
 	
+	lda #2
+	sta dreinvtmr
+	
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
