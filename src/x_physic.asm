@@ -83,6 +83,7 @@ gm_shouldreduce:
 	lda player_vs_x
 	cmp #maxwalkLO
 	bcc @returnNormal      ; SpeedXLow < maxwalkHI
+	beq @returnNormal
 @returnReduce:
 	lda #1
 	rts
@@ -147,6 +148,7 @@ gm_updatexvel:
 	; check if the velocity should be REDUCED
 	jsr gm_shouldreduce
 	sta temp1
+	sta usedrunreduce
 	
 	; note: gm_shouldreduce ALSO placed the index corresponding to
 	; the held buttons in the X register!
@@ -276,25 +278,34 @@ gm_updatexvel:
 ; ** SUBROUTINE: gm_getdownforce
 ; desc:    Gets the down force applied to the player.
 gm_getdownforce:
+	lda #g2_autojump
+	bit gamectrl2
+	bne @checkanyway
+	
 	lda #cont_a
 	bit game_cont
 	beq @normal        ; not holding the A button, use normal gravity
 	
-	lda player_vs_y
-	sta temp1
+@checkanyway:
+	; get the absolute
 	lda player_vl_y
-	bpl @dontinvert
-	eor #$FF
-	pha
-	lda temp1
-	eor #$FF
-	sta temp1
-	pla
-@dontinvert:
-	bne @normal        ; use normal gravity if >= $0100
-	lda temp1
+	bmi @checknegative
+	bne @normal
+	
+	lda player_vs_y
 	cmp #lograthresh
 	bcc @low
+	bcs @normal
+	
+@checknegative:
+	cmp #$FF
+	bne @normal
+	
+	lda player_vs_y
+	cmp #$80
+	bcc @normal
+	bcs @low
+	
 @normal:
 	lda #gravity
 	rts
@@ -2135,13 +2146,17 @@ gm_checkthisenty:
 
 gm_dash_over:
 	; dash has terminated.
+	lda gamectrl2
+	ora #g2_autojump
+	sta gamectrl2
 	
 	; if (DashDir.Y <= 0f) Speed = DashDir * 160f (when begun, it would be DashDir * 240f)
 	lda #(cont_down << 2)
 	bit dashdir
 	bne :+
 	
-	jsr gm_rem25pcvel
+	; Speed = DashDir * 160f;
+	jsr gm_load_two_thirds_dash_dir
 	
 	; if (Speed.Y < 0f) Speed.Y *= 0.75f;
 	lda player_vl_y
@@ -2385,35 +2400,26 @@ gm_timercheck:
 	jmp :-
 .endif
 
-; ** SUBROUTINE: gm_rem25pcvel
-; desc: Removes 25% of the player's velocity.
-; take off 25% of the X velocity
-gm_rem25pcvel:
-	lda player_vl_x
-	sta temp1
-	lda player_vs_x
-	sta temp2
-	
-	lsr temp1
-	ror temp2
-	lsr temp1
-	ror temp2
-	
-	; minor correction
-	lda #%11100000
-	bit temp1
-	beq :+
-	ora temp1
-	sta temp1
-	
-:	sec
-	lda player_vl_x
-	sbc temp1
+; ** SUBROUTINE: gm_load_two_thirds_dash_dir
+; desc: Gives the player 2/3 the dash speed.  Used when terminating a dash.
+.proc gm_load_two_thirds_dash_dir
+	ldx dashdir
+	lda dash_table_two_thirds, x
 	sta player_vl_x
-	lda player_vs_x
-	sbc temp2
+	inx
+	lda dash_table_two_thirds, x
 	sta player_vs_x
-	
+	inx
+	lda dash_table_two_thirds, x
+	sta player_vl_y
+	inx
+	lda dash_table_two_thirds, x
+	sta player_vs_y
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_rem25pcvelYonly
+; desc: Removes 25% of the player's Y velocity.
 gm_rem25pcvelYonly:
 	; take off 25% of the Y velocity
 	lda player_vs_y
