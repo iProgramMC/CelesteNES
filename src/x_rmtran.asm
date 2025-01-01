@@ -304,8 +304,14 @@ transGenerateBack:
 	dey
 	bne transLoopMain
 	
+	; reset some things on room transition
 	lda #0
-	sta dashcount            ; reset some things on room transition
+	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	
 	lda lvlyoff
 	asl
 	asl
@@ -577,9 +583,11 @@ actuallyWarp:
 	
 	; set the player's velocity to jump into the stage.
 	lda #0
-	sta player_vl_x
-	sta player_vs_x
 	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
 	
 	lda #jumpvelHI
 	sta player_vl_y
@@ -770,6 +778,10 @@ dontdomore:
 	sta gamectrl
 	
 	; pranked. we will do one final loop to bring the player Y up to the start
+	lda #rf_nobringup
+	bit roomflags
+	bne finalloopdone
+	
 	lda player_y
 	cmp startpy
 	bcc finalloopdone

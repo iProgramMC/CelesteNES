@@ -151,11 +151,12 @@ actuallyWarp:
 	sta tr_scrnpos
 	sta quaketimer
 	
-	; set the player's velocity to jump into the stage.
 	lda #0
-	sta player_vl_x
-	sta player_vs_x
 	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
 	
 	; clear the camera stop bits
 	lda gamectrl
@@ -343,7 +344,7 @@ dontdomore:
 	and gamectrl3
 	sta gamectrl3
 	
-	lda #5
+	lda #2
 	sta dreinvtmr
 	
 	lda roomnumber
@@ -689,6 +690,11 @@ transLoopAfter:
 	
 	lda #0
 	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	
 	lda lvlyoff
 	asl
 	asl

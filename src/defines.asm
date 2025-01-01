@@ -137,6 +137,7 @@ rf_inverted   = $08 ; new format: inverted (starts on the bottom)
 rf_stub       = $10 ; stub room
 rf_norespawn  = $20 ; don't allow respawning here
 rf_nicevert   = $40 ; nice vertical transitions
+rf_nobringup  = $80 ; no bring up animation
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
