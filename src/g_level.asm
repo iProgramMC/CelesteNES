@@ -1053,6 +1053,25 @@ h_genertiles_copy:
 	
 	jmp h_genertiles_cont
 
+; ** FEATURE: h_genertiles_high
+; desc:    Copies data verbatim after this byte.
+h_genertiles_high:
+	and #%00011111
+	sta temp1
+	tya
+	clc
+	adc temp1
+	sta temp1
+
+:	jsr gm_read_tile
+	sta (lvladdr), y
+	sta lastcolumn, y
+	iny
+	cpy temp1
+	bne :-
+	
+	jmp h_genertiles_cont
+
 ; ** FEATURE: h_genertiles_dupair
 ; desc:    Like h_genertiles_dup but only generates air.
 h_genertiles_dupair:
@@ -1120,18 +1139,20 @@ h_gener_mts_r:
 :	ldy #0
 h_genertiles_loop:
 	jsr gm_read_tile
+	cmp #0
+	bpl @positive
 	cmp #$FF              ; if data == 0xFF, then decrement the pointer
 	beq h_genertiles_lvlend
 	
 	cmp #$A1              ; if data >= 0xA1 && data < 0xC0, then this is a "duplicate" tile.
 	bcc :+
-	cmp #$C0
+	cmp #$BF
 	bcs :+
 	jmp h_genertiles_dup
 	
 :	cmp #$C1
 	bcc :+
-	cmp #$E0
+	cmp #$DF
 	bcs :+
 	jmp h_genertiles_dupair
 	
@@ -1141,7 +1162,15 @@ h_genertiles_loop:
 	bcs :+
 	jmp h_genertiles_copy
 	
-:	sta (lvladdr), y
+:	cmp #$E1
+	bcc :+
+	cmp #$FF
+	bcs :+
+	jmp h_genertiles_high
+
+:
+@positive:
+	sta (lvladdr), y
 	sta lastcolumn, y
 	iny
 h_genertiles_cont:
