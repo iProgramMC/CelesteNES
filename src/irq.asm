@@ -311,7 +311,6 @@ irq:
 	pla   ;          4 cycles
 	rts   ;          6 cycles
 
-irqdelays:	.byte 2, 2, 5
 
 ; this waits for like 12 scanlines
 ;@gapScanLines:

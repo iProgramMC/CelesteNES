@@ -118,10 +118,9 @@ mmc3_set_bank_nmi:
 ; assumes: PPUCTRL increment bit is zero (+1 instead of +32)
 load_palette:
 	lda #$3F
-	sta ppu_addr
-	lda #$00
-	sta ppu_addr
 	ldy #$00
+	sta ppu_addr
+	sty ppu_addr
 @loop:
 	lda (paladdr), y
 	sta ppu_data
@@ -184,4 +183,4 @@ mmc3_initialize:
 	
 	rts
 
-.byte $FF ; -- free space
+irqdelays:	.byte 2, 2, 5

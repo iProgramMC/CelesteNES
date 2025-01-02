@@ -1589,6 +1589,10 @@ collidedRight:
 	lda hopcdown
 	bne :+
 	
+	; collided on the right side
+	lda player_vl_x
+	bmi @dontModVel
+	
 	ldx #0                   ; set the velocity to a minuscule value to
 	stx player_vl_x          ; ensure the player doesn't look idle
 	inx
@@ -1601,6 +1605,7 @@ collidedRight:
 	
 	jsr gm_check_attach_wall
 	
+@dontModVel:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
@@ -1657,6 +1662,9 @@ collidedLeft:
 	lda hopcdown
 	bne :+
 	
+	lda player_vl_x
+	bpl @dontModVel
+	
 	ldx #$FF                 ; set the velocity to a minuscule value to
 	stx player_vl_x          ; ensure the player doesn't look idle
 	stx player_vs_x
@@ -1667,6 +1675,7 @@ collidedLeft:
 	
 	jsr gm_check_attach_wall
 	
+@dontModVel:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x

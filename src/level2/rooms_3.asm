@@ -885,7 +885,7 @@ level2_d3u_t:
 	.byte $8F,$E9,$00,$00,$00,$E3,$DE,$DC
 	.byte $E0,$E2,$DF,$C6,$92,$CC,$FF
 level2_d3u:
-	.byte 40, 128
+	.byte 40, 64
 	.byte 255, 59, 57, 255
 	.byte 0, 0, 8, 0
 	.byte 3
@@ -968,7 +968,7 @@ level2_d3m_t:
 	.byte $E2,$DE,$E0,$E3,$E1,$DF,$CB,$8C
 	.byte $D2,$9E,$9E,$9E,$9E,$FF
 level2_d3m:
-	.byte 40, 128
+	.byte 40, 64
 	.byte 61, 255, 60, 255
 	.byte 0, 0, 8, 0
 	.byte 3
