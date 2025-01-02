@@ -2183,7 +2183,7 @@ gm_dash_lock:
 	jmp gm_dash_update_done
 
 gm_defaultdir:
-	ldy #0                  ; player will not be dashing up or down
+	;ldy #0                  ; player will not be dashing up or down
 	lda #pl_left
 	and playerctrl          ; bit 0 will be the facing direction
 	sec                     ; shift it left by 1 and append a 1
@@ -2205,17 +2205,21 @@ gm_superjump:
 	sta player_vl_y
 	lda #sjumpvelLO
 	sta player_vs_y
+	lda #wavedashhi
+	sta player_vl_x
+	lda #wavedashlo
+	sta player_vs_x
 	bne @continue
 @normal:
 	lda #jumpvelHI
 	sta player_vl_y
 	lda #jumpvelLO
 	sta player_vs_y         ; super jump speed is the same as normal jump speed
-@continue:
 	lda #superjmphhi
 	sta player_vl_x
 	lda #superjmphlo
 	sta player_vs_x
+@continue:
 	lda #pl_left
 	bit playerctrl
 	beq :+
@@ -2335,6 +2339,8 @@ gm_superjumpepilogue:
 	sta jcountdown
 	lda #0
 	sta dashtime            ; no longer dashing. do this to avoid our speed being taken away.
+	sta jumpcoyote
+	sta wjumpcoyote
 	rts
 
 ; ** SUBROUTINE: gm_timercheck
