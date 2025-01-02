@@ -12,16 +12,25 @@
 ;     temp7 - direction (0-UL, 1-UR, 2-DL, 3-DR, 4-None)
 ;     temp8 - gravity
 ;     temp9 - time alive
-gm_spawn_particle:
+.proc gm_spawn_particle
 	ldy #0
 :	lda sprspace+sp_kind, y
-	beq @slotFound
+	beq slotFound
 	iny
 	cpy #sp_max
 	bne :-
 	rts          ; no more space :(
 
-@slotFound:
+slotFound:
+	; from here until startConvergence, gm_spawn_particle does its own thing
+	lda temp1
+	sta sprspace+sp_x, y
+	lda temp2
+	sta sprspace+sp_y, y
+	lda temp3
+	sta sprspace+sp_x_pg, y
+	
+startConvergence:
 	lda #e_particle
 	sta sprspace+sp_kind, y
 	
@@ -38,16 +47,6 @@ gm_spawn_particle:
 	sta sprspace+sp_x_lo, y
 	sta sprspace+sp_y_lo, y
 	
-	lda temp6
-	sta sprspace+sp_part_entty, y
-	
-	lda temp1
-	sta sprspace+sp_x, y
-	lda temp2
-	sta sprspace+sp_y, y
-	lda temp3
-	sta sprspace+sp_x_pg, y
-	
 	ldx temp6
 	lda partdirx, x
 	sta sprspace+sp_part_vel_x, y
@@ -63,6 +62,7 @@ gm_spawn_particle:
 	lda temp5
 	sta sprspace+sp_part_chrat, y
 	rts
+.endproc
 
 ; ** SUBROUTINE: gm_spawn_particle_at_ent
 ; desc: Spawns a particle at an entity's position.
@@ -75,7 +75,7 @@ gm_spawn_particle:
 ;     reg X - direction (0-UL, 1-UR, 2-DL, 3-DR, 4-None)
 ; note: the value of X is preserved.
 ; note: the value of temp6 is clobbered
-gm_spawn_particle_at_ent:
+.proc gm_spawn_particle_at_ent
 	stx temp6
 	ldy #0
 :	lda sprspace+sp_kind, y
@@ -88,28 +88,13 @@ gm_spawn_particle_at_ent:
 	rts
 
 @slotFound:
-	lda #e_particle
-	sta sprspace+sp_kind, y
-	
-	lda roomnumber
-	and #1
-	asl
-	sta sprspace+sp_flags, y
-	
-	lda #0
-	sta sprspace+sp_wid, y
-	sta sprspace+sp_hei, y
-	sta sprspace+sp_vel_x_lo, y
-	sta sprspace+sp_vel_y_lo, y
-	sta sprspace+sp_x_lo, y
-	sta sprspace+sp_y_lo, y
 	
 	ldx temp1
 	lda sprspace+sp_kind, x
 	sta sprspace+sp_part_entty, y
 	
-	clc
 	lda sprspace+sp_x, x
+	clc
 	adc #4
 	sta sprspace+sp_x, y
 	
@@ -117,27 +102,13 @@ gm_spawn_particle_at_ent:
 	adc #0
 	sta sprspace+sp_x_pg, y
 	
-	clc
 	lda sprspace+sp_y, x
+	clc
 	adc #4
 	sta sprspace+sp_y, y
 	
-	ldx temp6
-	lda partdirx, x
-	sta sprspace+sp_part_vel_x, y
-	lda partdiry, x
-	sta sprspace+sp_part_vel_y, y
-	
-	lda temp9
-	sta sprspace+sp_part_timer, y
-	lda temp8
-	sta sprspace+sp_part_gravi, y
-	lda temp4
-	sta sprspace+sp_part_chrti, y
-	lda temp5
-	sta sprspace+sp_part_chrat, y
-	
-	rts
+	jmp gm_spawn_particle::startConvergence
+.endproc
 
 partdirx: .byte $FF,$01,$FF,$01,$00
 partdiry: .byte $FF,$FF,$01,$01,$00

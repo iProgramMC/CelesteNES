@@ -72,6 +72,7 @@
 	.byte $18,$28         ; Tower U, D $E4
 	.byte $3A             ; Snow LR $E6
 	.byte $C8,$C9,$CA,$CB ; Spikes (Red)
+	.byte $89,$8A,$99     ; Purp Jump Through
 	; $E7
 
 ;metatile_info:
@@ -101,5 +102,6 @@
 	.byte ct_deadlyRT            ; Spikes (Red)
 	.byte ct_deadlyDN            ; Spikes (Red)
 	.byte ct_deadlyLT            ; Spikes (Red)
+	.res   3, ct_jumpthru        ; Purp Jump Through
 
 .align $100

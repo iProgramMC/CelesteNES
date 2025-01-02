@@ -18,7 +18,8 @@ metatile_palette:
 	.res   4, $1 ; Campfire
 	.res   4, $2 ; Spikes (Blue)
 	.res  56, $4 ; Dream Block
-	.res  52, $1 ; Stone
+	.res  52, $3 ; Stone
 	.res   2, $0 ; Tower
 	.res   1, $2 ; Snow
-	.res   4, $1 ; Spikes (Red)
+	.res   4, $3 ; Spikes (Purp)
+	.res   3, $3 ; Jumpthroughs (Purp)

@@ -2464,6 +2464,8 @@ gm_rem25pcvelYonly:
 	; Note: The collided entity's index is stored in temp9.
 	lda climbbutton
 	beq noEffect
+	lda dashtime
+	bne noEffect
 	
 	; check if there is stamina
 	lda stamina+1

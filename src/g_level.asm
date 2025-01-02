@@ -950,6 +950,8 @@ h_calc_ntattrdata_addr:
 	
 ploop:
 	jsr gm_read_pal
+	cmp #$FD
+	beq phaveFD
 	cmp #$FE
 	beq phaveFE               ; break out of this loop
 	cmp #$FF
@@ -1005,6 +1007,10 @@ returnAndSetFlag:
 	sta nmictrl
 	
 	rts
+
+phaveFD:
+	jsr gm_read_pal
+	jmp pnoFF
 .endproc
 
 h_palette_finish := h_palette_data_column::doneloadingpalettes

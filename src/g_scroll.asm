@@ -439,7 +439,7 @@ gm_read_palette_data_horiz:
 	sta @idx
 	rts
 
-; ** SUBROUTINE: gm_gener_tiles_horiz_FAR
+; ** SUBROUTINE: gm_gener_tiles_horiz
 ; desc: Generates tiles at the scroll seam.
 ;       This is the PRG_XTRA part of the function gm_gener_tiles_below.
 gm_gener_tiles_horiz:
