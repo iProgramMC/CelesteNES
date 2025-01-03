@@ -544,13 +544,15 @@ level0_bridge_manager:
 	; OK. Now load the block index to overwrite
 	clc
 	adc sprspace+sp_l0bm_blidx, x
+	and #$3F
 	sta temp2
 	
 	ldy sprspace+sp_l0bm_blidx, x
 	lda l0bm_block_widths, y
 	sta temp8
 	sta clearsizex
-	lda #8
+	sta temp11
+	lda #2
 	sta clearsizey
 	
 	lda sprspace+sp_y, x
@@ -563,35 +565,20 @@ level0_bridge_manager:
 	sta setdataaddr
 	sta setdataaddr+1
 	
+	stx temp1
+	
 	ldx temp2
 	ldy temp3
 	jsr h_request_transfer
 	
-	; clear the tiles
-	ldx #0
-@loop:
-	stx temp7
+	jsr h_clear_tiles
 	
-	ldy temp3
-	ldx temp2
-	jsr h_comp_addr
-	inx
-	stx temp2
-	
-	ldx #3
-	lda #0
-:	sta (lvladdr), y
-	iny
-	dex
-	bne :-
-	
-	ldx temp7
-	inx
-	cpx temp8
-	bne @loop
+	lda temp11
+	sta clearsizex
+	lda #8
+	sta clearsizey
 	
 	ldx temp1
-	
 	; done. Now advance and set a timer
 	lda #20
 	sta sprspace+sp_l0bm_timer, x
@@ -943,6 +930,7 @@ level0_intro_crusher:
 	sty temp3
 	jsr h_request_transfer
 	
+.if 0
 	; clear it in the actual tile data
 	ldx #0
 @loop:
@@ -965,7 +953,16 @@ level0_intro_crusher:
 	inx
 	cpx #7
 	bne @loop
+.endif
 	
+	ldx temp2
+	ldy temp3
+	jsr h_clear_tiles
+	
+	lda #7
+	sta clearsizex
+	lda #4
+	sta clearsizey
 	; need to restore X since we proceed to use it after calling this func
 	ldx l0crshidx
 	

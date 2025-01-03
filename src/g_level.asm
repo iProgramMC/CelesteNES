@@ -272,6 +272,7 @@ h_flush_row:
 ;       X/Y registers.
 ;       The data source is "setdataaddr", set to $0100 to clear, as long as the
 ;       stack never reaches $100+clearsizex*clearsizey bytes.
+; clobbers: A register
 .proc h_request_transfer
 	jsr h_calcppuaddr
 	
@@ -279,6 +280,46 @@ h_flush_row:
 	ora #nc_clearenq
 	sta nmictrl
 	
+	rts
+.endproc
+
+; ** SUBROUTINE: h_clear_tiles
+; desc: Clears tiles in a region of the loaded world.
+;       Does not enqueue a visual clear.
+; parameters:
+;    clearsizex - the width of the cleared region
+;    clearsizey - the height of the cleared region
+;    X register - the X position of the upper left corner
+;    Y register - the Y position of the upper left corner
+; clobbers: clearsizex, clearsizey, temp2, temp3
+.proc h_clear_tiles
+	sty temp3
+	
+loopColumn:
+	jsr h_comp_addr
+	
+	; do one column
+	ldy clearsizey
+	sty temp2
+	
+	ldy temp3
+	lda #0
+loopRow:
+	sta (lvladdr), y
+	iny
+	cpy #30
+	bcc :+
+	ldy #0
+:	dec temp2
+	bne loopRow
+	
+	; increment the column
+	inx
+	cpx #64
+	bcc :+
+	ldx #0
+:	dec clearsizex
+	bne loopColumn
 	rts
 .endproc
 
@@ -394,7 +435,7 @@ cleardestY := temp3
 	cmp #30
 	bcc :+
 	sbc #30
-:	tay
+:	pha
 	
 	lda #$20
 	cpx #$20
@@ -407,7 +448,7 @@ cleardestY := temp3
 	; the address is made up of the following:
 	; 0100 0XYY YYYX XXXX
 	
-	tya
+	pla
 	; put the 3 lower bits of Y into clearpalo, also places the high 2 bits
 	; in the right place for clearpahi
 	lsr

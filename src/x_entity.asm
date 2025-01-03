@@ -204,6 +204,45 @@ collided:
 	lda #0
 	sta sprspace+sp_kind, x
 	
+	lda sprspace+sp_wid, x
+	lsr
+	lsr
+	lsr
+	sta clearsizex
+	sta temp10
+	lda sprspace+sp_hei, x
+	lsr
+	lsr
+	lsr
+	sta clearsizey
+	sta temp11
+	
+	lda sprspace+sp_y, x
+	lsr
+	lsr
+	lsr
+	tay
+	
+	lda sprspace+sp_x_pg, x
+	lsr
+	lda sprspace+sp_x, x
+	ror
+	lsr
+	lsr
+	tax
+	
+	lda #$01
+	sta setdataaddr
+	sta setdataaddr+1
+	jsr h_request_transfer
+	
+	jsr h_clear_tiles
+	
+	lda temp10
+	sta clearsizex
+	lda temp11
+	sta clearsizey
+	
 	jmp gm_rebound
 .endproc
 
