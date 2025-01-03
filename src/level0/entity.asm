@@ -524,8 +524,17 @@ level0_bridge_manager:
 	bne @returnEarly
 	;bne @drawSprite_Bne
 	
-	; falling !
-	lda sprspace+sp_x_pg, x
+	; check if a clear is already enqueued.
+	lda #nc_clearenq
+	bit nmictrl
+	beq :+
+	
+	; clear is already enqueued. Simply wait one more frame
+	inc sprspace+sp_l0bm_timer, x
+	bne @returnEarly
+	
+	; falling!
+:	lda sprspace+sp_x_pg, x
 	lsr                      ; shift bit 1 in the carry
 	lda sprspace+sp_x, x
 	ror                      ; shift sp_x right by 1, and shift the carry in
@@ -550,22 +559,13 @@ level0_bridge_manager:
 	lsr
 	sta temp3
 	
-	; check if a clear is already enqueued.
-	lda #nc_clearenq
-	bit nmictrl
-	beq :+
-	
-	; clear is already enqueued. Simply wait one more frame
-	inc sprspace+sp_l0bm_timer, x
-	bne @returnEarly
-	;bne @drawSprite_Bne
-	
-:	ora nmictrl
-	sta nmictrl
+	lda #$01
+	sta setdataaddr
+	sta setdataaddr+1
 	
 	ldx temp2
 	ldy temp3
-	jsr h_calcppuaddr
+	jsr h_request_transfer
 	
 	; clear the tiles
 	ldx #0
@@ -939,6 +939,8 @@ level0_intro_crusher:
 	sta setdataaddr
 	sta setdataaddr+1     ; $0101 is close enough
 	jsr level0_ic_calcpos
+	stx temp2
+	sty temp3
 	jsr h_request_transfer
 	
 	; clear it in the actual tile data
@@ -983,6 +985,8 @@ level0_intro_crusher:
 	lda #>l0ic_chardata
 	sta setdataaddr+1
 	jsr level0_ic_calcpos
+	stx temp2
+	sty temp3
 	jsr h_request_transfer
 	
 	; set those tiles in the actual tile data

@@ -1,8 +1,5 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-; NOTE NOTE NOTE
-; These functions are declared in the MAIN segment. Not the GAME segment.
-
 ; ** SUBROUTINE: h_comp_addr
 ; desc:    Computes the address of the 64 byte row of tiles into lvladdr.
 ; arguments:
@@ -391,6 +388,14 @@ cleardestY := temp3
 ; returns:
 ;    [clearpahi, clearpalo] - PPUADDR for that X/Y position
 .proc h_calcppuaddr
+	tya
+	clc
+	adc lvlyoff
+	cmp #30
+	bcc :+
+	sbc #30
+:	tay
+	
 	lda #$20
 	cpx #$20
 	bcc :+
