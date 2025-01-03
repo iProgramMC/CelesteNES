@@ -667,6 +667,9 @@ genloop:
 	ora #gs_dontgen
 	sta gamectrl
 	
+	lda temp11
+	pha
+	
 	lda roomflags
 	and #rf_new
 	beq skipNewMode
@@ -729,8 +732,8 @@ dontdeccamy:
 	sta ntwrhead
 	
 	; restore the camera flags
-	lda gamectrl
-	ora temp11
+	pla
+	ora gamectrl
 	sta gamectrl
 	
 	; snap the camera position properly
