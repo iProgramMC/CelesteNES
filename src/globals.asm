@@ -241,6 +241,7 @@ clearpalo   : .res 1 ; enqueued name table clear, ppu address low
 clearpahi   : .res 1 ; enqueued name table clear, ppu address high
 clearsizex  : .res 1 ; enqueued name table clear, size X
 clearsizey  : .res 1 ; enqueued name table clear, size Y
+setdataaddr : .res 2 ; enqueued name table set, data source.
 roomnumber  : .res 1 ; incremented every time a room transition happens
 climbbutton : .res 1 ; the state of the CLIMB button. Any non zero value works.
 stamina     : .res 2 ; stamina amount (16-bit integer)

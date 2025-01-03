@@ -563,6 +563,8 @@ level0_bridge_manager:
 :	ora nmictrl
 	sta nmictrl
 	
+	ldx temp2
+	ldy temp3
 	jsr h_calcppuaddr
 	
 	; clear the tiles
@@ -929,20 +931,17 @@ level0_intro_crusher:
 	; Set the flags that will clear the crusher's nametable visually.
 	stx l0crshidx
 	
-	; Enqueue a clear for the size of the intro crusher..
-	lda #nc_clearenq
-	ora nmictrl
-	sta nmictrl
-	
 	lda #7
 	sta clearsizex
 	lda #4
 	sta clearsizey
+	lda #$01
+	sta setdataaddr
+	sta setdataaddr+1     ; $0101 is close enough
+	jsr level0_ic_calcpos
+	jsr h_request_transfer
 	
-	; Initiate the clearing process.
-	jsr level0_ic_calcpos ; calculate tile pos in (temp2, temp3)
-	jsr h_calcppuaddr     ; use said tile pos to prepare for the g2_clrcru NMI.
-	
+	; clear it in the actual tile data
 	ldx #0
 @loop:
 	stx temp4
@@ -974,14 +973,19 @@ level0_intro_crusher:
 	; Set the flags that will clear the crusher's nametable visually.
 	stx l0crshidx
 	
-	lda #nc2_setl0ic
-	ora nmictrl2
-	sta nmictrl2
-	
 	; Initiate the setting process.
-	jsr level0_ic_calcpos ; calculate tile pos in (temp2, temp3)
-	jsr h_calcppuaddr     ; use said tile pos to prepare for the n2_setl0ic NMI.
+	lda #7
+	sta clearsizex
+	lda #4
+	sta clearsizey
+	lda #<l0ic_chardata
+	sta setdataaddr
+	lda #>l0ic_chardata
+	sta setdataaddr+1
+	jsr level0_ic_calcpos
+	jsr h_request_transfer
 	
+	; set those tiles in the actual tile data
 	ldx #0
 	stx temp6
 @loop1:
@@ -1010,14 +1014,14 @@ level0_intro_crusher:
 	rts
 
 ; ** SUBROUTINE: level0_ic_calcpos
-; desc: Calculates the tile position of the IntroCrusher into [temp2, temp3].
-level0_ic_calcpos:
+; desc: Calculates the tile position of the IntroCrusher into the X/Y registers.
+; clobbers: temp2
+.proc level0_ic_calcpos
 	; Initiate the setting process.
 	lda sprspace + sp_y, x
 	lsr
 	lsr
 	lsr
-	sta temp3
 	tay
 	
 	lda sprspace + sp_x_pg, x
@@ -1033,9 +1037,9 @@ level0_ic_calcpos:
 	lsr
 	lsr
 	ora temp2
-	sta temp2
-	
+	tax
 	rts
+.endproc
 
 l0ic_dataFHU:	.byte $81, $89, $8B, $8D
 l0ic_dataFHD:	.byte $83, $8F, $91, $93
@@ -1044,44 +1048,10 @@ l0ic_dataSHD:	.byte $8F, $93, $87
 l0ic_shake_table:	.byte $01, $00, $FF, $00
 
 l0ic_chardata:
-	.byte $80,$88,$8A,$8C,$8C,$88,$84
-	.byte $81,$89,$8B,$8D,$8D,$89,$85
-	.byte $82,$8E,$90,$92,$99,$92,$86
-	.byte $83,$8F,$91,$93,$8F,$93,$87
-
-level0_nmi_set_icr:
-	lda clearpahi
-	sta ppu_addr
-	lda clearpalo
-	sta ppu_addr
-	
-	ldx #0
-	ldy #0
-@loop:
-	stx temp2
-	
-	ldx #0
-:	lda l0ic_chardata, y
-	sta ppu_data
-	iny
-	inx
-	cpx #7
-	bne :-
-	
-	lda clearpalo
-	clc
-	adc #$20
-	sta clearpalo
-	bcc :+
-	inc clearpahi
-	
-:	lda clearpahi
-	sta ppu_addr
-	lda clearpalo
-	sta ppu_addr
-	
-	ldx temp2
-	inx
-	cpx #4
-	bne @loop
-	rts
+	.byte $80,$81,$82,$83
+	.byte $88,$89,$8E,$8F
+	.byte $8A,$8B,$90,$91
+	.byte $8C,$8D,$92,$93
+	.byte $8C,$8D,$99,$8F
+	.byte $88,$89,$92,$93
+	.byte $84,$85,$86,$87

@@ -269,134 +269,158 @@ h_flush_row:
 	stx ntrowhead
 	rts
 
-; ** SUBROUTINE: h_enqueued_clear
-; desc: Clears the places in a nametable that the IntroCrusher occupies.
+; ** SUBROUTINE: h_request_transfer
+; desc: Requests a transfer to the PPU nametables.  This transfer is a rectangle
+;       of clearsizex * clearsizey tiles, at the X/Y coordinates specified in the
+;       X/Y registers.
+;       The data source is "setdataaddr", set to $0100 to clear, as long as the
+;       stack never reaches $100+clearsizex*clearsizey bytes.
+.proc h_request_transfer
+	jsr h_calcppuaddr
+	
+	lda nmictrl
+	ora #nc_clearenq
+	sta nmictrl
+	
+	rts
+.endproc
+
+; ** SUBROUTINE: h_enqueued_transfer
+; desc: Transfers data to the PPU based on the X/Y position and address specified.
+;       Uses "setdataaddr" as its data source. Set it to $0100 to clear - should be
+;       zero as long as the stack isn't over 256-clearsizex*clearsizey bytes
 ; assumes: running inside an NMI or rendering is disabled.
-h_enqueued_clear:
+.proc h_enqueued_clear
+clearcurrH := temp1
+cleardestY := temp3
+	
 	; set the increment to 32 in the PPUCTRL
 	lda ctl_flags
 	ora #pctl_adv32
 	sta ppu_ctrl
 	
-	ldy #0
-@loop:
-	sty temp2
+	; calculate the dest Y
+	lda #0
+	tay
+	sta cleardestY
 	
-	; load the ppu address to start writing the column
+	lda clearpalo
+	; rotate the upper 3 bits into cleardestY's low 3 bits
+	rol
+	rol cleardestY
+	rol
+	rol cleardestY
+	rol
+	rol cleardestY
+	
+	lda clearpahi
+	and #%00000011
+	asl
+	asl
+	ora cleardestY
+	sta cleardestY
+	
+@loopWidth:
+	dec clearsizex
+	bmi @doneLoopWidth
+	
 	lda clearpahi
 	sta ppu_addr
 	lda clearpalo
 	sta ppu_addr
 	
-	; flush one column
-	lda #0
-	ldx #0
-:	; TODO: somehow ensure that the PPUDATA is reloaded properly from the top
-    ; when vertically overflowing a nametable?? or something??
+	ldx cleardestY
+	
+	lda clearsizey
+	sta clearcurrH
+	
+@loopHeight:
+	dec clearcurrH
+	bmi @doneLoopHeight
+	
+	lda (setdataaddr), y
 	sta ppu_data
+	iny
+	
 	inx
-	cpx clearsizey
-	bne :-
+	cpx #30
+	bcc @loopHeight
 	
-	; keep part of the old row number in a temporary so we can check it later
-	lda clearpalo
-	and #%11100000
-	sta temp3
+	lda clearpahi
+	and #%11111100
+	sta ppu_addr
 	
-	; increment the PPU address, for the next column
-	inc clearpalo
-	beq @haveOverFlow  ; in case of this type of overflow, the row was definitely overflown
-	
-	; check for regular cases of overflow
-	lda clearpalo
-	and #%11100000
-	cmp temp3
-	beq @noOverFlow    ; if the row number stayed the same, then no overflow
-	
-@haveOverFlow:
-	; we have overflow! reset the row number to default and increase the name table number
 	lda clearpalo
 	and #%00011111
-	ora temp3
-	sta clearpalo
-	
-	lda clearpahi
-	eor #$04
-	sta clearpahi
+	sta ppu_addr
+	ldx #0
+	beq @loopHeight
 
-@noOverFlow:
-	ldy temp2
-	iny
-	cpy clearsizex
-	bne @loop
+@doneLoopHeight:
+	lda clearpalo
+	and #%00011111
+	cmp #%00011111
+	beq :+
+	inc clearpalo
+	bne @loopWidth
 	
+:	lda clearpalo
+	and #%11100000
+	sta clearpalo
+	lda clearpahi
+	eor #%00000100
+	sta clearpahi
+	jmp @loopWidth
+	
+@doneLoopWidth:
 	; restore the old PPUCTRL
 	lda ctl_flags
 	sta ppu_ctrl
 	
 	rts
+.endproc
 
 ; ** SUBROUTINE: h_calcppuaddr
-; desc: Calculates the PPU address for the tile position stored at [temp2 (x), temp3 (y)].
+; desc: Calculates the PPU address for the tile position in the X and Y registers.
 ;       Returns the results in clearpalo, clearpahi.  These are then used by
 ;       the NMI handler.
-h_calcppuaddr:
-	; add the level Y offset.
-	lda temp3
-	pha
-	
-	clc
-	adc lvlyoff
-	cmp #$1E
-	bcc :+
-	sbc #$1E
-:	sta temp3
-	
-	; the nametable the IC is a part of.
-	;
-	; note: the IC may not wrap across nametables! Tiles will be written to the
-	; wrong place if it does!
-	lda #%00100000
-	bit temp2
-	bne @do24
+;
+; parameters:
+;    X - X position
+;    Y - Y position
+; returns:
+;    [clearpahi, clearpalo] - PPUADDR for that X/Y position
+.proc h_calcppuaddr
 	lda #$20
-	bne @done
-@do24:
+	cpx #$20
+	bcc :+
 	lda #$24
-@done:
+:	sta clearpahi
+	lda #$00
 	sta clearpalo
 	
-	; then, part of the Y coordinate.
-	; between $2000 and $2100 there are 8 tile rows.
-	lda temp3
-	lsr
-	lsr
-	lsr
-	clc
-	adc clearpalo
-	tay         ; high address in Y
+	; the address is made up of the following:
+	; 0100 0XYY YYYX XXXX
 	
-	; 0010 0XYY YYYX XXXX
+	tya
+	; put the 3 lower bits of Y into clearpalo, also places the high 2 bits
+	; in the right place for clearpahi
+	lsr
+	ror clearpalo
+	lsr
+	ror clearpalo
+	lsr
+	ror clearpalo
 	
-	lda temp3
-	ror
-	ror
-	ror
-	ror
-	and #%11100000
-	sta clearpalo
+	ora clearpahi
+	sta clearpahi
 	
-	lda temp2
-	and #%00011111
+	txa
+	and #$1F
 	ora clearpalo
-	
-	; temp5 - high byte, temp4 - low byte
 	sta clearpalo
-	sty clearpahi
-	
-	pla
-	sta temp3
 	rts
+.endproc
 
 ; ** SUBROUTINE: h_clear_2cols
 ; desc:    Clears two columns with blank.

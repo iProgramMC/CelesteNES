@@ -88,21 +88,11 @@ nmi_check_flags:
 @tryClearCol:
 	lda #nc2_clrcol
 	bit nmictrl2
-	beq @trySetICr
-	
-	eor nmictrl2
-	sta nmictrl2
-	jsr h_clear_2cols
-	jmp @end
-
-@trySetICr:
-	lda #nc2_setl0ic
-	bit nmictrl2
 	beq @tryClear256
 	
 	eor nmictrl2
 	sta nmictrl2
-	jsr level0_nmi_set_icr
+	jsr h_clear_2cols
 	jmp @end
 
 @tryClear256:
