@@ -2366,7 +2366,11 @@ gm_timercheck:
 	bne @onGround
 
 @gndReturn:
-	lda forcemovext
+	lda dreinvtmr
+	beq :+
+	dec dreinvtmr
+	
+:	lda forcemovext
 	
 	; if forcemovext == 0, then remove the reference to the climb hop entity
 	bne @fmxtNotZero
@@ -3088,12 +3092,10 @@ return:
 	sta plattemp2
 	
 	lda dreinvtmr
-	beq :+
-	dec dreinvtmr
 	bne returnClearTimer
 	
 	; Check if the player's position changed
-:	lda gamectrl4
+	lda gamectrl4
 	and #(g4_movedX | g4_movedY)
 	beq noMovement
 	

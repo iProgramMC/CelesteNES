@@ -178,21 +178,21 @@ xt_draw_crumble_block_okay = xt_draw_crumble_block::okay
 ; ** ENTITY: Breakable Block
 .proc xt_draw_breakable_block
 	ldx temp1
-	lda sprspace+sp_flags, x
+	lda dreinvtmr
+	beq :+
+	jmp transitionMode
+	
+:	lda sprspace+sp_flags, x
 	ora #ef_collidable
 	sta sprspace+sp_flags, x
 	
 	and #ef_collided
+	pha
 	bne collided
 
 normal:
-	lda #$D4
-	sta temp6
-	sta temp7
-	lda #$01
-	sta temp5
-	sta temp8
-	jmp gm_draw_common
+	pla
+	rts
 
 collided:
 	; despawn this entity
@@ -200,7 +200,8 @@ collided:
 	beq normal
 	cmp #(defdashtime-dashchrgtm)
 	bcs normal
-	
+
+collidedforce:
 	lda #0
 	sta sprspace+sp_kind, x
 	
@@ -243,7 +244,37 @@ collided:
 	lda temp11
 	sta clearsizey
 	
+	pla
+	beq return
 	jmp gm_rebound
+
+transitionMode:
+	; In transition mode, check if the player is interacting with us in the final frames
+	lda sprspace+sp_flags, x
+	and #<~ef_collidable
+	sta sprspace+sp_flags, x
+	
+	; check if the player's hitbox is inside
+	lda sprspace+sp_wid, x
+	sta temp9
+	lda sprspace+sp_hei, x
+	sta temp10
+	lda #0
+	sta temp7
+	sta temp8
+	
+	txa
+	tay
+	jsr gm_check_collision_ent
+	beq return
+	
+	; is collided, so just break, but DON'T rebound
+	lda #0
+	pha
+	jmp collidedforce
+
+return:
+	rts
 .endproc
 
 ; ** ENTITY: Strawberry

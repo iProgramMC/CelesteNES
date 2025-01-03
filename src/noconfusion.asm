@@ -192,6 +192,9 @@ actuallyWarp:
 	pla
 	sta roomloffs
 	
+	lda #3
+	sta dreinvtmr
+	
 	; pre-generate all metatiles
 	ldy #0
 genloop:
@@ -350,9 +353,6 @@ dontdomore:
 	lda #(g3_transitD ^ $FF)
 	and gamectrl3
 	sta gamectrl3
-	
-	lda #2
-	sta dreinvtmr
 	
 	lda roomnumber
 	eor #1

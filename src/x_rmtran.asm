@@ -821,8 +821,6 @@ finalloopdone:
 	
 	lda #2
 	sta climbcdown
-	
-	lda #2
 	sta dreinvtmr
 	
 	lda roomnumber
