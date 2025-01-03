@@ -147,6 +147,7 @@ gm_game_update:
 	beq :+
 :	jsr gm_update_lift_boost
 	jsr gm_check_climb_input
+	jsr gm_clear_collided
 	jsr gm_physics
 	jsr gm_anim_player
 	jsr gm_anim_banks
@@ -805,4 +806,18 @@ return:
 	lda paused
 	bne gm_unpause
 	jmp gm_pause
+.endproc
+
+; ** SUBROUTINE: gm_clear_collided
+; desc: Clears the collided flag for entities, and updates the old velocities
+.proc gm_clear_collided
+	ldy #0
+:	lda sprspace+sp_flags, y
+	and #<~ef_collided
+	sta sprspace+sp_flags, y
+	iny
+	cpy #sp_max
+	bne :-
+	
+	rts
 .endproc

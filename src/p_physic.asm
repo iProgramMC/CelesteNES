@@ -415,3 +415,44 @@ xt_collentfloor_kludge:
 
 	rts
 .endproc
+
+; ** SUBROUTINE: gm_rebound
+; desc: Rebounds the player after they hit something with a dash
+.proc gm_rebound
+	lda player_vl_x
+	bmi @assignPlus120
+	bne @assignMinus120
+	lda player_vs_x
+	bne @assignMinus120
+	; don't modify the vel if it's zero
+@doneModdingX:
+	; clears the velocity (A must be zero always)
+	sta player_vs_y
+	lda #$FE ; -120
+	sta player_vl_y
+	
+	lda gamectrl2
+	ora #g2_autojump
+	sta gamectrl2
+	
+	lda #9
+	sta jcountdown
+	
+	lda #0
+	sta dashtime
+	sta forcemovext
+	rts
+
+@assignMinus120:
+	lda #$FE
+	sta player_vl_x
+	lda #$00
+	sta player_vs_x
+	beq @doneModdingX
+@assignPlus120:
+	lda #$02
+	sta player_vl_x
+	lda #$00
+	sta player_vs_x
+	beq @doneModdingX
+.endproc

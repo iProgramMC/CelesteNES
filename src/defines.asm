@@ -128,6 +128,7 @@ sp_l1zmf_spikyUP = $01 ; entity is spiky above
 ef_collidable = $01
 ef_oddroom    = $02
 ef_limbo      = $04 ; entity was scrolled away vertically, and will show up whenever the screen is scrolled
+ef_collided   = $08 ; entity was collided last frame
 
 ; room flags
 rf_godown     = $01 ; room descends
@@ -159,6 +160,7 @@ e_l0birdda  = $0D ; LEVEL 0: bird (dash)
 e_l1zipmovr = $0E ; LEVEL 1: zip mover
 e_l1zipmovt = $0F ; LEVEL 1: tall zip mover
 e_l2memoria = $10 ; LEVEL 2: memorial
+e_breakblck = $11 ; breakable block
 
 ; Entity types that turn into other entities on load
 e_strawbw   = $7E ; TODO -- Implement this.

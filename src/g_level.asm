@@ -1399,10 +1399,20 @@ gm_init_entity:
 	rts
 	
 @notZipMover:
+	cmp #e_breakblck
+	bne @notBreakable
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_wid, y
+	jsr gm_read_ent
+	sta sprspace+sp_hei, y
+	jmp @tyxReturn
+	
+@notBreakable:
 	; todo: more cases ...
 	rts
-	
-	
 
 ; ** SUBROUTINE: gm_set_level_ptr
 ; ** SUBROUTINE: gm_set_room_ptr

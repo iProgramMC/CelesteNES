@@ -1940,6 +1940,10 @@ xt_collentfloor:
 @haveHitBox:
 	; Have a hitbox!
 	sty entground
+	lda sprspace+sp_flags, y
+	ora #ef_collided
+	sta sprspace+sp_flags, y
+	
 	lda sprspace+sp_y_lo, y
 	sta player_sp_y
 	lda sprspace+sp_y, y
@@ -2008,6 +2012,10 @@ xt_collentceil:
 
 @haveHitBox:
 	; Have a hitbox!
+	lda sprspace+sp_flags, y
+	ora #ef_collided
+	sta sprspace+sp_flags, y
+	
 	lda sprspace+sp_y, y
 	clc
 	adc sprspace+sp_hei, y
@@ -2127,7 +2135,12 @@ gm_collentside:
 
 @haveHitBox:
 	sty temp9
-	ldx #1                   ; load X to 1 to clear the zero flag. probably superfluous
+	
+	lda sprspace+sp_flags, y
+	ora #ef_collided
+	sta sprspace+sp_flags, y
+	
+	ldx #1                   ; load X to 1 to clear the zero flag.
 	rts
 
 ; ** SUBROUTINE: gm_checkthisenty

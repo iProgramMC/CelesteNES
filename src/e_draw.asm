@@ -26,51 +26,7 @@ gm_draw_particle:
 	jsr oam_putsprite
 
 @returnEarly:
-	jsr gm_update_particle
-	rts
-
-gm_draw_berry:
-	lda temp1
-	pha
-	
-	jsr gm_update_berry
-	bne @shrinking
-	
-	; normal rendering
-	lda #pal_red
-	jsr gm_allocate_palette
-	sta temp5
-	sta temp8
-	
-	pla
-	sta temp1
-	tax
-	
-	lda #$F8
-	sta temp6
-	lda #$FA
-	sta temp7
-	jmp gm_draw_common
-
-@shrinking:
-	; shrinking
-	lda #pal_red
-	jsr gm_allocate_palette
-	sta temp8
-	ora #obj_fliphz
-	sta temp5
-	
-	pla
-	sta temp1
-	tax
-	lda sprspace+sp_strawb_timer, x
-	and #$FC
-	lsr
-	clc
-	adc #$CC
-	sta temp6
-	sta temp7
-	jmp gm_draw_common
+	jmp gm_update_particle
 
 gm_draw_refillhold:
 	lda #pal_green
@@ -178,6 +134,18 @@ gm_draw_points:
 gm_draw_crumble_block:
 	ldx #<xt_draw_crumble_block
 	ldy #>xt_draw_crumble_block
+	lda #prgb_xtra
+	jmp far_call2
+
+gm_draw_breakable_block:
+	ldx #<xt_draw_breakable_block
+	ldy #>xt_draw_breakable_block
+	lda #prgb_xtra
+	jmp far_call2
+
+gm_draw_berry:
+	ldx #<xt_draw_berry
+	ldy #>xt_draw_berry
 	lda #prgb_xtra
 	jmp far_call2
 
@@ -320,7 +288,8 @@ gm_draw_ent_call:
 	level0_bird_dash,       \
 	level1_zip_mover,       \
 	level1_zip_mover,       \
-	level2_memorial
+	level2_memorial,        \
+	gm_draw_breakable_block
 
 gm_entjtable_lo: .lobytes entity_jump_table
 gm_entjtable_hi: .hibytes entity_jump_table
