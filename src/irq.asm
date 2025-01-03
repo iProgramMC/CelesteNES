@@ -279,7 +279,6 @@ irq:
 	rts
 
 ; delays exactly 28 cycles
-.align $100
 @delay_28:
 	; entry: 6 cycles
 	pha   ;  3 cycles
@@ -310,22 +309,3 @@ irq:
 	pha   ;          3 cycles
 	pla   ;          4 cycles
 	rts   ;          6 cycles
-
-
-; this waits for like 12 scanlines
-;@gapScanLines:
-;	ldy #$F3
-;:	dey
-;	bne :-
-;	nop
-;	nop
-;	nop
-;	rts
-
-;@gapRestScanLines:
-;	ldy #$6F
-;:	dey
-;	bne :-
-;	nop
-;	nop
-;	rts

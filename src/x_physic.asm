@@ -934,7 +934,6 @@ xt_collidefull:
 	rts
 
 xt_collidejthru:
-	sty $FF
 	tax
 	lda player_vl_y
 	bmi xt_collidenone; if player is moving UP, don't do collision checks at all
