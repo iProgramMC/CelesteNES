@@ -7,7 +7,6 @@
 .include "e_spawn.asm"
 .include "p_draw.asm"
 .include "p_physic.asm"
-.include "g_sfx.asm"
 .include "g_palloc.asm"
 .include "g_wipe.asm"
 .include "xtraif.asm"

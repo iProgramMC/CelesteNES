@@ -4,3 +4,5 @@
 ; These functions are instead implemented in the main segment.
 .include "g_decomp.asm"
 .include "g_scroll.asm"
+.include "g_sfx.asm"
+
