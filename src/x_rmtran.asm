@@ -226,6 +226,9 @@ actuallyTransition:
 	sta tr_scrnpos
 	sta quaketimer
 	
+	lda #3
+	sta dreinvtmr
+	
 	jsr adjustTransitionOffset
 	
 	clc

@@ -470,6 +470,9 @@ actuallyTransition:
 	and #<~(pl_climbing|pl_nearwall|pl_wallleft)
 	sta playerctrl
 	
+	lda #3
+	sta dreinvtmr
+	
 	lda #g3_transitL
 	ora gamectrl3
 	sta gamectrl3
