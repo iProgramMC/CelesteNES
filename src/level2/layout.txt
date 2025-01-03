@@ -100,6 +100,9 @@ level2_d3m,1664,576
 Props,level2_d3m,4,0
 Spawn,level2_d3m,0,128
 Spawn,level2_d3m,152,144
+level2_d3b,1664,752
+Props,level2_d3b,2,0
+Spawn,level2_d3b,0,56
 level2_r7,352,-1680
 Props,level2_r7,4,0
 Spawn,level2_r7,56,184
@@ -128,9 +131,6 @@ Spawn,level2_r2_,24,0
 level2_r2,1056,-480
 Props,level2_r2,0,0
 Spawn,level2_r2,16,0
-level2_d3b,1664,752
-Props,level2_d3b,2,0
-Spawn,level2_d3b,0,56
 Filler,288,-128,0,0
 Filler,288,-64,0,0
 Filler,0,-64,64,64

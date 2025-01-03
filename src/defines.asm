@@ -139,6 +139,9 @@ rf_stub       = $10 ; stub room
 rf_norespawn  = $20 ; don't allow respawning here
 rf_nicevert   = $40 ; nice vertical transitions
 rf_nobringup  = $80 ; no bring up animation
+r2_altbank1   = $08 ; use alternative bank (NOTE: bits 2-0 are not available in roomflags2, ignore them!)
+r2_altbank2   = $10
+r2_altbank3   = $18
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
@@ -273,12 +276,13 @@ chrb_bgowd  = $18   ; graphics bank for Overworld
 chrb_lvl0   = $1C   ; graphics bank for level 0 "Prologue"
 chrb_lvl1   = $20   ; graphics bank for level 1 "Forsaken City"
 chrb_lvl2   = $24   ; graphics bank for level 2 "Old Site"
-chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
-chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
-chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
-chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
-chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
-chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
+chrb_lvl2b  = $28   ; alternate graphics bank for level 2 "Old Site"
+;chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
+;chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
+;chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
+;chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
+;chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
+;chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
 
 ; EXTRA SPRITE BANKS
 chrb_pause  = $64

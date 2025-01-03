@@ -1621,6 +1621,12 @@ gm_fetch_room:
 	cpy #<(roomhdrlast-roomhdrfirst)
 	bne @fetchRoomLoop
 	
+	; split out the 2nd room flags
+	lda rm_paloffs
+	sta roomflags2
+	and #%00000111
+	sta rm_paloffs
+	
 	; ok, now zero out the altwarps. in case we don't load them,
 	; they'll be zero, so inactivated
 	lda #0
@@ -1677,6 +1683,14 @@ gm_fetch_room:
 	sta respawnroom
 	
 @dontChangeRespawn:
+	; update loaded background bank
+	lda roomflags2
+	and #%00011000
+	lsr
+	clc
+	adc lvlbasebank
+	sta bg0_bknum
+	
 	; check if this is a new level
 	lda #rf_new
 	bit roomflags
@@ -1799,21 +1813,23 @@ gm_set_level:
 	inc musicdiff
 
 :	; load room 0
-	jsr gm_set_room
 	
 	; load the "environment type" field. This specifies the default bank
-	ldy #0
 	lda (lvlptrlo), y
 	asl
 	asl
 	clc
 	adc #chrb_lvl0           ; The first level's BG bank is #chrb_lvl0.
 	sta bg0_bknum
+	sta lvlbasebank
 	
 	tay
 	iny
 	iny
 	sty bg1_bknum
+	
+	ldy #0
+	jsr gm_set_room
 	
 	jsr gm_load_generics
 	jmp gm_on_level_init

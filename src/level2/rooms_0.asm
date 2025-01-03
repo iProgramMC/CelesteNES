@@ -44,7 +44,7 @@ level2_start:
 	.byte 40, 0
 	.byte 2, 255, 255, 1
 	.byte 8, 0, 0, 0
-	.byte 0
+	.byte 8
 	.byte 64, 0, 0, 0
 	.byte 255, 0, 0, 0
 	.byte 0, 0, 0, 0

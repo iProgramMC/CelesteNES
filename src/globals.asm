@@ -360,6 +360,8 @@ spr3_bkspl  : .res 1
 bg0_bkspl   : .res 1
 bg1_bkspl   : .res 1
 
+lvlbasebank : .res 1 ; base bank from which alt banks are offset
+
 ; this is where the room header is copied, when a room is loaded.
 roomsize    : .res 1 ; room size in tiles. 0 if the room is long/1-directional.
 roomflags   : .res 1 ; room flags
@@ -394,6 +396,8 @@ warp_ralt_yo: .res 1
 warp_t_no   : .res 1 ; temporary warp number
 old_lvlyoff : .res 1 ; temporary for transitions
 old_roomflgs: .res 1 ; temporary for transitions
+
+roomflags2  : .res 1 ; derived from paloffs
 
 roomhdrfirst = roomsize
 roomhdrlast  = rm_paloffs + 1

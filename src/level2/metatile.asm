@@ -55,7 +55,7 @@
 	.byte $C5,$D5,$E5,$F5,$C7,$D7,$E7,$F7  ; Dream Block Right
 	.byte $D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF  ; Dream Block Top
 	.byte $E8,$E9,$EA,$EB,$EC,$ED,$EE,$EF  ; Dream Block Bottom
-	.byte $F8,$FC,$F9,$FD,$FA,$5F,$FB,$FF  ; Dream Block Corners
+	.byte $F8,$FC,$F9,$FD,$FA,$FE,$FB,$FF  ; Dream Block Corners
 	.byte $36,$40,$37,$44,$38,$50,$39,$54  ; Stone Corners - $B0
 	.byte $41,$42,$43     ; Stone Tops $B8
 	.byte $51,$52,$53     ; Stone Bottoms $BB
@@ -73,6 +73,7 @@
 	.byte $3A             ; Snow LR $E6
 	.byte $C8,$C9,$CA,$CB ; Spikes (Red)
 	.byte $89,$8A,$99     ; Purp Jump Through
+	.byte $00             ; Barrier
 	; $E7
 
 ;metatile_info:
@@ -103,5 +104,6 @@
 	.byte ct_deadlyDN            ; Spikes (Red)
 	.byte ct_deadlyLT            ; Spikes (Red)
 	.res   3, ct_jumpthru        ; Purp Jump Through
+	.byte ct_full                ; Barrier
 
 .align $100

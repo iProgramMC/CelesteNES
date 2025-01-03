@@ -23,3 +23,4 @@ metatile_palette:
 	.res   1, $2 ; Snow
 	.res   4, $3 ; Spikes (Purp)
 	.res   3, $3 ; Jumpthroughs (Purp)
+	.res   1, $0 ; Barrier
