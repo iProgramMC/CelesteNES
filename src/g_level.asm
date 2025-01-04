@@ -1,4 +1,4 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 
 ; ** SUBROUTINE: h_comp_addr
 ; desc:    Computes the address of the 64 byte row of tiles into lvladdr.
@@ -652,8 +652,11 @@ h_fls_wrloop:
 	
 	ldy ntrowhead2           ; the Y coordinate
 	lda (lvladdr), y
+	bmi @detour
 	tax
+@nodetour:
 	lda metatiles, x
+@detoured:
 	
 	ldy temp1
 	cpy temp2
@@ -685,7 +688,24 @@ h_fls_wrloop:
 	iny
 	cpy #$20
 	bne @loop
+	beq @avoidDetour
 	
+@detour:
+	tax
+	cmp #$F1
+	bcs @nodetour
+	cmp #$EF
+	bcc @nodetour
+	lda lvlbasebank
+	cmp #chrb_lvl2
+	beq @level2
+	bne @nodetour
+
+@level2:
+	jsr level2_struct_detour2
+	jmp @detoured
+	
+@avoidDetour:
 	; now that the row has been computed, it's time to set the nmictrl flag
 	lda #nc_flushrow
 	ora nmictrl
@@ -938,14 +958,6 @@ h_gener_col_r:
 	bit nmictrl
 	bne @return               ; if a column was already enqueued, return
 	
-	lda ntwrhead
-	sec
-	sbc roombeglo2
-	and #$3F
-	tax
-	lda level2_s_offsets, x
-	sta structoffs
-	
 	ldx ntwrhead              ; compute the areaspace address
 	jsr h_comp_addr
 	ldy lvlyoff               ; start writing tiles.
@@ -997,22 +1009,11 @@ h_gener_col_r:
 	bcc @nodetour
 	lda lvlbasebank
 	cmp #chrb_lvl2
+	beq @level2
 	bne @nodetour
-	
-	cpx #$EF
-	bne @payphone
-	
-	; memorial
-	ldx structoffs
-	inc structoffs
-	lda level2_s_memorial, x
-	tax
-	jmp @detoured
-@payphone:
-	ldx structoffs
-	inc structoffs
-	lda level2_s_info_kiosk, x
-	tax
+
+@level2:
+	jsr level2_struct_detour
 	jmp @detoured
 
 ; ** SUBROUTINE: h_calc_ntattrdata_addr
