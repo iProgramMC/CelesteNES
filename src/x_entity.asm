@@ -222,7 +222,12 @@ collidedforce:
 	lsr
 	lsr
 	lsr
-	tay
+	clc
+	adc vertoffshack
+	cmp #30
+	bcc :+
+	sbc #30
+:	tay
 	
 	lda sprspace+sp_x_pg, x
 	lsr
