@@ -13,6 +13,15 @@ level2_s_memorial:
 level2_s_info_kiosk:
 
 
+
+
+
+level2_alt_palette:
+	.byte $0F,$30,$1C,$0C
+	.byte $0F,$37,$16,$06
+	.byte $0F,$30,$21,$11
+	.byte $0F,$30,$10,$00
+
 ; ** SUBROUTINE: level2_struct_detour
 ; desc: Called by h_gener_col_r to generate a tile for a structure, based on the
 ;       chosen X/Y coordinate.  Done this way because we do not support more than

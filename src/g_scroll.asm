@@ -663,15 +663,6 @@ gm_gener_tiles_horiz_row_read:
 	lsr
 	lsr
 	sta vertoffshack
-	
-	; also update the current bank
-	lda roomflags2
-	and #%00011000
-	lsr
-	clc
-	adc lvlbasebank
-	sta bg0_bknum
-	
 	rts
 .endproc
 

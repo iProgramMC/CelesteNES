@@ -187,7 +187,7 @@ nmi_check_flags:
 @tryUpdPal3:
 	lda #nc2_updpal3
 	bit nmictrl2
-	beq @tryTurnOn
+	beq @tryVMemCpy
 	
 	eor nmictrl2
 	sta nmictrl2
@@ -202,6 +202,24 @@ nmi_check_flags:
 	sta ppu_data
 	lda spritepals+8
 	sta ppu_data
+
+@tryVMemCpy:
+	lda #nc2_vmemcpy
+	bit nmictrl2
+	beq @tryTurnOn
+	
+	eor nmictrl2
+	sta nmictrl2
+	lda vmcaddr+1
+	sta ppu_addr
+	lda vmcaddr
+	sta ppu_addr
+	ldy #0
+:	lda (vmcsrc), y
+	sta ppu_data
+	iny
+	cpy vmccount
+	bne :-
 	
 @tryTurnOn:
 	lda #nc_turnon

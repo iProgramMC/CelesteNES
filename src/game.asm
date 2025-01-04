@@ -118,6 +118,8 @@ gm_game_init:
 	bne :+          ; do not instantly turn on the screen if we're respawning. Let that routine handle it
 	ora #nc_turnon
 :	sta nmictrl
+
+	jsr gm_update_bg_bank
 	
 	jsr vblank_wait
 	jmp gm_game_update

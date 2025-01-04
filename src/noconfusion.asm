@@ -36,6 +36,10 @@ actuallyWarp:
 	ora gamectrl3
 	sta gamectrl3
 	
+	lda nmictrl
+	and #<~(nc_flushrow|nc_flushpal|nc_flushcol|nc_flshpalv)
+	sta nmictrl
+	
 	;ldy warp_d
 	jsr xt_set_room
 	
@@ -360,6 +364,7 @@ dontdomore:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
+	jsr gm_update_bg_bank
 	jmp gm_calculate_vert_offs
 
 newModeTran:
@@ -463,6 +468,10 @@ actuallyTransition:
 	lda #g3_transitL
 	ora gamectrl3
 	sta gamectrl3
+	
+	lda nmictrl
+	and #<~(nc_flushrow|nc_flushpal|nc_flushcol|nc_flshpalv)
+	sta nmictrl
 	
 	jsr gm_calculate_lvlyoff
 	jsr xt_set_room
@@ -730,6 +739,7 @@ transLoopAfter:
 	lda #0
 	sta climbbutton
 	
+	jsr gm_update_bg_bank
 	jmp gm_calculate_vert_offs
 
 updatePalettes:

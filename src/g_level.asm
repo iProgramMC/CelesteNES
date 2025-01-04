@@ -1635,7 +1635,6 @@ gm_fetch_room:
 	; ok, so currently we want to look at the *warp*, we need to load some details
 	; and load roomptrlo as well
 	ldy #0
-	sty structoffs
 	lda (temp1), y
 	sta roomloffs
 	iny
@@ -1723,10 +1722,7 @@ gm_fetch_room:
 	sta respawnroom
 	
 @dontChangeRespawn:
-	; update loaded background bank
-	lda roomflags2
-	and #%00011000
-	tax
+	; check if we need to update the loaded background bank
 	
 	; if transitioning, then bank 0 has a lower
 	; priority than the rest
@@ -1736,14 +1732,12 @@ gm_fetch_room:
 	
 	; transitioning, so check if the current bank
 	; would be zero. if it would be, then skip this check
-	txa
+	lda roomflags2
+	and #%00011000
 	beq @dontChangeBank
 	
 @skipTransitionCheck:
-	lsr
-	clc
-	adc lvlbasebank
-	sta bg0_bknum
+	jsr gm_update_bg_bank
 	
 	; check if this is a new level
 @dontChangeBank:
@@ -1752,6 +1746,74 @@ gm_fetch_room:
 	beq :+
 	jmp gm_decompress_level
 :	rts
+
+; ** SUBROUTINE: gm_update_bg_bank
+; desc: Updates the first background bank when transitioning between rooms.
+.proc gm_update_bg_bank
+	lda roomflags2
+	and #%00011000
+	lsr
+	clc
+	adc lvlbasebank
+	sta bg0_bknum
+	
+	; If this is level 2, and the current bank number is LVL2B, then
+	; load alternate palettes.
+	
+	cmp #chrb_lvl2b
+	beq @level2B
+	bne @normalPalette
+	
+@return:
+	rts
+
+@level2B:
+	lda #g4_altpal
+	bit gamectrl4
+	bne @return
+	
+	ora gamectrl4
+	sta gamectrl4
+	
+	lda #<level2_alt_palette
+	sta vmcsrc
+	lda #>level2_alt_palette
+	sta vmcsrc+1
+	
+	bne @schedulePaletteUpload
+	
+@normalPalette:
+	; try and revert to the normal palette
+	lda #g4_altpal
+	bit gamectrl4
+	beq @return
+	
+	eor gamectrl4
+	sta gamectrl4
+	
+	lda levelnumber
+	asl
+	tax
+	lda level_palettes, x
+	sta vmcsrc
+	inx
+	lda level_palettes, x
+	sta vmcsrc+1
+	
+@schedulePaletteUpload:
+	lda #$3F
+	sta vmcaddr+1
+	lda #$00
+	sta vmcaddr
+	
+	lda #$10
+	sta vmccount
+	
+	lda nmictrl2
+	ora #nc2_vmemcpy
+	sta nmictrl2
+	rts
+.endproc
 
 ; ** SUBROUTINE: gm_on_level_init
 ; desc: Called on level initialization.
@@ -1798,6 +1860,8 @@ gm_on_level_init:
 ; args: X - level number
 ; assumes: vblank is off and you're loading a new level
 gm_set_level:
+	stx levelnumber
+	
 	lda lvldatabank
 	pha
 	

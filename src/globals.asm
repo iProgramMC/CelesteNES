@@ -175,11 +175,10 @@ player_vs_x : .res 1 ; velocity X, subpixels
 player_vl_y : .res 1 ; velocity Y, pixels
 player_vs_y : .res 1 ; velocity Y, subpixels
 plh_attrs   : .res 1 ; player hair attributes
+vmcsrc      : .res 2 ; Source of bytes to copy to
 dashtime    : .res 1
 dashcount   : .res 1 ; times player has dashed
 dashdir     : .res 1 ; dash direction X (controller inputs at time of dash SHIFTED LEFT by 2)
-currroom    : .res 1 ; current room
-respawnroom : .res 1 ; room to respawn to when the player dies
 spryoff     : .res 1 ; hair sprite Y offset
 animmode    : .res 1 ; current animation mode
 animtimer   : .res 1 ; current animation timer. It has a subunitary component because
@@ -344,7 +343,7 @@ groundtimer : .res 1 ; how long the player is on the ground, max of 9 frames
 
 pauseoption : .res 1 ; selected pause option
 pauseanim   : .res 1 ; selected option animation
-structoffs  : .res 1 ; compressed structure offset
+levelnumber : .res 1 ; level number
 
 ; Loaded sprite banks
 spr0_bknum  : .res 1
@@ -411,6 +410,13 @@ spr0_paubk  : .res 1
 spr1_paubk  : .res 1
 spr2_paubk  : .res 1
 spr3_paubk  : .res 1
+
+currroom    : .res 1 ; current room
+respawnroom : .res 1 ; room to respawn to when the player dies
+
+; video memory copy NMI operation (not used by level loading / transition routines)
+vmccount    : .res 1 ; Amount of bytes to copy
+vmcaddr     : .res 2 ; Destination to copy to
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

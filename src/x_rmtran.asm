@@ -194,6 +194,10 @@ actuallyTransition:
 	ora gamectrl3
 	sta gamectrl3
 	
+	lda nmictrl
+	and #<~(nc_flushrow|nc_flushpal|nc_flushcol|nc_flshpalv)
+	sta nmictrl
+	
 	jsr xt_set_room
 	
 	inc roomnumber
@@ -331,6 +335,7 @@ transGenerateBack:
 	jsr gm_unload_ents_room
 	
 	jsr gm_calculate_vert_offs
+	jsr gm_update_bg_bank
 	
 	lda #2
 	sta climbcdown
@@ -463,6 +468,10 @@ actuallyWarp:
 	lda #g3_transitU
 	ora gamectrl3
 	sta gamectrl3
+	
+	lda nmictrl
+	and #<~(nc_flushrow|nc_flushpal|nc_flushcol|nc_flshpalv)
+	sta nmictrl
 	
 	;ldy warp_u
 	jsr xt_set_room
@@ -832,6 +841,7 @@ finalloopdone:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
+	jsr gm_update_bg_bank
 	jmp gm_calculate_vert_offs
 	
 messedupcase:

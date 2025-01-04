@@ -329,6 +329,7 @@ nc2_dlgupd  = $08   ; Dialog: columns have been updated
 nc2_updpal1 = $10   ; Game: Update palette 1
 nc2_updpal2 = $20   ; Game: Update palette 2
 nc2_updpal3 = $40   ; Game: Update palette 3
+nc2_vmemcpy = $80   ; Game: Transfer to video memory (misc, not used by transitions / level loading)
 
 ; Palette types
 pal_blue    = $00
@@ -425,6 +426,7 @@ g4_hasdrdsh = $04   ; don't reset dream dash this frame
 g4_nosjump  = $08   ; don't super jump
 g4_movedX   = $10   ; moved X this frame
 g4_movedY   = $20   ; moved Y this frame
+g4_altpal   = $40   ; used alternate palette
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 pl_pushing  = $04   ; player is pushing against a wall - either sliding or ground-pushing
