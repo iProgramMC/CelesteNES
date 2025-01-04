@@ -74,12 +74,16 @@
 	.byte $C8,$C9,$CA,$CB ; Spikes (Red)
 	.byte $89,$8A,$99     ; Purp Jump Through
 	.byte $00             ; Barrier
+	.byte $6F             ; Memorial Compressed
+	.byte $6E             ; Info Kiosk Compressed
 	; $E7
 
 ;metatile_info:
 .align $100
 	.byte ct_none                ; Air
-	.res  28, ct_full            ; Dirt
+	.res  18, ct_full            ; Dirt
+	.res   8, ct_none            ; Dirt Middles
+	.res   2, ct_full            ; Dirt
 	.res  27, ct_full            ; Snow
 	.res   4, ct_full            ; Dirt
 	.res   3, ct_jumpthru        ; Jump Through
@@ -97,7 +101,8 @@
 	.byte ct_deadlyDN            ; Spikes (Blue)
 	.byte ct_deadlyLT            ; Spikes (Blue)
 	.res  56, ct_dream           ; Dream Block
-	.res  52, ct_full            ; Stone
+	.res  44, ct_full            ; Stone
+	.res   8, ct_none            ; Stone Middles
 	.res   3, ct_full            ; Tower + Snow
 	.byte ct_deadlyUP            ; Spikes (Red)
 	.byte ct_deadlyRT            ; Spikes (Red)
@@ -105,5 +110,6 @@
 	.byte ct_deadlyLT            ; Spikes (Red)
 	.res   3, ct_jumpthru        ; Purp Jump Through
 	.byte ct_full                ; Barrier
+	.res   2, ct_none            ; Compressed Structures
 
 .align $100

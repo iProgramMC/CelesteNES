@@ -190,6 +190,10 @@ actuallyTransition:
 	
 	jsr gm_calculate_lvlyoff
 	
+	lda #g3_transitR
+	ora gamectrl3
+	sta gamectrl3
+	
 	jsr xt_set_room
 	
 	inc roomnumber
@@ -198,10 +202,6 @@ actuallyTransition:
 	lda playerctrl
 	and #<~(pl_climbing|pl_nearwall|pl_wallleft)
 	sta playerctrl
-	
-	lda #g3_transitR
-	ora gamectrl3
-	sta gamectrl3
 	
 	lda trarwrhead
 	sta arwrhead
@@ -460,6 +460,10 @@ actuallyWarp:
 	
 	jsr gm_calculate_lvlyoff
 	
+	lda #g3_transitU
+	ora gamectrl3
+	sta gamectrl3
+	
 	;ldy warp_u
 	jsr xt_set_room
 	
@@ -477,10 +481,6 @@ actuallyWarp:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
-	
-	lda #g3_transitU
-	ora gamectrl3
-	sta gamectrl3
 	
 	lda lvlyoff
 	clc

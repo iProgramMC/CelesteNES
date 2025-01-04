@@ -32,6 +32,10 @@ actuallyWarp:
 	
 	jsr gm_calculate_lvlyoff
 	
+	lda #g3_transitD
+	ora gamectrl3
+	sta gamectrl3
+	
 	;ldy warp_d
 	jsr xt_set_room
 	
@@ -49,10 +53,6 @@ actuallyWarp:
 	lda roomnumber
 	eor #1
 	jsr gm_unload_ents_room
-	
-	lda #g3_transitD
-	ora gamectrl3
-	sta gamectrl3
 	
 	lda lvlyoff
 	sta ntrowhead
@@ -460,6 +460,10 @@ actuallyTransition:
 	sta camera_y_min
 	sta camera_y_max
 	
+	lda #g3_transitL
+	ora gamectrl3
+	sta gamectrl3
+	
 	jsr gm_calculate_lvlyoff
 	jsr xt_set_room
 	
@@ -472,10 +476,6 @@ actuallyTransition:
 	
 	lda #3
 	sta dreinvtmr
-	
-	lda #g3_transitL
-	ora gamectrl3
-	sta gamectrl3
 	
 	; set the beginning of the room to the proper place
 	lda roombeglo2

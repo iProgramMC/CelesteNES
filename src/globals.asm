@@ -344,6 +344,7 @@ groundtimer : .res 1 ; how long the player is on the ground, max of 9 frames
 
 pauseoption : .res 1 ; selected pause option
 pauseanim   : .res 1 ; selected option animation
+structoffs  : .res 1 ; compressed structure offset
 
 ; Loaded sprite banks
 spr0_bknum  : .res 1

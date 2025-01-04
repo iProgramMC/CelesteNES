@@ -14,7 +14,7 @@ metatile_palette:
 	.res   8, $0 ; Tower
 	.res   3, $0 ; Spikes
 	.res   3, $0 ; Grey Jump Through
-	.res   2, $0 ; Memorial
+	.res   2, $3 ; Memorial
 	.res   4, $1 ; Campfire
 	.res   4, $2 ; Spikes (Blue)
 	.res  56, $4 ; Dream Block
@@ -24,3 +24,5 @@ metatile_palette:
 	.res   4, $3 ; Spikes (Purp)
 	.res   3, $3 ; Jumpthroughs (Purp)
 	.res   1, $0 ; Barrier
+	.res   1, $3 ; Compressed Memorial
+	.res   1, $2 ; Compressed Info Kiosk

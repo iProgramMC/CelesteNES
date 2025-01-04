@@ -66,6 +66,8 @@ level2:
 	.word level2_w_d3u_to_d3m
 	.word level2_w_d3m_to_d8
 	.word level2_w_d3m_to_d3u
+	.word level2_w_d3b_to_d8
+	.word level2_w_d3b_to_d3m
 	.word level2_w_r7_to_r8
 	.word level2_w_r8_to_r9
 	.word level2_w_r9_to_r9b
@@ -78,8 +80,6 @@ level2:
 	.word level2_w_r2__to_r10_
 	.word level2_w_r2__to_r2
 	.word level2_w_r2_to_r2_
-	.word level2_w_d3b_to_d8
-	.word level2_w_d3b_to_d3m
 level2_banks:
 	.byte prgb_lvl2a	; level2_w_init
 	.byte prgb_lvl2a	; level2_w_start_to_0
@@ -144,6 +144,8 @@ level2_banks:
 	.byte prgb_lvl2d	; level2_w_d3u_to_d3m
 	.byte prgb_lvl2d	; level2_w_d3m_to_d8
 	.byte prgb_lvl2d	; level2_w_d3m_to_d3u
+	.byte prgb_lvl2d	; level2_w_d3b_to_d8
+	.byte prgb_lvl2d	; level2_w_d3b_to_d3m
 	.byte prgb_lvl2c	; level2_w_r7_to_r8
 	.byte prgb_lvl2c	; level2_w_r8_to_r9
 	.byte prgb_lvl2c	; level2_w_r9_to_r9b
@@ -156,5 +158,3 @@ level2_banks:
 	.byte prgb_lvl2c	; level2_w_r2__to_r10_
 	.byte prgb_lvl2c	; level2_w_r2__to_r2
 	.byte prgb_lvl2c	; level2_w_r2_to_r2_
-	.byte prgb_lvl2d	; level2_w_d3b_to_d8
-	.byte prgb_lvl2d	; level2_w_d3b_to_d3m

@@ -11,4 +11,5 @@ level2_music:
 .include "roomlist.asm"
 .include "warplist.asm"
 .include "palette.asm"
+.include "structs.asm"
 .include "rooms_1.asm"

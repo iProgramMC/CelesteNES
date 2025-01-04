@@ -654,7 +654,7 @@ gm_gener_tiles_horiz_row_read:
 	sta @idx
 	rts
 
-gm_calculate_vert_offs:
+.proc gm_calculate_vert_offs
 	; calculate vertical offset hack
 	lda camera_y
 	sec
@@ -663,7 +663,17 @@ gm_calculate_vert_offs:
 	lsr
 	lsr
 	sta vertoffshack
+	
+	; also update the current bank
+	lda roomflags2
+	and #%00011000
+	lsr
+	clc
+	adc lvlbasebank
+	sta bg0_bknum
+	
 	rts
+.endproc
 
 ; ** SUBROUTINE: gm_load_level_if_vert
 ; desc: Loads more of the horizontal level segment, if in vertical mode.

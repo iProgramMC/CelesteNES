@@ -937,6 +937,15 @@ h_gener_col_r:
 	lda #nc_flushcol
 	bit nmictrl
 	bne @return               ; if a column was already enqueued, return
+	
+	lda ntwrhead
+	sec
+	sbc roombeglo2
+	and #$3F
+	tax
+	lda level2_s_offsets, x
+	sta structoffs
+	
 	ldx ntwrhead              ; compute the areaspace address
 	jsr h_comp_addr
 	ldy lvlyoff               ; start writing tiles.
@@ -945,8 +954,11 @@ h_gener_col_r:
 	sty temp7
 @loop:                        ; each iteration will write 1 character tile for one metatile.
 	lda (lvladdr), y
+	bmi @detour
 	tax
+@nodetour:
 	lda metatiles, x
+@detoured:
 	sty temp7                 ; store the current y into temp7
 	ldy temp6                 ; load the offsetted version into temp6
 	sta tempcol, y
@@ -976,6 +988,32 @@ h_gener_col_r:
 	cmp #$03
 	beq h_palette_data_column
 	rts
+
+@detour:
+	tax
+	cmp #$F1
+	bcs @nodetour
+	cmp #$EF
+	bcc @nodetour
+	lda lvlbasebank
+	cmp #chrb_lvl2
+	bne @nodetour
+	
+	cpx #$EF
+	bne @payphone
+	
+	; memorial
+	ldx structoffs
+	inc structoffs
+	lda level2_s_memorial, x
+	tax
+	jmp @detoured
+@payphone:
+	ldx structoffs
+	inc structoffs
+	lda level2_s_info_kiosk, x
+	tax
+	jmp @detoured
 
 ; ** SUBROUTINE: h_calc_ntattrdata_addr
 ; desc: Calculates the ntattrdata address into temp1 for a column.
@@ -1596,6 +1634,7 @@ gm_fetch_room:
 	; ok, so currently we want to look at the *warp*, we need to load some details
 	; and load roomptrlo as well
 	ldy #0
+	sty structoffs
 	lda (temp1), y
 	sta roomloffs
 	iny
@@ -1686,12 +1725,27 @@ gm_fetch_room:
 	; update loaded background bank
 	lda roomflags2
 	and #%00011000
+	tax
+	
+	; if transitioning, then bank 0 has a lower
+	; priority than the rest
+	lda gamectrl3
+	and #g3_transitA
+	beq @skipTransitionCheck
+	
+	; transitioning, so check if the current bank
+	; would be zero. if it would be, then skip this check
+	txa
+	beq @dontChangeBank
+	
+@skipTransitionCheck:
 	lsr
 	clc
 	adc lvlbasebank
 	sta bg0_bknum
 	
 	; check if this is a new level
+@dontChangeBank:
 	lda #rf_new
 	bit roomflags
 	beq :+

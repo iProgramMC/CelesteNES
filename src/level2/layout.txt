@@ -2,6 +2,7 @@ level2_start,0,0
 Props,level2_start,0,0
 Spawn,level2_start,224,160
 Spawn,level2_start,304,160
+PaletteOverride,level2_start,8,5,3,9,5,3,10,5,3,11,5,3,8,6,3,9,6,3,10,6,3,11,6,3,8,7,3,9,7,3,10,7,3,11,7,3,8,8,3,9,8,3,10,8,3,11,8,3,8,9,3,9,9,3,10,9,3,11,9,3
 level2_0,320,0
 Props,level2_0,0,0
 Spawn,level2_0,0,160
