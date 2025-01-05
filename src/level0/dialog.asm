@@ -1,4 +1,4 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 
 ch0_granny:
 	begin
@@ -33,7 +33,7 @@ ch0_granny:
 	face_ent    0
 	dialog2     @d3
 	
-	trigger     0              ; "haha"
+	;trigger     0              ; "haha"
 	wait        30             ; half a sec
 	left
 	speaker     SPK_granny
@@ -49,7 +49,7 @@ ch0_granny:
 	dialog2     @d6
 	
 	left
-	trigger     1              ; stop laughing
+	;trigger     1              ; stop laughing
 	speaker     SPK_granny
 	expression  GRN_normal
 	dialog      @d7
@@ -80,3 +80,39 @@ ch0_granny:
 	line @d9, "You might see things."
 	line @d10,"Things you ain't ready to see."
 	line @d11,"You should seek help, lady."
+
+ch0_dash_tutorial:
+	begin
+	pcdgOFF
+	
+	face_player 0
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	rm25pcvel
+	wait 5
+	
+	trigger 2   ; fly down
+	zerovel
+	
+	wait 50
+	trigger 3   ; bawk!!
+	
+	wait_ground
+	trigger 4   ; fly away
+	end

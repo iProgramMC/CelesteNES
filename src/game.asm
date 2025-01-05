@@ -17,8 +17,7 @@ gm_update_ptstimer:
 	beq :+            ; if ptstimer != 0, then just decrement it
 	dec ptstimer
 	rts
-:	lda #0            ; if they're both 0, reset the points count and return
-	sta ptscount
+:	sta ptscount      ; if they're both 0, reset the points count and return
 	rts
 
 ; ** SUBROUTINE: gm_load_room_fully
@@ -201,13 +200,20 @@ gm_update_game_cont:
 	
 @normalInput:
 	lda p1_cont
+	ora game_cont_force
 	sta game_cont
 	lda p1_cont+1
+	ora game_cont_force+1
 	sta game_cont+1
+	
 	lda p1_conto
 	sta game_conto
 	lda p1_conto+1
 	sta game_conto+1
+	
+	lda #0
+	sta game_cont_force
+	sta game_cont_force+1
 	rts
 
 ; ** SUBROUTINE: gm_update_dialog
@@ -250,8 +256,8 @@ gm_game_clear_wx:
 	stx camera_x
 	stx camera_y
 	stx camera_x_hi
-	stx lvladdr
-	stx lvladdrhi
+	;stx lvladdr
+	;stx lvladdrhi
 	stx playerctrl
 	stx player_vl_x
 	stx player_vs_x
@@ -259,7 +265,6 @@ gm_game_clear_wx:
 	stx player_vs_y
 	stx dashtime
 	stx dashcount
-	stx animmode
 	stx jumpbuff
 	stx jumpcoyote
 	stx wjumpcoyote
@@ -303,6 +308,8 @@ gm_game_clear_wx:
 	stx pauseanim
 	stx dredeatmr
 	stx dreinvtmr
+	stx game_cont_force
+	stx game_cont_force+1
 	
 	lda #<~g3_transitX
 	and gamectrl3

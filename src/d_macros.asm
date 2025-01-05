@@ -23,6 +23,14 @@ DOP_dialog2 = $0D  ; Show dialog box, then close, but don't clear
 DOP_begin   = $0E  ; Initialize cutscene variables
 DOP_left    = $0F  ; Place portrait on the left
 DOP_right   = $10  ; Place portrait on the right
+DOP_freeze  = $11  ; Freeze game for N frames
+DOP_physOFF = $12  ; Disable physics
+DOP_physON  = $13  ; Enable physics
+DOP_pcdgOFF = $14  ; Disable player controls, drag, and gravity (PCDG)
+DOP_pcdgON  = $15  ; Enable PCDG
+DOP_rm25pcv = $16  ; Remove 25% of both velocities
+DOP_zerovel = $17  ; Set velocity to zero
+DOP_callrt  = $18  ; Call subroutine
 
 DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
@@ -157,4 +165,46 @@ name:
 
 .macro right
 	.byte DOP_right
+.endmacro
+
+; Freeze for N frames
+; desc: Freezes the game for N frames. Unlike wait, doesn't run physics or any other processes
+.macro freeze n
+	.byte DOP_freeze, n
+.endmacro
+
+; Disable Physics
+.macro physOFF
+	.byte DOP_physOFF
+.endmacro
+
+; Enable Physics
+.macro physON
+	.byte DOP_physON
+.endmacro
+
+; Disable PCDG (Player Controls, Drag, and Gravity)
+.macro pcdgOFF
+	.byte DOP_pcdgOFF
+.endmacro
+
+; Enable PCDG
+.macro pcdgON
+	.byte DOP_pcdgON
+.endmacro
+
+; Remove 25% of velocity
+.macro rm25pcvel
+	.byte DOP_rm25pcv
+.endmacro
+
+; Clear Velocity
+.macro zerovel
+	.byte DOP_zerovel
+.endmacro
+
+; Call Routine
+.macro call_rt rt
+	.byte DOP_callrt
+	.word rt
 .endmacro

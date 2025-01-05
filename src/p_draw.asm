@@ -541,10 +541,12 @@ gm_notclimbing:
 ; ** SUBROUTINE: gm_load_hair_palette
 ; desc: Loads Madeline's hair's palette
 gm_load_hair_palette:
+	lda plh_forcepal
+	bne :+
 	lda #maxdashes
 	sec
 	sbc dashcount
-	jsr gm_allocate_palette
+:	jsr gm_allocate_palette
 	sta plh_attrs
 	rts
 

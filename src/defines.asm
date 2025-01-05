@@ -69,6 +69,9 @@ sp_entspec6 = (sp_max *18)   ; entity specific 6
 sp_entspec7 = (sp_max *19)   ; entity specific 7
 ; max: 21
 
+; IMPORTANT IF YOU WANT TO ADD A CUTSCENE ENTITY FOR TRIGGERS:
+; sp_entspec1 will be used for triggers!!
+
 ; synonyms for entspec fields
 sp_oscill_timer = sp_entspec1 ; shared by the strawberry and refill!! (or well, really any entity that calls gm_ent_oscillate)
 
@@ -105,6 +108,7 @@ sp_l0ic_vsu_y = sp_vel_y_lo
 sp_l0bm_state = sp_entspec1  ; 0 - waiting, 1 - falling
 sp_l0bm_blidx = sp_entspec2  ; index of block to trigger to fall
 sp_l0bm_timer = sp_entspec3
+sp_l0bm_acoll = sp_entspec4  ; auto-collapse
 
 sp_l0gr_timer = sp_entspec1
 sp_l0gr_flags = sp_entspec2
@@ -114,6 +118,9 @@ sp_l0gr_cutsc = sp_hei       ; if granny initiated the cutscene
 
 sp_l0bc_state = sp_entspec1  ; climb bird tutorial phase
 sp_l0bc_timer = sp_entspec2
+
+sp_l0bd_state = sp_entspec1  ; dash bird tutorial phase
+sp_l0bd_timer = sp_entspec2
 
 sp_l1zm_timer = sp_entspec1
 sp_l1zm_destx = sp_entspec2
@@ -168,6 +175,7 @@ e_l2payphon = $10 ; LEVEL 2: payphone
 e_breakblck = $11 ; breakable block
 
 ; Entity types that turn into other entities on load
+e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance
 e_strawbw   = $7E ; TODO -- Implement this.
 e_rerefill  = $7F ; refill with respawn flag set
 
@@ -422,6 +430,7 @@ g3_transitX = $10   ; is in a DEATH transition
 	g3_transitA = $1F ; all transition types, for checking whether any kind of transition is active
 g3_blockinp = $20   ; block input, set by cutscenes
 g3_updcuts  = $40   ; update the cutscene the next frame.
+g3_nogradra = $80   ; disable gravity, drag, and controls
 g4_nodeath  = $01   ; do not die because of collision checks (HACK)
 g4_dreamdsh = $02   ; dream dash active
 g4_hasdrdsh = $04   ; don't reset dream dash this frame
@@ -429,6 +438,7 @@ g4_nosjump  = $08   ; don't super jump
 g4_movedX   = $10   ; moved X this frame
 g4_movedY   = $20   ; moved Y this frame
 g4_altpal   = $40   ; used alternate palette
+g4_nophysic = $80   ; disable physics
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 pl_pushing  = $04   ; player is pushing against a wall - either sliding or ground-pushing

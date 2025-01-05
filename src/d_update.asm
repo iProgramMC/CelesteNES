@@ -653,6 +653,14 @@ dlg_cmd_table:
 	.word dlg_cmd_begin
 	.word dlg_cmd_left
 	.word dlg_cmd_right
+	.word dlg_cmd_freeze
+	.word dlg_cmd_physOFF
+	.word dlg_cmd_physON
+	.word dlg_cmd_pcdgOFF
+	.word dlg_cmd_pcdgON
+	.word dlg_cmd_rm25pcv
+	.word dlg_cmd_zerovel
+	.word dlg_cmd_callrt
 
 dlg_cmd_begin:
 	jsr dlg_cmd_left
@@ -724,6 +732,21 @@ dlg_cmd_speaker:
 	rts
 
 dlg_cmd_dirplr:
+	jsr dlg_read_script
+	tax
+	beq @right
+	lda playerctrl
+	ora #pl_left
+	sta playerctrl
+	bne @skip
+@right:
+	lda playerctrl
+	and #<~pl_left
+	sta playerctrl
+@skip:
+	lda #0
+	rts
+
 dlg_cmd_dirent:
 	; TODO
 	jsr dlg_read_script
@@ -749,8 +772,13 @@ dlg_cmd_express:
 	rts
 
 dlg_cmd_trigger:
-	; TODO
 	jsr dlg_read_script
+	
+	ldx dlg_entity
+	
+	; this field was decided on by convention(TM).
+	sta sprspace+sp_entspec1, x
+	
 	lda #0
 	rts
 
@@ -790,6 +818,7 @@ dlg_cmd_right:
 	lda #0
 	rts
 
+; Wait Ground
 dlg_cmd_waitgrn:
 	; check if player is on ground
 	lda playerctrl
@@ -803,6 +832,137 @@ dlg_cmd_waitgrn:
 @justExit:
 	lda #0
 	rts
+
+; Freeze
+dlg_cmd_freeze:
+	jsr dlg_read_script
+	tay
+	
+:	sty transtimer
+	jsr dlg_leave_doframe
+	ldy transtimer
+	dey
+	bne :-
+	
+	lda #0
+	rts
+
+; Disable Physics
+dlg_cmd_physOFF:
+	lda gamectrl4
+	ora #g4_nophysic
+	sta gamectrl4
+	lda #0
+	rts
+
+; Enable Physics
+dlg_cmd_physON:
+	lda gamectrl4
+	and #<~g4_nophysic
+	sta gamectrl4
+	lda #0
+	rts
+
+; Disable PCDG
+dlg_cmd_pcdgOFF:
+	lda gamectrl3
+	ora #g3_nogradra
+	sta gamectrl3
+	lda #0
+	rts
+
+; Enable PCDG
+dlg_cmd_pcdgON:
+	lda gamectrl3
+	and #<~g3_nogradra
+	sta gamectrl3
+	lda #0
+	rts
+
+; Remove 25% of velocity
+dlg_cmd_rm25pcv:
+	lda temp1
+	pha
+	lda temp2
+	pha
+	
+	lda player_vs_x
+	sta temp2
+	lda player_vl_x
+	cmp #$80
+	ror
+	ror temp2
+	cmp #$80
+	ror
+	ror temp2
+	sta temp1
+	
+	lda player_vs_x
+	sec
+	sbc temp2
+	sta player_vs_x
+	lda player_vl_x
+	sbc temp1
+	sta player_vl_x
+	
+	lda player_vs_y
+	sta temp2
+	lda player_vl_y
+	cmp #$80
+	ror
+	ror temp2
+	cmp #$80
+	ror
+	ror temp2
+	sta temp1
+	
+	lda player_vs_y
+	sec
+	sbc temp2
+	sta player_vs_y
+	lda player_vl_y
+	sbc temp1
+	sta player_vl_y
+	
+	pla
+	sta temp2
+	pla
+	sta temp1
+	
+	lda #0
+	rts
+
+; Zero Velocity
+dlg_cmd_zerovel:
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	sta player_vl_y
+	sta player_vs_y
+	rts
+
+; Call Subroutine
+dlg_cmd_callrt:
+	lda temp1
+	pha
+	lda temp2
+	pha
+	
+	jsr dlg_read_script
+	sta temp1
+	jsr dlg_read_script
+	sta temp1+1
+	jsr @doCall
+	
+	pla
+	sta temp2
+	pla
+	sta temp1
+	
+	lda #0
+	rts
+@doCall:
+	jmp (temp1)
 
 ; ** SUBROUTINE: dlg_recheck_next_frame
 ; desc: Re-runs the exact same instruction next frame.

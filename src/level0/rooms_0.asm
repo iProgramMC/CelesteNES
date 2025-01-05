@@ -265,7 +265,7 @@ level0_r4_e:
 	.byte $48,$B0,$0A
 	.byte $B0,$B0,$0A
 	.byte $FE
-	.byte $18,$B0,$0A
+	.byte $18,$B0,$7D
 	.byte $90,$A0,$0D
 	.byte $FF
 level0_r4_t:

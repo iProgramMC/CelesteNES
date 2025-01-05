@@ -1405,6 +1405,10 @@ gm_init_entity:
 	sta sprspace+sp_entspec1, x
 	sta sprspace+sp_entspec2, x
 	sta sprspace+sp_entspec3, x
+	sta sprspace+sp_entspec4, x
+	sta sprspace+sp_entspec5, x
+	sta sprspace+sp_entspec6, x
+	sta sprspace+sp_entspec7, x
 	sta sprspace+sp_x_lo, x
 	sta sprspace+sp_y_lo, x
 	sta sprspace+sp_wid, x
@@ -1437,6 +1441,15 @@ gm_init_entity:
 	and #%01111111
 	sta sprspace+sp_kind, x
 	
+	cmp #e_l0bridgea
+	bne @notL0BridgeA
+	
+	lda #e_l0bridge           ; turn it into a normal bridge manager entity
+	sta sprspace+sp_kind, x   ; with the auto collapse flag set.
+	lda #1
+	sta sprspace+sp_l0bm_acoll, x
+	rts
+@notL0BridgeA:
 	cmp #e_rerefill
 	bne @notReRefill
 	

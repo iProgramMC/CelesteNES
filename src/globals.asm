@@ -174,18 +174,10 @@ player_vl_x : .res 1 ; velocity X, pixels
 player_vs_x : .res 1 ; velocity X, subpixels
 player_vl_y : .res 1 ; velocity Y, pixels
 player_vs_y : .res 1 ; velocity Y, subpixels
-plh_attrs   : .res 1 ; player hair attributes
 vmcsrc      : .res 2 ; Source of bytes to copy to
 dashtime    : .res 1
 dashcount   : .res 1 ; times player has dashed
 dashdir     : .res 1 ; dash direction X (controller inputs at time of dash SHIFTED LEFT by 2)
-spryoff     : .res 1 ; hair sprite Y offset
-animmode    : .res 1 ; current animation mode
-animtimer   : .res 1 ; current animation timer. It has a subunitary component because
-animtimersb : .res 1 ; the upper component is directly used as the frame index.
-animflags   : .res 1 ; animation flags copied from anim data
-sprxoff     : .res 1 ; hair sprite X offset
-spryoffbase : .res 1 ; hair sprite Y offset base (used for af_oddryth)
 jumpbuff    : .res 1 ; jump buff time
 jumpcoyote  : .res 1 ; jump coyote time, if not zero, player may jump
 wjumpcoyote : .res 1 ; wall jump coyote time
@@ -417,6 +409,19 @@ respawnroom : .res 1 ; room to respawn to when the player dies
 ; video memory copy NMI operation (not used by level loading / transition routines)
 vmccount    : .res 1 ; Amount of bytes to copy
 vmcaddr     : .res 2 ; Destination to copy to
+
+; player sprite modes
+plh_attrs   : .res 1 ; player hair attributes
+animmode    : .res 1 ; current animation mode
+animtimer   : .res 1 ; current animation timer. It has a subunitary component because
+animtimersb : .res 1 ; the upper component is directly used as the frame index.
+animflags   : .res 1 ; animation flags copied from anim data
+spryoff     : .res 1 ; hair sprite Y offset
+sprxoff     : .res 1 ; hair sprite X offset
+spryoffbase : .res 1 ; hair sprite Y offset base (used for af_oddryth)
+plh_forcepal: .res 1 ; forced hair palette if non-zero
+
+game_cont_force : .res 2
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

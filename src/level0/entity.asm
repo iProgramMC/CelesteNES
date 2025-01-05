@@ -1,4 +1,4 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 ; Level 0 specific entities.
 
 ; ** Entity Draw/Update routines
@@ -121,10 +121,10 @@ level0_granny:
 	lda temp1
 	pha
 	
-	lda #0
+	txa
 	ldx #<ch0_granny
 	ldy #>ch0_granny
-	jsr dlg_begin_cutscene_g
+	;jsr dlg_begin_cutscene_g
 	
 	pla
 	sta temp1
@@ -421,7 +421,56 @@ spriteIndicesFleeNormal:	.byte $6C, $68, $7C, $64
 
 ; ** ENTITY: level0_bird_dash
 ; desc: This is the tutorial bird that teaches you how to dash.
-level0_bird_dash:
+.proc level0_bird_dash
+	lda sprspace+sp_l0bd_state, x
+	bne checkMoreStates
+	
+	; Idle State
+	lda temp2
+	sec
+	sbc player_x
+	bmi normal
+	
+	cmp #$55
+	bcs normal
+	
+	lda player_y
+	cmp #160
+	bcc normal
+	cmp #180
+	bcs normal
+	
+	lda player_vl_y
+	bmi normal
+	
+	; initiate the cutscene if needed
+	lda #1
+	cmp sprspace+sp_l0bd_state, x
+	beq normal
+	
+	sta sprspace+sp_l0bd_state, x
+	
+	; force the hair color to show as red
+	lda #pal_red
+	sta plh_forcepal
+	
+	; but the dash count should be max (the player can't dash)
+	lda #maxdashes
+	sta dashcount
+	
+	; (the player will only be able to dash after the bird bawks)
+	
+	lda temp1
+	pha
+	
+	ldx #<ch0_dash_tutorial
+	ldy #>ch0_dash_tutorial
+	jsr dlg_begin_cutscene_g
+	
+	pla
+	sta temp1
+	
+normal:
 	lda #pal_bird
 	jsr gm_allocate_palette
 	sta temp5
@@ -432,6 +481,59 @@ level0_bird_dash:
 	sta temp7
 	jmp gm_draw_common
 
+checkMoreStates:
+	cmp #1
+	beq slowDownState
+	cmp #2
+	beq flyDownState
+	cmp #3
+	beq bawkState
+	cmp #4
+	beq flyAwayState
+
+slowDownState:
+	; slowed down, wait for further instructions from the cutscene
+	jmp normal
+
+flyDownState:
+	; flying down TODO
+	jmp normal
+
+bawkState:
+	lda sprspace+sp_l0bd_timer, x
+	tay
+	bne bawkWaiting
+	
+	inc sprspace+sp_l0bd_timer, x
+	
+	lda #0
+	sta dashcount
+	sta plh_forcepal
+	
+	jsr gm_bird_caw_sfx
+	jmp normal
+
+bawkWaiting:
+	; waiting for the player to dash and then land
+	lda dashcount
+	beq normal       ; dash count is still zero, means player didn't yet dash!
+	
+	lda gamectrl3
+	and #<~g3_nogradra
+	sta gamectrl3
+
+	; ok, dashed, constantly hold the up and climb buttons until they land
+	lda #(cont_up|cont_right)
+	sta game_cont_force
+	lda #cont_lsh
+	sta game_cont_force+1
+	jmp normal
+
+flyAwayState:
+	; flying away TODO
+	jmp normal
+.endproc
+
 ; ** ENTITY: level0_bridge_manager
 ; desc: This entity manages a single bridge instance  (13 tiles wide) and
 ;       initiates the fall sequence for each.
@@ -439,7 +541,6 @@ level0_bridge_manager:
 	lda sprspace+sp_l0bm_state, x
 	bne @state_Falling
 	
-	; idle state. Check if the player has approached this entity's position
 	lda player_x
 	clc
 	adc camera_x
@@ -448,6 +549,20 @@ level0_bridge_manager:
 	lda camera_x_pg
 	adc #0
 	sta temp6
+	
+	lda sprspace+sp_l0bm_acoll, x
+	beq @normalIdleState
+	
+	; auto collapse, so start much earlier
+	lda temp5
+	clc
+	adc #$30
+	sta temp5
+	bcc @normalIdleState
+	inc temp6
+	
+	; idle state. Check if the player has approached this entity's position
+@normalIdleState:
 	
 	; check if that X position exceeds the bridge manager's
 	lda temp6
@@ -464,8 +579,11 @@ level0_bridge_manager:
 	; start falling immediately
 	lda #1
 	sta sprspace+sp_l0bm_state, x
+	
+	ldy sprspace+sp_l0bm_acoll, x
+	bne :+
 	lda #20
-	sta sprspace+sp_l0bm_timer, x
+:	sta sprspace+sp_l0bm_timer, x
 
 @noFallInit:
 	lda #0
@@ -475,6 +593,8 @@ level0_bridge_manager:
 @state_Falling:
 	; Falling state. If the timer is zero, determine which block to fall, and
 	; make it fall.
+	ldy sprspace+sp_l0bm_acoll, x
+	bne @forceNow
 	
 	; if player somehow outruns the default rhythm, just set the timer to zero.
 	lda sprspace+sp_l0bm_blidx, x

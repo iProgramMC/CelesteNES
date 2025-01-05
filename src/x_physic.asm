@@ -110,6 +110,10 @@ gm_acceltable:
 ; ** SUBROUTINE: gm_updatexvel
 ; desc:    Makes the 16-bit X velocity approach a value based on the buttons held.
 gm_updatexvel:
+	lda #g3_nogradra
+	bit gamectrl3
+	bne @return2
+	
 	lda #pl_climbing
 	bit playerctrl
 	beq @notClimbing
@@ -138,6 +142,8 @@ gm_updatexvel:
 	lda #0
 	sta player_vl_x
 	sta player_vs_x
+
+@return2:
 	rts
 	
 @notClimbing:
@@ -321,6 +327,9 @@ gm_gravity:
 @nogravity:
 	rts
 @nojumpcountdown:
+	lda #g3_nogradra
+	bit gamectrl3
+	bne @nogravity
 	lda #pl_ground
 	bit playerctrl
 	beq @apply_gravity
@@ -2272,6 +2281,9 @@ gm_dash_noflip:
 gm_dash_nosj:
 	jmp gm_dash_update_done
 
+gm_dash_update_:
+	bne gm_dash_update
+
 ; ** SUBROUTINE: xt_physics
 ; desc: Runs one frame of player physics.
 .proc xt_physics
@@ -2280,10 +2292,13 @@ gm_dash_nosj:
 	bne return
 	lda respawntmr
 	bne return
+	lda #g4_nophysic
+	bit gamectrl4
+	bne return
 	
 	jsr gm_jumpgrace
 	lda dashtime
-	bne gm_dash_update
+	bne gm_dash_update_
 	jsr gm_gravity
 	jsr gm_controls
 dash_update_done:
