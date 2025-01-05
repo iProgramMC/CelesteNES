@@ -338,11 +338,31 @@ level2_w_r12b_to_r12c:
 	.byte 0			; room left offset
 	.byte 128, 184	; player spawn X/Y
 	.word level2_r12c
+level2_w_r12b_to_r12:
+	.byte 0			; room left offset
+	.byte 0, 160	; player spawn X/Y
+	.word level2_r12
 level2_w_r12d_to_r12b:
 	.byte 8			; room left offset
 	.byte 120, 176	; player spawn X/Y
 	.word level2_r12b
+level2_w_r12d_to_r12:
+	.byte 0			; room left offset
+	.byte 0, 160	; player spawn X/Y
+	.word level2_r12
 level2_w_r12c_to_r12b:
 	.byte 8			; room left offset
 	.byte 128, 72	; player spawn X/Y
 	.word level2_r12b
+level2_w_r12_to_r12b:
+	.byte 16			; room left offset
+	.byte 240, 160	; player spawn X/Y
+	.word level2_r12b
+level2_w_r12_to_end_chase:
+	.byte 0			; room left offset
+	.byte 0, 160	; player spawn X/Y
+	.word level2_end_chase
+level2_w_end_chase_to_r12:
+	.byte 28			; room left offset
+	.byte 240, 160	; player spawn X/Y
+	.word level2_r12

@@ -50,17 +50,18 @@ level2_alt_palette:
 gotX:
 	sec
 	sbc roombeglo2
+	and #$3F
 	
 	cpx #$EF  ; check if it's the memorial
 	beq @memorial
 	
-	; info kiosk TODO
+	; info kiosk starts at tile 20,13
 	sec
-	sbc #0  ; X COORDINATE HERE
+	sbc #20
 	tax
 	tya
 	sec
-	sbc #0  ; Y COORDINATE HERE
+	sbc #13
 	clc
 	adc level2_s_info_kiosk_offsets, x
 	tax

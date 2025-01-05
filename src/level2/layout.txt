@@ -153,6 +153,13 @@ Spawn,level2_r12d,40,128
 level2_r12c,2112,-720
 Props,level2_r12c,0,0
 Spawn,level2_r12c,128,184
+level2_r12,2464,-480
+Props,level2_r12,4,0
+Spawn,level2_r12,0,160
+Spawn,level2_r12,464,160
+level2_end_chase,2944,-480
+Props,level2_end_chase,0,0
+Spawn,level2_end_chase,0,160
 Filler,288,-128,0,0
 Filler,288,-64,0,0
 Filler,0,-64,64,64
