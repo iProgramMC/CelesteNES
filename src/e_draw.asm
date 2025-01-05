@@ -288,7 +288,7 @@ gm_draw_ent_call:
 	level0_bird_dash,       \
 	level1_zip_mover,       \
 	level1_zip_mover,       \
-	level2_memorial,        \
+	level2_payphone,        \
 	gm_draw_breakable_block
 
 gm_entjtable_lo: .lobytes entity_jump_table

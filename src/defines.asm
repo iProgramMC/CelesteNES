@@ -162,7 +162,7 @@ e_l0birdcl  = $0C ; LEVEL 0: bird (climb)
 e_l0birdda  = $0D ; LEVEL 0: bird (dash)
 e_l1zipmovr = $0E ; LEVEL 1: zip mover
 e_l1zipmovt = $0F ; LEVEL 1: tall zip mover
-e_l2memoria = $10 ; LEVEL 2: memorial
+e_l2payphon = $10 ; LEVEL 2: payphone
 e_breakblck = $11 ; breakable block
 
 ; Entity types that turn into other entities on load
