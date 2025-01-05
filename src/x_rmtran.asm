@@ -632,7 +632,17 @@ actuallyWarp:
 	jsr xt_gener_mts_ents_r
 
 @offsetLeftLoop:
-	jsr xt_gener_col_r
+	; HACK: If there is one more column to generate, don't
+	; generate one more column.
+	lda roomloffs
+	cmp #1
+	bne :+
+	
+	lda gamectrl
+	ora #gs_dontgen
+	sta gamectrl
+	
+:	jsr xt_gener_col_r
 	jsr xt_leave_doframe
 	
 	dec roomloffs
