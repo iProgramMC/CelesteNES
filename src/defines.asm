@@ -124,6 +124,8 @@ sp_l1zm_homxh = sp_entspec6
 sp_l1zm_flags = sp_entspec7
 sp_l1zmf_spikyUP = $01 ; entity is spiky above
 
+sp_l2ph_timer = sp_entspec1
+
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02

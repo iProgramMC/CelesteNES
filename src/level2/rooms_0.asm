@@ -11,7 +11,7 @@ level2_start_p:
 	.byte $00,$51,$00,$00,$00,$00,$00,$00
 	.byte $00,$A0,$00,$00,$FF
 level2_start_e:
-	.byte $D0,$40,$11,$10,$10
+;	.byte $D0,$40,$10
 	.byte $FF
 level2_start_t:
 	.byte $D6,$21,$2F,$C6,$96,$1E,$36,$86
