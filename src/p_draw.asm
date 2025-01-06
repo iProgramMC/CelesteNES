@@ -354,8 +354,8 @@ gm_climtbl:
 
 gm_anim_table:
 	; format: player L, player R, hair L, hair R, hair X off, hair Y off, flags, unused.
-	.byte plr_idle1_l, plr_idle1_r, plr_hasta_l, plr_hasta_r, $00, $00, af_none,   $00  ; IDLE
-	.byte <gm_walktbl, >gm_walktbl, plr_hamvr_l, plr_hamvr_r, $00, $00, af_4frame|af_wlkspd|af_oddryth, $00  ; WALK
+	.byte plr_idle1_l, plr_idle1_r, plr_hasta_l, plr_hasta_r, $00, $00, af_oddryth,$00  ; IDLE
+	.byte <gm_walktbl, >gm_walktbl, plr_hamvr_l, plr_hamvr_r, $01, $00, af_4frame|af_wlkspd|af_oddryth, $00  ; WALK
 	.byte plr_jump_l,  plr_jump_r,  plr_hamvu_l, plr_hamvu_r, $00, $00, af_lock,   $00  ; JUMP
 	.byte plr_fall_l,  plr_fall_r,  plr_hamvd_l, plr_hamvd_r, $00, $00, af_lock,   $00  ; FALL
 	.byte plr_push1_l, plr_push1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_none|af_oddryth, $00  ; PUSH
@@ -522,6 +522,9 @@ gm_loaded:
 	lda #af_oddryth
 	bit animflags
 	beq gm_nooddrhythm
+	lda animmode
+	cmp #am_walk
+	beq gm_walkCheck
 	clc
 	lda animtimer
 	and #1
@@ -538,6 +541,17 @@ gm_nooddrhythm:
 	sta sprxoff
 gm_notclimbing:
 	rts
+gm_walkCheck:
+	lda animtimer
+	and #3
+	tay
+	lda sprYOffTable, y
+	clc
+	adc spryoffbase
+	sta spryoff
+	jmp gm_nooddrhythm
+
+sprYOffTable:	.byte $00,$FF,$01,$FF
 
 ; ** SUBROUTINE: gm_load_hair_palette
 ; desc: Loads Madeline's hair's palette
