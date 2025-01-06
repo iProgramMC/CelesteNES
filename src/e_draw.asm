@@ -131,22 +131,24 @@ gm_draw_points:
 	
 	jmp gm_draw_common
 
+; I know it sounds absurd that we're putting this type of code into the *pause*
+; bank, of all things, but come on, it's 7K free, it's fine...
 gm_draw_crumble_block:
 	ldx #<xt_draw_crumble_block
 	ldy #>xt_draw_crumble_block
-	lda #prgb_xtra
+	lda #prgb_paus
 	jmp far_call2
 
 gm_draw_breakable_block:
 	ldx #<xt_draw_breakable_block
 	ldy #>xt_draw_breakable_block
-	lda #prgb_xtra
+	lda #prgb_paus
 	jmp far_call2
 
 gm_draw_berry:
 	ldx #<xt_draw_berry
 	ldy #>xt_draw_berry
-	lda #prgb_xtra
+	lda #prgb_paus
 	jmp far_call2
 
 ; ** SUBROUTINE: gm_draw_common

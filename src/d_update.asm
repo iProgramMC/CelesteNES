@@ -666,6 +666,8 @@ dlg_cmd_begin:
 	jsr dlg_cmd_left
 	; since it returns 0, just store it to the waittimer
 	sta dlg_waittimer
+	sta dlg_walkdstx
+	sta dlg_walkdsty
 	rts
 
 dlg_cmd_wait:
@@ -754,7 +756,122 @@ dlg_cmd_dirent:
 	rts
 
 dlg_cmd_walkplr:
+	lda dlg_walkdsty
+	beq @readAndSetUp
+	
+	lda #0
+	sta trantmp1
+	
+	; try to approach from the X
+	lda player_x
+	cmp dlg_walkdstx
+	bcs @walkXPos
+	
+	; player_x < dlg_walkdstx, so add
+	lda #maxwalkLO
+	sta player_vs_x
+	lda #maxwalkHI
+	sta player_vl_x
+	
+	lda playerctrl
+	and #<~pl_left
+	sta playerctrl
+	
+	lda player_sp_x
+	;clc
+	adc #maxwalkLO
+	sta player_sp_x
+	lda player_x
+	adc #maxwalkHI
+	sta player_x
+	
+	; now compare
+	lda dlg_walkdstx
+	cmp player_x
+	bcs @doneX
+	
+	; player_x is now >= dlg_walkdstx
+	sta player_x
+	jmp @clearXVel
+	
+@walkXPos:
+	; negative
+	lda #<(-maxwalkLO)
+	sta player_vs_x
+	lda #>(-maxwalkHI)
+	sta player_vl_x
+	
+	lda playerctrl
+	ora #pl_left
+	sta playerctrl
+	
+	lda player_sp_x
+	;sec
+	sbc #maxwalkLO
+	sta player_sp_x
+	lda player_x
+	sbc #maxwalkHI
+	sta player_x
+	
+	lda dlg_walkdstx
+	cmp player_x
+	bcc @doneX
+	
+	; player_x is now < dlg_walkdstx
+	sta player_x
+
+@clearXVel:
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	
+@doneX:
+	lda dlg_walkdstx
+	cmp player_x
+	bne :+
+	inc trantmp1
+
+:	; check the Y now TODO
+	
+	
+	lda trantmp1
+	cmp #1
+	; if not done, then recheck
+	bne @recheck
+	
+	; finish the command
+	jsr dlg_read_script
+	jsr dlg_read_script
+	
+	lda gamectrl4
+	and #<~g4_nophysic
+	sta gamectrl4
+	
+	lda #0
+	sta dlg_walkdstx
+	sta dlg_walkdsty
+	rts
+
+@readAndSetUp:
+	lda gamectrl4
+	ora #g4_nophysic
+	sta gamectrl4
+	
+	; set up the walk
+	jsr dlg_read_script
+	sta dlg_walkdstx
+	jsr dlg_read_script
+	sta dlg_walkdsty
+	
+	; then recheck next frame
+	; (note: have to do this 3 times because we read 2 extra bytes)
+	jsr dlg_recheck_next_frame
+	jsr dlg_recheck_next_frame
+@recheck:
+	jmp dlg_recheck_next_frame
+
 dlg_cmd_walkent:
+	; TODO
 	jsr dlg_read_script
 	jsr dlg_read_script
 	jsr dlg_read_script

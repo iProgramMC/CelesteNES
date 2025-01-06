@@ -754,6 +754,46 @@ gm_negvely:
 	sty player_vs_y
 	rts
 
+; ** SUBROUTINE: gm_getleftx
+; desc: Gets the tile X position where the left edge of the player's hitbox resides
+; returns: A - the X coordinate
+gm_getleftx:
+	clc
+	lda player_x
+	adc #plr_x_left   ; determine leftmost hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda camera_x_hi
+	adc #0
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
+; ** SUBROUTINE: gm_getrightx
+; desc:     Gets the tile X position where the right edge of the player's hitbox resides
+; returns:  A - the X coordinate
+; note:     this is NOT ALWAYS the same as the result of gm_getleftx!! though perhaps
+;           some optimizations are possible..
+gm_getrightx:
+	clc
+	lda player_x
+	adc #plr_x_right ; determine right hitbox position
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda camera_x_hi
+	adc #0
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr               ; finish dividing by the tile size
+	rts
+
 ; ** SUBROUTINE: gm_getleftxceil
 ; desc: Gets the tile X position where the left edge of the player's hitbox resides
 ; returns: A - the X coordinate
@@ -831,6 +871,44 @@ gm_getrightwjx:
 	lsr
 	lsr               ; finish dividing by the tile size
 	rts
+
+; ** SUBROUTINE: gm_getbottomy_cc
+; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
+gm_getbottomy_cc:
+	lda player_y
+	clc
+	adc #plr_y_bot_cc
+	bcs xt_gety_wraparound
+	cmp #240
+	bcs xt_gety_wraparound
+	lsr
+	lsr
+	lsr
+	cmp #$1D
+	bcc :+
+	lda abovescreen
+	beq :+
+	lda #$1D
+:	rts
+
+; ** SUBROUTINE: gm_getbottomy_wjc
+; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
+gm_getbottomy_wjc:
+	lda player_y
+	clc
+	adc #plr_y_bot_wjc
+	bcs xt_gety_wraparound
+	cmp #240
+	bcs xt_gety_wraparound
+	lsr
+	lsr
+	lsr
+	cmp #$1D
+	bcc :+
+	lda abovescreen
+	beq :+
+	lda #$1D
+:	rts
 
 ; ** SUBROUTINE: gm_getfacex_wj
 ; desc:    Gets the tile X position of either the left or right of the player's hitbox, depending on

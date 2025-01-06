@@ -310,6 +310,7 @@ gm_game_clear_wx:
 	stx dreinvtmr
 	stx game_cont_force
 	stx game_cont_force+1
+	stx amodeforce
 	
 	lda #<~g3_transitX
 	and gamectrl3

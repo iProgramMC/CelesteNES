@@ -1,4 +1,4 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 
 ; some defines:
 dialog_char_timer = 3
@@ -8,17 +8,19 @@ dialog_port_size  = 40
 dialog_port_brdr  = 8
 
 .segment "DLGRAM"
-dlg_chartimer: .res 1 ; when this timer ticks down to zero, show a new character
-dlg_cursor_x:  .res 1 ; the X position of the cursor
-dlg_cursor_y:  .res 1 ; the Y position of the cursor
-dlg_crsr_home: .res 1 ; the home X position (on the $0A/'\n' character, will go here and advance row)
-dlg_port_pal:  .res 1 ; the palette used by the portrait
-dlg_temporary: .res 1
-dlg_skipping:  .res 1 ; is the cutscene being skipped
-dlg_havenext:  .res 1 ; if this dialog has a "next" dialog after it
-dlg_upds1:	.res 32
-dlg_upds2:	.res 32
-dlg_upds3:	.res 32
+dlg_chartimer:	.res 1 ; when this timer ticks down to zero, show a new character
+dlg_cursor_x:	.res 1 ; the X position of the cursor
+dlg_cursor_y:	.res 1 ; the Y position of the cursor
+dlg_crsr_home:	.res 1 ; the home X position (on the $0A/'\n' character, will go here and advance row)
+dlg_port_pal:	.res 1 ; the palette used by the portrait
+dlg_temporary:	.res 1
+dlg_skipping:	.res 1 ; is the cutscene being skipped
+dlg_havenext:	.res 1 ; if this dialog has a "next" dialog after it
+dlg_upds1:		.res 32
+dlg_upds2:		.res 32
+dlg_upds3:		.res 32
+dlg_walkdstx:	.res 1
+dlg_walkdsty:	.res 1
 
 .segment "DLGTEMP"
 

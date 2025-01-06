@@ -412,6 +412,7 @@ vmcaddr     : .res 2 ; Destination to copy to
 
 ; player sprite modes
 plh_attrs   : .res 1 ; player hair attributes
+amodeforce  : .res 1 ; animation mode force (set to non zero to activate)
 animmode    : .res 1 ; current animation mode
 animtimer   : .res 1 ; current animation timer. It has a subunitary component because
 animtimersb : .res 1 ; the upper component is directly used as the frame index.

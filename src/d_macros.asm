@@ -111,8 +111,8 @@ name:
 
 ; Walk to position
 ; desc: Walks the player to a position.
-.macro walk_player px, py, dur
-	.byte DOP_walkplr, px, py, dur
+.macro walk_player px, py
+	.byte DOP_walkplr, px, py
 .endmacro
 
 ; Walk to position (entity)

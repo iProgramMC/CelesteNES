@@ -363,6 +363,7 @@ gm_anim_table:
 	.byte plr_dash_l,  plr_dash_r,  plr_hadsh_l, plr_hadsh_r, $00, $00, af_lock,   $00  ; DASH
 	.byte plr_flip_l,  plr_flip_r,  plr_haflp_l, plr_haflp_r, $00, $00, af_lock,   $00  ; FLIP
 	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_lock,   $00  ; CLIMB IDLE
+	.byte plr_pant1_l, plr_pant1_r, plr_hasta_l, plr_hasta_r, $00, $02, af_none|af_oddryth, $00  ; PANTING
 
 gm_anim_advwalkL:
 	sec
@@ -554,9 +555,16 @@ gm_load_hair_palette:
 ; desc: Updates the sprite numbers for the player character and their hair.
 ; note: gm_anim_player starts a little below.
 gm_anim_player:
-	lda #0
-	sta spryoff
 	jsr gm_load_hair_palette
+	
+	lda amodeforce
+	beq :+
+	
+	sta animmode
+	jmp gm_anim_mode
+	
+:	lda #0
+	sta spryoff
 	
 	lda dashtime
 	cmp #0
@@ -646,6 +654,13 @@ gm_climbing:
 	
 gm_actuallyclimbing:
 	lda #am_climb
+	jmp gm_anim_mode
+
+; ** SUBROUTINE: gm_set_panting
+; desc: Start panting.
+gm_set_panting:
+	lda #am_panting
+	sta amodeforce
 	jmp gm_anim_mode
 
 ; ** SUBROUTINE: gm_anim_banks

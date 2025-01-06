@@ -114,5 +114,10 @@ ch0_dash_tutorial:
 	trigger 3   ; bawk!!
 	
 	wait_ground
+	walk_player 188,160
 	trigger 4   ; fly away
+	
+	; start panting
+	call_rt gm_set_panting
+	
 	end
