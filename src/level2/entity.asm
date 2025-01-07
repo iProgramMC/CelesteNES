@@ -219,3 +219,11 @@ level2_payphone_max_timer = 8
 	ldy #0
 	beq @loop
 .endproc
+
+; ** ENTITY: level2_mirror
+; desc: The mirror that unlocks the Dream Blocks!
+.proc level2_mirror
+	; As it turns out, 8 tiles is probably *too wide* m
+	
+	
+.endproc

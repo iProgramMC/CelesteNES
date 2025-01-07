@@ -121,6 +121,7 @@ sp_l0bc_timer = sp_entspec2
 
 sp_l0bd_state = sp_entspec1  ; dash bird tutorial phase
 sp_l0bd_timer = sp_entspec2
+sp_l0bd_ostat = sp_entspec3  ; old state
 
 sp_l1zm_timer = sp_entspec1
 sp_l1zm_destx = sp_entspec2

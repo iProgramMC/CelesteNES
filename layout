@@ -93,10 +93,10 @@ MEMORY
 	CHR_PAPH1: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40;
 	CHR_PAPH2: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44;
 	CHR_PAPH3: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$48;
+	CHR_SLV2L: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$49;
+	CHR_SLV2M: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4A;
+	CHR_SLV2N: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4B;
 	
-	CHR_UN02B: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$49;
-	CHR_UN02C: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4A;
-	CHR_UN02D: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4B;
 	CHR_UN003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C;
 	CHR_UN004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$50;
 	CHR_UN005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$54;
@@ -180,9 +180,9 @@ SEGMENTS
 	CHR_PAPH1: load = CHR_PAPH1, type = ro;
 	CHR_PAPH2: load = CHR_PAPH2, type = ro;
 	CHR_PAPH3: load = CHR_PAPH3, type = ro;
-	CHR_UN02B: load = CHR_UN02B, type = ro;
-	CHR_UN02C: load = CHR_UN02C, type = ro;
-	CHR_UN02D: load = CHR_UN02D, type = ro;
+	CHR_SLV2L: load = CHR_SLV2L, type = ro;
+	CHR_SLV2M: load = CHR_SLV2M, type = ro;
+	CHR_SLV2N: load = CHR_SLV2N, type = ro;
 	CHR_UN003: load = CHR_UN003, type = ro;
 	CHR_UN004: load = CHR_UN004, type = ro;
 	CHR_UN005: load = CHR_UN005, type = ro;

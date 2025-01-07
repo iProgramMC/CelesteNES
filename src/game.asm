@@ -240,6 +240,7 @@ gm_update_dialog:
 ;       for example, respawn transitions.
 gm_game_clear_all_wx:
 	stx lvlyoff
+	stx dbenable
 
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.

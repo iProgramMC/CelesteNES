@@ -35,6 +35,10 @@ cspeed = 8
 ; desc: Gets the Left warp number and Y offset, depending on the player's Y position,
 ;       and stores them in the A register, and transoff, respectively.
 .proc xt_get_warp_l
+	lda player_y
+	cmp #$F0
+	bcs returnNone
+	
 	lda warp_lalt_y
 	beq justReturnNormal
 	
@@ -51,12 +55,20 @@ justReturnNormal:
 	sta transoff
 	lda warp_l
 	rts
+
+returnNone:
+	lda #255
+	rts
 .endproc
 
 ; ** SUBROUTINE: xt_get_warp_r
 ; desc: Gets the Right warp number and Y offset, depending on the player's Y position,
 ;       and stores them in the A register, and transoff, respectively.
 .proc xt_get_warp_r
+	lda player_y
+	cmp #$F0
+	bcs xt_get_warp_l::returnNone
+	
 	lda warp_ralt_y
 	beq justReturnNormal
 	

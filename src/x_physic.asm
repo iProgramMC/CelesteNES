@@ -1230,6 +1230,9 @@ xt_collidespikesLEFT:
 
 .proc xt_collidedream
 	tax
+	lda dbenable
+	beq thisSolid
+	
 	lda gamectrl4
 	and #g4_dreamdsh
 	bne isDreamDashing

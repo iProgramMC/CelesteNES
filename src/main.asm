@@ -131,9 +131,9 @@
 .segment "CHR_UN000"
 .segment "CHR_UN001"
 
-.segment "CHR_UN02B"
-.segment "CHR_UN02C"
-.segment "CHR_UN02D"
+.segment "CHR_SLV2L"
+.segment "CHR_SLV2M"
+.segment "CHR_SLV2N"
 .segment "CHR_UN003"
 .segment "CHR_UN004"
 .segment "CHR_UN005"

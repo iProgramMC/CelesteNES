@@ -422,6 +422,23 @@ spriteIndicesFleeNormal:	.byte $6C, $68, $7C, $64
 ; ** ENTITY: level0_bird_dash
 ; desc: This is the tutorial bird that teaches you how to dash.
 .proc level0_bird_dash
+boxSize = tmpRoomTran + 5
+	; default sprites
+	lda #$78
+	sta temp6
+	lda #$7A
+	sta temp7
+	
+	lda sprspace+sp_l0bd_state, x
+	cmp sprspace+sp_l0bd_ostat, x
+	beq @sameState
+	
+	; different states, so reset the timer
+	sta sprspace+sp_l0bd_ostat, x
+	lda #0
+	sta sprspace+sp_l0bd_timer, x
+	
+@sameState:
 	lda sprspace+sp_l0bd_state, x
 	bne checkMoreStates
 	
@@ -429,24 +446,24 @@ spriteIndicesFleeNormal:	.byte $6C, $68, $7C, $64
 	lda temp2
 	sec
 	sbc player_x
-	bmi normal
+	bmi return
 	
 	cmp #$55
-	bcs normal
+	bcs return
 	
 	lda player_y
 	cmp #160
-	bcc normal
+	bcc return
 	cmp #180
-	bcs normal
+	bcs return
 	
 	lda player_vl_y
-	bmi normal
+	bmi return
 	
 	; initiate the cutscene if needed
 	lda #1
 	cmp sprspace+sp_l0bd_state, x
-	beq normal
+	beq return
 	
 	sta sprspace+sp_l0bd_state, x
 	
@@ -470,16 +487,21 @@ spriteIndicesFleeNormal:	.byte $6C, $68, $7C, $64
 	pla
 	sta temp1
 	
-normal:
+normalFaceRight:
 	lda #pal_bird
 	jsr gm_allocate_palette
-	sta temp5
+:	sta temp5
 	sta temp8
-	lda #$78
-	sta temp6
-	lda #$7A
-	sta temp7
 	jmp gm_draw_common
+	
+normalFaceLeft:
+	lda #pal_bird
+	jsr gm_allocate_palette
+	ora #obj_fliphz
+	bne :-
+
+return:
+	rts
 
 checkMoreStates:
 	cmp #1
@@ -493,11 +515,11 @@ checkMoreStates:
 
 slowDownState:
 	; slowed down, wait for further instructions from the cutscene
-	jmp normal
+	jmp normalFaceRight
 
 flyDownState:
 	; flying down TODO
-	jmp normal
+	jmp normalFaceLeft
 
 bawkState:
 	lda sprspace+sp_l0bd_timer, x
@@ -511,12 +533,17 @@ bawkState:
 	sta plh_forcepal
 	
 	jsr gm_bird_caw_sfx
-	jmp normal
+	jmp normalFaceLeft
 
 bawkWaiting:
+	lda #chrb_splv0b
+	sta spr1_bknum
+	
+	jsr drawDashingHint
+	
 	; waiting for the player to dash and then land
 	lda dashcount
-	beq normal       ; dash count is still zero, means player didn't yet dash!
+	beq normalFaceLeft       ; dash count is still zero, means player didn't yet dash!
 	
 	lda gamectrl3
 	and #<~g3_nogradra
@@ -527,11 +554,101 @@ bawkWaiting:
 	sta game_cont_force
 	lda #cont_lsh
 	sta game_cont_force+1
-	jmp normal
+	jmp normalFaceRight
 
 flyAwayState:
+	lda boxSize
+	beq @boxSizeIsZeroAndResetBank
+	dec boxSize
+	beq @boxSizeIsZero ; fail-safe
+	dec boxSize
+	beq @boxSizeIsZero ; fail-safe
+	
+	jsr drawDashingHint
+	; since it incremented the size, decrement it again
+	dec boxSize
+	
+@boxSizeIsZero:
 	; flying away TODO
-	jmp normal
+	jmp normalFaceRight
+
+@boxSizeIsZeroAndResetBank:
+	lda #chrb_splvl0
+	jmp normalFaceRight
+
+drawDashingHint:
+	lda #pal_bubble
+	jsr gm_allocate_palette
+	sta temp9
+	
+	inc boxSize
+	lda boxSize
+	cmp #8
+	bcc @bigEnough
+	lda #8
+	sta boxSize
+@bigEnough:
+	
+	lda boxSize
+	asl
+	asl
+	; carry is already clear I hope! (since we just shifted out zeroes)
+	adc boxSize
+	lsr
+	sta temp11
+	
+	lda temp2      ; X position
+	clc
+	adc #8
+	sec
+	sbc temp11
+	sta x_crd_temp
+	
+	; note: hardcoded offset left
+	lda boxSize
+	lsr
+	tay
+	lda x_crd_temp
+	sec
+	sbc level0_bird_climb::hardcodedLeftOffset, y
+	sta x_crd_temp
+	
+	lda temp3
+	sec
+	sbc #32
+	sta temp8
+	sta y_crd_temp
+	clc
+	adc #16
+	sta temp7
+	
+.repeat 5, I
+	lda temp9
+	ldy #$4A + I * 2
+	jsr oam_putsprite
+	
+	lda temp7
+	sta y_crd_temp
+	
+	.if I < 3
+		ldy #$6A + I * 2
+	.else
+		ldy #$54 + (I - 3) * 2
+	.endif
+	lda temp9
+	jsr oam_putsprite
+	
+	lda x_crd_temp
+	clc
+	adc boxSize
+	sta x_crd_temp
+	
+	lda temp8
+	sta y_crd_temp
+.endrepeat
+	
+	ldx temp1
+	rts
 .endproc
 
 ; ** ENTITY: level0_bridge_manager

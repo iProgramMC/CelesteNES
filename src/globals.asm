@@ -422,6 +422,9 @@ sprxoff     : .res 1 ; hair sprite X offset
 spryoffbase : .res 1 ; hair sprite Y offset base (used for af_oddryth)
 plh_forcepal: .res 1 ; forced hair palette if non-zero
 
+; chapter 2 control
+dbenable    : .res 1 ; are dream blocks enabled
+
 game_cont_force : .res 2
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
