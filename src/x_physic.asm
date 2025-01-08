@@ -3229,3 +3229,25 @@ expectedMovement:
 	.byte $20,$30,$30,$30
 	.byte $00,$10,$10,$10
 .endproc
+
+gm_addtrace:
+	lda #g2_notrace
+	bit gamectrl2
+	bne @return
+	
+	ldx plrtrahd
+	inx
+	txa
+	and #$3F ; mod 64
+	sta plrtrahd
+	tax
+	
+	lda player_x
+	sta plr_trace_x, x
+	lda player_y
+	sec
+	sbc camera_y_sub
+	sta plr_trace_y, x
+
+@return:
+	rts
