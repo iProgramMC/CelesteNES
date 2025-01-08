@@ -360,7 +360,8 @@ pal_granny  = $06
 pal_bird    = $07
 pal_bubble  = $08 ; palette for tutorial bubble
 pal_chaser  = $09
-pal_max     = $0A
+pal_mirror  = $0A ; mirror edge
+pal_max     = $0B
 
 ; Controller Buttons
 cont_a      = $80  ; SNES controller B

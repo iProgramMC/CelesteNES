@@ -253,7 +253,9 @@ drawBadeline:
 	sta temp6
 	
 	lda temp5
-	sta $FF
+	sec
+	sbc #$20
+	sta temp11
 	
 	; amount player is offset from screen
 	lda player_x
@@ -282,6 +284,7 @@ drawBadeline:
 	lda #$A0
 	sta y_crd_temp
 	jsr put4Sprites
+	jsr put4Sprites
 	
 	lda player_y
 	cmp #$75
@@ -300,7 +303,105 @@ drawBadeline:
 	clc
 	adc #24
 	cmp temp2
-	bcc @dontDraw  ; mirrorRightEdge < reflectionX
+	;bcc @dontDraw  ; mirrorRightEdge < reflectionX
+	bcs @doDraw
+@dontDraw:
+	rts
+
+@doDraw:
+	; draw the overlay
+	lda temp2
+	pha
+	
+	lda #pal_mirror
+	jsr gm_allocate_palette
+	sta temp8
+	
+	pla
+	pha
+	
+	clc
+	adc #$24
+	sec
+	sbc temp5
+	lsr
+	lsr
+	lsr
+	and #7
+	pha
+	tax
+	asl
+	asl
+	asl
+	clc
+	adc temp11
+	sta x_crd_temp
+	
+	; draw the first sprite
+	lda spriteRow1, x
+	tay
+	lda #$87
+	sta y_crd_temp
+	lda temp8
+	jsr oam_putsprite
+	
+	; then the second
+	inx
+	cpx #8
+	bne :+
+	ldx #0
+:	txa
+	asl
+	asl
+	asl
+	clc
+	adc temp11
+	sta x_crd_temp
+	
+	lda spriteRow1, x
+	tay
+	lda temp8
+	jsr oam_putsprite
+	
+	; Now for the second row
+	pla
+	tax
+	asl
+	asl
+	asl
+	clc
+	adc temp11
+	sta x_crd_temp
+	
+	; the first sprite
+	lda spriteRow2, x
+	tay
+	lda #$97
+	sta y_crd_temp
+	lda temp8
+	jsr oam_putsprite
+	
+	; then the second
+	inx
+	cpx #8
+	bne :+
+	ldx #0
+:	txa
+	asl
+	asl
+	asl
+	clc
+	adc temp11
+	sta x_crd_temp
+	
+	lda spriteRow2, x
+	tay
+	lda temp8
+	jsr oam_putsprite
+	
+	; done with the overlay
+	pla
+	sta temp2
 	
 	lda #pal_chaser
 	jsr gm_allocate_palette
@@ -330,29 +431,68 @@ drawBadeline:
 	adc temp3
 	sta temp3
 	
-:	jsr drawSprite
+:	lda temp11
+	cmp temp2
+	bcc :+
 	
-@dontDraw:
-	rts
+	; mirrorLeftEdge >= player_x
+	lda #$5E
+	sta temp6
+	
+:	lda temp11
+	clc
+	adc #$30
+	cmp temp2
+	bcs :+
+	
+	; mirrorRightEdge <= player_x
+	lda #$5E
+	sta temp7
+	
+:	jmp drawSprite
 	
 put4Sprites:
-	ldy #$7E
+	ldy #$5E
 	jsr oam_putsprite
-	ldy #$7E
+	ldy #$5E
 	jsr oam_putsprite
-	ldy #$7E
+	ldy #$5E
 	jsr oam_putsprite
-	ldy #$7E
+	ldy #$5E
 	jmp oam_putsprite
 
 drawSprite:
+	lda temp2
+	sta x_crd_temp
+	lda temp3
+	sta y_crd_temp
+	
 	lda temp6
+	cmp #$5E
+	beq :+
+	
 	clc
 	adc #$40
-	sta temp6
-	lda temp7
+	tay
+	lda temp5
+	jsr oam_putsprite
+
+:	lda temp7
+	cmp #$5E
+	beq :+
+	
 	clc
 	adc #$40
-	sta temp7
-	jmp gm_draw_common
+	tay
+	lda temp2
+	clc
+	adc #8
+	sta x_crd_temp
+	lda temp8
+	jmp oam_putsprite
+
+:	rts
+
+spriteRow1:	.byte $70,$72,$74,$76,$78,$7A,$7C,$7E
+spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
 .endproc

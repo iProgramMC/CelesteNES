@@ -132,3 +132,4 @@ sprite_palettes:
 	.byte $27,$21,$11 ; bird palette
 	.byte $30,$21,$01 ; bird tutorial palette
 	.byte $34,$14,$04 ; dark chaser palette
+	.byte $30,$21,$0f ; mirror edge palette
