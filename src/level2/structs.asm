@@ -44,12 +44,6 @@ level2_alt_palette:
 	.byte $0f,$30,$21,$11
 	.byte $0f,$30,$10,$00
 
-level2_alt_palette2:
-	.byte $0f,$30,$1C,$00 ; grey tiles
-	.byte $0f,$30,$16,$06 ; brown tiles
-	.byte $0f,$30,$21,$11 ; blue tiles
-	.byte $0f,$30,$23,$03 ; purple tiles
-
 ; ** SUBROUTINE: level2_struct_detour
 ; desc: Called by h_gener_col_r to generate a tile for a structure, based on the
 ;       chosen X/Y coordinate.  Done this way because we do not support more than

@@ -1751,19 +1751,10 @@ gm_fetch_room:
 	
 	cmp #chrb_lvl2b
 	beq @level2B
-	cmp #chrb_lvl2c
-	beq @level2C
 	bne @normalPalette
 	
 @return:
 	rts
-
-@level2C:
-	lda #<level2_alt_palette2
-	sta vmcsrc
-	lda #>level2_alt_palette2
-	sta vmcsrc+1
-	bne @dontReloadVMCSRC
 
 @level2B:
 	lda #<level2_alt_palette
@@ -1771,7 +1762,6 @@ gm_fetch_room:
 	lda #>level2_alt_palette
 	sta vmcsrc+1
 	
-@dontReloadVMCSRC:
 	lda #g4_altpal
 	bit gamectrl4
 	bne @return

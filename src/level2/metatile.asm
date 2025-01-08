@@ -77,7 +77,6 @@
 	.byte $6F             ; Memorial Compressed
 	.byte $6E             ; Info Kiosk Compressed
 	.byte $6E             ; Mirror Compressed
-	.byte $01             ; Mirror Background
 	; $E7
 
 ;metatile_info:
@@ -112,6 +111,6 @@
 	.byte ct_deadlyLT            ; Spikes (Red)
 	.res   3, ct_jumpthru        ; Purp Jump Through
 	.byte ct_full                ; Barrier
-	.res   4, ct_none            ; Compressed Structures + Mirror BG
+	.res   3, ct_none            ; Compressed Structures
 
 .align $100
