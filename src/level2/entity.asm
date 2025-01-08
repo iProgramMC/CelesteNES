@@ -230,6 +230,11 @@ level2_payphone_max_timer = 8
 	rts
 
 drawBadeline:
+	lda spr0_bknum
+	clc
+	adc #chrb_splv2l
+	sta spr1_bknum
+	
 	; Calculate Middle of Screen
 	lda roombeglo
 	clc
@@ -266,6 +271,37 @@ drawBadeline:
 	lda player_y
 	sta temp3
 	
+	; draw 4 empty sprites above and below the mirror
+	lda #$F0
+	sta x_crd_temp
+	lda #$74
+	sta y_crd_temp
+	
+	jsr put4Sprites
+	
+	lda #$A0
+	sta y_crd_temp
+	jsr put4Sprites
+	
+	lda player_y
+	cmp #$75
+	bcc @dontDraw
+	cmp #$A0
+	bcs @dontDraw
+	
+	; check for the X coordinate
+	lda temp5
+	sec
+	sbc #(24+16)
+	cmp temp2
+	bcs @dontDraw  ; mirrorLeftEdge >= reflectionX
+	
+	lda temp5
+	clc
+	adc #24
+	cmp temp2
+	bcc @dontDraw  ; mirrorRightEdge < reflectionX
+	
 	lda #pal_chaser
 	jsr gm_allocate_palette
 	;ora #obj_backgd
@@ -287,42 +323,36 @@ drawBadeline:
 :	stx temp6
 	sty temp7
 	
-	jsr gm_draw_common
-	
-	lda playerctrl
-	and #pl_left
-	bne @notLeft
-	
-	lda temp2
-	sec
-	sbc sprxoff
-	sta temp2
-	
-	ldx plh_spr_r
-	ldy plh_spr_l
-	stx temp6
-	sty temp7
-@notLeft:
-	lda playerctrl
-	and #pl_left
-	beq @notRight
-	
-	lda temp2
+	; HACK for walking
+	lda spryoff
+	bpl :+
 	clc
-	adc sprxoff
-	sta temp2
-	
-	ldx plh_spr_l
-	ldy plh_spr_r
-	stx temp6
-	sty temp7
-	
-@notRight:
-	lda temp3
-	clc
-	adc spryoff
+	adc temp3
 	sta temp3
 	
-	jsr gm_draw_common
+:	jsr drawSprite
+	
+@dontDraw:
 	rts
+	
+put4Sprites:
+	ldy #$7E
+	jsr oam_putsprite
+	ldy #$7E
+	jsr oam_putsprite
+	ldy #$7E
+	jsr oam_putsprite
+	ldy #$7E
+	jmp oam_putsprite
+
+drawSprite:
+	lda temp6
+	clc
+	adc #$40
+	sta temp6
+	lda temp7
+	clc
+	adc #$40
+	sta temp7
+	jmp gm_draw_common
 .endproc

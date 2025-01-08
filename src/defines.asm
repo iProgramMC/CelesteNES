@@ -272,6 +272,8 @@ chrb_splvl1 = $09   ; sprites for level 1
 chrb_splv1b = $0A   ; sprites for level 1
 chrb_splvl2 = $0B   ; sprites for level 2
 chrb_splv2b = $0C   ; sprites for level 2
+chrb_splv2l = $49   ; sprites for level 2
+chrb_splv2m = $4A   ; sprites for level 2
 
 ; don't know when these will be used.
 chrb_gesp21 = $0D
