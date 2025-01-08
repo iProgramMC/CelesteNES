@@ -27,3 +27,4 @@ metatile_palette:
 	.res   1, $3 ; Compressed Memorial
 	.res   1, $2 ; Compressed Info Kiosk
 	.res   1, $2 ; Compressed Mirror
+	.res   1, $0 ; Mirror BG

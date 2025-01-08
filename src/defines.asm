@@ -292,6 +292,7 @@ chrb_lvl1   = $20   ; graphics bank for level 1 "Forsaken City"
 chrb_lvl2   = $24   ; graphics bank for level 2 "Old Site"
 chrb_lvl2b  = $28   ; alternate graphics bank for level 2 "Old Site"
 chrb_lvl2c  = $2A   ; alternate graphics bank for level 2 "Old Site"
+chrb_lvl2d  = $2C   ; alternate graphics bank for level 2 "Old Site"
 ;chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
 ;chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
 ;chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
@@ -356,7 +357,8 @@ pal_gold    = $05
 pal_granny  = $06
 pal_bird    = $07
 pal_bubble  = $08 ; palette for tutorial bubble
-pal_max     = $09
+pal_chaser  = $09
+pal_max     = $0A
 
 ; Controller Buttons
 cont_a      = $80  ; SNES controller B

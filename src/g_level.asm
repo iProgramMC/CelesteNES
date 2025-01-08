@@ -1536,34 +1536,6 @@ gm_init_entity:
 	; todo: more cases ...
 	rts
 
-; ** SUBROUTINE: gm_set_level_ptr
-; ** SUBROUTINE: gm_set_room_ptr
-; args:
-;     x - low byte
-;     y - high byte
-;gm_set_level_ptr:
-;	stx lvlptrlo
-;	sty lvlptrhi
-;	rts
-; ** SUBROUTINE: gm_set_tile_head
-; ** SUBROUTINE: gm_set_pal_head
-; ** SUBROUTINE: gm_set_ent_head
-; args:
-;     x - low byte
-;     a - high byte
-gm_set_tile_head:
-	stx arrdheadlo
-	sta arrdheadhi
-	rts
-gm_set_pal_head:
-	stx palrdheadlo
-	sta palrdheadhi
-	rts
-gm_set_ent_head:
-	stx entrdheadlo
-	sta entrdheadhi
-	rts
-
 ; ** SUBROUTINE: gm_read_tile_na
 ; ** SUBROUTINE: gm_read_ent_na
 ; ** SUBROUTINE: gm_read_tile
@@ -1704,27 +1676,27 @@ gm_fetch_room:
 @skipLoadingAltWarps:
 	; load tile pointer from room pointer
 	lda (roomptrlo),y
-	tax
+	sta arrdheadlo
 	iny
 	lda (roomptrlo),y
+	sta arrdheadhi
 	iny
-	jsr gm_set_tile_head
-
+	
 	; load palette pointer from room pointer
 	lda (roomptrlo),y
-	tax
+	sta palrdheadlo
 	iny
 	lda (roomptrlo),y
+	sta palrdheadhi
 	iny
-	jsr gm_set_pal_head
 
 	; load entity pointer from room pointer
 	lda (roomptrlo),y
-	tax
+	sta entrdheadlo
 	iny
 	lda (roomptrlo),y
+	sta entrdheadhi
 	iny
-	jsr gm_set_ent_head
 	
 	; check if we are allowed to respawn here
 	lda roomflags
@@ -1779,23 +1751,33 @@ gm_fetch_room:
 	
 	cmp #chrb_lvl2b
 	beq @level2B
+	cmp #chrb_lvl2c
+	beq @level2C
 	bne @normalPalette
 	
 @return:
 	rts
 
+@level2C:
+	lda #<level2_alt_palette2
+	sta vmcsrc
+	lda #>level2_alt_palette2
+	sta vmcsrc+1
+	bne @dontReloadVMCSRC
+
 @level2B:
+	lda #<level2_alt_palette
+	sta vmcsrc
+	lda #>level2_alt_palette
+	sta vmcsrc+1
+	
+@dontReloadVMCSRC:
 	lda #g4_altpal
 	bit gamectrl4
 	bne @return
 	
 	ora gamectrl4
 	sta gamectrl4
-	
-	lda #<level2_alt_palette
-	sta vmcsrc
-	lda #>level2_alt_palette
-	sta vmcsrc+1
 	
 	bne @schedulePaletteUpload
 	
@@ -1869,9 +1851,7 @@ gm_on_level_init:
 	; then set it back to level data
 	lda #mmc3bk_prg1
 	ldy lvldatabank
-	jsr mmc3_set_bank
-	
-	rts
+	jmp mmc3_set_bank
 
 ; ** SUBROUTINE: gm_set_level
 ; args: X - level number
@@ -2035,14 +2015,12 @@ gm_respawn:
 	bne @loop
 	
 	; initiate the transition sequence now.
-	lda #0
-	sta gamectrl
-	
 	lda #g2_noclrall
 	sta gamectrl2
 	
-	; disable rendering
 	lda #0
+	sta gamectrl
+	; disable rendering
 	sta ppu_mask
 	sta deathsplit
 	jsr vblank_wait

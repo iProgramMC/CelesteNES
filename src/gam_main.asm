@@ -12,3 +12,11 @@ death_irq_table_1:	.byte 1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,17,17,17,17
 death_irq_table_2:	.byte 1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,17,17,17,17,17,17,17
 death_irq_table_3:	.byte 1,1,1,1,1,1,2,3,4,5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,17,17,17
 death_irq_table_4:	.byte 1,1,1,1,1,1,2,3,4,5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,17,17,17
+
+; MOVED from g_wipe.asm
+gm_respawn_leave_doframe2:
+	jsr gm_calc_camera_nosplit
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jsr soft_nmi_off
+	jmp com_clear_oam

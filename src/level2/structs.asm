@@ -39,10 +39,16 @@ level2_s_mirror:
 	.byte $00,$67,$77,$6F,$7F
 
 level2_alt_palette:
-	.byte $0F,$30,$1C,$0C
-	.byte $0F,$37,$16,$06
-	.byte $0F,$30,$21,$11
-	.byte $0F,$30,$10,$00
+	.byte $0f,$30,$1c,$0c
+	.byte $0f,$37,$16,$06
+	.byte $0f,$30,$21,$11
+	.byte $0f,$30,$10,$00
+
+level2_alt_palette2:
+	.byte $0f,$30,$1C,$00 ; grey tiles
+	.byte $0f,$30,$16,$06 ; brown tiles
+	.byte $0f,$30,$21,$11 ; blue tiles
+	.byte $0f,$30,$23,$03 ; purple tiles
 
 ; ** SUBROUTINE: level2_struct_detour
 ; desc: Called by h_gener_col_r to generate a tile for a structure, based on the

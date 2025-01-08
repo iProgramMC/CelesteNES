@@ -223,7 +223,106 @@ level2_payphone_max_timer = 8
 ; ** ENTITY: level2_mirror
 ; desc: The mirror that unlocks the Dream Blocks!
 .proc level2_mirror
-	; As it turns out, 8 tiles is probably *too wide* m
+	jsr drawBadeline
 	
+	; TODO
 	
+	rts
+
+drawBadeline:
+	; Calculate Middle of Screen
+	lda roombeglo
+	clc
+	adc #$A0
+	sta temp5
+	lda roombeghi
+	adc #0
+	sta temp6
+	
+	lda temp5
+	sec
+	sbc camera_x
+	sta temp5
+	lda temp6
+	sbc camera_x_pg
+	sta temp6
+	
+	lda temp5
+	sta $FF
+	
+	; amount player is offset from screen
+	lda player_x
+	sec
+	sbc temp5
+	sta temp2
+	
+	lda temp5
+	sec
+	sbc temp2
+	sec
+	sbc #$10
+	sta temp2
+	
+	lda player_y
+	sta temp3
+	
+	lda #pal_chaser
+	jsr gm_allocate_palette
+	;ora #obj_backgd
+	sta temp5
+	sta temp8
+	
+	; Draw Body
+	ldx plr_spr_l
+	ldy plr_spr_r
+	lda playerctrl
+	and #pl_left
+	bne :+
+	ldx plr_spr_r
+	ldy plr_spr_l
+	lda temp5
+	ora #obj_fliphz
+	sta temp5
+	sta temp8
+:	stx temp6
+	sty temp7
+	
+	jsr gm_draw_common
+	
+	lda playerctrl
+	and #pl_left
+	bne @notLeft
+	
+	lda temp2
+	sec
+	sbc sprxoff
+	sta temp2
+	
+	ldx plh_spr_r
+	ldy plh_spr_l
+	stx temp6
+	sty temp7
+@notLeft:
+	lda playerctrl
+	and #pl_left
+	beq @notRight
+	
+	lda temp2
+	clc
+	adc sprxoff
+	sta temp2
+	
+	ldx plh_spr_l
+	ldy plh_spr_r
+	stx temp6
+	sty temp7
+	
+@notRight:
+	lda temp3
+	clc
+	adc spryoff
+	sta temp3
+	
+	jsr gm_draw_common
+	rts
 .endproc

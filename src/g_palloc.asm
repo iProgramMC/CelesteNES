@@ -128,6 +128,7 @@ sprite_palettes:
 	.byte $30,$29,$09 ; green sprite
 	.byte $20,$10,$00 ; gray sprite
 	.byte $30,$27,$07 ; golden palette
-	.byte $20,$37,$09 ; Granny's palette
-	.byte $27,$21,$11 ; Bird palette
-	.byte $30,$21,$01 ; Bird Tutorial palette
+	.byte $20,$37,$09 ; old lady palette
+	.byte $27,$21,$11 ; bird palette
+	.byte $30,$21,$01 ; bird tutorial palette
+	.byte $34,$14,$04 ; dark chaser palette

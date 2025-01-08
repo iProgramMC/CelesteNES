@@ -8,15 +8,8 @@ gm_respawn_leave_doframe:
 	; (whatever gm_draw_dead will draw, will override everything)
 	jsr gm_wind_wipe_update
 	jsr gm_draw_dead
-	
-gm_respawn_leave_doframe2:
-	jsr gm_calc_camera_nosplit
-	jsr soft_nmi_on
-	jsr nmi_wait
-	jsr soft_nmi_off
-	ldx #$00
-	stx oam_wrhead
-	jmp com_clear_oam
+
+; NOTE: gm_respawn_leave_doframe2 MOVED TO gam_main.asm!!
 
 ; NOTE: The total of irqtmp1 + irqtmp2 MUST be 18
 ; death_irq_table_1 MOVED TO gam_main.asm
