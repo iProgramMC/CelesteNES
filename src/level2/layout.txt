@@ -99,8 +99,8 @@ Spawn,level2_d3u,152,200
 Spawn,level2_d3u,0,160
 level2_d3m,1664,576
 Props,level2_d3m,4,0
-Spawn,level2_d3m,0,128
 Spawn,level2_d3m,152,144
+Spawn,level2_d3m,0,112
 level2_d3b,1664,752
 Props,level2_d3b,2,0
 Spawn,level2_d3b,0,56

@@ -505,7 +505,6 @@ gm_applyjumpboost:
 	lda player_vl_x
 	sbc #0
 	sta player_vl_x
-	jsr gm_add_lift_boost
 	jmp gm_dontjump2  ; that would be pretty stupid as it would
 gm_jumphboostR:       ; allow speed buildup up to the physical limit
 	clc

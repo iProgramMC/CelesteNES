@@ -220,7 +220,7 @@ level2_w_d8_to_d7:
 	.word level2_d7
 level2_w_d8_to_d3m:
 	.byte 0			; room left offset
-	.byte 0, 128	; player spawn X/Y
+	.byte 0, 112	; player spawn X/Y
 	.word level2_d3m
 level2_w_d8_to_d3b:
 	.byte 0			; room left offset
@@ -256,7 +256,7 @@ level2_w_d3b_to_d8:
 	.word level2_d8
 level2_w_d3b_to_d3m:
 	.byte 0			; room left offset
-	.byte 0, 128	; player spawn X/Y
+	.byte 0, 112	; player spawn X/Y
 	.word level2_d3m
 level2_w_r7_to_r8:
 	.byte 16			; room left offset

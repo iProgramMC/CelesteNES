@@ -25,6 +25,19 @@ level2_s_info_kiosk:
 	.byte $00,$24,$36,$38,$47,$57,$4E,$29,$2B ;done
 	.byte $00,$25,$00,$00,$48,$58,$59,$59,$4F
 
+level2_s_mirror_offsets:
+	.byte 0, 5, 10, 15, 20, 25, 30, 35
+
+level2_s_mirror:
+	.byte $00,$60,$70,$68,$78
+	.byte $3A,$61,$71,$69,$79
+	.byte $3B,$62,$72,$6A,$7A
+	.byte $3C,$63,$73,$6B,$7B
+	.byte $3D,$64,$74,$6C,$7C
+	.byte $3E,$65,$75,$6D,$7D
+	.byte $3F,$66,$76,$6E,$7E
+	.byte $00,$67,$77,$6F,$7F
+
 level2_alt_palette:
 	.byte $0F,$30,$1C,$0C
 	.byte $0F,$37,$16,$06
@@ -54,6 +67,8 @@ gotX:
 	
 	cpx #$EF  ; check if it's the memorial
 	beq @memorial
+	cpx #$F1  ; check if it's the mirror
+	beq @mirror
 	
 	; info kiosk starts at tile 20,13
 	sec
@@ -66,6 +81,20 @@ gotX:
 	adc level2_s_info_kiosk_offsets, x
 	tax
 	lda level2_s_info_kiosk, x
+	rts
+
+@mirror:
+	; mirror starts at tile 16,15
+	sec
+	sbc #16
+	tax
+	tya
+	sec
+	sbc #15
+	clc
+	adc level2_s_mirror_offsets, x
+	tax
+	lda level2_s_mirror, x
 	rts
 
 @memorial:

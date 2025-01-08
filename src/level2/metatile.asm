@@ -76,6 +76,7 @@
 	.byte $00             ; Barrier
 	.byte $6F             ; Memorial Compressed
 	.byte $6E             ; Info Kiosk Compressed
+	.byte $6E             ; Mirror Compressed
 	; $E7
 
 ;metatile_info:

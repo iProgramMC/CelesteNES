@@ -1003,7 +1003,7 @@ h_gener_col_r:
 
 @detour:
 	tax
-	cmp #$F1
+	cmp #$F2
 	bcs @nodetour
 	cmp #$EF
 	bcc @nodetour
@@ -1765,8 +1765,12 @@ gm_fetch_room:
 .proc gm_update_bg_bank
 	lda roomflags2
 	and #%00011000
+	beq :+
+	lsr
 	lsr
 	clc
+	adc #2
+:	clc
 	adc lvlbasebank
 	sta bg0_bknum
 	

@@ -99,6 +99,7 @@
 
 .segment "CHR_BG003"
 .incbin  "chr/b_lvl2b.chr"
+.incbin  "chr/b_lvl2c.chr"
 
 .segment "CHR_DPLDI"
 .incbin  "chr/sp_plrdie.chr"
@@ -122,7 +123,6 @@
 .incbin  "chr/d_gran.chr"
 
 ; UNUSED segments
-.segment "CHR_SLV0B"
 .segment "CHR_BG004"
 .segment "CHR_BG005"
 .segment "CHR_BG006"
