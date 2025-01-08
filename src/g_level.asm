@@ -692,7 +692,7 @@ h_fls_wrloop:
 	
 @detour:
 	tax
-	cmp #$F1
+	cmp #$F2
 	bcs @nodetour
 	cmp #$EF
 	bcc @nodetour
@@ -845,9 +845,11 @@ loop:
 	
 	ldy ntrowhead2
 	lda (lvladdr), y
+	bmi @detour
 	tax
+@nodetour:
 	lda metatiles, x
-	
+@detoured:
 	ldy temp1
 	sta temprow1, y
 	
@@ -855,6 +857,24 @@ loop:
 	cpy #64
 	bne loop
 	
+	beq @avoidDetour
+	
+@detour:
+	tax
+	cmp #$F2
+	bcs @nodetour
+	cmp #$EF
+	bcc @nodetour
+	lda lvlbasebank
+	cmp #chrb_lvl2
+	beq @level2
+	bne @nodetour
+
+@level2:
+	jsr level2_struct_detour3
+	jmp @detoured
+
+@avoidDetour:
 	; now that the row has been computed, it's time to set the nmictrl flag
 	lda #nc_flushrow
 	ora nmictrl

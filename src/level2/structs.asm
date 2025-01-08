@@ -119,6 +119,7 @@ gotX:
 
 ; ** SUBROUTINE: level2_struct_detour2
 ; desc: Jumps to the middle of level2_struct_detour after calculating the X coordinate.
+;       This is used by h_gener_row_u.
 ;
 ; parameters:
 ;     X register - The tile used
@@ -129,6 +130,21 @@ gotX:
 	lda ntwrhead
 	clc
 	adc temp1
+	and #$3F
+	jmp level2_struct_detour::gotX
+.endproc
+
+; ** SUBROUTINE: level2_struct_detour2
+; desc: Jumps to the middle of level2_struct_detour after calculating the X coordinate.
+;       This is used by h_gener_row_u_nice.
+;
+; parameters:
+;     X register - The tile used
+;     Y register - The Y position
+;
+; returns: A register - the CHR tile to use.
+.proc level2_struct_detour3
+	lda temp1
 	and #$3F
 	jmp level2_struct_detour::gotX
 .endproc
