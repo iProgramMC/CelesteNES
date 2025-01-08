@@ -102,8 +102,12 @@
 .incbin  "chr/b_lvl2.chr"
 
 .segment "CHR_BG003"
-.incbin  "chr/b_lvl2b.chr"
-.incbin  "chr/b_lvl2c.chr"
+.incbin  "chr/b_lvl2b.chr" ; contains the memorial and infokiosk tiles
+.incbin  "chr/b_lvl2c.chr" ; contains the mirror and stone tiles
+
+.segment "CHR_BG004"
+.incbin  "chr/b_lvl2d.chr" ; contains the dream block (full-white)
+.incbin  "chr/b_lvl2e.chr" ; contains the dream block (disabled)
 
 .segment "CHR_DPLDI"
 .incbin  "chr/sp_plrdie.chr"
@@ -127,7 +131,6 @@
 .incbin  "chr/d_gran.chr"
 
 ; UNUSED segments
-.segment "CHR_BG004"
 .segment "CHR_BG005"
 .segment "CHR_BG006"
 .segment "CHR_BG007"

@@ -8,6 +8,7 @@ gm_respawn_leave_doframe:
 	; (whatever gm_draw_dead will draw, will override everything)
 	jsr gm_wind_wipe_update
 	jsr gm_draw_dead
+	jmp gm_respawn_leave_doframe2
 
 ; NOTE: gm_respawn_leave_doframe2 MOVED TO gam_main.asm!!
 

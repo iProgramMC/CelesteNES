@@ -117,7 +117,7 @@ oam_dma_and_read_cont:
 ; desc: Does a far call in a slightly slower, but slimmer way
 ; parameters:
 ;     X - The low byte of the address
-;     Y - The low byte of the address
+;     Y - The high byte of the address
 ;     A - The bank to load
 far_call2:
 	stx farcalladdr

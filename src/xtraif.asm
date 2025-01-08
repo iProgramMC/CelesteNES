@@ -88,6 +88,26 @@
 	jmp h_gener_mts_r
 .endproc
 
+.proc gm_draw_player
+	ldx #<sgm_draw_player
+	ldy #>sgm_draw_player
+	lda #prgb_paus
+	jmp far_call2
+.endproc
+
+.proc gm_anim_and_draw_player
+	ldx #<sgm_anim_and_draw_player
+	ldy #>sgm_anim_and_draw_player
+	lda #prgb_paus
+	jmp far_call2
+.endproc
+
+.proc sgm_anim_and_draw_player
+	jsr sgm_anim_player
+	jsr sgm_anim_banks
+	jmp sgm_draw_player
+.endproc
+
 ; generate palette data for vertical transition
 xt_generate_palette_data_V:
 @loadCount := trantmp5

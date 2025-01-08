@@ -295,6 +295,7 @@ chrb_lvl2   = $24   ; graphics bank for level 2 "Old Site"
 chrb_lvl2b  = $28   ; alternate graphics bank for level 2 "Old Site"
 chrb_lvl2c  = $2A   ; alternate graphics bank for level 2 "Old Site"
 chrb_lvl2d  = $2C   ; alternate graphics bank for level 2 "Old Site"
+chrb_lvl2e  = $2E
 ;chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
 ;chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
 ;chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
