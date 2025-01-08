@@ -1,5 +1,9 @@
 
 gm_addtrace:
+	lda #g2_notrace
+	bit gamectrl2
+	bne @return
+	
 	ldx plrtrahd
 	inx
 	txa
@@ -13,6 +17,8 @@ gm_addtrace:
 	sec
 	sbc camera_y_sub
 	sta plr_trace_y, x
+
+@return:
 	rts
 
 ; ** SUBROUTINE: gm_shifttrace
@@ -21,6 +27,10 @@ gm_addtrace:
 ;     A - the amount of pixels to decrease the player X trace by
 ; note: The player X trace is capped to 0. It will never overflow.
 .proc gm_shifttrace
+	lda #g2_notrace
+	bit gamectrl2
+	bne return
+	
 	cmp #0
 	bmi actuallyNegative
 nocheck:
@@ -38,6 +48,7 @@ loop:
 	cpx #$40
 	bne loop
 	pla
+return:
 	rts
 actuallyNegative:
 	sta temp1
@@ -53,6 +64,9 @@ actuallyNegative:
 ;     A - the amount of pixels to increase the player X trace by
 ; note: The player X trace is capped to $FF. It will never overflow.
 .proc gm_shiftrighttrace
+	lda #g2_notrace
+	bit gamectrl2
+	bne return
 	cmp #0
 	bmi actuallyNegative
 nocheck:
@@ -69,6 +83,7 @@ nocheck:
 	cpx #$40
 	bne :--
 	pla
+return:
 	rts
 actuallyNegative:
 	sta temp1
@@ -86,6 +101,9 @@ gm_shiftrighttrace_nocheck := gm_shiftrighttrace::nocheck
 ;     A - the amount of pixels to increase the player Y trace by
 ; note: The player X trace is capped to $F0. It will never overflow.
 .proc gm_shifttraceYP
+	lda #g2_notrace
+	bit gamectrl2
+	bne return
 	cmp #0
 	bmi actuallyNegative
 nocheck:
@@ -106,6 +124,7 @@ loop:
 	cpx #$40
 	bne loop
 	pla
+return:
 	rts
 actuallyNegative:
 	sta temp1
@@ -121,6 +140,9 @@ actuallyNegative:
 ;     A - the amount of pixels to increase the player Y trace by
 ; note: The player X trace is capped to 0. It will never overflow.
 .proc gm_shifttraceYN
+	lda #g2_notrace
+	bit gamectrl2
+	bne return
 	cmp #0
 	bmi actuallyNegative
 nocheck:
@@ -138,6 +160,7 @@ loop:
 	cpx #$40
 	bne loop
 	pla
+return:
 	rts
 actuallyNegative:
 	sta temp1

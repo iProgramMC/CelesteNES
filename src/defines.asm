@@ -109,6 +109,7 @@ sp_l0bm_state = sp_entspec1  ; 0 - waiting, 1 - falling
 sp_l0bm_blidx = sp_entspec2  ; index of block to trigger to fall
 sp_l0bm_timer = sp_entspec3
 sp_l0bm_acoll = sp_entspec4  ; auto-collapse
+sp_l0bm_index = sp_entspec5  ; odd/even
 
 sp_l0gr_timer = sp_entspec1
 sp_l0gr_flags = sp_entspec2
@@ -425,6 +426,7 @@ g2_loadvrow = $02   ; load vertical rows above next time a row is revealed
 g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything
 g2_flashed  = $10   ; player was flashed red
+g2_notrace  = $20   ; disable the player trace logic (frees up player trace memory for other purposes)
 g3_transitR = $01   ; is in a RIGHT transition
 g3_transitU = $02   ; is in an UP transition
 g3_transitL = $04   ; is in a LEFT transition

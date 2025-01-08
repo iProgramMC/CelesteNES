@@ -654,7 +654,16 @@ drawDashingHint:
 ; ** ENTITY: level0_bridge_manager
 ; desc: This entity manages a single bridge instance  (13 tiles wide) and
 ;       initiates the fall sequence for each.
-level0_bridge_manager:
+.proc level0_bridge_manager
+currentIndex := temp11
+entityX := temp4
+entityY := temp9
+
+	lda temp2
+	sta entityX
+	lda temp3
+	sta entityY
+	
 	lda sprspace+sp_l0bm_state, x
 	bne @state_Falling
 	
@@ -697,15 +706,33 @@ level0_bridge_manager:
 	lda #1
 	sta sprspace+sp_l0bm_state, x
 	
+	lda dbenable
+	eor #1
+	sta dbenable
+	beq :+
+	lda #32
+:	sta sprspace+sp_l0bm_index, x
+	
+	; clear player trace
+	ldy sprspace+sp_l0bm_index, x
+	
+	lda #0
+:	sta plr_trace_x, y
+	sta plr_trace_y, y
+	iny
+	cpy #32
+	beq @exit
+	cpy #64
+	bne :-
+
+@exit:
 	ldy sprspace+sp_l0bm_acoll, x
 	bne :+
 	lda #20
 :	sta sprspace+sp_l0bm_timer, x
 
 @noFallInit:
-	lda #0
 	rts
-	;jmp @drawSprite
 	
 @state_Falling:
 	; Falling state. If the timer is zero, determine which block to fall, and
@@ -758,7 +785,7 @@ level0_bridge_manager:
 	
 @noSpeedUp:
 	dec sprspace+sp_l0bm_timer, x
-	bne @returnEarly
+	bne drawSprites
 	;bne @drawSprite_Bne
 	
 	; check if a clear is already enqueued.
@@ -768,10 +795,14 @@ level0_bridge_manager:
 	
 	; clear is already enqueued. Simply wait one more frame
 	inc sprspace+sp_l0bm_timer, x
-	bne @returnEarly
+	bne drawSprites
+	
+:	lda sprspace+sp_l0bm_blidx, x
+	cmp #13
+	bcs @clearTypeAndReturn
 	
 	; falling!
-:	lda sprspace+sp_x_pg, x
+	lda sprspace+sp_x_pg, x
 	lsr                      ; shift bit 1 in the carry
 	lda sprspace+sp_x, x
 	ror                      ; shift sp_x right by 1, and shift the carry in
@@ -785,7 +816,7 @@ level0_bridge_manager:
 	sta temp2
 	
 	ldy sprspace+sp_l0bm_blidx, x
-	lda l0bm_block_widths, y
+	lda block_widths, y
 	sta temp8
 	sta clearsizex
 	sta temp11
@@ -821,21 +852,107 @@ level0_bridge_manager:
 	sta sprspace+sp_l0bm_timer, x
 	
 	ldy sprspace+sp_l0bm_blidx, x
-	lda l0bm_block_widths, y
+	lda block_widths, y
 	
 	clc
 	adc sprspace+sp_l0bm_blidx, x
 	sta sprspace+sp_l0bm_blidx, x
 	
 	cmp #13   ; the maximum tile index
-	bcc @returnEarly
+	bcc drawSprites
 	
-	; ok. so despawn the Entity
+	lda #255
+	sta sprspace+sp_l0bm_timer, x
+	bne drawSprites
+	
+	; ok. so despawn the Entity later
+@clearTypeAndReturn:
 	lda #0
 	sta sprspace+sp_kind, x
-
 @returnEarly:
 	rts
+
+drawSprites:
+	lda gamectrl2
+	ora #g2_notrace
+	sta gamectrl2
+	
+	lda #pal_gray
+	jsr gm_allocate_palette
+	sta temp10
+	ldx temp1
+	lda #0
+@loop:
+	cmp sprspace+sp_l0bm_blidx, x
+	bcs @return
+	
+	sta currentIndex
+	
+	asl
+	asl
+	asl
+	; add it to the X coordinate of the left
+	clc
+	adc entityX
+	; if carry set, then just return
+	bcs @return
+	
+	; that's the X coordinate
+	sta x_crd_temp
+	
+	lda sprspace+sp_l0bm_index, x
+	clc
+	adc currentIndex
+	and #$3F
+	tay
+	
+	lda plr_trace_x, y
+	clc
+	adc entityY
+	bcc :+
+	lda #$FF
+:	sta y_crd_temp
+	
+	; add acceleration to it
+	lda plr_trace_y, y
+	lsr
+	lsr
+	clc
+	adc plr_trace_x, y
+	bcs @carry
+	sta plr_trace_x, y
+	
+	;lda framectr
+	;and #1
+	;beq @back
+	
+	lda plr_trace_y, y
+	clc
+	adc #1
+	bcs @carry
+	sta plr_trace_y, y
+	
+@back:
+	ldy currentIndex
+	lda sprites, y
+	eor #1
+	tay
+	lda temp10
+	jsr oam_putsprite
+	
+	inc currentIndex
+	lda currentIndex
+	bne @loop
+	
+@return:
+	rts
+
+@carry:
+	lda #$40
+	sta plr_trace_x, y
+	lda #0
+	sta plr_trace_y, y
+	beq @back
 
 ;@drawSprite_Bne:
 ;	bne @drawSprite
@@ -849,10 +966,12 @@ level0_bridge_manager:
 ;	sta temp7
 ;	jmp gm_draw_common
 
-l0bm_block_widths:
+block_widths:
 	.byte 2,0,1,1,1,1,1,1,1,1,2,0,1
-l0bs_sprites:
+sprites:
 	.byte $10,$12,$24,$26,$28,$2A,$3C,$7E,$BE,$24,$D0,$E0,$F0
+
+.endproc
 
 ; ** ENTITY: level0_intro_crusher
 ; desc: The intro crusher from the Prologue.
