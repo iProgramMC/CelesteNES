@@ -340,8 +340,14 @@ gm_game_clear_wx:
 	sta stamina
 	lda #>staminamax
 	sta stamina+1
+	
 	lda #g2_flashed
-	sta gamectrl2
+	ldx levelnumber
+	cpx #0
+	bne :+
+	ora #g2_nodash
+:	sta gamectrl2
+	
 	lda #$FF
 	sta entground
 	sta chopentity

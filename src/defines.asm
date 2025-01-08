@@ -427,6 +427,7 @@ g2_autojump = $04   ; pretend the jump button is being held until landing
 g2_noclrall = $08   ; don't clear everything
 g2_flashed  = $10   ; player was flashed red
 g2_notrace  = $20   ; disable the player trace logic (frees up player trace memory for other purposes)
+g2_nodash   = $40   ; disable dashing
 g3_transitR = $01   ; is in a RIGHT transition
 g3_transitU = $02   ; is in an UP transition
 g3_transitL = $04   ; is in a LEFT transition

@@ -539,6 +539,14 @@ bawkWaiting:
 	lda #chrb_splv0b
 	sta spr1_bknum
 	
+	lda gamectrl2
+	and #<~g2_nodash
+	sta gamectrl2
+	
+	lda #0
+	sta game_cont_force
+	sta game_cont_force+1
+	
 	jsr drawDashingHint
 	
 	; waiting for the player to dash and then land
@@ -724,6 +732,10 @@ entityY := temp9
 	beq @exit
 	cpy #64
 	bne :-
+	
+	lda gamectrl2
+	ora #g2_nodash
+	sta gamectrl2
 
 @exit:
 	ldy sprspace+sp_l0bm_acoll, x

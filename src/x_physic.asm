@@ -439,6 +439,9 @@ gm_dontjump:
 	lda dashcount
 	cmp #maxdashes
 	bcs gm_dontdash   ; and if the dashcount is < maxdashes
+	lda #g2_nodash
+	bit gamectrl2
+	bne gm_dontdash
 	
 	; dash!!
 	jsr gm_add_lift_boost
