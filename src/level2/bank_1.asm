@@ -12,5 +12,5 @@ level2_music:
 .include "warplist.asm"
 .include "palette.asm"
 .include "structs.asm"
-.include "entity.asm"
 .include "dialog.asm"
+.include "entity.asm"

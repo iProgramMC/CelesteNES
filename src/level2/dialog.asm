@@ -50,5 +50,10 @@ ch2_mirror_shatter:
 	;   badeline = new BadelineDummy...;
 	trigger     6
 	
+	wait        72
+	
+	trigger     7
+	wait        40
+	
 	unlock_input
 	end

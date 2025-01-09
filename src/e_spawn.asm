@@ -63,21 +63,6 @@ startConvergence:
 	rts
 .endproc
 
-; ** SUBROUTINE: gm_spawn_particle_vel
-; desc: Spawns a particle with a specified velocity.
-; parameters:
-;	Same as gm_spawn_particle except
-;	temp6 - X velocity
-;	temp7 - Y velocity
-.proc gm_spawn_particle_vel
-	jsr gm_spawn_particle
-	lda temp6
-	sta sprspace+sp_part_vel_x, y
-	lda temp7
-	sta sprspace+sp_part_vel_y, y
-	rts
-.endproc
-
 ; ** SUBROUTINE: gm_spawn_particle_at_ent
 ; desc: Spawns a particle at an entity's position.
 ; parameters:

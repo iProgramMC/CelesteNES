@@ -138,7 +138,10 @@ sp_l2ph_timer = sp_entspec1
 sp_l2mi_state = sp_entspec1
 sp_l2mi_reflx = sp_entspec2
 sp_l2mi_refly = sp_entspec3
+sp_l2mi_rlxlo = sp_wid
+sp_l2mi_rlylo = sp_hei
 sp_l2mi_timer = sp_entspec4
+sp_l2mi_jhold = sp_entspec5
 
 ; entity flags
 ef_collidable = $01

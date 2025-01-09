@@ -239,7 +239,7 @@ level2_payphone_max_timer = 8
 	cmp #4
 	beq @state_BadelineWait
 	cmp #5
-	beq @state_ShatterMirror
+	beq @state_ShatterMirror_
 	cmp #6
 	beq @state_BadelineWait2
 	cmp #7
@@ -296,9 +296,86 @@ level2_payphone_max_timer = 8
 	rts
 
 @state_BadelineWait2:
-@state_BadelineFlee:
-@state_BadelineJump:
 @state_RevealDreamBlock:
+	rts
+
+@state_ShatterMirror_:
+	beq @state_ShatterMirror
+
+@state_BadelineFlee:
+	jsr moveLeftX
+	
+	cmp #60
+	bcs @return
+	
+	; time to jump!
+	inc sprspace+sp_l2mi_state, x
+	
+	lda #18
+	sta sprspace+sp_l2mi_jhold, x
+	
+	lda #<-jumpvel
+	sta sprspace+sp_vel_y_lo, x
+	lda #>-jumpvel
+	sta sprspace+sp_vel_y, x
+	rts
+
+@state_BadelineJump:
+	jsr moveLeftX
+	cmp #$E0
+	bcc :+
+	
+	cmp #$F8
+	bcc @wentOffScreen
+	
+:	inc sprspace+sp_l2mi_timer, x
+	
+	lda sprspace+sp_l2mi_rlylo, x
+	clc
+	adc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_l2mi_rlylo, x
+	
+	lda sprspace+sp_l2mi_refly, x
+	adc sprspace+sp_vel_y, x
+	sta sprspace+sp_l2mi_refly, x
+	
+	; gravity
+	lda sprspace+sp_l2mi_jhold, x
+	beq @noHold
+	
+	dec sprspace+sp_l2mi_jhold, x
+	jmp @hold
+	
+@noHold:
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc #$40
+	sta sprspace+sp_vel_y_lo, x
+	bcc @hold
+	inc sprspace+sp_vel_y, x
+@hold:
+	
+	; check if the velocity is negative
+	lda sprspace+sp_vel_y, x
+	bmi @nofloorcheck
+	
+	lda sprspace+sp_l2mi_refly, x
+	cmp #$70
+	bcc @nofloorcheck
+	
+	lda #$70
+	sta sprspace+sp_l2mi_refly, x
+	lda #0
+	sta sprspace+sp_vel_y, x
+	sta sprspace+sp_vel_y_lo, x
+	
+@nofloorcheck:
+	rts
+
+@wentOffScreen:
+	lda #$F8
+	sta sprspace+sp_l2mi_reflx, x
+	inc sprspace+sp_l2mi_state, x
 	rts
 
 @state_ShatterMirror:
@@ -318,7 +395,7 @@ level2_payphone_max_timer = 8
 	bne @dontSpawnParticles
 	
 	; Spawn Particles
-	jsr spawnParticles
+	;jsr spawnParticles
 	
 @dontSpawnParticles:
 	cmp #19
@@ -541,6 +618,11 @@ drawBadeline:
 	sta temp2
 	
 @dontDrawMirrorGlare:
+	ldx temp1
+	lda sprspace+sp_l2mi_reflx, x
+	cmp #$F8
+	beq @dontDraw2
+	
 	lda #pal_chaser
 	jsr gm_allocate_palette
 	;ora #obj_backgd
@@ -550,9 +632,8 @@ drawBadeline:
 	; Draw Body
 	ldx plr_spr_l
 	ldy plr_spr_r
-	lda playerctrl
-	and #pl_left
-	bne :+
+	lda plattemp1
+	beq :+
 	ldx plr_spr_r
 	ldy plr_spr_l
 	lda temp5
@@ -594,7 +675,17 @@ drawBadeline:
 	
 :
 @skipOffMirrorChecks:
-	jmp drawSprite
+	lda sprspace+sp_l2mi_reflx, x
+	cmp #$F8
+	bcc :+
+	
+	lda #$5E
+	sta temp6
+	
+:	jmp drawSprite
+
+@dontDraw2:
+	rts
 	
 put4Sprites:
 	ldy #$5E
@@ -645,16 +736,24 @@ animateBadeline:
 	adc #chrb_splv2l
 	sta spr1_bknum
 	
+	lda playerctrl
+	and #pl_left
+	eor #pl_left
+	sta plattemp1
+	
 	lda sprspace+sp_l2mi_state, x
 	cmp #3
 	beq @running
-	cmp #5
+	cmp #7
 	beq @running
-	cmp #6
+	cmp #8
 	beq @jumping
 	rts
 
 @running:
+	lda #1
+	sta plattemp1
+	
 	lda sprspace+sp_l2mi_timer, x
 	lsr
 	lsr
@@ -688,13 +787,42 @@ animateBadeline:
 	rts
 
 @jumping:
+	lda #1
+	sta plattemp1
+	
+	lda sprspace+sp_vel_y, x
+	bne :+
+	lda sprspace+sp_vel_y_lo, x
+	bne :+
+	lda sprspace+sp_l2mi_refly, x
+	cmp #$70
+	beq @running
+	
+:	lda #chrb_splv2l
+	sta spr1_bknum
+	lda #$08
+	sta plr_spr_l
+	lda #$0A
+	sta plr_spr_r
 	rts
 
 spriteRow1:	.byte $70,$72,$74,$76,$78,$7A,$7C,$7E
 spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
 
+moveLeftX:
+	inc sprspace+sp_l2mi_timer, x
+	
+	lda sprspace+sp_l2mi_rlxlo, x
+	sec
+	sbc #maxwalkLO
+	sta sprspace+sp_l2mi_rlxlo
+	
+	lda sprspace+sp_l2mi_reflx, x
+	sbc #maxwalkHI
+	sta sprspace+sp_l2mi_reflx, x
+	rts
+
 spawnParticles:
-.if 0
 	lda temp1
 	pha
 	
@@ -702,13 +830,13 @@ spawnParticles:
 	lda sprspace+sp_x, x
 	clc
 	adc #$20
-	sta temp1
+	sta plattemp1
 	lda sprspace+sp_x_pg, x
 	adc #0
 	sta temp3
 	
 	lda sprspace+sp_y, y
-	sta temp2
+	sta plattemp2
 	
 	; character
 	lda #$98
@@ -721,32 +849,61 @@ spawnParticles:
 	ldx #0
 @loopSpawn:
 	lda particleTable, x
+	clc
+	adc plattemp1
+	sta temp1
+	
+	lda particleTable+1, x
+	clc
+	adc plattemp2
+	sta temp2
+	
+	lda particleTable+2, x
 	sta temp8
+	
 	inx
-	lda particleTable, x
-	sta temp6
 	inx
-	lda particleTable, x
-	sta temp7
 	inx
 	
-	jsr gm_spawn_particle_vel
+	stx trantmp1
+	jsr gm_spawn_particle
+	ldx trantmp1
 	
-	cpx #3*4 ; 3 * 10
+	lda particleTable, x
+	sta sprspace+sp_vel_x, y
+	lda particleTable+1, x
+	sta sprspace+sp_vel_x_lo, y
+	lda particleTable+2, x
+	sta sprspace+sp_vel_y, y
+	lda particleTable+3, x
+	sta sprspace+sp_vel_y_lo, y
+	
+	inx
+	inx
+	inx
+	inx
+	
+	cpx #7 * 10
 	bne @loopSpawn
 	
 	pla
 	sta temp1
 	tax
-.endif
 	rts
 
 particleTable:
-	; Gravity, Vel X, Vel Y
-	.byte $02, $02, $01
-	.byte $01, $01, $02
-	.byte $02, $FE, $01
-	.byte $01, $FF, $02
+	; Off X, Off Y, Gravity, Vel X, Vel X Lo, Vel Y, Vel Y Lo
+	.byte <-24,   0, $00, $FF, $FE, $FF, $FD
+	.byte <-14,  10, $00, $FF, $FF, $FF, $FD
+	.byte <- 4,   0, $00, $00, $00, $FF, $FC
+	.byte <  6,  10, $00, $00, $01, $FF, $FD
+	.byte < 16,   0, $00, $00, $02, $FF, $FD
+	
+	.byte <-24,  20, $00, $FF, $FC, $FF, $FF
+	.byte <-14,  30, $00, $FF, $FD, $FF, $FF
+	.byte <- 4,  20, $00, $FF, $FE, $FF, $FD
+	.byte <  6,  30, $00, $00, $03, $FF, $FD
+	.byte < 16,  20, $00, $00, $04, $00, $00
 
 dataSourcesLow: 	.byte <mirrorFrame1, <mirrorFrame2, <mirrorFrame3, <mirrorFrame4, <mirrorFrame5
 dataSourcesHigh:	.byte >mirrorFrame1, >mirrorFrame2, >mirrorFrame3, >mirrorFrame4, >mirrorFrame5
