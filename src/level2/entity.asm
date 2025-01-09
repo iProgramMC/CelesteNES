@@ -223,28 +223,7 @@ level2_payphone_max_timer = 8
 ; ** ENTITY: level2_mirror
 ; desc: The mirror that unlocks the Dream Blocks!
 .proc level2_mirror
-	; Set up the IRQ
-	lda #<level2_hide_irq
-	sta irqaddr
-	lda #>level2_hide_irq
-	sta irqaddr+1
-	
-	lda #0
-	sta miscsplit
-	
-	lda camera_y
-	sec
-	sbc camera_y_bs
-	sec
-	sbc camera_y_sub
-	clc
-	adc #$C0
-	;bcs :+
-	
-	; activate the scroll split
-	sta miscsplit
-	
-:	jsr drawBadeline
+	jsr drawBadeline
 	
 	
 	rts
@@ -517,42 +496,6 @@ spriteRow1:	.byte $70,$72,$74,$76,$78,$7A,$7C,$7E
 spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
 .endproc
 
-; ** IRQ HANDLER: level2_hide_irq
-; desc: This IRQ handler hides the background layer to avoid revealing the upper
-; part of the level that's actually lower. The reason we do it as such is to allow
-; for scrolling up during the Dream Block Unlock cutscene.
-.proc level2_hide_irq
-	pha
-	lda #%00010000 ; only sprites
-	sta ppu_mask
-	sta mmc3_irqdi
-	
-	; schedule a show IRQ later
-	lda #$2D  ; from $C0 to $F0, we have $30 pixels. slightly earlier.
-	sta mmc3_irqla
-	sta mmc3_irqrl
-	sta mmc3_irqen
-	lda #<level2_show_irq
-	sta irqaddr
-	lda #>level2_show_irq
-	sta irqaddr+1
-	
-	pla
-	rti
-.endproc
-
-; ** IRQ HANDLER: level2_show_irq
-; desc: This IRQ handler shows the background layer within the lower fringes of the screen.
-;       This is done to prevent lag from entirely blanking the screen.
-.proc level2_show_irq
-	pha
-	lda #def_ppu_msk
-	sta ppu_mask
-	sta mmc3_irqdi
-	pla
-	rti
-.endproc
-
 ; ** IRQ HANDLER: level2_dream_block_reveal_irq
 ; desc: This IRQ sets the bank number to the bank that contains the activated dream blocks.
 ; The cutscene opens with the dream blocks glowing, then their colored form below.
@@ -570,4 +513,22 @@ spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
 	pla
 	rti
 .endproc
-.align $100
+
+; these rows are supposed to be copied
+; first 32 tiles (written to $28C0+X)
+.if 0
+.byte $41,$42,$41,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+.byte $4C,$5B,$4D,$5D,$55,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+.byte $00,$00,$00,$00,$00,$4D,$58,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40
+.byte $00,$00,$00,$00,$00,$5B,$57,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56
+.byte $00,$00,$00,$00,$00,$00,$55,$42,$43,$41,$42,$37,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56,$4C,$5B,$00
+.byte $00,$00,$00,$00,$00,$00,$00,$5D,$5C,$4C,$4D,$55,$43,$41,$44,$F8,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$FD,$49,$5C,$4E,$00,$00,$00,$00
+
+; last 4 tiles (written to $2CC0+X)
+.byte $00,$00,$36,$42
+.byte $00,$00,$47,$5C
+.byte $42,$43,$56,$00
+.byte $5C,$5D,$00,$00
+.byte $00,$00,$00,$00
+.byte $00,$00,$00,$00
+.endif
