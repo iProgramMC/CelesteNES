@@ -1202,9 +1202,14 @@ gm_load_hair_palette:
 	lda levelnumber
 	cmp #2
 	beq @level2
+	
+@return:
 	rts
 
 @level2:
+	lda miscsplit
+	bne @return
+	
 	ldx #chrb_lvl2+2
 	lda dbenable
 	bne :+

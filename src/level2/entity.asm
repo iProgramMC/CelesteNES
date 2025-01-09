@@ -223,6 +223,46 @@ level2_payphone_max_timer = 8
 ; ** ENTITY: level2_mirror
 ; desc: The mirror that unlocks the Dream Blocks!
 .proc level2_mirror
+	lda dbenable
+	beq @dreamBlocksNotEnabled
+	
+	; there are still things to do?
+	lda sprspace+sp_l2mi_state, x
+	bne @dreamBlocksNotEnabled
+	
+	lda #g3_transitA
+	bit gamectrl3
+	bne @returnDBE
+	
+	; Dream Blocks are enabled, so set the broken mirror already and stop
+	lda #<mirrorFrame5
+	sta setdataaddr
+	lda #>mirrorFrame5
+	sta setdataaddr+1
+	
+	lda #6
+	sta clearsizex
+	lda #4
+	sta clearsizey
+	
+	lda #16+1
+	clc
+	adc roombeglo2
+	tax
+	
+	lda #15+1
+	tay
+	
+	jsr h_request_transfer
+	
+	ldx temp1
+	lda #0
+	sta sprspace+sp_kind, x
+	
+@returnDBE:
+	rts
+	
+@dreamBlocksNotEnabled:
 	jsr animateBadeline
 	jsr drawBadeline
 	
@@ -390,8 +430,10 @@ level2_payphone_max_timer = 8
 	
 	lda #15
 	sta quakeflags
-	lda #12
+	lda #20
 	sta quaketimer
+	
+	lda #12
 	
 @dontStartQuaking:
 	cmp #16
@@ -433,8 +475,42 @@ level2_payphone_max_timer = 8
 	cmp #9
 	beq @state_RevealDreamBlock_ScrollUp
 	cmp #10
+	beq @state_RevealDreamBlock_Reveal
+	cmp #11
 	beq @state_RevealDreamBlock_ScrollDown
 	
+	rts
+
+@state_RevealDreamBlock_Reveal:
+	; Reveal the Dream Block
+	lda #chrb_lvl2d
+	sta bg1_bknum
+	
+	; The timer is supposed to go down from 168 to 72.
+	ldx temp1
+	lda sprspace+sp_l2mi_timer, x
+	
+	sta miscsplit
+	
+	lda #<level2_dream_block_reveal_irq
+	sta irqaddr
+	lda #>level2_dream_block_reveal_irq
+	sta irqaddr+1
+	
+	dec sprspace+sp_l2mi_timer, x
+	lda sprspace+sp_l2mi_timer, x
+	cmp #72
+	bcs @returnReveal
+	
+	inc sprspace+sp_l2mi_state, x
+	lda #0
+	sta sprspace+sp_l2mi_timer, x
+	
+	lda #chrb_lvl2+2
+	sta bg1_bknum
+	sta dbenable
+	
+@returnReveal:
 	rts
 
 @state_RevealDreamBlock_ScrollUp:
@@ -442,7 +518,7 @@ level2_payphone_max_timer = 8
 	ldx temp1
 	ldy sprspace+sp_l2mi_timer, x
 	cpy #20
-	bcs @dontDoThat
+	bcs @dontDoThat1
 	
 	lda camera_y_sub
 	and #%111
@@ -458,9 +534,8 @@ level2_payphone_max_timer = 8
 	inc sprspace+sp_l2mi_timer, x
 	rts
 	
-@dontDoThat:
-	inc sprspace+sp_l2mi_state, x
-	lda #0
+@dontDoThat1:
+	lda #168
 	sta sprspace+sp_l2mi_timer, x
 	rts
 
@@ -469,8 +544,7 @@ level2_payphone_max_timer = 8
 	ldx temp1
 	ldy sprspace+sp_l2mi_timer, x
 	cpy #20
-	bcs @dontDoThat
-	
+	bcs @dontDoThat2
 	
 	lda camera_y_sub
 	and #%111
@@ -484,6 +558,12 @@ level2_payphone_max_timer = 8
 	sta camera_y_sub
 	
 	inc sprspace+sp_l2mi_timer, x
+	rts
+	
+@dontDoThat2:
+	lda #0
+	sta sprspace+sp_l2mi_state, x
+	sta sprspace+sp_l2mi_timer, x
 	rts
 
 drawBadeline:
@@ -713,6 +793,8 @@ drawBadeline:
 :	ldx temp1
 	lda sprspace+sp_l2mi_state, x
 	cmp #5
+	beq @dontDraw2
+	cmp #6
 	bcs @skipOffMirrorChecks
 	
 	lda temp11
@@ -892,7 +974,7 @@ revealDreamBlock_revealRowUpper:
 	lda level2_db_opening_rows_hi, y
 	sta setdataaddr+1
 	
-	lda #58
+	lda #29<<1
 	sec
 	sbc sprspace+sp_l2mi_timer, x
 	lsr
@@ -1025,7 +1107,7 @@ mirrorFrame5:
 .proc level2_dream_block_reveal_irq
 	pha
 	
-	lda #mmc3bk_bg1
+	lda #(mmc3bk_bg1|def_mmc3_bn)
 	sta mmc3_bsel
 	lda #chrb_lvl2+2
 	sta mmc3_bdat

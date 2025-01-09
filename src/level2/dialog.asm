@@ -7,17 +7,14 @@ ch2_mirror_shatter:
 	
 	lock_input
 	
-	; yield return 1f;
 	wait        60
 	
-	; player.Facing = (Facings)(-direction);
 	wait_ground
 	face_player 1
 	
-	; yield return 0.4f;
 	wait        24
 	
-	; run towards the 
+	; run towards the mirror
 	walk_player 128, 144
 	face_player 1
 	
@@ -32,15 +29,20 @@ ch2_mirror_shatter:
 	
 	; shatter the mirror
 	trigger     5
-	wait        32
+	wait        18
 	
 	; trigger Badeline to wait, after shattering the mirror
 	trigger     6
 	wait        72
 	
-	; trigger Badeline to flee
+	; trigger Badeline to flee, and wait for the camera to scroll towards the central dream block
 	trigger     7
-	wait        60
+	wait        120
 	
+	; activate the dream block, and wait for the camera to scroll back to the main room
+	trigger     10
+	wait        100
+	
+	; done!!!
 	unlock_input
 	end
