@@ -59,6 +59,10 @@ gm_respawn_leave_doframe:
 	sta deathwipe2
 	lda #%00010000   ; only sprites
 	sta deathwipe
+	lda #<irq_death_wipe
+	sta irqaddr
+	lda #>irq_death_wipe
+	sta irqaddr+1
 	lda #16
 	sta deathsplit
 	rts

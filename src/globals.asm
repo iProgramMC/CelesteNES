@@ -16,6 +16,7 @@
 
 nmi_disable : .res 1 ; HARD NMI disable - used when resetting the game. Must be zero to run NMIs.
 farcalladdr : .res 2 ; FAR CALL address (can be used as temporary)
+irqaddr     : .res 2 ; IRQ handler address
 temp1       : .res 1
 temp2       : .res 1
 temp3       : .res 1

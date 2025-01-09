@@ -30,12 +30,12 @@ far_call:
 	jmp (farcalladdr)
 
 ; ** SUBROUTINE: mmc3_horzarr
-; desc: Sets the MMC1 to a horizontal arrangement (vertical mirroring) of nametables.
+; desc: Sets the MMC3 to a horizontal arrangement (vertical mirroring) of nametables.
 ; clobbers: A
-mmc3_horzarr:
-	lda #0
-	sta mmc3_mirror
-	rts
+;mmc3_horzarr:
+;	lda #0
+;	sta mmc3_mirror
+;	rts
 
 ; ** SUBROUTINE: mmc3_vertarr
 ; desc: Sets the MMC1 to a vertical arrangement (horizontal mirroring) of nametables.
@@ -154,7 +154,6 @@ ppu_nmi_on:
 	lda ctl_flags
 	ora #pctl_nmi_on
 	sta ctl_flags
-	
 	sta ppu_ctrl
 	rts
 
@@ -174,13 +173,13 @@ mmc3_initialize:
 	
 	; note: don't need to load default banks, the title screen init code will do that for me.
 	
-	jsr mmc3_horzarr
+	;jsr mmc3_horzarr
+	lda #0
+	sta mmc3_mirror
+	sta mmc3_irqdi   ; disable IRQs for now
 	
 	lda #%10000000   ; enable PRG RAM, disable write protection
 	sta mmc3_pram
-	
-	sta mmc3_irqdi   ; disable IRQs for now
-	
 	rts
 
 irqdelays:	.byte 2, 2, 5

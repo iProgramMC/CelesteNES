@@ -391,9 +391,9 @@ gm_actuallyclimbing:
 	lda #am_climb
 	jmp gm_anim_mode
 
-; ** SUBROUTINE: gm_set_panting
+; ** SUBROUTINE: sgm_set_panting
 ; desc: Start panting.
-gm_set_panting:
+sgm_set_panting:
 	lda #am_panting
 	sta amodeforce
 	jmp gm_anim_mode

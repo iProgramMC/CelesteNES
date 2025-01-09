@@ -1158,6 +1158,12 @@ loop:
 	lda #def_ppu_msk
 	sta deathwipe
 	sta deathwipe2
+	
+	lda #<irq_death_wipe
+	sta irqaddr
+	lda #>irq_death_wipe
+	sta irqaddr+1
+	
 	bne doneWipe
 	
 doWindWipeUpdate:

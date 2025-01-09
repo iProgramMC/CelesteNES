@@ -124,7 +124,7 @@ level0_granny:
 	txa
 	ldx #<ch0_granny
 	ldy #>ch0_granny
-	;jsr dlg_begin_cutscene_g
+	jsr dlg_begin_cutscene_g
 	
 	pla
 	sta temp1

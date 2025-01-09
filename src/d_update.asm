@@ -36,6 +36,11 @@ dlg_start_dialog:
 	ora gamectrl
 	sta gamectrl
 	
+	lda #<irq_dialog_split
+	sta irqaddr
+	lda #>irq_dialog_split
+	sta irqaddr+1
+	
 	jsr @enqueueColumnsForClearing
 	
 	jsr dlg_leave_doframe

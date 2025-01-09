@@ -1,7 +1,9 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 .align $100
-.proc irq_deathwipe
+.proc irq_death_wipe
+	pha
+	lda deathwipe
 	; This code runs at a 15 cycle delay from the interrupt, or 45 px.
 	; This jitter can be up to 7 cycles (21px) from the start of h-blank.
 	; H-blank is a total of around 84 pixels wide, so we have about 1/4,
@@ -56,14 +58,21 @@ dontRescheduleInterrupt:
 .include "m_auxil.asm"
 
 .align $100
-irq_deathwipe_:        ; +1 cycle from the BNE
-	jmp irq_deathwipe  ; 3 cycles
-; ** IRQ
-; thanks NESDev Wiki for providing an example of loopy's scroll method
+
+;irq_deathwipe_:        ; +1 cycle from the BNE
+;	jmp irq_deathwipe  ; 3 cycles
+;; ** IRQ
+;; thanks NESDev Wiki for providing an example of loopy's scroll method
+;irq:
+;	pha                ; 3 cycles
+;	lda deathwipe      ; 3 cycles
+;	bne irq_deathwipe_ ; 2 cycles
+
 irq:
+	jmp (irqaddr)      ; 5 cycles
+
+irq_dialog_split:
 	pha                ; 3 cycles
-	lda deathwipe      ; 3 cycles
-	bne irq_deathwipe_ ; 2 cycles
 	txa
 	pha
 	tya
