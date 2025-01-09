@@ -235,9 +235,11 @@ level2_payphone_max_timer = 8
 	lda camera_y
 	sec
 	sbc camera_y_bs
+	sec
+	sbc camera_y_sub
 	clc
 	adc #$C0
-	bcs :+
+	;bcs :+
 	
 	; activate the scroll split
 	sta miscsplit
@@ -568,3 +570,4 @@ spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
 	pla
 	rti
 .endproc
+.align $100
