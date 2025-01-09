@@ -898,8 +898,12 @@ animateBadeline:
 	rts
 
 @running:
-	lda #1
-	sta plattemp1
+	ldy #0
+	lda sprspace+sp_l2mi_state, x
+	cmp #3
+	beq :+
+	iny
+:	sty plattemp1
 	
 	lda sprspace+sp_l2mi_timer, x
 	lsr
