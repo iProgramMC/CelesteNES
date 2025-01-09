@@ -1780,8 +1780,10 @@ gm_fetch_room:
 @level2B:
 	lda #<level2_alt_palette
 	sta vmcsrc
+	sta paladdr
 	lda #>level2_alt_palette
 	sta vmcsrc+1
+	sta paladdr+1
 	
 	lda #g4_altpal
 	bit gamectrl4
@@ -1806,9 +1808,11 @@ gm_fetch_room:
 	tax
 	lda level_palettes, x
 	sta vmcsrc
+	sta paladdr
 	inx
 	lda level_palettes, x
 	sta vmcsrc+1
+	sta paladdr+1
 	
 @schedulePaletteUpload:
 	lda #$3F

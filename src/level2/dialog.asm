@@ -29,7 +29,7 @@ ch2_mirror_shatter:
 	
 	; shatter the mirror
 	trigger     5
-	wait        18
+	wait        22
 	
 	; trigger Badeline to wait, after shattering the mirror
 	trigger     6

@@ -443,9 +443,9 @@ level2_payphone_max_timer = 8
 	;jsr spawnParticles
 	
 @dontSpawnParticles:
-	cmp #19
+	cmp #23
 	bcc :+
-	lda #19
+	lda #23
 :	lsr
 	lsr
 	tax
@@ -1065,14 +1065,21 @@ revealDreamBlock_revealRow:
 	ldx temp1
 	rts
 
-dataSourcesLow: 	.byte <mirrorFrame1, <mirrorFrame2, <mirrorFrame3, <mirrorFrame4, <mirrorFrame5
-dataSourcesHigh:	.byte >mirrorFrame1, >mirrorFrame2, >mirrorFrame3, >mirrorFrame4, >mirrorFrame5
+dataSourcesLow: 	.byte <mirrorFrame0, <mirrorFrame1, <mirrorFrame2, <mirrorFrame3, <mirrorFrame4, <mirrorFrame5
+dataSourcesHigh:	.byte >mirrorFrame0, >mirrorFrame1, >mirrorFrame2, >mirrorFrame3, >mirrorFrame4, >mirrorFrame5
 
-mirrorFrame1:
+mirrorFrame0:
 	.byte $61,$71,$72,$79
 	.byte $62,$72,$73,$7A
 	.byte $63,$73,$74,$7B
 	.byte $64,$74,$75,$7C
+	.byte $65,$75,$6D,$7D
+	.byte $66,$76,$6E,$7E
+mirrorFrame1:
+	.byte $61,$71,$72,$5F
+	.byte $62,$72,$73,$7A
+	.byte $63,$73,$74,$7B
+	.byte $64,$4F,$75,$7C
 	.byte $65,$75,$6D,$7D
 	.byte $66,$76,$6E,$7E
 mirrorFrame2:
