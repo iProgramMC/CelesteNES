@@ -230,15 +230,17 @@ level2_payphone_max_timer = 8
 	sta irqaddr+1
 	
 	lda #0
-	sta scrollsplit
+	sta miscsplit
 	
 	lda camera_y
+	sec
+	sbc camera_y_bs
 	clc
 	adc #$C0
 	bcs :+
 	
 	; activate the scroll split
-	sta scrollsplit
+	sta miscsplit
 	
 :	jsr drawBadeline
 	
@@ -519,8 +521,32 @@ spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
 ; for scrolling up during the Dream Block Unlock cutscene.
 .proc level2_hide_irq
 	pha
-	lda #%00010001 ; only sprites
+	lda #%00010000 ; only sprites
 	sta ppu_mask
+	sta mmc3_irqdi
+	
+	; schedule a show IRQ later
+	lda #$2D  ; from $C0 to $F0, we have $30 pixels. slightly earlier.
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	sta mmc3_irqen
+	lda #<level2_show_irq
+	sta irqaddr
+	lda #>level2_show_irq
+	sta irqaddr+1
+	
+	pla
+	rti
+.endproc
+
+; ** IRQ HANDLER: level2_show_irq
+; desc: This IRQ handler shows the background layer within the lower fringes of the screen.
+;       This is done to prevent lag from entirely blanking the screen.
+.proc level2_show_irq
+	pha
+	lda #def_ppu_msk
+	sta ppu_mask
+	sta mmc3_irqdi
 	pla
 	rti
 .endproc
@@ -537,6 +563,7 @@ spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
 	sta mmc3_bdat
 	lda mmc3_shadow
 	sta mmc3_bsel
+	sta mmc3_irqdi
 	
 	pla
 	rti

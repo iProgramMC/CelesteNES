@@ -320,10 +320,7 @@ nmi_check_gamemodes:
 	sta gamectrl2
 	
 	; NOTE: hardcoded but I'm lazy
-	lda #$3F
-	sta ppu_addr
-	lda #$11
-	sta ppu_addr
+	jsr @setPPUAddrTo3F11
 	lda #$26
 	sta ppu_data
 	lda #$16
@@ -342,10 +339,7 @@ nmi_check_gamemodes:
 	sta gamectrl2
 	; program the correct color
 	; NOTE: hardcoded but I'm lazy
-	lda #$3F
-	sta ppu_addr
-	lda #$11
-	sta ppu_addr
+	jsr @setPPUAddrTo3F11
 	lda #$37
 	sta ppu_data
 	lda #$14
@@ -354,6 +348,13 @@ nmi_check_gamemodes:
 	sta ppu_data
 	
 @returnUnFlash:
+	rts
+
+@setPPUAddrTo3F11:
+	lda #$3F
+	sta ppu_addr
+	lda #$11
+	sta ppu_addr
 	rts
 
 ; ** SUBROUTINE: nmi_anims_update
@@ -461,7 +462,7 @@ nmi_scrollsplit:
 	rts
 
 @almostNormalScrolling:
-	lda deathsplit
+	lda miscsplit
 	beq @normalScrolling
 	
 	sta mmc3_irqla
@@ -471,6 +472,11 @@ nmi_scrollsplit:
 	
 	lda #36
 	sta irqcounter
+	lda #0
+	sta miscsplit
+	
+	lda #def_ppu_msk
+	sta ppu_mask
 	
 @normalScrolling:
 	lda scroll_flags

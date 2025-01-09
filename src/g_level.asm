@@ -2040,7 +2040,7 @@ gm_respawn:
 	sta gamectrl
 	; disable rendering
 	sta ppu_mask
-	sta deathsplit
+	sta miscsplit
 	jsr vblank_wait
 	
 	lda nmictrl

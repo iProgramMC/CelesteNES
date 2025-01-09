@@ -64,6 +64,6 @@ gm_respawn_leave_doframe:
 	lda #>irq_death_wipe
 	sta irqaddr+1
 	lda #16
-	sta deathsplit
+	sta miscsplit
 	rts
 .endproc

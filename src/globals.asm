@@ -82,7 +82,7 @@ scroll_flags: .res 1 ; the FLAGS for the scroll split part of PPUCTRL
 ; dialog stuff in the zeropage
 scrollsplit : .res 1 ; Y position of the scroll split
 dialogsplit : .res 1 ; Y position of the dialog split (1)
-deathsplit  : .res 1 ; Y position of the death wipe IRQ split
+miscsplit   : .res 1 ; Y position of the misc split (used by death wipe etc)
 irqcounter  : .res 1 ; (2)
 dlg_updates : .res 1 ; row update bitmask
 dlg_entity  : .res 1 ; entity engaged with in a cutscene

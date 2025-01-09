@@ -302,7 +302,7 @@ gm_game_clear_wx:
 	stx irqtmp8
 	stx deathwipe
 	stx deathwipe2
-	stx deathsplit
+	stx miscsplit
 	stx abovescreen
 	stx paused
 	stx pauseanim
@@ -698,8 +698,6 @@ boostPositive:
 ; desc: Pauses the game.
 .proc gm_pause
 	lda dialogsplit
-	bne return
-	lda deathsplit
 	bne return
 	lda playerctrl
 	and #pl_dead
@@ -1132,7 +1130,7 @@ tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
 	stx deathwipe
 	
 	;lda #0
-	;sta deathsplit
+	;sta miscsplit
 	
 	jsr gm_respawn_leave_doframe2
 	
@@ -1154,7 +1152,7 @@ loop:
 	bcs doWindWipeUpdate
 	
 	lda #0
-	sta deathsplit
+	sta miscsplit
 	lda #def_ppu_msk
 	sta deathwipe
 	sta deathwipe2
@@ -1176,7 +1174,7 @@ doneWipe:
 	bne loop
 	
 	lda #0
-	sta deathsplit
+	sta miscsplit
 	sta deathwipe
 	sta deathwipe2
 	lda #def_ppu_msk
