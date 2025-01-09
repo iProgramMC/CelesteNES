@@ -1167,6 +1167,8 @@ loop:
 doWindWipeUpdate:
 	jsr gm_wind_wipe_update
 
+	lda #16
+	sta miscsplit
 doneWipe:
 	jsr gm_respawn_leave_doframe2
 	

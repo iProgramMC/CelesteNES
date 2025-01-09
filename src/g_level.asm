@@ -2027,11 +2027,22 @@ gm_respawn:
 	
 @dontClearCol:
 	inc deathtimer
+	
+	lda #16
+	sta miscsplit
+	
 	jsr gm_respawn_leave_doframe
 	
 	ldy transtimer
 	dey
 	bne @loop
+	
+	lda #0
+	ldy #0
+:	sta sprspace+sp_kind, y
+	iny
+	cpy #sp_max
+	bne :-
 	
 	; initiate the transition sequence now.
 	lda #g2_noclrall

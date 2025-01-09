@@ -475,13 +475,13 @@ level2_payphone_max_timer = 8
 	cmp #9
 	beq @state_RevealDreamBlock_ScrollUp
 	cmp #10
-	beq @state_RevealDreamBlock_Reveal
+	beq @state_RevealDreamBlock_Unveil
 	cmp #11
 	beq @state_RevealDreamBlock_ScrollDown
 	
 	rts
 
-@state_RevealDreamBlock_Reveal:
+@state_RevealDreamBlock_Unveil:
 	; Reveal the Dream Block
 	lda #chrb_lvl2d
 	sta bg1_bknum
@@ -496,6 +496,11 @@ level2_payphone_max_timer = 8
 	sta irqaddr
 	lda #>level2_dream_block_reveal_irq
 	sta irqaddr+1
+	
+	lda #2
+	sta quaketimer
+	lda #7
+	sta quakeflags
 	
 	dec sprspace+sp_l2mi_timer, x
 	lda sprspace+sp_l2mi_timer, x
