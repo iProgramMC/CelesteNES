@@ -223,6 +223,7 @@ level2_payphone_max_timer = 8
 ; ** ENTITY: level2_mirror
 ; desc: The mirror that unlocks the Dream Blocks!
 .proc level2_mirror
+	jsr animateBadeline
 	jsr drawBadeline
 	
 	ldx temp1
@@ -244,6 +245,8 @@ level2_payphone_max_timer = 8
 	cmp #7
 	beq @state_BadelineFlee
 	cmp #8
+	beq @state_BadelineJump
+	cmp #9
 	beq @state_RevealDreamBlock
 
 @state_Idle:
@@ -264,10 +267,16 @@ level2_payphone_max_timer = 8
 	; came back, begin the cutscene and wait
 	inc sprspace+sp_l2mi_state, x
 	
+	lda temp1
+	pha
+	
 	txa
 	ldx #<ch2_mirror_shatter
 	ldy #>ch2_mirror_shatter
-	jmp dlg_begin_cutscene_g
+	jsr dlg_begin_cutscene_g
+	
+	pla
+	sta temp1
 
 @state_BegunScene:
 	rts
@@ -281,23 +290,66 @@ level2_payphone_max_timer = 8
 	lda #$76
 	inc sprspace+sp_l2mi_state, x
 :	sta sprspace+sp_l2mi_reflx, x
-	
-	;jsr drawBadeline
 	rts
 
 @state_BadelineWait:
-@state_ShatterMirror:
+	rts
+
 @state_BadelineWait2:
 @state_BadelineFlee:
+@state_BadelineJump:
 @state_RevealDreamBlock:
 	rts
 
-drawBadeline:
-	lda spr0_bknum
-	clc
-	adc #chrb_splv2l
-	sta spr1_bknum
+@state_ShatterMirror:
+	lda sprspace+sp_l2mi_timer, x
+	inc sprspace+sp_l2mi_timer, x
 	
+	cmp #12
+	bne @dontStartQuaking
+	
+	lda #15
+	sta quakeflags
+	lda #12
+	sta quaketimer
+	
+@dontStartQuaking:
+	cmp #16
+	bne @dontSpawnParticles
+	
+	; Spawn Particles
+	jsr spawnParticles
+	
+@dontSpawnParticles:
+	cmp #19
+	bcc :+
+	lda #19
+:	lsr
+	lsr
+	tax
+	lda dataSourcesLow, x
+	sta setdataaddr
+	lda dataSourcesHigh, x
+	sta setdataaddr+1
+	
+	lda #6
+	sta clearsizex
+	lda #4
+	sta clearsizey
+	
+	lda #16+1
+	clc
+	adc roombeglo2
+	tax
+	
+	lda #15+1
+	tay
+	
+	
+	jsr h_request_transfer
+	rts
+
+drawBadeline:
 	; Calculate Middle of Screen
 	lda roombeglo
 	clc
@@ -586,8 +638,155 @@ drawSprite:
 
 :	rts
 
+animateBadeline:
+	; while in the reflection phase, just mirror what Madeline is doing
+	lda spr0_bknum
+	clc
+	adc #chrb_splv2l
+	sta spr1_bknum
+	
+	lda sprspace+sp_l2mi_state, x
+	cmp #3
+	beq @running
+	cmp #5
+	beq @running
+	cmp #6
+	beq @jumping
+	rts
+
+@running:
+	lda sprspace+sp_l2mi_timer, x
+	lsr
+	lsr
+	lsr
+	pha
+	
+	; bank #
+	and #1
+	
+	pha
+	eor #1
+	sec
+	sbc #1
+	sta spryoff
+	pla
+	
+	clc
+	adc #chrb_splv2l
+	sta spr1_bknum
+	
+	pla
+	; sprite #
+	and #%00000010
+	asl
+	clc
+	adc #$14
+	sta plr_spr_l
+	clc
+	adc #2
+	sta plr_spr_r
+	rts
+
+@jumping:
+	rts
+
 spriteRow1:	.byte $70,$72,$74,$76,$78,$7A,$7C,$7E
 spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
+
+spawnParticles:
+.if 0
+	lda temp1
+	pha
+	
+	tax
+	lda sprspace+sp_x, x
+	clc
+	adc #$20
+	sta temp1
+	lda sprspace+sp_x_pg, x
+	adc #0
+	sta temp3
+	
+	lda sprspace+sp_y, y
+	sta temp2
+	
+	; character
+	lda #$98
+	sta temp4
+	
+	; time alive
+	lda #$20
+	sta temp9
+	
+	ldx #0
+@loopSpawn:
+	lda particleTable, x
+	sta temp8
+	inx
+	lda particleTable, x
+	sta temp6
+	inx
+	lda particleTable, x
+	sta temp7
+	inx
+	
+	jsr gm_spawn_particle_vel
+	
+	cpx #3*4 ; 3 * 10
+	bne @loopSpawn
+	
+	pla
+	sta temp1
+	tax
+.endif
+	rts
+
+particleTable:
+	; Gravity, Vel X, Vel Y
+	.byte $02, $02, $01
+	.byte $01, $01, $02
+	.byte $02, $FE, $01
+	.byte $01, $FF, $02
+
+dataSourcesLow: 	.byte <mirrorFrame1, <mirrorFrame2, <mirrorFrame3, <mirrorFrame4, <mirrorFrame5
+dataSourcesHigh:	.byte >mirrorFrame1, >mirrorFrame2, >mirrorFrame3, >mirrorFrame4, >mirrorFrame5
+
+mirrorFrame1:
+	.byte $61,$71,$72,$79
+	.byte $62,$72,$73,$7A
+	.byte $63,$73,$74,$7B
+	.byte $64,$74,$75,$7C
+	.byte $65,$75,$6D,$7D
+	.byte $66,$76,$6E,$7E
+mirrorFrame2:
+	.byte $61,$71,$72,$5F
+	.byte $62,$72,$16,$06
+	.byte $63,$73,$27,$7B
+	.byte $64,$4F,$28,$7C
+	.byte $65,$75,$6D,$7D
+	.byte $66,$76,$6E,$7E
+mirrorFrame3:
+	.byte $61,$01,$01,$01
+	.byte $69,$01,$01,$01
+	.byte $6A,$01,$01,$01
+	.byte $6B,$01,$01,$01
+	.byte $6C,$01,$01,$01
+	.byte $66,$01,$01,$01
+mirrorFrame4:
+	.byte $61,$01,$01,$26
+	.byte $69,$01,$17,$01
+	.byte $6A,$02,$18,$01
+	.byte $6B,$03,$19,$29
+	.byte $6C,$01,$01,$01
+	.byte $66,$01,$01,$01
+mirrorFrame5:
+	.byte $04,$0A,$1A,$2A
+	.byte $05,$0B,$1B,$2B
+	.byte $63,$0C,$1C,$2C
+	.byte $07,$0D,$1D,$2D
+	.byte $08,$0E,$1E,$2E
+	.byte $09,$0F,$1F,$2F
+
 .endproc
 
 ; ** IRQ HANDLER: level2_dream_block_reveal_irq

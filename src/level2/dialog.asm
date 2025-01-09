@@ -19,6 +19,7 @@ ch2_mirror_shatter:
 	
 	; yield return player.DummyRunTo(mirror.X + playerEndX);
 	walk_player 128, 144
+	face_player 1
 	
 	; yield return 0.5f;
 	; yield return level.ZoomTo(mirror.Position - level.Camera.Position - Vector2.UnitY * 24f, 2f, 1f);
@@ -28,10 +29,26 @@ ch2_mirror_shatter:
 	; yield return mirror.BreakRoutine(direction);
 	;	autoUpdateReflection = false;
 	;	reflectionSprite.Play("runFast");
-	;	reflectionSprite.Play("runFast");
+	;	...
 	trigger     3
 	
+	; 	yield return 0.65f;
+	wait        39
 	
+	;	Add(sfx = new SoundSource()); sfx.Play("event:/game/02_old_site/sequence_mirror");
+	;	yield return 0.15f;
+	wait        9
+	
+	;	// break the mirror
+	;	smashed = true
+	trigger     5
+	
+	;	yield return 0.6f;
+	wait        32
+	
+	;   smashEnded = true;
+	;   badeline = new BadelineDummy...;
+	trigger     6
 	
 	unlock_input
 	end

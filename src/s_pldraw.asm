@@ -132,10 +132,10 @@ gm_advwalkloop:
 	sta animtimer
 	jmp gm_timeradvanced
 
-; ** SUBROUTINE: gm_anim_mode
+; ** SUBROUTINE: sgm_anim_mode
 ; desc:      Sets the current animation mode.  Resets the animation timer if necessary.
 ; arguments: A - new animation mode
-gm_anim_mode:
+sgm_anim_mode:
 	cmp animmode         ; check if the animation mode is the same
 	beq gm_sameanim
 	sta animmode         ; animation is different
@@ -296,7 +296,7 @@ sgm_anim_player:
 	beq :+
 	
 	sta animmode
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 	
 :	lda #0
 	sta spryoff
@@ -345,38 +345,38 @@ gm_anim_right:
 
 gm_idle:
 	lda #am_idle
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_flip:
 	lda #am_flip
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_dashing:
 	lda #am_dash
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_right:
 	lda #am_walk
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_jumping:
 	lda #am_jump
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_falling:
 	lda #am_fall
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_pushing:
 	lda #pl_ground
 	bit playerctrl
 	beq gm_sliding
 	lda #am_push
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_sliding:
 	lda #am_climbidl
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 gm_climbing:
 	lda player_vl_y
@@ -385,18 +385,18 @@ gm_climbing:
 	bne gm_actuallyclimbing
 	
 	lda #am_climbidl
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 	
 gm_actuallyclimbing:
 	lda #am_climb
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 ; ** SUBROUTINE: sgm_set_panting
 ; desc: Start panting.
 sgm_set_panting:
 	lda #am_panting
 	sta amodeforce
-	jmp gm_anim_mode
+	jmp sgm_anim_mode
 
 ; ** SUBROUTINE: sgm_anim_banks
 ; desc: Updates the loaded bank numbers for the current animation.

@@ -355,6 +355,7 @@ cleardestY := temp3
 	and #%00000011
 	asl
 	asl
+	asl
 	ora cleardestY
 	sta cleardestY
 	

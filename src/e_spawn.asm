@@ -8,8 +8,7 @@
 ;     temp3 - X high position in pages
 ;     temp4 - character tile
 ;     temp5 - attributes (when palette alloc added, type of an associated entity`)
-;     temp6 - old entity type (redundant ?)
-;     temp7 - direction (0-UL, 1-UR, 2-DL, 3-DR, 4-None)
+;     temp6 - direction (0-UL, 1-UR, 2-DL, 3-DR, 4-None)
 ;     temp8 - gravity
 ;     temp9 - time alive
 .proc gm_spawn_particle
@@ -61,6 +60,21 @@ startConvergence:
 	sta sprspace+sp_part_chrti, y
 	lda temp5
 	sta sprspace+sp_part_chrat, y
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_spawn_particle_vel
+; desc: Spawns a particle with a specified velocity.
+; parameters:
+;	Same as gm_spawn_particle except
+;	temp6 - X velocity
+;	temp7 - Y velocity
+.proc gm_spawn_particle_vel
+	jsr gm_spawn_particle
+	lda temp6
+	sta sprspace+sp_part_vel_x, y
+	lda temp7
+	sta sprspace+sp_part_vel_y, y
 	rts
 .endproc
 
