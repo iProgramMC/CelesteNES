@@ -234,6 +234,10 @@ level2_payphone_max_timer = 8
 	bit gamectrl3
 	bne @returnDBE
 	
+	lda gamectrl
+	and #<~gs_camlock
+	sta gamectrl
+	
 	; Dream Blocks are enabled, so set the broken mirror already and stop
 	lda #<mirrorFrame5
 	sta setdataaddr
@@ -291,18 +295,18 @@ level2_payphone_max_timer = 8
 
 @state_Idle:
 	lda player_x
-	cmp #$A0
+	cmp #$90
 	bcc @return
 	
 	; reflected, now wait for her to come back
-	inc sprspace+sp_l2mi_state, x
+	jsr @stateIdleReturn
 @return:
 	rts
 
 @state_Reflected:
 	lda player_x
-	cmp #$90
-	bcs @return
+	cmp #$B0
+	bcc @return
 	
 	; came back, begin the cutscene and wait
 	inc sprspace+sp_l2mi_state, x
@@ -317,8 +321,6 @@ level2_payphone_max_timer = 8
 	
 	pla
 	sta temp1
-
-@state_BegunScene:
 	rts
 
 @state_WalkForwardReflection:
@@ -332,6 +334,7 @@ level2_payphone_max_timer = 8
 :	sta sprspace+sp_l2mi_reflx, x
 	rts
 
+@state_BegunScene:
 @state_BadelineWait:
 @state_BadelineWait2:
 	rts
@@ -477,8 +480,14 @@ level2_payphone_max_timer = 8
 	cmp #10
 	beq @state_RevealDreamBlock_Unveil
 	cmp #11
-	beq @state_RevealDreamBlock_ScrollDown
-	
+	beq @state_RevealDreamBlock_ScrollDown	
+	rts
+
+@stateIdleReturn:
+	inc sprspace+sp_l2mi_state, x
+	lda gamectrl
+	ora #gs_camlock
+	sta gamectrl
 	rts
 
 @state_RevealDreamBlock_Unveil:
