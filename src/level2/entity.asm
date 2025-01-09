@@ -247,7 +247,7 @@ level2_payphone_max_timer = 8
 	cmp #8
 	beq @state_BadelineJump
 	cmp #9
-	beq @state_RevealDreamBlock
+	bcs @state_RevealDreamBlockScene_
 
 @state_Idle:
 	lda player_x
@@ -293,10 +293,7 @@ level2_payphone_max_timer = 8
 	rts
 
 @state_BadelineWait:
-	rts
-
 @state_BadelineWait2:
-@state_RevealDreamBlock:
 	rts
 
 @state_ShatterMirror_:
@@ -345,6 +342,9 @@ level2_payphone_max_timer = 8
 	
 	dec sprspace+sp_l2mi_jhold, x
 	jmp @hold
+
+@state_RevealDreamBlockScene_:
+	bcs @state_RevealDreamBlockScene
 	
 @noHold:
 	lda sprspace+sp_vel_y_lo, x
@@ -353,8 +353,8 @@ level2_payphone_max_timer = 8
 	sta sprspace+sp_vel_y_lo, x
 	bcc @hold
 	inc sprspace+sp_vel_y, x
-@hold:
 	
+@hold:
 	; check if the velocity is negative
 	lda sprspace+sp_vel_y, x
 	bmi @nofloorcheck
@@ -376,6 +376,9 @@ level2_payphone_max_timer = 8
 	lda #$F8
 	sta sprspace+sp_l2mi_reflx, x
 	inc sprspace+sp_l2mi_state, x
+	
+	lda #0
+	sta sprspace+sp_l2mi_timer, x
 	rts
 
 @state_ShatterMirror:
@@ -422,8 +425,65 @@ level2_payphone_max_timer = 8
 	lda #15+1
 	tay
 	
-	
 	jsr h_request_transfer
+	rts
+
+@state_RevealDreamBlockScene:
+	; the dream block reveal
+	cmp #9
+	beq @state_RevealDreamBlock_ScrollUp
+	cmp #10
+	beq @state_RevealDreamBlock_ScrollDown
+	
+	rts
+
+@state_RevealDreamBlock_ScrollUp:
+	; for the course of 10 frames, scroll up
+	ldx temp1
+	ldy sprspace+sp_l2mi_timer, x
+	cpy #20
+	bcs @dontDoThat
+	
+	lda camera_y_sub
+	and #%111
+	bne :+
+	
+	jsr revealDreamBlock_revealRowUpper
+	
+:	lda camera_y_sub
+	sec
+	sbc #4
+	sta camera_y_sub
+	
+	inc sprspace+sp_l2mi_timer, x
+	rts
+	
+@dontDoThat:
+	inc sprspace+sp_l2mi_state, x
+	lda #0
+	sta sprspace+sp_l2mi_timer, x
+	rts
+
+@state_RevealDreamBlock_ScrollDown:
+	; for the course of 10 frames, scroll down
+	ldx temp1
+	ldy sprspace+sp_l2mi_timer, x
+	cpy #20
+	bcs @dontDoThat
+	
+	
+	lda camera_y_sub
+	and #%111
+	bne :+
+	
+	jsr revealDreamBlock_revealRowLower
+	
+:	lda camera_y_sub
+	clc
+	adc #4
+	sta camera_y_sub
+	
+	inc sprspace+sp_l2mi_timer, x
 	rts
 
 drawBadeline:
@@ -822,88 +882,101 @@ moveLeftX:
 	sta sprspace+sp_l2mi_reflx, x
 	rts
 
-spawnParticles:
-	lda temp1
-	pha
+revealDreamBlock_revealRowUpper:
+	tya
+	lsr
+	tay
 	
-	tax
-	lda sprspace+sp_x, x
-	clc
-	adc #$20
-	sta plattemp1
-	lda sprspace+sp_x_pg, x
-	adc #0
-	sta temp3
+	lda level2_db_opening_rows_lo, y
+	sta setdataaddr
+	lda level2_db_opening_rows_hi, y
+	sta setdataaddr+1
 	
-	lda sprspace+sp_y, y
-	sta plattemp2
+	lda #58
+	sec
+	sbc sprspace+sp_l2mi_timer, x
+	lsr
+	tay
 	
-	; character
-	lda #$98
-	sta temp4
-	
-	; time alive
-	lda #$20
-	sta temp9
-	
-	ldx #0
-@loopSpawn:
-	lda particleTable, x
-	clc
-	adc plattemp1
-	sta temp1
-	
-	lda particleTable+1, x
-	clc
-	adc plattemp2
-	sta temp2
-	
-	lda particleTable+2, x
-	sta temp8
-	
-	inx
-	inx
-	inx
-	
-	stx trantmp1
-	jsr gm_spawn_particle
-	ldx trantmp1
-	
-	lda particleTable, x
-	sta sprspace+sp_vel_x, y
-	lda particleTable+1, x
-	sta sprspace+sp_vel_x_lo, y
-	lda particleTable+2, x
-	sta sprspace+sp_vel_y, y
-	lda particleTable+3, x
-	sta sprspace+sp_vel_y_lo, y
-	
-	inx
-	inx
-	inx
-	inx
-	
-	cpx #7 * 10
-	bne @loopSpawn
-	
-	pla
-	sta temp1
-	tax
-	rts
+	jmp revealDreamBlock_revealRow
 
-particleTable:
-	; Off X, Off Y, Gravity, Vel X, Vel X Lo, Vel Y, Vel Y Lo
-	.byte <-24,   0, $00, $FF, $FE, $FF, $FD
-	.byte <-14,  10, $00, $FF, $FF, $FF, $FD
-	.byte <- 4,   0, $00, $00, $00, $FF, $FC
-	.byte <  6,  10, $00, $00, $01, $FF, $FD
-	.byte < 16,   0, $00, $00, $02, $FF, $FD
+revealDreamBlock_revealRowLower:
+	tya
+	lsr
+	tay
 	
-	.byte <-24,  20, $00, $FF, $FC, $FF, $FF
-	.byte <-14,  30, $00, $FF, $FD, $FF, $FF
-	.byte <- 4,  20, $00, $FF, $FE, $FF, $FD
-	.byte <  6,  30, $00, $00, $03, $FF, $FD
-	.byte < 16,  20, $00, $00, $04, $00, $00
+	lda level2_db_closing_rows_lo, y
+	sta setdataaddr
+	lda level2_db_closing_rows_hi, y
+	sta setdataaddr+1
+	
+	lda sprspace+sp_l2mi_timer, x
+	lsr
+	clc
+	adc #20
+	tay
+	; jmp revealDreamBlock_revealRow
+
+revealDreamBlock_revealRow:
+	lda roombeglo2
+	tax
+	sta temp11
+	clc
+	adc #36          ; the other end
+	and #$1F         ; get its X in nametable coordinates
+	sta wrcountHR2   ; that'll be how many bytes we need to write
+	
+	lda #36
+	sec
+	sbc wrcountHR2
+	sta wrcountHR1
+	
+	; calculate the ppu addresses we need to write to
+	jsr h_calcppuaddr
+	
+	lda clearpalo
+	sta ppuaddrHR1
+	and #%11100000
+	sta ppuaddrHR2
+	
+	lda clearpahi
+	sta ppuaddrHR1+1
+	eor #$04
+	sta ppuaddrHR2+1
+	
+	ldy #0
+	sty wrcountHR3
+	sty wrcountHP1
+	sty wrcountHP2
+	
+	lda temp11
+	and #$1F
+	tax
+@writeLoop:
+	lda (setdataaddr), y
+	cpx #32
+	bcs @writeOtherHalf
+	sta temprow1, y
+	inx
+	iny
+	cpy #36
+	bne @writeLoop
+	beq @endWriteLoop
+
+@writeOtherHalf:
+	sta temprow2-32, x
+	inx
+	iny
+	cpy #36
+	bne @writeLoop
+	
+@endWriteLoop:
+	lda nmictrl
+	ora #nc_flushrow
+	sta nmictrl
+	
+	ldx temp1
+	rts
 
 dataSourcesLow: 	.byte <mirrorFrame1, <mirrorFrame2, <mirrorFrame3, <mirrorFrame4, <mirrorFrame5
 dataSourcesHigh:	.byte >mirrorFrame1, >mirrorFrame2, >mirrorFrame3, >mirrorFrame4, >mirrorFrame5
@@ -964,21 +1037,59 @@ mirrorFrame5:
 	rti
 .endproc
 
-; these rows are supposed to be copied
-; first 32 tiles (written to $28C0+X)
-.if 0
-.byte $41,$42,$41,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.byte $4C,$5B,$4D,$5D,$55,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.byte $00,$00,$00,$00,$00,$4D,$58,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40
-.byte $00,$00,$00,$00,$00,$5B,$57,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56
-.byte $00,$00,$00,$00,$00,$00,$55,$42,$43,$41,$42,$37,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56,$4C,$5B,$00
-.byte $00,$00,$00,$00,$00,$00,$00,$5D,$5C,$4C,$4D,$55,$43,$41,$44,$F8,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$FD,$49,$5C,$4E,$00,$00,$00,$00
+level2_db_opening_row_1: .byte $41,$42,$41,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$36,$42
+level2_db_opening_row_2: .byte $4C,$5B,$4D,$5D,$55,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$47,$5C
+level2_db_opening_row_3: .byte $00,$00,$00,$00,$00,$4D,$58,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$42,$43,$56,$00
+level2_db_opening_row_4: .byte $00,$00,$00,$00,$00,$5B,$57,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56,$5C,$5D,$00,$00
+level2_db_opening_row_5: .byte $00,$00,$00,$00,$00,$00,$55,$42,$43,$41,$42,$37,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56,$4C,$5B,$00,$00,$00,$00,$00
+level2_db_opening_row_6: .byte $00,$00,$00,$00,$00,$00,$00,$5D,$5C,$4C,$4D,$55,$43,$41,$44,$F8,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$FD,$49,$5C,$4E,$00,$00,$00,$00,$00,$00,$00,$00
+level2_db_closing_row_1: .byte $00,$00,$00,$4B,$57,$00,$00,$00,$00,$00,$00,$36,$42,$42,$41,$41,$41,$41,$42,$42,$42,$43,$43,$42,$42,$43,$41,$42,$44,$00,$00,$47,$4C,$00,$00,$00
+level2_db_closing_row_2: .byte $00,$00,$00,$4C,$58,$00,$00,$00,$40,$41,$41,$56,$5C,$5D,$5C,$4D,$4C,$5E,$5B,$4D,$4D,$4C,$5C,$4C,$5E,$5D,$4C,$4D,$55,$43,$41,$56,$00,$00,$00,$00
+level2_db_closing_row_3: .byte $00,$00,$00,$00,$55,$41,$42,$43,$56,$5D,$4B,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$4C,$5E,$00,$00,$00,$00,$00
+level2_db_closing_row_4: .byte $00,$00,$00,$00,$00,$5E,$5C,$4D,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+level2_db_opening_empty: .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-; last 4 tiles (written to $2CC0+X)
-.byte $00,$00,$36,$42
-.byte $00,$00,$47,$5C
-.byte $42,$43,$56,$00
-.byte $5C,$5D,$00,$00
-.byte $00,$00,$00,$00
-.byte $00,$00,$00,$00
-.endif
+level2_db_opening_rows_lo:
+	.byte <level2_db_opening_row_6
+	.byte <level2_db_opening_row_5
+	.byte <level2_db_opening_row_4
+	.byte <level2_db_opening_row_3
+	.byte <level2_db_opening_row_2
+	.byte <level2_db_opening_row_1
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+level2_db_opening_rows_hi:
+	.byte >level2_db_opening_row_6
+	.byte >level2_db_opening_row_5
+	.byte >level2_db_opening_row_4
+	.byte >level2_db_opening_row_3
+	.byte >level2_db_opening_row_2
+	.byte >level2_db_opening_row_1
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+level2_db_closing_rows_lo:
+	.byte <level2_db_closing_row_1
+	.byte <level2_db_closing_row_2
+	.byte <level2_db_closing_row_3
+	.byte <level2_db_closing_row_4
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+level2_db_closing_rows_hi:
+	.byte >level2_db_closing_row_1
+	.byte >level2_db_closing_row_2
+	.byte >level2_db_closing_row_3
+	.byte >level2_db_closing_row_4
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty

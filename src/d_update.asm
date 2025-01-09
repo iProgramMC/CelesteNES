@@ -645,8 +645,8 @@ dlg_cmd_table:
 	.word dlg_cmd_wait
 	.word dlg_cmd_dialog
 	.word dlg_cmd_speaker
-	.word dlg_cmd_dirplr
 	.word dlg_cmd_dirent
+	.word dlg_cmd_dirplr
 	.word dlg_cmd_walkplr
 	.word dlg_cmd_walkent
 	.word dlg_cmd_express
