@@ -1907,22 +1907,30 @@ gm_set_level:
 	ldy #0
 	lda (lvlptrlo), y
 	sta musictable
-	inc lvlptrlo
+	iny
 	
 	lda (lvlptrlo), y
 	sta musictable+1
-	inc lvlptrlo
+	iny
 	
 	lda (lvlptrlo), y
 	sta lvlbktbl
-	inc lvlptrlo
+	iny
 	
 	lda (lvlptrlo), y
 	sta lvlbktbl+1
-	inc lvlptrlo
+	iny
+	
+	lda lvlptrlo
+	clc
+	adc #4
+	sta lvlptrlo
+	bcc :+
+	inc lvlptrhi
 	
 	; check if any details changed
-	lda #0
+:	lda #0
+	tay
 	sta musicdiff
 	
 	pla

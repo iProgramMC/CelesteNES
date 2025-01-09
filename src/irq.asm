@@ -71,6 +71,7 @@ dontRescheduleInterrupt:
 irq:
 	jmp (irqaddr)      ; 5 cycles
 
+; TODO refactor this!
 irq_dialog_split:
 	pha                ; 3 cycles
 	txa

@@ -223,9 +223,25 @@ level2_payphone_max_timer = 8
 ; ** ENTITY: level2_mirror
 ; desc: The mirror that unlocks the Dream Blocks!
 .proc level2_mirror
-	jsr drawBadeline
+	; Set up the IRQ
+	lda #<level2_hide_irq
+	sta irqaddr
+	lda #>level2_hide_irq
+	sta irqaddr+1
 	
-	; TODO
+	lda #0
+	sta scrollsplit
+	
+	lda camera_y
+	clc
+	adc #$C0
+	bcs :+
+	
+	; activate the scroll split
+	sta scrollsplit
+	
+:	jsr drawBadeline
+	
 	
 	rts
 
@@ -495,4 +511,33 @@ drawSprite:
 
 spriteRow1:	.byte $70,$72,$74,$76,$78,$7A,$7C,$7E
 spriteRow2:	.byte $40,$76,$78,$7A,$62,$64,$66,$42
+.endproc
+
+; ** IRQ HANDLER: level2_hide_irq
+; desc: This IRQ handler hides the background layer to avoid revealing the upper
+; part of the level that's actually lower. The reason we do it as such is to allow
+; for scrolling up during the Dream Block Unlock cutscene.
+.proc level2_hide_irq
+	pha
+	lda #%00010001 ; only sprites
+	sta ppu_mask
+	pla
+	rti
+.endproc
+
+; ** IRQ HANDLER: level2_dream_block_reveal_irq
+; desc: This IRQ sets the bank number to the bank that contains the activated dream blocks.
+; The cutscene opens with the dream blocks glowing, then their colored form below.
+.proc level2_dream_block_reveal_irq
+	pha
+	
+	lda #mmc3bk_bg1
+	sta mmc3_bsel
+	lda #chrb_lvl2+2
+	sta mmc3_bdat
+	lda mmc3_shadow
+	sta mmc3_bsel
+	
+	pla
+	rti
 .endproc

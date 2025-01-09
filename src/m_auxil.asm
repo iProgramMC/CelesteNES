@@ -29,22 +29,6 @@ far_call:
 	; this function SHOULD return. this is why we do the jsr indirection
 	jmp (farcalladdr)
 
-; ** SUBROUTINE: mmc3_horzarr
-; desc: Sets the MMC3 to a horizontal arrangement (vertical mirroring) of nametables.
-; clobbers: A
-;mmc3_horzarr:
-;	lda #0
-;	sta mmc3_mirror
-;	rts
-
-; ** SUBROUTINE: mmc3_vertarr
-; desc: Sets the MMC1 to a vertical arrangement (horizontal mirroring) of nametables.
-; clobbers: A
-;mmc3_vertarr:
-;	lda #1
-;	sta mmc3_mirror
-;	rts
-
 ; ** SUBROUTINE: vblank_wait
 ; arguments: none
 ; clobbers: A
