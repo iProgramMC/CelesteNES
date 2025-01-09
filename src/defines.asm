@@ -135,6 +135,10 @@ sp_l1zmf_spikyUP = $01 ; entity is spiky above
 
 sp_l2ph_timer = sp_entspec1
 
+sp_l2mi_state = sp_entspec1
+sp_l2mi_reflx = sp_entspec2
+sp_l2mi_refly = sp_entspec3
+
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02

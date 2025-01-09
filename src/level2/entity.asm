@@ -225,7 +225,71 @@ level2_payphone_max_timer = 8
 .proc level2_mirror
 	jsr drawBadeline
 	
+	ldx temp1
+	lda sprspace+sp_l2mi_state, x
+	sta $FF
+	beq @state_Idle
+	cmp #1
+	beq @state_Reflected
+	cmp #2
+	beq @state_BegunScene
+	cmp #3
+	beq @state_WalkForwardReflection
+	cmp #4
+	beq @state_BadelineWait
+	cmp #5
+	beq @state_ShatterMirror
+	cmp #6
+	beq @state_BadelineWait2
+	cmp #7
+	beq @state_BadelineFlee
+	cmp #8
+	beq @state_RevealDreamBlock
+
+@state_Idle:
+	lda player_x
+	cmp #$A0
+	bcc @return
 	
+	; reflected, now wait for her to come back
+	inc sprspace+sp_l2mi_state, x
+@return:
+	rts
+
+@state_Reflected:
+	lda player_x
+	cmp #$90
+	bcs @return
+	
+	; came back, begin the cutscene and wait
+	inc sprspace+sp_l2mi_state, x
+	
+	txa
+	ldx #<ch2_mirror_shatter
+	ldy #>ch2_mirror_shatter
+	jmp dlg_begin_cutscene_g
+
+@state_BegunScene:
+	rts
+
+@state_WalkForwardReflection:
+	lda sprspace+sp_l2mi_reflx, x
+	clc
+	adc #1
+	cmp #$76
+	bcc :+
+	lda #$76
+	inc sprspace+sp_l2mi_state, x
+:	sta sprspace+sp_l2mi_reflx, x
+	
+	;jsr drawBadeline
+	rts
+
+@state_BadelineWait:
+@state_ShatterMirror:
+@state_BadelineWait2:
+@state_BadelineFlee:
+@state_RevealDreamBlock:
 	rts
 
 drawBadeline:
@@ -256,6 +320,17 @@ drawBadeline:
 	sbc #$20
 	sta temp11
 	
+	lda sprspace+sp_l2mi_state, x
+	cmp #3
+	bcc @calculateReflectionPos
+	
+	lda sprspace+sp_l2mi_reflx, x
+	sta temp2
+	lda sprspace+sp_l2mi_refly, x
+	sta temp3
+	bne @doneCalculatingXY
+	
+@calculateReflectionPos:
 	; amount player is offset from screen
 	lda player_x
 	sec
@@ -272,7 +347,18 @@ drawBadeline:
 	lda player_y
 	sta temp3
 	
-	; draw 4 empty sprites above and below the mirror
+	lda temp2
+	sta sprspace+sp_l2mi_reflx, x
+	lda temp3
+	sta sprspace+sp_l2mi_refly, x
+	
+@doneCalculatingXY:
+	lda sprspace+sp_l2mi_state, x
+	cmp #5
+	bcc :+
+	jmp @dontDrawMirrorGlare
+	
+:	; draw 4 empty sprites above and below the mirror
 	lda #$F0
 	sta x_crd_temp
 	lda #$74
@@ -402,6 +488,7 @@ drawBadeline:
 	pla
 	sta temp2
 	
+@dontDrawMirrorGlare:
 	lda #pal_chaser
 	jsr gm_allocate_palette
 	;ora #obj_backgd
@@ -430,7 +517,12 @@ drawBadeline:
 	adc temp3
 	sta temp3
 	
-:	lda temp11
+:	ldx temp1
+	lda sprspace+sp_l2mi_state, x
+	cmp #5
+	bcs @skipOffMirrorChecks
+	
+	lda temp11
 	cmp temp2
 	bcc :+
 	
@@ -448,7 +540,9 @@ drawBadeline:
 	lda #$5E
 	sta temp7
 	
-:	jmp drawSprite
+:
+@skipOffMirrorChecks:
+	jmp drawSprite
 	
 put4Sprites:
 	ldy #$5E
