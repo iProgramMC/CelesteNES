@@ -13,7 +13,7 @@ loopInit:
 	sta stars_y, y
 	
 	jsr rand
-	and #15
+	and #31
 	sta stars_state, y
 	
 	iny
@@ -79,24 +79,42 @@ loopDraw:
 	
 	stx oam_wrhead
 	
-	;tay
-	;lda temp3
-	;jsr oam_putsprite
-	
 @continue:
 	ldy temp1
 	iny
 	cpy #max_stars
 	bne loopDraw
+	
+	; If we're on the 8th frame, then increment each star's state.
+	lda framectr
+	and #%00000111
+	bne return
+	
+	ldx #0
+loopUpdate:
+	ldy stars_state, x
+	lda stars_successors, y
+	sta stars_state, x
+	inx
+	cpx #max_stars
+	bne loopUpdate
 
 return:
 	rts
 
 star_sprites:
-	.byte $A7,$A7,$A9,$A9	; type 1
-	.byte $A1,$A3,$A5,$A7	; type 2
-	.byte $AB,$AD,$AB,$AD	; type 3
-	.byte $AB,$AD,$AD,$AB	; type 4
+	.byte $A7,$A7,$A9,$A9,$A7,$A7,$A9,$A9	; type 1
+	
+	.byte $AB,$AD,$AF,$A7,$A9,$AF,$AD,$AB	; type 2
+	.byte $A9,$AF,$AD,$AB,$AB,$AD,$AF,$A7	; type 3
+	
+	.byte $A1,$A3,$A5,$A7,$A5,$A3,$A1,$A1	; type 4
+
+stars_successors:
+	.byte $01,$02,$03,$04,$05,$06,$07,$00
+	.byte $09,$0A,$0B,$0C,$0D,$0E,$0F,$08
+	.byte $11,$12,$13,$14,$15,$16,$17,$10
+	.byte $19,$1A,$1B,$1C,$1D,$1E,$19,$19
 .endproc
 
 ; ** SUBROUTINE: s_bg_check_occluded
