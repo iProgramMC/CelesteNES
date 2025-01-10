@@ -324,8 +324,6 @@ sprpalcount : .res 1    ; 1 byte   - amount of palettes written
 sprpaltemp  : .res 1    ; 1 byte   - just a temporary variable
 palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
 
-sparebyte   : .res 1
-
 .segment "MORERAM"
 
 ; Current Session

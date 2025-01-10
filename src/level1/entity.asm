@@ -629,3 +629,30 @@ add16ToYTemp:
 
 tableTimer:	.byte 0, 10
 .endproc
+
+.proc level1_campfire
+	; TODO: Add cutscene here
+	lda #chrb_splvl2
+	sta spr1_bknum
+	
+	lda #pal_fire
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	ldx temp1
+	lda sprspace+sp_l1cf_timer, x
+	inc sprspace+sp_l1cf_timer, x
+	
+	lsr
+	and #%00011100
+	clc
+	adc #$40
+	sta temp6
+	
+	clc
+	adc #2
+	sta temp7
+	
+	jmp gm_draw_common
+.endproc

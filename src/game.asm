@@ -1223,11 +1223,15 @@ gm_load_hair_palette:
 	bne @return
 	
 	ldx #chrb_lvl2+2
+	ldy #chrb_splv2n
 	lda dbenable
 	bne :+
 	ldx #chrb_lvl2e
+:	cmp #2
+	bne :+
+	ldy #chrb_gensp1
 :	stx bg1_bknum
-	
+	sty spr2_bknum
 	rts
 .endproc
 
