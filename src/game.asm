@@ -448,6 +448,7 @@ gm_leave_doframe:
 	jsr gm_draw_player
 	jsr gm_draw_entities
 	jsr gm_calc_camera_nosplit
+	jsr gm_update_bg_effects
 	jsr gm_check_updated_palettes
 	jsr soft_nmi_on
 	jsr nmi_wait

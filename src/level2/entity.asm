@@ -521,7 +521,8 @@ level2_payphone_max_timer = 8
 	
 	lda #chrb_lvl2+2
 	sta bg1_bknum
-	sta dbenable
+	
+	inc dbenable
 	
 @returnReveal:
 	rts

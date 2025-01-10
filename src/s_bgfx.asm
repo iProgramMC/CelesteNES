@@ -86,15 +86,40 @@ loopDraw:
 	bne loopDraw
 	
 	; If we're on the 8th frame, then increment each star's state.
-	lda framectr
-	and #%00000111
-	bne return
+	; Add gravity to them. If they fall off screen, then respawn with
+	; a new X (0-255) and Y (0) coordinate.
 	
 	ldx #0
 loopUpdate:
+	lda dbenable
+	cmp #2
+	bcs @dontApplyGravity
+	
+	txa
+	and #1
+	
+	; set carry to add +1
+	sec
+	adc stars_y, x
+	bcc @notOffScreen
+	
+	jsr rand
+	sta stars_x, x
+	lda #0
+	
+@notOffScreen:
+	sta stars_y, x
+	
+@dontApplyGravity:
+	lda framectr
+	and #%00000111
+	bne @continue
+	
 	ldy stars_state, x
 	lda stars_successors, y
 	sta stars_state, x
+
+@continue:
 	inx
 	cpx #max_stars
 	bne loopUpdate
