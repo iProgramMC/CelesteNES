@@ -311,6 +311,7 @@ gm_game_clear_wx:
 	stx game_cont_force
 	stx game_cont_force+1
 	stx amodeforce
+	stx advtracesw
 	
 	lda #<~g3_transitX
 	and gamectrl3

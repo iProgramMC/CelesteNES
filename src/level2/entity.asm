@@ -272,7 +272,6 @@ level2_payphone_max_timer = 8
 	
 	ldx temp1
 	lda sprspace+sp_l2mi_state, x
-	sta $FF
 	beq @state_Idle
 	cmp #1
 	beq @state_Reflected

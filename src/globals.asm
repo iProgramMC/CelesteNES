@@ -428,6 +428,15 @@ dbenable    : .res 1 ; are dream blocks enabled
 
 game_cont_force : .res 2
 
+advtracesw  : .res 1 ; if advanced trace is enabled (YOU MUST NOT show a dialog during this phase!)
+advtracehd  : .res 1 ; advanced trace head
+
+; 23 bytes free
+
+.segment "LASTRAM"
+
+; 41 bytes free
+
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800
 
@@ -465,3 +474,22 @@ save_file_size = * - save_file_0
 
 save_file_1:      .res save_file_size
 save_file_2:      .res save_file_size
+
+; The advanced trace is enabled by the "advtracesw" global. By default, it's not enabled, as it overlaps
+; with the dialog temporary area.
+
+; It contains 8 components: X, X Page, Y, Sprite Left, Sprite Right, Hair Left, Hair Right, Sprite Bank << 1 | Facing.
+.segment "ADVTRACE"
+
+; History Size: 64 frames
+; NOTE: Must be a power of 2
+adv_trace_hist_size = 64
+
+adv_trace_x:	.res adv_trace_hist_size
+adv_trace_x_pg:	.res adv_trace_hist_size
+adv_trace_y:	.res adv_trace_hist_size
+adv_trace_sl:	.res adv_trace_hist_size
+adv_trace_sr:	.res adv_trace_hist_size
+adv_trace_hl:	.res adv_trace_hist_size
+adv_trace_hr:	.res adv_trace_hist_size
+adv_trace_pc:	.res adv_trace_hist_size

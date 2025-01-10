@@ -3250,7 +3250,51 @@ expectedMovement:
 	.byte $00,$10,$10,$10
 .endproc
 
-gm_addtrace:
+.proc gm_addtrace
+	lda advtracesw
+	beq advancedTraceDisabled
+	
+	ldy advtracehd
+	
+	lda camera_x
+	clc
+	adc player_x
+	sta adv_trace_x, y
+	
+	lda camera_x_pg
+	adc #0
+	sta adv_trace_x_pg, y
+	
+	lda player_y
+	sta adv_trace_y, y
+	
+	lda plr_spr_l
+	sta adv_trace_sl, y
+	lda plr_spr_r
+	sta adv_trace_sr, y
+	lda plh_spr_l
+	sta adv_trace_hl, y
+	lda plh_spr_r
+	sta adv_trace_hr, y
+	
+	; get the facing
+	lda playerctrl
+	and #pl_left
+	sta adv_trace_pc, y
+	
+	; then the bank number
+	lda spr0_bknum
+	asl
+	ora adv_trace_pc, y
+	sta adv_trace_pc, y
+	
+	; finally, increment the head
+	iny
+	tya
+	and #(adv_trace_hist_size-1)
+	sta advtracehd
+	
+advancedTraceDisabled:
 	lda #g2_notrace
 	bit gamectrl2
 	bne @return
@@ -3271,3 +3315,4 @@ gm_addtrace:
 
 @return:
 	rts
+.endproc
