@@ -3219,6 +3219,24 @@ resetDreamDash:
 	sta dredeatmr
 	
 @skipNoSJump:
+	lda dashdir
+	; check if the player dashed up
+	and #%00100000
+	beq @skipBoostUp
+	
+	lda #12
+	sta jcountdown
+	lda gamectrl2
+	ora #g2_autojump
+	sta gamectrl2
+	
+	; set vel to jump height
+	lda #jumpvelLO
+	sta player_vs_y
+	lda #jumpvelHI
+	sta player_vs_y
+	
+@skipBoostUp:
 	lda gamectrl4
 	and #<~g4_dreamdsh
 	sta gamectrl4

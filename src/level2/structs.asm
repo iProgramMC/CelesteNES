@@ -43,6 +43,7 @@ level2_alt_palette:
 	.byte $0f,$37,$16,$06
 	.byte $0f,$30,$21,$11
 	.byte $0f,$30,$10,$00
+	.byte $0f
 
 ; ** SUBROUTINE: level2_struct_detour
 ; desc: Called by h_gener_col_r to generate a tile for a structure, based on the
