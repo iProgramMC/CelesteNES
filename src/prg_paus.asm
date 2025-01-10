@@ -251,7 +251,7 @@ pause_data_end:
 
 pause_copy_max = pause_data_end - pause_data
 
-
 ; I know it sounds absurd, but there's very little actually here, we have basically like 7K free, so why not
 .include "s_entity.asm"
 .include "s_pldraw.asm"
+.include "s_bgfx.asm"

@@ -88,6 +88,13 @@
 	jmp h_gener_mts_r
 .endproc
 
+.proc gm_update_bg_effects
+	ldx #<s_update_bg_effects
+	ldy #>s_update_bg_effects
+	lda #prgb_paus
+	jmp far_call2
+.endproc
+
 .proc gm_draw_player
 	ldx #<sgm_draw_player
 	ldy #>sgm_draw_player

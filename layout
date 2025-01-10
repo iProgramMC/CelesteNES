@@ -24,7 +24,8 @@ MEMORY
 	DLGTEMP:  start=$6800, size=$0400, type=rw, file="";
 	AREAPAL:  start=$6C00, size=$0200, type=rw, file="";
 	SAVEFILE: start=$6E00, size=$0200, type=rw, file="";
-	AREAXTRA: start=$7000, size=$1000, type=rw, file="";
+	AREAXTRA: start=$7000, size=$0F00, type=rw, file="";
+	BGFXRAM:  start=$7F00, size=$0100, type=rw, file="";
 	
 	# Advanced Trace
 	ADVTRACE: start=$6800, size=$0200, type=rw, file="";
@@ -141,6 +142,7 @@ SEGMENTS
 	SAVEFILE:  load = SAVEFILE,  type = bss, align = $100;
 	AREAXTRA:  load = AREAXTRA,  type = bss, align = $100;
 	ADVTRACE:  load = ADVTRACE,  type = bss, align = $100;
+	BGFXRAM:   load = BGFXRAM,   type = bss, align = $100;
 	PRG_LVL0A: load = PRG_LVL0A, type = ro, align=$100;
 	PRG_LVL0B: load = PRG_LVL0B, type = ro, align=$100;
 	PRG_LVL1A: load = PRG_LVL1A, type = ro, align=$100;

@@ -157,6 +157,7 @@ gm_game_update:
 	jsr gm_update_dialog
 	jsr gm_load_level_if_vert
 	jsr gm_check_level_banks
+	jsr gm_update_bg_effects
 	
 	; note: by this point, palettes should have been calculated.
 	jsr gm_check_updated_palettes
@@ -312,6 +313,7 @@ gm_game_clear_wx:
 	stx game_cont_force+1
 	stx amodeforce
 	stx advtracesw
+	stx starsbgctl
 	
 	lda #<~g3_transitX
 	and gamectrl3

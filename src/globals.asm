@@ -303,8 +303,6 @@ sprspace    : .res $100
 .segment "PLTRACES"
 plr_trace_x : .res $40
 plr_trace_y : .res $40
-tl_snow_y   = plr_trace_y
-tl_snow_x   = plr_trace_x
 
 .segment "DRAWTEMP"
 temprowtot  : .res $40
@@ -431,6 +429,8 @@ game_cont_force : .res 2
 advtracesw  : .res 1 ; if advanced trace is enabled (YOU MUST NOT show a dialog during this phase!)
 advtracehd  : .res 1 ; advanced trace head
 
+starsbgctl  : .res 1 ; star background control
+
 ; 23 bytes free
 
 .segment "LASTRAM"
@@ -441,7 +441,7 @@ advtracehd  : .res 1 ; advanced trace head
 areaspace   : .res $800
 
 .segment "AREAXTRA"     ; $6800 - Cartridge WRAM
-areaextra   : .res $400 * 4 ; 4 screens worth of extra data
+areaextra   : .res 960 * 4 ; 4 screens worth of extra data
 
 ; AreaExtra composed of:
 ; [ 960 bytes ] - Screen 1
@@ -493,3 +493,15 @@ adv_trace_sr:	.res adv_trace_hist_size
 adv_trace_hl:	.res adv_trace_hist_size
 adv_trace_hr:	.res adv_trace_hist_size
 adv_trace_pc:	.res adv_trace_hist_size
+
+.segment "BGFXRAM"
+
+; Background Effect RAM
+max_stars   = 16
+
+stars_x     : .res 16
+stars_y     : .res 16
+stars_state : .res 16
+
+tl_snow_y   := stars_x
+tl_snow_x   := stars_y

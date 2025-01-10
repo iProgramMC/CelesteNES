@@ -29,7 +29,7 @@ loop:
 	bne loop
 	pla
 return:
-	rts
+	jmp gm_shiftbgstarsXN
 actuallyNegative:
 	sta temp1
 	lda #0
@@ -68,7 +68,7 @@ nocheck:
 	bne :--
 	pla
 return:
-	rts
+	jmp gm_shiftbgstarsXP
 actuallyNegative:
 	sta temp1
 	lda #0
@@ -113,6 +113,7 @@ loop:
 	bne loop
 	pla
 return:
+	jmp gm_shiftbgstarsYP
 	rts
 actuallyNegative:
 	sta temp1
@@ -152,6 +153,7 @@ loop:
 	bne loop
 	pla
 return:
+	jmp gm_shiftbgstarsYN
 	rts
 actuallyNegative:
 	sta temp1
@@ -431,4 +433,36 @@ xt_collentfloor_kludge:
 	lda #$00
 	sta player_vs_x
 	beq @doneModdingX
+.endproc
+
+; ** SUBROUTINE: gm_shiftbgstarsXN
+; desc: Shifts all starry background elements left.
+; parameters: temp1 - Amount to shift by.
+.proc gm_shiftbgstarsXN
+	
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_shiftbgstarsXP
+; desc: Shifts all starry background elements right.
+; parameters: temp1 - Amount to shift by.
+.proc gm_shiftbgstarsXP
+	
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_shiftbgstarsYN
+; desc: Shifts all starry background elements up.
+; parameters: temp1 - Amount to shift by.
+.proc gm_shiftbgstarsYN
+	
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_shiftbgstarsYP
+; desc: Shifts all starry background elements down.
+; parameters: temp1 - Amount to shift by.
+.proc gm_shiftbgstarsYP
+	
+	rts
 .endproc
