@@ -73,10 +73,11 @@
 	.byte $3A             ; Snow LR $E6
 	.byte $C8,$C9,$CA,$CB ; Spikes (Red)
 	.byte $89,$8A,$99     ; Purp Jump Through
-	.byte $00             ; Barrier
+	.byte $00             ; No BG Effects
 	.byte $6F             ; Memorial Compressed
 	.byte $6E             ; Info Kiosk Compressed
 	.byte $6E             ; Mirror Compressed
+	.byte $00             ; Barrier
 	; $E7
 
 ;metatile_info:
@@ -110,7 +111,7 @@
 	.byte ct_deadlyDN            ; Spikes (Red)
 	.byte ct_deadlyLT            ; Spikes (Red)
 	.res   3, ct_jumpthru        ; Purp Jump Through
+	.res   4, ct_none            ; No BG Effects + Compressed Structures
 	.byte ct_full                ; Barrier
-	.res   3, ct_none            ; Compressed Structures
 
 .align $100

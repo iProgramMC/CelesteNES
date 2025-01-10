@@ -90,7 +90,7 @@ dlg_cutsptr : .res 2 ; pointer to the current cutscene script command
 dlg_textptr : .res 2 ; the pointer to the current character
 dlg_porttbl : .res 2 ; the pointer to the portrait table
 
-rng_state   : .res 1
+rng_state   : .res 2
 p1_cont     : .res 2
 p1_conto    : .res 2
 game_cont   : .res 2
@@ -258,6 +258,7 @@ choplastX   : .res 1
 choplastY   : .res 1
 dredeatmr   : .res 1 ; dream death counter
 dreinvtmr   : .res 1 ; dream dash invincibility timer
+rununimport : .res 1 ; set this to 0 to allow running of unimportant stuff such as background effects
 
 scrchklo    : .res 1 ; temporaries used for scroll checking
 scrchkhi    : .res 1

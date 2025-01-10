@@ -125,21 +125,6 @@ far_call2:
 	tay
 	jmp far_call
 
-; ** SUBROUTINE: rand
-; arguments: none
-; clobbers:  a
-; returns:   a - the pseudorandom number
-; desc:      generates a pseudo random number
-rand:
-	lda rng_state
-	asl
-	bcc @no_feedback
-	eor #$21
-@no_feedback:
-	sta rng_state
-	lda rng_state
-	rts
-
 ; ** SUBROUTINE: oam_putsprite
 ; arguments:
 ;   a - attributes
@@ -270,28 +255,6 @@ ppu_wrsloop:              ; so use X for that purpose
 	bne ppu_wrsloop       ; if X != 0 print another
 	rts
 
-; ** SUBROUTINE: clear_nt
-; arguments: a - high 8 bits of nametable address (20,24,28,2C)
-; clobbers:  a, x, y
-; assumes:   rendering is disabled (not enough bandwidth to clear the entire nametable during vblank)
-; desc:      clears 1KB of RAM in PPU memory with video output disabled
-clear_nt:
-	sta ppu_addr
-	lda #$00
-	sta ppu_addr
-	lda #blank_tile  ; clear all 1K of vram to 0x20 - the blank tile
-	ldx #$00
-	ldy #$00
-inner_loop:
-	sta ppu_data
-	iny
-	bne inner_loop
-	inx
-	cpx #$04
-	bcc inner_loop   ; jump to the inner loop because y==0 guaranteed
-                     ; we didn't branch because carry was set so y==0
-	rts
-
 ; ** ENTRY POINT
 reset:
 	; explainer:
@@ -352,6 +315,8 @@ reset:
 	
 	ldy #$ac
 	sty rng_state    ; initialize rng seed
+	ldy #$42
+	sty rng_state+1
 	
 	jsr vblank_wait  ; one final vblank wait
 	

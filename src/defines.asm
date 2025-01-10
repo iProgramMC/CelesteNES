@@ -154,13 +154,14 @@ rf_godown     = $01 ; room descends
 rf_goup       = $02 ; room ascends
 rf_new        = $04 ; new format, level is decompressed in memory and used
 rf_inverted   = $08 ; new format: inverted (starts on the bottom)
-rf_stub       = $10 ; stub room
+;rf_stub       = $10 ; stub room
 rf_norespawn  = $20 ; don't allow respawning here
 rf_nicevert   = $40 ; nice vertical transitions
 rf_nobringup  = $80 ; no bring up animation
 r2_altbank1   = $08 ; use alternative bank (NOTE: bits 2-0 are not available in roomflags2, ignore them!)
 r2_altbank2   = $10
 r2_altbank3   = $18
+r2_outside    = $20
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)

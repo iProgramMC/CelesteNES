@@ -31,6 +31,10 @@ loopInit:
 	lda starsbgctl
 	beq s_init_starry_night
 	
+	lda roomflags2
+	and #r2_outside
+	beq return
+	
 	jsr s_bg_allocate_palette
 	ora #obj_backgd
 	sta temp3
@@ -55,8 +59,29 @@ loopDraw:
 	ldy stars_state, x
 	lda star_sprites, y
 	tay
+	
+	ldx oam_wrhead
+	lda y_crd_temp
+	sta oam_buf, x
+	inx
+	
+	tya
+	sta oam_buf, x
+	inx
+	
 	lda temp3
-	jsr oam_putsprite
+	sta oam_buf, x
+	inx
+	
+	lda x_crd_temp
+	sta oam_buf, x
+	inx
+	
+	stx oam_wrhead
+	
+	;tay
+	;lda temp3
+	;jsr oam_putsprite
 	
 @continue:
 	ldy temp1
@@ -64,13 +89,14 @@ loopDraw:
 	cpy #max_stars
 	bne loopDraw
 
+return:
 	rts
 
 star_sprites:
-	.byte $A6,$A6,$A8,$A8	; type 1
-	.byte $A0,$A2,$A4,$A6	; type 2
-	.byte $AA,$AC,$AA,$AC	; type 3
-	.byte $AA,$AC,$AC,$AA	; type 4
+	.byte $A7,$A7,$A9,$A9	; type 1
+	.byte $A1,$A3,$A5,$A7	; type 2
+	.byte $AB,$AD,$AB,$AD	; type 3
+	.byte $AB,$AD,$AD,$AB	; type 4
 .endproc
 
 ; ** SUBROUTINE: s_bg_check_occluded
@@ -79,7 +105,7 @@ star_sprites:
 .proc s_bg_check_occluded
 	lda x_crd_temp
 	clc
-	adc #4
+	adc #3
 	sta temp4
 	lda #0
 	adc #0
@@ -103,16 +129,22 @@ star_sprites:
 	
 	lda y_crd_temp
 	clc
-	adc #4
+	adc #8
 	clc
-	adc camera_y
+	adc camera_y_sub
 	lsr
 	lsr
 	lsr
-	; [0-31]
-	tay
+	clc
+	adc vertoffshack
+	cmp #30
+	bcc :+
+	sbc #30
+:	tay
 	
-	jmp h_get_tile
+	jsr h_comp_addr
+	lda (lvladdr), y
+	rts
 .endproc
 
 ; ** SUBROUTINE: s_bg_allocate_palette
