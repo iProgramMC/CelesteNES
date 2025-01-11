@@ -425,6 +425,9 @@ nmi_anims_scrollsplit:
 ; ELSE YOU WILL SEE GRAPHICS GLITCHES!
 nmi_scrollsplit:
 	lda #0
+	sta rununimport
+	
+	lda #0
 	sta irqcounter
 	sta mmc3_irqdi  ; disable IRQ for this frame, except when we need to enable it
 	
@@ -463,7 +466,7 @@ nmi_scrollsplit:
 
 @almostNormalScrolling:
 	lda miscsplit
-	beq @normalScrolling
+	beq @normalScrollingWithIRQ
 	
 	sta mmc3_irqla
 	sta mmc3_irqrl
@@ -477,6 +480,21 @@ nmi_scrollsplit:
 	
 	lda #def_ppu_msk
 	sta ppu_mask
+	bne @normalScrolling
+
+@normalScrollingWithIRQ:
+	; schedule the idle IRQ after $C0 scanlines. This IRQ will block the
+	; running of unimportant services
+	lda #$C0
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	
+	lda #<irq_idle
+	sta irqaddr
+	lda #>irq_idle
+	sta irqaddr+1
+	
+	sta mmc3_irqen
 	
 @normalScrolling:
 	lda scroll_flags
@@ -487,3 +505,8 @@ nmi_scrollsplit:
 	lda scroll_y
 	sta ppu_scroll
 	rts
+
+irq_idle:
+	inc rununimport
+	sta mmc3_irqdi
+	rti

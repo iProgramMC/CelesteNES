@@ -292,7 +292,9 @@ gm_draw_ent_call:
 	level1_zip_mover,       \
 	level2_payphone,        \
 	gm_draw_breakable_block,\
-	level2_mirror
+	level2_mirror,          \
+	level2_campfire,        \
+	level1_campfire
 
 gm_entjtable_lo: .lobytes entity_jump_table
 gm_entjtable_hi: .hibytes entity_jump_table

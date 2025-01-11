@@ -1217,6 +1217,8 @@ level1_rend_p:
 	.byte $00,$00,$0A,$00,$00,$00,$00,$00
 	.byte $00,$FF
 level1_rend_e:
+	.byte $FE
+	.byte $08,$9D,$14
 	.byte $FF
 level1_rend_t:
 	.byte $D6,$21,$2B,$C6,$97,$33,$86,$97

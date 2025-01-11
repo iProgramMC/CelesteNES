@@ -143,6 +143,11 @@ sp_l2mi_rlylo = sp_hei
 sp_l2mi_timer = sp_entspec4
 sp_l2mi_jhold = sp_entspec5
 
+sp_l2cf_timer = sp_entspec1
+
+sp_l1cf_state = sp_entspec1
+sp_l1cf_timer = sp_entspec2
+
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02
@@ -154,13 +159,14 @@ rf_godown     = $01 ; room descends
 rf_goup       = $02 ; room ascends
 rf_new        = $04 ; new format, level is decompressed in memory and used
 rf_inverted   = $08 ; new format: inverted (starts on the bottom)
-rf_stub       = $10 ; stub room
+;rf_stub       = $10 ; stub room
 rf_norespawn  = $20 ; don't allow respawning here
 rf_nicevert   = $40 ; nice vertical transitions
 rf_nobringup  = $80 ; no bring up animation
 r2_altbank1   = $08 ; use alternative bank (NOTE: bits 2-0 are not available in roomflags2, ignore them!)
 r2_altbank2   = $10
 r2_altbank3   = $18
+r2_outside    = $20
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)
@@ -282,6 +288,7 @@ chrb_splvl2 = $0B   ; sprites for level 2
 chrb_splv2b = $0C   ; sprites for level 2
 chrb_splv2l = $49   ; sprites for level 2
 chrb_splv2m = $4A   ; sprites for level 2
+chrb_splv2n = $4B   ; sprites for level 2
 
 ; don't know when these will be used.
 chrb_gesp21 = $0D
@@ -370,7 +377,8 @@ pal_bird    = $07
 pal_bubble  = $08 ; palette for tutorial bubble
 pal_chaser  = $09
 pal_mirror  = $0A ; mirror edge
-pal_max     = $0B
+pal_fire    = $0B
+pal_max     = $0C
 
 ; Controller Buttons
 cont_a      = $80  ; SNES controller B

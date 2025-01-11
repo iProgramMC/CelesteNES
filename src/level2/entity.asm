@@ -521,7 +521,8 @@ level2_payphone_max_timer = 8
 	
 	lda #chrb_lvl2+2
 	sta bg1_bknum
-	sta dbenable
+	
+	inc dbenable
 	
 @returnReveal:
 	rts
@@ -1199,3 +1200,32 @@ level2_db_closing_rows_hi:
 	.byte >level2_db_opening_empty
 	.byte >level2_db_opening_empty
 	.byte >level2_db_opening_empty
+
+.proc level2_campfire
+	lda #chrb_splvl2
+	sta spr1_bknum
+	
+	ldx dbenable
+	lda palettes, x
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	ldx temp1
+	lda sprspace+sp_l2cf_timer, x
+	inc sprspace+sp_l2cf_timer, x
+	
+	lsr
+	and #%00011100
+	clc
+	adc #$40
+	sta temp6
+	
+	clc
+	adc #2
+	sta temp7
+	
+	jmp gm_draw_common
+
+palettes:	.byte pal_green, pal_green, pal_fire
+.endproc

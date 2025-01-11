@@ -85,6 +85,8 @@
 .incbin  "chr/sp_level2lm.chr", $000, $400
 .segment "CHR_SLV2M"
 .incbin  "chr/sp_level2lm.chr", $400, $400
+.segment "CHR_SLV2N"
+.incbin  "chr/sp_level2n.chr"
 
 .segment "CHR_BGOWD"
 .incbin  "chr/b_overw.chr"

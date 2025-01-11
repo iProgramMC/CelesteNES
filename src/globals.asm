@@ -90,7 +90,7 @@ dlg_cutsptr : .res 2 ; pointer to the current cutscene script command
 dlg_textptr : .res 2 ; the pointer to the current character
 dlg_porttbl : .res 2 ; the pointer to the portrait table
 
-rng_state   : .res 1
+rng_state   : .res 2
 p1_cont     : .res 2
 p1_conto    : .res 2
 game_cont   : .res 2
@@ -258,6 +258,7 @@ choplastX   : .res 1
 choplastY   : .res 1
 dredeatmr   : .res 1 ; dream death counter
 dreinvtmr   : .res 1 ; dream dash invincibility timer
+rununimport : .res 1 ; set this to 0 to allow running of unimportant stuff such as background effects
 
 scrchklo    : .res 1 ; temporaries used for scroll checking
 scrchkhi    : .res 1
@@ -303,8 +304,6 @@ sprspace    : .res $100
 .segment "PLTRACES"
 plr_trace_x : .res $40
 plr_trace_y : .res $40
-tl_snow_y   = plr_trace_y
-tl_snow_x   = plr_trace_x
 
 .segment "DRAWTEMP"
 temprowtot  : .res $40
@@ -324,8 +323,6 @@ spritepalso : .res 9    ; 9 bytes  - previous frame's loaded sprite palettes
 sprpalcount : .res 1    ; 1 byte   - amount of palettes written
 sprpaltemp  : .res 1    ; 1 byte   - just a temporary variable
 palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
-
-sparebyte   : .res 1
 
 .segment "MORERAM"
 
@@ -424,12 +421,14 @@ spryoffbase : .res 1 ; hair sprite Y offset base (used for af_oddryth)
 plh_forcepal: .res 1 ; forced hair palette if non-zero
 
 ; chapter 2 control
-dbenable    : .res 1 ; are dream blocks enabled
+dbenable    : .res 1 ; 1+ = dream blocks are enabled, 2+ = in "awake" stage
 
 game_cont_force : .res 2
 
 advtracesw  : .res 1 ; if advanced trace is enabled (YOU MUST NOT show a dialog during this phase!)
 advtracehd  : .res 1 ; advanced trace head
+
+starsbgctl  : .res 1 ; star background control
 
 ; 23 bytes free
 
@@ -441,7 +440,7 @@ advtracehd  : .res 1 ; advanced trace head
 areaspace   : .res $800
 
 .segment "AREAXTRA"     ; $6800 - Cartridge WRAM
-areaextra   : .res $400 * 4 ; 4 screens worth of extra data
+areaextra   : .res 960 * 4 ; 4 screens worth of extra data
 
 ; AreaExtra composed of:
 ; [ 960 bytes ] - Screen 1
@@ -493,3 +492,15 @@ adv_trace_sr:	.res adv_trace_hist_size
 adv_trace_hl:	.res adv_trace_hist_size
 adv_trace_hr:	.res adv_trace_hist_size
 adv_trace_pc:	.res adv_trace_hist_size
+
+.segment "BGFXRAM"
+
+; Background Effect RAM
+max_stars   = 16
+
+stars_x     : .res 16
+stars_y     : .res 16
+stars_state : .res 16
+
+tl_snow_y   := stars_x
+tl_snow_x   := stars_y
