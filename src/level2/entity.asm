@@ -1381,7 +1381,10 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	lda adv_trace_y, y
 	sec
 	sbc camera_y
-	sta temp3
+	bcs :+
+	sbc #15
+	clc
+:	sta temp3
 	
 	lda adv_trace_y_hi, y
 	sbc camera_y_hi
