@@ -424,12 +424,10 @@ nmi_anims_scrollsplit:
 ; NOTE NOTE NOTE: AVOID LAG AT ALL COSTS WHILE A SCROLL SPLIT TAKES PLACE!
 ; ELSE YOU WILL SEE GRAPHICS GLITCHES!
 nmi_scrollsplit:
-	lda #0
-	sta rununimport
-	
-	lda #0
-	sta irqcounter
-	sta mmc3_irqdi  ; disable IRQ for this frame, except when we need to enable it
+	ldy #0
+	sty rununimport
+	sty irqcounter
+	sty mmc3_irqdi  ; disable IRQ for this frame, except when we need to enable it
 	
 	lda scrollsplit
 	beq @almostNormalScrolling
@@ -445,16 +443,18 @@ nmi_scrollsplit:
 	sta ppu_ctrl
 	lda camera_x
 	sta ppu_scroll
-	lda #0
-	beq @ahead
+	
+	lda #<irq_dialog_split
+	sta irqaddr
+	lda #>irq_dialog_split
+	sta irqaddr+1
+	bne @ahead
 	
 @noDialogSplit:
 	sta ppu_ctrl
-	
-	lda #0
-	sta ppu_scroll
+	sty ppu_scroll
 @ahead:
-	sta ppu_scroll
+	sty ppu_scroll
 	
 	lda dialogsplit ; -- dialogsplit takes priority over scrollsplit
 	bne :+
