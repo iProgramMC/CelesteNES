@@ -67,66 +67,65 @@ pole:
 	.word level2_payphone_idle::main
 .endproc
 
-;.proc level2_payphone_mad4
-;	;     Y,  TN, PAL,     X
-;	.byte chrb_papho0
-;	.byte $28,$18,$80,    $FB
-;	.byte $28,$1A,$80,    $03
-;	.byte $28,$F2,pal_red,$FB
-;	.byte $28,$F0,pal_red,$03
-;	.byte $FE
-;	.word level2_payphone_idle::main
-;.endproc
-;
-;.proc level2_payphone_mad5
-;	;     Y,  TN, PAL,     X
-;	.byte chrb_papho0
-;	.byte $28,$06,$80,    $FB
-;	.byte $28,$26,$80,    $03
-;	.byte $28,$F2,pal_red,$FB
-;	.byte $28,$F0,pal_red,$03
-;	.byte $FE
-;	.word level2_payphone_idle::main
-;.endproc
-;
-;.proc level2_payphone_mad6
-;	;     Y,  TN, PAL,     X
-;	.byte chrb_papho0
-;	.byte $28,$18,$80,    $FB
-;	.byte $28,$0E,$80,    $03
-;	.byte $28,$F2,pal_red,$FB
-;	.byte $28,$F0,pal_red,$03
-;	.byte $FE
-;	.word level2_payphone_idle::main
-;.endproc
-;
-;.proc level2_payphone_mad7
-;	;     Y,  TN, PAL,     X
-;	.byte chrb_papho0
-;	.byte $28,$1C,$80,    $FB
-;	.byte $28,$1E,$80,    $03
-;	.byte $28,$F2,pal_red,$FB
-;	.byte $28,$F0,pal_red,$03
-;	.byte $FE
-;	.word level2_payphone_idle::main
-;.endproc
+.proc level2_payphone_mad4
+	;     Y,  TN, PAL,     X
+	.byte chrb_papho0
+	.byte $28,$18,$80,    $FB
+	.byte $28,$1A,$80,    $03
+	.byte $28,$F2,pal_red,$FB
+	.byte $28,$F0,pal_red,$03
+	.byte $FE
+	.word level2_payphone_idle::main
+.endproc
+
+.proc level2_payphone_mad5
+	;     Y,  TN, PAL,     X
+	.byte chrb_papho0
+	.byte $28,$06,$80,    $FB
+	.byte $28,$26,$80,    $03
+	.byte $28,$F2,pal_red,$FB
+	.byte $28,$F0,pal_red,$03
+	.byte $FE
+	.word level2_payphone_idle::main
+.endproc
+
+.proc level2_payphone_mad6
+	;     Y,  TN, PAL,     X
+	.byte chrb_papho0
+	.byte $28,$18,$80,    $FB
+	.byte $28,$0E,$80,    $03
+	.byte $28,$F2,pal_red,$FB
+	.byte $28,$F0,pal_red,$03
+	.byte $FE
+	.word level2_payphone_idle::main
+.endproc
+
+.proc level2_payphone_mad7
+	;     Y,  TN, PAL,     X
+	.byte chrb_papho0
+	.byte $28,$1C,$80,    $FB
+	.byte $28,$1E,$80,    $03
+	.byte $28,$F2,pal_red,$FB
+	.byte $28,$F0,pal_red,$03
+	.byte $FE
+	.word level2_payphone_idle::main
+.endproc
 
 .define level2_payphone_table \
 	level2_payphone_idle,     \
 	level2_payphone_mad1,     \
 	level2_payphone_mad2,     \
+	level2_payphone_mad3,     \
+	level2_payphone_mad5,     \
+	level2_payphone_mad6,     \
+	level2_payphone_mad7,     \
+	level2_payphone_mad7,     \
 	$0000
-	;level2_payphone_mad3,     \
-	;level2_payphone_mad5,     \
-	;level2_payphone_mad6,     \
-	;level2_payphone_mad7,     \
-	;level2_payphone_mad7,     \
 
 level2_payphone_table_lo:	.lobytes level2_payphone_table
 level2_payphone_table_hi:	.hibytes level2_payphone_table
 
-;level2_payphone_max_timer = 8
-level2_payphone_max_timer = 3
+level2_payphone_max_timer = 8
 
 ; ######### ANIMATION CODE #########
 
