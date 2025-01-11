@@ -45,7 +45,7 @@ mmc3bk_prg1 = 7   ; prg1 controls $A000-$BFFF
 ; This allows easy indexing via the X/Y registers as you can simply do:
 ;   lda sprspace + sp_kind, x
 
-sp_max      = $0C   ; maximum of 12 sprites.
+sp_max      = $08   ; maximum of 12 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
 sp_flags    = (sp_max * 1)   ; flags
@@ -150,6 +150,7 @@ sp_l2cf_timer = sp_entspec1
 
 sp_l2dc_state = sp_entspec1
 sp_l2dc_index = sp_entspec2
+sp_l2dc_timer = sp_entspec3
 
 ; entity flags
 ef_collidable = $01

@@ -1230,11 +1230,136 @@ level2_db_closing_rows_hi:
 palettes:	.byte pal_green, pal_green, pal_fire
 .endproc
 
-
-.proc level2_dark_chaser
+; ** SUBROUTINE: level2_init_adv_trace
+; desc: Initializes the advanced trace.  Note that this does not
+.proc level2_init_adv_trace
+	ldy #0
+	sty advtracehd
+	
 	lda #1
 	sta advtracesw
+	; fallthrough
+.endproc
+
+.proc level2_dark_chaser
+	lda #g3_transitA
+	bit gamectrl3
+	bne @return2
 	
+	lda advtracesw
+	beq level2_init_adv_trace
+	
+	lda sprspace+sp_l2dc_state, x
+	cmp #2
+	beq @state_Chase_
+	cmp #1
+	beq @state_Tween
+	
+	inc sprspace+sp_l2dc_timer, x
+	lda sprspace+sp_l2dc_timer, x
+	cmp #24
+	bcc @drawTweeningPlayer
+	
+	; prepare the tween
+	lda #0
+	sta temp10
+	
+	lda camera_x
+	clc
+	adc player_x
+	sec
+	sbc sprspace+sp_x, x
+	
+	; [A REGISTER, temp10] represents, the amount to move IN TOTAL. shift it by 5
+	jsr rotateBy5IntoTemp10
+	
+	sta sprspace+sp_vel_x, x
+	lda temp10
+	sta sprspace+sp_vel_x_lo, x
+	
+	; same for Y now
+	lda #0
+	sta temp10
+	
+	lda player_y
+	sec
+	sbc sprspace+sp_y, x
+	
+	jsr rotateBy5IntoTemp10
+	
+	sta sprspace+sp_vel_y, x
+	lda temp10
+	sta sprspace+sp_vel_y_lo, x
+	
+	; increment the state to 1 which is the tweening state.
+	inc sprspace+sp_l2dc_state, x
+	
+	lda advtracehd
+	sta sprspace+sp_l2dc_index, x
+	
+	lda #31
+	sta sprspace+sp_l2dc_timer, x
+	
+@drawTweeningPlayer:
+	; pick some default sprites
+	lda #chrb_splv2m
+	sta spr1_bknum
+	
+	jsr calculateXYOnScreen
+	
+	lda #$44
+	sta temp6
+	lda #$46
+	sta temp7
+	
+	lda #pal_chaser
+	jsr gm_allocate_palette
+	ldx temp11
+	bpl @dontSwap
+	ldx temp6
+	ldy temp7
+	sty temp6
+	stx temp7
+	ora #obj_fliphz
+@dontSwap:
+	sta temp5
+	sta temp8
+	jmp level2_draw_common_replacement
+
+@return2:
+	rts
+
+@state_Chase_:
+	beq @state_Chase
+
+@state_Tween:
+	; chaser is tweening towards the player
+	lda sprspace+sp_x_lo, x
+	clc
+	adc sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_x_lo, x
+	
+	lda sprspace+sp_x, x
+	adc sprspace+sp_vel_x, x
+	sta sprspace+sp_x, x
+	
+	lda sprspace+sp_y_lo, x
+	clc
+	adc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_y_lo, x
+	
+	lda sprspace+sp_y, x
+	adc sprspace+sp_vel_y, x
+	sta sprspace+sp_y, x
+	
+	dec sprspace+sp_l2dc_timer, x
+	bne @drawTweeningPlayer
+	
+	; start actually chasing
+	inc sprspace+sp_l2dc_state, x
+	bne @drawTweeningPlayer
+	
+@state_Chase:
 	; the entity's position will stay attached to the camera
 	lda #0
 	sta sprspace+sp_y, x
@@ -1245,10 +1370,11 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	sta sprspace+sp_x_pg, x
 	
 	; then we will recalculate the position in temp2, temp3, and temp4
-	lda advtracehd
-	sec
-	sbc sprspace+sp_l2dc_index, x
+	lda sprspace+sp_l2dc_index, x
+	clc
+	adc #1
 	and #(adv_trace_hist_size - 1)
+	sta sprspace+sp_l2dc_index, x
 	tay
 	
 	; calculate Y, the simplest
@@ -1403,6 +1529,38 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	sta temp6
 	sty temp7
 :	jmp level2_draw_common_replacement
+
+rotateBy5IntoTemp10:
+.repeat 5, i
+	cmp #$80
+	ror
+	ror temp10
+.endrepeat
+	rts
+
+calculateXYOnScreen:
+	; don't care about the result, only that it calculates temp2 and temp4 for us
+	jsr gm_check_ent_onscreen
+	
+	; copied from e_draw again
+	lda lvlyoff
+	asl
+	asl
+	asl
+	sta temp3
+	lda sprspace+sp_y, x
+	clc
+	adc temp3
+	sta temp3
+	sec
+	sbc camera_y_bs
+	sec
+	sbc camera_y_sub
+	sec
+	sbc temp10
+	sta temp3
+	rts
+
 .endproc
 
 ; ** SUBROUTINE: level2_draw_common_replacement
