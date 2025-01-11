@@ -259,9 +259,7 @@ gm_draw_ent_call:
 	sta temp3
 	sec
 	sbc camera_y_bs
-	bcs :+
-	sbc #15
-:	sec
+	sec
 	sbc camera_y_sub
 	sec
 	sbc temp10
