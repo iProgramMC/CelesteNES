@@ -487,9 +487,9 @@ adv_trace_hist_size = 64
 adv_trace_x:	.res adv_trace_hist_size
 adv_trace_x_pg:	.res adv_trace_hist_size
 adv_trace_y:	.res adv_trace_hist_size
+adv_trace_y_hi:	.res adv_trace_hist_size
 adv_trace_sl:	.res adv_trace_hist_size
 adv_trace_sr:	.res adv_trace_hist_size
-adv_trace_hl:	.res adv_trace_hist_size
 adv_trace_hr:	.res adv_trace_hist_size
 adv_trace_pc:	.res adv_trace_hist_size
 

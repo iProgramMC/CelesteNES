@@ -1251,19 +1251,18 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	and #(adv_trace_hist_size - 1)
 	tay
 	
-	lda adv_trace_pc, y
-	lsr
-	lsr
-	lsr
-	sta temp3
-	
 	; calculate Y, the simplest
 	lda adv_trace_y, y
 	sec
 	sbc camera_y
-	bcs :+
-	adc #240
-:	sec
+	sta temp3
+	
+	lda adv_trace_y_hi, y
+	sbc camera_y_hi
+	bne @return
+	
+	lda temp3
+	sec
 	sbc camera_y_sub
 	sta temp3
 	
@@ -1340,6 +1339,9 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	inc temp4
 :	jmp @doneSprXOff
 
+@return:
+	rts
+
 @positiveFacingLeft:
 	; positive and facing left
 	lda temp2
@@ -1387,11 +1389,8 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	sta temp3
 	
 	; then the hair
-	lda adv_trace_hl, y
-	bmi :+                 ; if >= $80, then don't add $40, else you'll draw a bad sprite
-	clc
-	adc #$40
-:	sta temp6
+	lda #$72
+	sta temp6
 	lda adv_trace_hr, y
 	bmi :+
 	clc
@@ -1427,7 +1426,7 @@ palettes:	.byte pal_green, pal_green, pal_fire
 @temp4Negative:
 	; it could still be on screen if temp2 >= $F8 (so, the RHS would end up back
 	; in screen bounds)
-	lda temp3
+	lda temp2
 	cmp #$F8
 	bcc @temp4NegativeTemp2Negative
 	bcs @doDraw

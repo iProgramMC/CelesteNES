@@ -3265,6 +3265,7 @@ expectedMovement:
 	adc #0
 	sta adv_trace_x_pg, y
 	
+	ldx #0
 	lda player_y
 	clc
 	adc camera_y
@@ -3272,16 +3273,18 @@ expectedMovement:
 	cmp #240
 	bcc @dontAdd
 @add16:
+	ldx #1
 	adc #15
 @dontAdd:
 	sta adv_trace_y, y
+	txa
+	eor camera_y_hi
+	sta adv_trace_y_hi, y
 	
 	lda plr_spr_l
 	sta adv_trace_sl, y
 	lda plr_spr_r
 	sta adv_trace_sr, y
-	lda plh_spr_l
-	sta adv_trace_hl, y
 	lda plh_spr_r
 	sta adv_trace_hr, y
 	

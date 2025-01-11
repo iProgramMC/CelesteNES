@@ -689,6 +689,8 @@ transLoopMain:
 	sta gamectrl
 	
 	ldy roomsize
+	cpy #$21
+	bcc transLoopDone
 transLoopAfter:
 	sty transtimer
 	
@@ -707,7 +709,8 @@ transLoopAfter:
 	dey
 	cpy #32
 	bne transLoopAfter
-	
+
+transLoopDone:
 	lda gamectrl
 	ora #(gs_scrstopR|gs_scrstodR|gs_lvlend)
 	and #<~(gs_dontgen|gs_dontpal)
