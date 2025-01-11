@@ -11,14 +11,14 @@ level_table:
 	.word level0 ; 7
 
 level_banks2:
-	.byte prgb_lvl0b
+	.byte prgb_lvl0a
 	.byte prgb_lvl1b
 	.byte prgb_lvl2b
-	.byte prgb_lvl0b
-	.byte prgb_lvl0b
-	.byte prgb_lvl0b
-	.byte prgb_lvl0b
-	.byte prgb_lvl0b
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
+	.byte prgb_lvl0a
 
 level_banks_mus:
 	.byte prgb_lvl0a

@@ -85,6 +85,7 @@ level2_0_p:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$FF
 level2_0_e:
+	.byte $30,$90,$15
 	.byte $FF
 level2_0_t:
 	.byte $30,$3C,$DE,$EE,$FE,$FE,$FE,$FE
@@ -893,7 +894,7 @@ level2_r7_t:
 	.byte $C9,$FF
 level2_r7:
 	.byte 44, 0
-	.byte 85, 255, 255, 255
+	.byte 62, 255, 255, 255
 	.byte 252, 0, 0, 0
 	.byte 0
 	.byte 255

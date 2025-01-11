@@ -67,65 +67,66 @@ pole:
 	.word level2_payphone_idle::main
 .endproc
 
-.proc level2_payphone_mad4
-	;     Y,  TN, PAL,     X
-	.byte chrb_papho0
-	.byte $28,$18,$80,    $FB
-	.byte $28,$1A,$80,    $03
-	.byte $28,$F2,pal_red,$FB
-	.byte $28,$F0,pal_red,$03
-	.byte $FE
-	.word level2_payphone_idle::main
-.endproc
-
-.proc level2_payphone_mad5
-	;     Y,  TN, PAL,     X
-	.byte chrb_papho0
-	.byte $28,$06,$80,    $FB
-	.byte $28,$26,$80,    $03
-	.byte $28,$F2,pal_red,$FB
-	.byte $28,$F0,pal_red,$03
-	.byte $FE
-	.word level2_payphone_idle::main
-.endproc
-
-.proc level2_payphone_mad6
-	;     Y,  TN, PAL,     X
-	.byte chrb_papho0
-	.byte $28,$18,$80,    $FB
-	.byte $28,$0E,$80,    $03
-	.byte $28,$F2,pal_red,$FB
-	.byte $28,$F0,pal_red,$03
-	.byte $FE
-	.word level2_payphone_idle::main
-.endproc
-
-.proc level2_payphone_mad7
-	;     Y,  TN, PAL,     X
-	.byte chrb_papho0
-	.byte $28,$1C,$80,    $FB
-	.byte $28,$1E,$80,    $03
-	.byte $28,$F2,pal_red,$FB
-	.byte $28,$F0,pal_red,$03
-	.byte $FE
-	.word level2_payphone_idle::main
-.endproc
+;.proc level2_payphone_mad4
+;	;     Y,  TN, PAL,     X
+;	.byte chrb_papho0
+;	.byte $28,$18,$80,    $FB
+;	.byte $28,$1A,$80,    $03
+;	.byte $28,$F2,pal_red,$FB
+;	.byte $28,$F0,pal_red,$03
+;	.byte $FE
+;	.word level2_payphone_idle::main
+;.endproc
+;
+;.proc level2_payphone_mad5
+;	;     Y,  TN, PAL,     X
+;	.byte chrb_papho0
+;	.byte $28,$06,$80,    $FB
+;	.byte $28,$26,$80,    $03
+;	.byte $28,$F2,pal_red,$FB
+;	.byte $28,$F0,pal_red,$03
+;	.byte $FE
+;	.word level2_payphone_idle::main
+;.endproc
+;
+;.proc level2_payphone_mad6
+;	;     Y,  TN, PAL,     X
+;	.byte chrb_papho0
+;	.byte $28,$18,$80,    $FB
+;	.byte $28,$0E,$80,    $03
+;	.byte $28,$F2,pal_red,$FB
+;	.byte $28,$F0,pal_red,$03
+;	.byte $FE
+;	.word level2_payphone_idle::main
+;.endproc
+;
+;.proc level2_payphone_mad7
+;	;     Y,  TN, PAL,     X
+;	.byte chrb_papho0
+;	.byte $28,$1C,$80,    $FB
+;	.byte $28,$1E,$80,    $03
+;	.byte $28,$F2,pal_red,$FB
+;	.byte $28,$F0,pal_red,$03
+;	.byte $FE
+;	.word level2_payphone_idle::main
+;.endproc
 
 .define level2_payphone_table \
 	level2_payphone_idle,     \
 	level2_payphone_mad1,     \
 	level2_payphone_mad2,     \
-	level2_payphone_mad3,     \
-	level2_payphone_mad5,     \
-	level2_payphone_mad6,     \
-	level2_payphone_mad7,     \
-	level2_payphone_mad7,     \
 	$0000
+	;level2_payphone_mad3,     \
+	;level2_payphone_mad5,     \
+	;level2_payphone_mad6,     \
+	;level2_payphone_mad7,     \
+	;level2_payphone_mad7,     \
 
 level2_payphone_table_lo:	.lobytes level2_payphone_table
 level2_payphone_table_hi:	.hibytes level2_payphone_table
 
-level2_payphone_max_timer = 8
+;level2_payphone_max_timer = 8
+level2_payphone_max_timer = 3
 
 ; ######### ANIMATION CODE #########
 
@@ -1229,3 +1230,208 @@ level2_db_closing_rows_hi:
 
 palettes:	.byte pal_green, pal_green, pal_fire
 .endproc
+
+
+.proc level2_dark_chaser
+	lda #1
+	sta advtracesw
+	
+	; the entity's position will stay attached to the camera
+	lda #0
+	sta sprspace+sp_y, x
+	
+	lda camera_x
+	sta sprspace+sp_x, x
+	lda camera_x_pg
+	sta sprspace+sp_x_pg, x
+	
+	; then we will recalculate the position in temp2, temp3, and temp4
+	lda advtracehd
+	sec
+	sbc sprspace+sp_l2dc_index, x
+	and #(adv_trace_hist_size - 1)
+	tay
+	
+	lda adv_trace_pc, y
+	lsr
+	lsr
+	lsr
+	sta temp3
+	
+	; calculate Y, the simplest
+	lda adv_trace_y, y
+	sec
+	sbc camera_y
+	bcs :+
+	adc #240
+:	sec
+	sbc camera_y_sub
+	sta temp3
+	
+	lda adv_trace_x, y
+	sec
+	sbc camera_x
+	sta temp2
+	
+	lda adv_trace_x_pg, y
+	sbc camera_x_pg
+	sta temp4
+	
+	sty temp9
+	lda #pal_chaser
+	jsr gm_allocate_palette
+	sta temp5
+	
+	ldy temp9
+	lda adv_trace_pc, y
+	lsr
+	and #%00000011
+	; facing state is now in carry
+	sta spr1_bknum
+	
+	lda #0
+	ror
+	lsr
+	sta temp11
+	ora temp5
+	sta temp5
+	sta temp8
+	
+	; draw the body
+	sty temp9
+	
+	lda adv_trace_sl, y
+	clc
+	adc #$40
+	sta temp6
+	lda adv_trace_sr, y
+	clc
+	adc #$40
+	sta temp7
+	lda temp11
+	beq :+
+	lda temp7
+	ldy temp6
+	sta temp6
+	sty temp7
+:	jsr level2_draw_common_replacement
+	
+	; determine sprxoff (11000000) and spryoff (00111000)
+	ldy temp9
+	
+	lda adv_trace_pc, y
+	rol
+	rol
+	rol
+	and #%00000011
+	sta temp10
+	and #%11111110
+	bne @negativeSprXOff
+	
+	; positive sprxoff
+	lda temp11
+	bne @positiveFacingLeft
+	
+	; positive and facing right
+	lda temp2
+	clc
+	adc temp10
+	sta temp2
+	bcc :+
+	inc temp4
+:	jmp @doneSprXOff
+
+@positiveFacingLeft:
+	; positive and facing left
+	lda temp2
+	sec
+	sbc temp10
+	sta temp2
+	bcs :+
+	dec temp4
+:	jmp @doneSprXOff
+
+@negativeSprXOff:
+	; negative sprxoff
+	lda temp11
+	bne @negativeFacingLeft
+	
+	; negative and facing right
+	lda temp2
+	bne :+
+	dec temp4
+:	dec temp2
+	jmp @doneSprXOff
+	
+@negativeFacingLeft:
+	inc temp2
+	bne @doneSprXOff
+	inc temp4
+	
+@doneSprXOff:
+	; finally done with sprxoff, now do the same with spryoff
+	ldy temp9
+	lda adv_trace_pc, y
+	lsr
+	lsr
+	lsr
+	and #%00000111
+	; expand the sign
+	sta temp10
+	and #%11111100
+	beq :+
+	lda #%11111100
+:	ora temp10
+	; then add it to the Y
+	clc
+	adc temp3
+	sta temp3
+	
+	; then the hair
+	lda adv_trace_hl, y
+	bmi :+                 ; if >= $80, then don't add $40, else you'll draw a bad sprite
+	clc
+	adc #$40
+:	sta temp6
+	lda adv_trace_hr, y
+	bmi :+
+	clc
+	adc #$40
+:	sta temp7
+	lda temp11
+	beq :+
+	lda temp7
+	ldy temp6
+	sta temp6
+	sty temp7
+:	jmp level2_draw_common_replacement
+.endproc
+
+; ** SUBROUTINE: level2_draw_common_replacement
+; desc: Replaces gm_draw_common.
+;       gm_draw_common has one major flaw - it doesn't handle out of bounds
+.proc level2_draw_common_replacement
+	
+	lda temp4
+	bmi @temp4Negative
+	bne @temp4PositiveNonZero
+	
+	; temp4 is zero, so can draw
+@doDraw:
+	jmp gm_draw_common
+	
+@temp4PositiveNonZero:
+@temp4NegativeTemp2Negative:
+	; if temp4 > 0, then clearly off screen
+	rts
+
+@temp4Negative:
+	; it could still be on screen if temp2 >= $F8 (so, the RHS would end up back
+	; in screen bounds)
+	lda temp3
+	cmp #$F8
+	bcc @temp4NegativeTemp2Negative
+	bcs @doDraw
+
+.endproc
+

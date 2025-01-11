@@ -379,6 +379,7 @@ dontdomore:
 	eor #1
 	jsr gm_unload_ents_room
 	jsr gm_update_bg_bank
+	jsr xt_disable_adv_trace
 	jmp gm_calculate_vert_offs
 
 newModeTran:
@@ -754,6 +755,7 @@ transLoopAfter:
 	sta climbbutton
 	
 	jsr gm_update_bg_bank
+	jsr xt_disable_adv_trace
 	jmp gm_calculate_vert_offs
 
 updatePalettes:

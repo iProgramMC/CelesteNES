@@ -347,6 +347,7 @@ transGenerateBack:
 	jsr gm_unload_ents_room
 	
 	jsr gm_calculate_vert_offs
+	jsr xt_disable_adv_trace
 	jsr gm_update_bg_bank
 	
 	lda #2
@@ -864,6 +865,7 @@ finalloopdone:
 	eor #1
 	jsr gm_unload_ents_room
 	jsr gm_update_bg_bank
+	jsr xt_disable_adv_trace
 	jmp gm_calculate_vert_offs
 	
 messedupcase:
@@ -1043,3 +1045,9 @@ newModeTran:
 .endproc
 
 .include "noconfusion.asm"
+
+.proc xt_disable_adv_trace
+	lda #0
+	sta advtracesw
+	rts
+.endproc

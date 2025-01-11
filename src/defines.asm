@@ -133,6 +133,9 @@ sp_l1zm_homxh = sp_entspec6
 sp_l1zm_flags = sp_entspec7
 sp_l1zmf_spikyUP = $01 ; entity is spiky above
 
+sp_l1cf_state = sp_entspec1
+sp_l1cf_timer = sp_entspec2
+
 sp_l2ph_timer = sp_entspec1
 
 sp_l2mi_state = sp_entspec1
@@ -145,8 +148,8 @@ sp_l2mi_jhold = sp_entspec5
 
 sp_l2cf_timer = sp_entspec1
 
-sp_l1cf_state = sp_entspec1
-sp_l1cf_timer = sp_entspec2
+sp_l2dc_state = sp_entspec1
+sp_l2dc_index = sp_entspec2
 
 ; entity flags
 ef_collidable = $01
@@ -189,6 +192,10 @@ e_l1zipmovr = $0E ; LEVEL 1: zip mover
 e_l1zipmovt = $0F ; LEVEL 1: tall zip mover
 e_l2payphon = $10 ; LEVEL 2: payphone
 e_breakblck = $11 ; breakable block
+e_l2mirror  = $12 ; LEVEL 2: mirror
+e_l2cmpfire = $13 ; LEVEL 2: campfire
+e_l1cmpfire = $14 ; LEVEL 1: campfire
+e_l2chaser  = $15 ; LEVEL 2: dark chaser
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance
@@ -330,16 +337,17 @@ chrb_dtheo  = $78   ; graphics bank for dialog with Theo
 chrb_dgran  = $7C   ; graphics bank for dialog with Granny
 
 ; PRG ROM BANKS
-prgb_lvl0a  = $00   ; Main level data ($A000)
-prgb_lvl0b  = $01   ; Shared level data ($C000)
-prgb_lvl1a  = $02
-prgb_lvl1b  = $03
-prgb_lvl1c  = $04
-prgb_lvl1d  = $05
-prgb_lvl2a  = $06
-prgb_lvl2b  = $07
-prgb_lvl2c  = $08
-prgb_lvl2d  = $09
+; Swappable level data ($A000), Fixed level data ($C000)
+prgb_lvl0a  = $00
+prgb_lvl1a  = $01
+prgb_lvl1b  = $02
+prgb_lvl1c  = $03
+prgb_lvl1d  = $04
+prgb_lvl2a  = $05
+prgb_lvl2b  = $06
+prgb_lvl2c  = $07
+prgb_lvl2d  = $08
+prgb_lvl2e  = $09
 prgb_paus   = $0A   ; pause section
 prgb_xtra   = $0B   ; extra game code
 prgb_dial   = $0C

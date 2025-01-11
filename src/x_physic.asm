@@ -3266,6 +3266,14 @@ expectedMovement:
 	sta adv_trace_x_pg, y
 	
 	lda player_y
+	clc
+	adc camera_y
+	bcs @add16
+	cmp #240
+	bcc @dontAdd
+@add16:
+	adc #15
+@dontAdd:
 	sta adv_trace_y, y
 	
 	lda plr_spr_l
@@ -3277,14 +3285,36 @@ expectedMovement:
 	lda plh_spr_r
 	sta adv_trace_hr, y
 	
+	; get the sprxoff and spryoff
+	lda sprxoff
+	ror
+	ror
+	ror
+	and #%11000000
+	sta adv_trace_pc, y
+	
+	lda spryoff
+	and #%00000111
+	asl
+	asl
+	asl
+	ora adv_trace_pc, y
+	sta adv_trace_pc, y
+	
+	; the format of the final bitset will be XXYYYBBF
+	;   X - sprxoff
+	;   Y - spryoff
+	;   B - bank number
+	;   F - facing left
+	
 	; get the facing
 	lda playerctrl
-	and #pl_left
-	sta adv_trace_pc, y
+	ror ; rotate the facing into the carry
 	
 	; then the bank number
 	lda spr0_bknum
-	asl
+	rol ; rotate the facing into the 1st bit
+	and #%00000111
 	ora adv_trace_pc, y
 	sta adv_trace_pc, y
 	

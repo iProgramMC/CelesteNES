@@ -211,6 +211,10 @@ gm_draw_common:
 ; note: temp1 is occupied by gm_draw_entities and represents the index within the sprspace array.
 gm_draw_ent_call:
 	pha
+	lda #e_l2chaser
+	cmp sprspace+sp_kind, x
+	beq @isDarkChaser
+	
 	jsr gm_check_ent_onscreen
 	bne @notOffScreen
 	
@@ -262,6 +266,7 @@ gm_draw_ent_call:
 	sta temp3
 	
 @doNotAddCamY:
+@isDarkChaser:
 	pla
 	tax
 	lda gm_entjtable_lo, x
@@ -294,7 +299,8 @@ gm_draw_ent_call:
 	gm_draw_breakable_block,\
 	level2_mirror,          \
 	level2_campfire,        \
-	level1_campfire
+	level1_campfire,        \
+	level2_dark_chaser
 
 gm_entjtable_lo: .lobytes entity_jump_table
 gm_entjtable_hi: .hibytes entity_jump_table

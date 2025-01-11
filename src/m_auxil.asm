@@ -152,7 +152,7 @@ mmc3_initialize:
 	
 	lda #(def_mmc3_bn | 7)
 	sta mmc3_bsel
-	lda prgb_lvl0b
+	lda prgb_lvl0a
 	sta mmc3_bdat
 	
 	; note: don't need to load default banks, the title screen init code will do that for me.
