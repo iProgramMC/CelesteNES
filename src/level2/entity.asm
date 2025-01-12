@@ -1329,15 +1329,6 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	and #pl_dead
 	bne @incrementStateToDead_
 	
-	; the entity's position will stay attached to the camera
-	;lda #0
-	sta sprspace+sp_y, x
-	
-	lda camera_x
-	sta sprspace+sp_x, x
-	lda camera_x_pg
-	sta sprspace+sp_x_pg, x
-	
 	; then we will recalculate the position in temp2, temp3, and temp4
 	lda sprspace+sp_l2dc_index, x
 	clc
@@ -1348,6 +1339,7 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	
 	; calculate Y, the simplest
 	lda adv_trace_y, y
+	sta sprspace+sp_y, x
 	sec
 	sbc camera_y
 	bcs :+
@@ -1365,11 +1357,13 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	sta temp3
 	
 	lda adv_trace_x, y
+	sta sprspace+sp_x, x
 	sec
 	sbc camera_x
 	sta temp2
 	
 	lda adv_trace_x_pg, y
+	sta sprspace+sp_x_pg, x
 	sbc camera_x_pg
 	sta temp4
 	
@@ -1527,7 +1521,23 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	ldy temp6
 	sta temp6
 	sty temp7
-:	jmp level2_draw_common_replacement
+:	jsr level2_draw_common_replacement
+	
+	; finally, check the hitbox
+	lda #6
+	sta temp7
+	lda #10
+	sta temp8
+	sta temp9
+	lda #16
+	sta temp10
+	
+	ldy temp1
+	jsr gm_check_collision_ent
+	beq @return
+	
+	; collided!
+	jmp gm_killplayer
 
 @state_Dead:
 	lda #chrb_lvl2b
