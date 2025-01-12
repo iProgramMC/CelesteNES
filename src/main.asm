@@ -111,6 +111,14 @@
 .incbin  "chr/b_lvl2d.chr" ; contains the dream block (full-white)
 .incbin  "chr/b_lvl2e.chr" ; contains the dream block (disabled)
 
+.segment "CHR_BG005"
+.incbin  "chr/b_lvl2f.chr" ; contains the dream block (dither stage 1)
+.incbin  "chr/b_lvl2g.chr" ; contains the dream block (dither stage 2)
+
+.segment "CHR_BG006"
+.incbin  "chr/b_lvl2h.chr" ; contains the dream block (dither stage 3)
+; EMPTY 2KB
+
 .segment "CHR_DPLDI"
 .incbin  "chr/sp_plrdie.chr"
 
@@ -133,8 +141,6 @@
 .incbin  "chr/d_gran.chr"
 
 ; UNUSED segments
-.segment "CHR_BG005"
-.segment "CHR_BG006"
 .segment "CHR_BG007"
 .segment "CHR_BG008"
 .segment "CHR_UN000"

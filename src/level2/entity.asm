@@ -477,9 +477,11 @@ level2_payphone_max_timer = 8
 	cmp #9
 	beq @state_RevealDreamBlock_ScrollUp
 	cmp #10
-	beq @state_RevealDreamBlock_Unveil
+	beq @state_RevealDreamBlock_Glow_
 	cmp #11
-	beq @state_RevealDreamBlock_ScrollDown	
+	beq @state_RevealDreamBlock_Unveil
+	cmp #12
+	beq @state_RevealDreamBlock_ScrollDown
 	rts
 
 @stateIdleReturn:
@@ -510,8 +512,12 @@ level2_payphone_max_timer = 8
 	lda #7
 	sta quakeflags
 	
+	; decrement only half of the time
+	lda framectr
+	lsr
+	bcs :+
 	dec sprspace+sp_l2mi_timer, x
-	lda sprspace+sp_l2mi_timer, x
+:	lda sprspace+sp_l2mi_timer, x
 	cmp #72
 	bcs @returnReveal
 	
@@ -547,6 +553,9 @@ level2_payphone_max_timer = 8
 	
 	inc sprspace+sp_l2mi_timer, x
 	rts
+
+@state_RevealDreamBlock_Glow_:
+	beq @state_RevealDreamBlock_Glow
 	
 @dontDoThat1:
 	lda #168
@@ -578,6 +587,39 @@ level2_payphone_max_timer = 8
 	lda #0
 	sta sprspace+sp_l2mi_state, x
 	sta sprspace+sp_l2mi_timer, x
+	rts
+
+@state_RevealDreamBlock_Glow:
+	; NOTE: The timer starts at 168, actually!!
+	lda sprspace+sp_l2mi_timer, x
+	inc sprspace+sp_l2mi_timer, x
+	cmp #(32+168)
+	bcc @dontStartUnveiling
+	
+	; increment state to the unveiling state
+	inc sprspace+sp_l2mi_state, x
+	lda #chrb_lvl2d
+	sta bg1_bknum
+	bne @skipUnveilFrames
+	
+@dontStartUnveiling:
+	sbc #(168-1) ; since carry is clear
+	and #%00011000
+	lsr
+	lsr
+	clc
+	adc #chrb_lvl2e
+	sta bg1_bknum
+	
+@skipUnveilFrames:
+	; though we do not want the bank to be overridden, so set miscsplit to a non-zero
+	; value and keep the idle handler
+	lda #<irq_idle
+	sta irqaddr
+	lda #>irq_idle
+	sta irqaddr+1
+	lda #$C0
+	sta miscsplit
 	rts
 
 drawBadeline:
