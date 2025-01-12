@@ -53,7 +53,7 @@ level2:
 	spr2_path:       chr/sp_gener.chr
 	spr3_path:       chr/sp_anim.chr
 	bg_path:         chr/b_lvl2.chr
-	roomdata_path:   level2/rooms_$.asm
+	roomdata_path:   level2/rooms/$.asm
 	BANK_prgb_lvl2a: 0
 	BANK_prgb_lvl2b: 1
 	BANK_prgb_lvl2c: 2

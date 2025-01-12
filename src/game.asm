@@ -1302,3 +1302,8 @@ inner_loop:
 	bcc inner_loop   ; jump to the inner loop because y==0 guaranteed
                      ; we didn't branch because carry was set so y==0
 	rts
+
+
+; This is seriously supposed to be in PRG_LVL2B, but I'm trying to fit 3.9k of DMC samples..
+.include "g_testdata.asm"
+

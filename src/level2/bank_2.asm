@@ -1,4 +1,4 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 .segment "PRG_LVL2C"
-.include "rooms_2.asm"
+.include "rooms/2.asm"

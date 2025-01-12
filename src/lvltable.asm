@@ -23,7 +23,7 @@ level_banks2:
 level_banks_mus:
 	.byte prgb_lvl0a
 	.byte prgb_lvl1c
-	.byte prgb_lvl2a
+	.byte prgb_lvl2e
 	.byte prgb_lvl0a
 	.byte prgb_lvl0a
 	.byte prgb_lvl0a
