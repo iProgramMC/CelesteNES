@@ -114,6 +114,20 @@ level2_payphone_max_timer = 8
 	beq @loop
 .endproc
 
+; would move to bank_3.asm, but doesn't work, since $26 (38) bytes isn't enough (we need $30 or 48)
+level2_s_mirror_offsets:
+	.byte 0, 5, 10, 15, 20, 25, 30, 35
+
+level2_s_mirror:
+	.byte $00,$60,$70,$68,$78
+	.byte $3A,$61,$71,$72,$79
+	.byte $3B,$62,$72,$73,$7A
+	.byte $3C,$63,$73,$74,$7B
+	.byte $3D,$64,$74,$75,$7C
+	.byte $3E,$65,$75,$6D,$7D
+	.byte $3F,$66,$76,$6E,$7E
+	.byte $00,$67,$77,$6F,$7F
+
 ; ** ENTITY: level2_mirror
 ; desc: The mirror that unlocks the Dream Blocks!
 .proc level2_mirror
