@@ -57,12 +57,6 @@ dlg_start_dialog:
 	cpy #8
 	bne :-
 	
-	;lda dlg_temporary
-	;clc
-	;adc #3             ; 4 tiles ahead though
-	;and #$3F
-	;sta dlg_temporary
-	
 	; attribute memes
 	ldy #0
 @loopAttributes:
@@ -666,6 +660,7 @@ dlg_cmd_table:
 	.word dlg_cmd_rm25pcv
 	.word dlg_cmd_zerovel
 	.word dlg_cmd_callrt
+	.word dlg_cmd_playmusic
 
 dlg_cmd_begin:
 	jsr dlg_cmd_left
@@ -1085,6 +1080,19 @@ dlg_cmd_callrt:
 	rts
 @doCall:
 	jmp (temp1)
+
+; Play Music
+dlg_cmd_playmusic:
+	jsr dlg_read_script
+	; store the argument in temp11 because we want the music bank to be loaded
+	sta temp11
+	
+	ldx #<aud_play_music_by_index_hack
+	ldy #>aud_play_music_by_index_hack
+	lda musicbank
+	jsr far_call2
+	lda #0
+	rts
 
 ; ** SUBROUTINE: dlg_recheck_next_frame
 ; desc: Re-runs the exact same instruction next frame.

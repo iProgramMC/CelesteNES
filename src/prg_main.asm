@@ -309,6 +309,7 @@ reset:
 	sty ppu_ctrl
 	
 	jsr aud_init
+	jsr aud_load_sfx
 	
 	ldy #gm_title
 	sty gamemode     ; set title screen mode
@@ -319,8 +320,6 @@ reset:
 	sty rng_state+1
 	
 	jsr vblank_wait  ; one final vblank wait
-	
-	jsr aud_load_sfx
 	
 	lda #0
 	sta nmi_disable
@@ -336,15 +335,15 @@ main_loop:
 	jsr nmi_wait
 	jmp main_loop
 
-debug_profiler:
-	lda #$FF
-	sta ppu_mask
-	ldy #$90
-:	dey
-	bne :-
-	lda #def_ppu_msk
-	sta ppu_mask
-	rts
+;debug_profiler:
+;	lda #$FF
+;	sta ppu_mask
+;	ldy #$90
+;:	dey
+;	bne :-
+;	lda #def_ppu_msk
+;	sta ppu_mask
+;	rts
 
 .include "update.asm"
 .include "gam_main.asm"

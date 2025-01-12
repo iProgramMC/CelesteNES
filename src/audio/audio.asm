@@ -67,6 +67,13 @@ aud_init:
 	ldy #0
 	jmp famistudio_init
 
+; ** SUBROUTINE: aud_play_music_by_index
+; desc: Plays a selected track by index.
+aud_play_music_by_index_hack:
+	lda temp11
+aud_play_music_by_index:
+	jmp famistudio_music_play
+
 ; ** SUBROUTINE: aud_load_sfx
 ; desc: Loads the sound effect table.
 aud_load_sfx:

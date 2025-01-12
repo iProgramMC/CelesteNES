@@ -31,6 +31,7 @@ DOP_pcdgON  = $15  ; Enable PCDG
 DOP_rm25pcv = $16  ; Remove 25% of both velocities
 DOP_zerovel = $17  ; Set velocity to zero
 DOP_callrt  = $18  ; Call subroutine
+DOP_music   = $19  ; Play music track
 
 DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
@@ -207,4 +208,9 @@ name:
 .macro call_rt rt
 	.byte DOP_callrt
 	.word rt
+.endmacro
+
+; Play music
+.macro play_music idx
+	.byte DOP_music, idx
 .endmacro

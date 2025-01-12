@@ -420,11 +420,16 @@ level2_s_mirror:
 	lda #7
 	sta quakeflags
 	
-	; decrement only half of the time
+	; may be dangerous?!
 	lda framectr
-	lsr
-	bcs :+
+	and #3
+	bne :+
+	
 	dec sprspace+sp_l2mi_timer, x
+	lda #0
+	sta framectr
+	
+	; decrement only half of the time
 :	lda sprspace+sp_l2mi_timer, x
 	cmp #72
 	bcs @returnReveal
@@ -466,7 +471,7 @@ level2_s_mirror:
 	beq @state_RevealDreamBlock_Glow
 	
 @dontDoThat1:
-	lda #168
+	lda #136
 	sta sprspace+sp_l2mi_timer, x
 	rts
 
@@ -498,14 +503,15 @@ level2_s_mirror:
 	rts
 
 @state_RevealDreamBlock_Glow:
-	; NOTE: The timer starts at 168, actually!!
+	; NOTE: The timer starts at 136, actually!!
 	lda sprspace+sp_l2mi_timer, x
 	inc sprspace+sp_l2mi_timer, x
-	cmp #(32+168)
+	cmp #(32+136)
 	bcc @dontStartUnveiling
 	
-	; increment state to the unveiling state
-	inc sprspace+sp_l2mi_state, x
+	; wait for the unveiling state but 
+	lda #168
+	sta sprspace+sp_l2mi_timer, x
 	lda #chrb_lvl2d
 	sta bg1_bknum
 	bne @skipUnveilFrames

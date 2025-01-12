@@ -4,6 +4,7 @@ ch2_mirror_shatter:
 	begin
 	
 	; play the 1st part of the dreamblock sting here
+	play_music  1
 	
 	lock_input
 	
@@ -23,9 +24,7 @@ ch2_mirror_shatter:
 	
 	; make the reflection walk forward
 	trigger     3
-	wait        39
-	; TODO: Add the equivalent of event:/game/02_old_site/sequence_mirror
-	wait        9
+	wait        80
 	
 	; shatter the mirror
 	trigger     5
@@ -33,7 +32,7 @@ ch2_mirror_shatter:
 	
 	; trigger Badeline to wait, after shattering the mirror
 	trigger     6
-	wait        72
+	wait        80
 	
 	; trigger Badeline to flee, and wait for the camera to scroll towards the central dream block
 	trigger     7
@@ -41,8 +40,13 @@ ch2_mirror_shatter:
 	
 	; activate the dream block, and wait for the camera to scroll back to the main room
 	trigger     10
-	wait        100
+	wait        80
 	
-	; done!!!
+	trigger     11
+	wait        210
+	wait        210
+	
+	; done!
+	play_music  2
 	unlock_input
 	end
