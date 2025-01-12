@@ -11,13 +11,6 @@ level2_s_memorial:
 	.byte $7F,$72,$66,$76,$69,$0B,$1B,$79
 	.byte $00,$73,$67,$77,$6A,$0C,$1C,$7A
 
-level2_alt_palette:
-	.byte $0f,$30,$1c,$0c
-	.byte $0f,$37,$16,$06
-	.byte $0f,$30,$21,$11
-	.byte $0f,$30,$10,$00
-	.byte $0f
-
 ; level2_end_chase is located here, so also add the info kiosk
 level2_s_info_kiosk_offsets:
 	.byte 0, 9, 18, 27, 36, 45, 54, 63, 72, 81

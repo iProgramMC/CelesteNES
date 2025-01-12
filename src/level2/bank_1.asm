@@ -17,3 +17,10 @@ level2_music:
 .include "structs.asm"
 .include "dialog.asm"
 .include "entity.asm"
+
+level2_alt_palette:
+	.byte $0f,$30,$1c,$0c
+	.byte $0f,$37,$16,$06
+	.byte $0f,$30,$21,$11
+	.byte $0f,$30,$10,$00
+	.byte $0f
