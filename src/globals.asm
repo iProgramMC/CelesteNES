@@ -427,6 +427,7 @@ game_cont_force : .res 2
 
 advtracesw  : .res 1 ; if advanced trace is enabled (YOU MUST NOT show a dialog during this phase!)
 advtracehd  : .res 1 ; advanced trace head
+chasercdown : .res 1 ; countdown until the next chaser can pop into existence
 
 starsbgctl  : .res 1 ; star background control
 
@@ -490,6 +491,7 @@ adv_trace_y:	.res adv_trace_hist_size
 adv_trace_y_hi:	.res adv_trace_hist_size
 adv_trace_sl:	.res adv_trace_hist_size
 adv_trace_sr:	.res adv_trace_hist_size
+adv_trace_hl:	.res adv_trace_hist_size
 adv_trace_hr:	.res adv_trace_hist_size
 adv_trace_pc:	.res adv_trace_hist_size
 

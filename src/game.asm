@@ -97,6 +97,7 @@ gm_game_init:
 	asl
 	asl
 	sta lvlyoff
+	sta old_lvlyoff
 	asl
 	asl
 	asl
@@ -245,6 +246,7 @@ gm_update_dialog:
 ;       for example, respawn transitions.
 gm_game_clear_all_wx:
 	stx lvlyoff
+	stx old_lvlyoff
 	stx dbenable
 
 ; ** SUBROUTINE: gm_game_clear_wx

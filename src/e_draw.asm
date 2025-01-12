@@ -248,7 +248,7 @@ gm_draw_ent_call:
 	bne @doNotAddCamY
 	
 @forceAddingCamY:
-	lda lvlyoff
+	jsr @decideLvlOff
 	asl
 	asl
 	asl
@@ -277,6 +277,21 @@ gm_draw_ent_call:
 	ldx temp1
 	
 	jmp (lvladdr)
+
+@decideLvlOff:
+	lda sprspace+sp_flags, x
+	lsr ; assert: ef_oddroom == $02
+	eor roomnumber
+	and #1
+	beq @decideLvlOff_same
+	
+	; different
+	lda old_lvlyoff
+	rts
+
+@decideLvlOff_same:
+	lda lvlyoff
+	rts
 
 .define entity_jump_table   \
 	$0000,                  \

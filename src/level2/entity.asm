@@ -1249,11 +1249,30 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	lda advtracesw
 	beq level2_init_adv_trace
 	
+	lda #$5C
+	sta temp6
+	lda #$5E
+	sta temp7
+	
 	lda sprspace+sp_l2dc_state, x
 	cmp #2
 	beq @state_Chase_
 	cmp #1
 	beq @state_Tween
+	
+	lda sprspace+sp_l2dc_timer, x
+	bne @alreadyPoppedIn
+	
+	; check if we can pop her in
+	lda chasercdown
+	bne @return2
+	
+@alreadyPoppedIn:
+	lda #20
+	sta chasercdown
+	
+	; pop into existence
+	jsr incrementPoppingInTimer
 	
 	inc sprspace+sp_l2dc_timer, x
 	lda sprspace+sp_l2dc_timer, x
@@ -1261,35 +1280,7 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	bcc @drawTweeningPlayer
 	
 	; prepare the tween
-	lda #0
-	sta temp10
-	
-	lda camera_x
-	clc
-	adc player_x
-	sec
-	sbc sprspace+sp_x, x
-	
-	; [A REGISTER, temp10] represents, the amount to move IN TOTAL. shift it by 5
-	jsr rotateBy5IntoTemp10
-	
-	sta sprspace+sp_vel_x, x
-	lda temp10
-	sta sprspace+sp_vel_x_lo, x
-	
-	; same for Y now
-	lda #0
-	sta temp10
-	
-	lda player_y
-	sec
-	sbc sprspace+sp_y, x
-	
-	jsr rotateBy5IntoTemp10
-	
-	sta sprspace+sp_vel_y, x
-	lda temp10
-	sta sprspace+sp_vel_y_lo, x
+	jsr prepareTween
 	
 	; increment the state to 1 which is the tweening state.
 	inc sprspace+sp_l2dc_state, x
@@ -1297,20 +1288,15 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	lda advtracehd
 	sta sprspace+sp_l2dc_index, x
 	
-	lda #31
+	lda #21
 	sta sprspace+sp_l2dc_timer, x
 	
 @drawTweeningPlayer:
 	; pick some default sprites
-	lda #chrb_splv2m
+	lda #chrb_splv2b
 	sta spr1_bknum
 	
 	jsr calculateXYOnScreen
-	
-	lda #$44
-	sta temp6
-	lda #$46
-	sta temp7
 	
 	lda #pal_chaser
 	jsr gm_allocate_palette
@@ -1388,7 +1374,7 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	
 	lda adv_trace_y_hi, y
 	sbc camera_y_hi
-	bne @return
+	bne @return2
 	
 	lda temp3
 	sec
@@ -1414,7 +1400,7 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	lsr
 	and #%00000011
 	; facing state is now in carry
-	sta spr1_bknum
+	sta plattemp1
 	
 	lda #0
 	ror
@@ -1424,16 +1410,41 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	sta temp5
 	sta temp8
 	
+	; the goal is to load the OTHER bank into spr1_bknum
+	; the reason why is because spr0_bknum may change. And we are trying to draw the character
+	; again, potentially from a different bank.
+	;
+	; If we're trying to draw from the same bank as spr0_bknum, then so be it, just use that bank.
+	; Else, we'll use our reserved bank, thank you very much :)
+	lda spr0_bknum
+	eor #1
+	sta spr1_bknum
+	
+	; now compare the two banks. we'll add either 0 or $40, depending on whether or not
+	; the sprite bank we are trying to use is loaded into spr0 or spr1
+	lda spr0_bknum
+	cmp plattemp1
+	beq @load0
+	; load #$40 to the diff
+	lda #$40
+	sta plattemp2
+	bne @doneWithBankDiscrim
+@load0:
+	; load #$00 to the diff, since
+	lda #0
+	sta plattemp2
+@doneWithBankDiscrim:
+	
 	; draw the body
 	sty temp9
 	
 	lda adv_trace_sl, y
 	clc
-	adc #$40
+	adc plattemp2
 	sta temp6
 	lda adv_trace_sr, y
 	clc
-	adc #$40
+	adc plattemp2
 	sta temp7
 	lda temp11
 	beq :+
@@ -1518,13 +1529,14 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	sta temp3
 	
 	; then the hair
-	lda #$72
+	lda adv_trace_hl, y
+	clc
+	adc plattemp2
 	sta temp6
 	lda adv_trace_hr, y
-	bmi :+
 	clc
-	adc #$40
-:	sta temp7
+	adc plattemp2
+	sta temp7
 	lda temp11
 	beq :+
 	lda temp7
@@ -1540,6 +1552,27 @@ rotateBy5IntoTemp10:
 	ror temp10
 .endrepeat
 	rts
+
+incrementPoppingInTimer:
+	ldy sprspace+sp_l2dc_ssize, x
+	iny
+	cpy #23
+	bcc :+
+	ldy #23
+:	tya
+	sta sprspace+sp_l2dc_ssize, x
+	lsr
+	lsr
+	lsr
+	tay
+	lda poppingInSprites, y
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	rts
+
+poppingInSprites:	.byte $50,$54,$58,$5C
 
 calculateXYOnScreen:
 	; don't care about the result, only that it calculates temp2 and temp4 for us
@@ -1562,6 +1595,38 @@ calculateXYOnScreen:
 	sec
 	sbc temp10
 	sta temp3
+	rts
+
+prepareTween:
+		ldy #0
+	sty temp10
+	
+	lda camera_x
+	clc
+	adc player_x
+	sec
+	sbc sprspace+sp_x, x
+	sta temp11
+	
+	; [A REGISTER, temp10] represents, the amount to move IN TOTAL. shift it by 5
+	jsr rotateBy5IntoTemp10
+	
+	sta sprspace+sp_vel_x, x
+	lda temp10
+	sta sprspace+sp_vel_x_lo, x
+	
+	; same for Y now
+	sty temp10
+	
+	lda player_y
+	sec
+	sbc sprspace+sp_y, x
+	
+	jsr rotateBy5IntoTemp10
+	
+	sta sprspace+sp_vel_y, x
+	lda temp10
+	sta sprspace+sp_vel_y_lo, x
 	rts
 
 .endproc

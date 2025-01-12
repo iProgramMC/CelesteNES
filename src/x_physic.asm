@@ -2428,6 +2428,10 @@ gm_timercheck:
 	beq :+
 	dec dreinvtmr
 	
+:	lda chasercdown
+	beq :+
+	dec chasercdown
+	
 :	lda forcemovext
 	
 	; if forcemovext == 0, then remove the reference to the climb hop entity
@@ -3285,6 +3289,8 @@ expectedMovement:
 	sta adv_trace_sl, y
 	lda plr_spr_r
 	sta adv_trace_sr, y
+	lda plh_spr_l
+	sta adv_trace_hl, y
 	lda plh_spr_r
 	sta adv_trace_hr, y
 	

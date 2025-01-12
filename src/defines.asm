@@ -151,6 +151,7 @@ sp_l2cf_timer = sp_entspec1
 sp_l2dc_state = sp_entspec1
 sp_l2dc_index = sp_entspec2
 sp_l2dc_timer = sp_entspec3
+sp_l2dc_ssize = sp_entspec4
 
 ; entity flags
 ef_collidable = $01

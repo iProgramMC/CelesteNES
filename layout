@@ -28,7 +28,7 @@ MEMORY
 	BGFXRAM:  start=$7F00, size=$0100, type=rw, file="";
 	
 	# Advanced Trace
-	ADVTRACE: start=$6800, size=$0200, type=rw, file="";
+	ADVTRACE: start=$6800, size=$0240, type=rw, file="";
 	
 	# NOTE: It's actually possible to have 64 PRG banks and 32 CHR banks.
 	# Currently we only use 16 banks of PRG space because it's enough.
