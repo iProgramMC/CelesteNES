@@ -40,10 +40,10 @@ ch2_mirror_shatter:
 	
 	; activate the dream block, and wait for the camera to scroll back to the main room
 	trigger     10
-	wait        80
+	wait        115
 	
 	trigger     11
-	wait        210
+	wait        180
 	wait        210
 	
 	; done!

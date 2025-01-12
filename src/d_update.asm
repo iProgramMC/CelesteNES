@@ -906,6 +906,7 @@ dlg_cmd_lockinp:
 	sta gamectrl3
 	
 	lda #0
+	sta player_vl_x
 	rts
 
 ; Unlock Input

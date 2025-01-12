@@ -212,7 +212,7 @@ level2_s_mirror:
 
 @state_Reflected:
 	lda player_x
-	cmp #$B0
+	cmp #$B8
 	bcc @return
 	
 	; came back, begin the cutscene and wait
@@ -221,10 +221,10 @@ level2_s_mirror:
 	lda temp1
 	pha
 	
-	txa
+	;txa
 	ldx #<ch2_mirror_shatter
 	ldy #>ch2_mirror_shatter
-	jsr dlg_begin_cutscene_g
+	jsr beginCutsceneAndCheckPlayerX
 	
 	pla
 	sta temp1
@@ -394,9 +394,9 @@ level2_s_mirror:
 
 @stateIdleReturn:
 	inc sprspace+sp_l2mi_state, x
-	lda gamectrl
-	ora #gs_camlock
-	sta gamectrl
+	;lda gamectrl
+	;ora #gs_camlock
+	;sta gamectrl
 	rts
 
 @state_RevealDreamBlock_Unveil:
@@ -798,7 +798,17 @@ drawBadeline:
 
 @dontDraw2:
 	rts
-	
+
+beginCutsceneAndCheckPlayerX:
+	jsr dlg_begin_cutscene_g
+	lda #$C2
+	cmp player_x
+	bcs :+
+	sta player_x
+:	lda #0
+	sta dashtime
+	rts
+
 put4Sprites:
 	ldy #$5E
 	jsr oam_putsprite
