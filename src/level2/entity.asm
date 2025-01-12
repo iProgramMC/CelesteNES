@@ -1259,8 +1259,11 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	beq @state_Chase_
 	cmp #1
 	beq @state_Tween
+	cmp #3
+	bne :+
+	jmp @state_Dead
 	
-	lda sprspace+sp_l2dc_timer, x
+:	lda sprspace+sp_l2dc_timer, x
 	bne @alreadyPoppedIn
 	
 	; check if we can pop her in
@@ -1288,7 +1291,7 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	lda advtracehd
 	sta sprspace+sp_l2dc_index, x
 	
-	lda #21
+	lda #32
 	sta sprspace+sp_l2dc_timer, x
 	
 @drawTweeningPlayer:
@@ -1318,6 +1321,11 @@ palettes:	.byte pal_green, pal_green, pal_fire
 @state_Chase_:
 	beq @state_Chase
 
+@incrementStateToDead_:
+	jmp @incrementStateToDead
+@setStateToDeadNoCopyPos_:
+	jmp @setStateToDeadNoCopyPos
+
 @state_Tween:
 	; chaser is tweening towards the player
 	lda sprspace+sp_x_lo, x
@@ -1338,16 +1346,25 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	adc sprspace+sp_vel_y, x
 	sta sprspace+sp_y, x
 	
+	lda playerctrl
+	and #pl_dead
+	bne @setStateToDeadNoCopyPos_
+	
 	dec sprspace+sp_l2dc_timer, x
 	bne @drawTweeningPlayer
 	
 	; start actually chasing
 	inc sprspace+sp_l2dc_state, x
 	bne @drawTweeningPlayer
-	
+
 @state_Chase:
+	; check if the player is dead
+	lda playerctrl
+	and #pl_dead
+	bne @incrementStateToDead_
+	
 	; the entity's position will stay attached to the camera
-	lda #0
+	;lda #0
 	sta sprspace+sp_y, x
 	
 	lda camera_x
@@ -1429,6 +1446,7 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	lda #$40
 	sta plattemp2
 	bne @doneWithBankDiscrim
+	
 @load0:
 	; load #$00 to the diff, since
 	lda #0
@@ -1545,6 +1563,48 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	sty temp7
 :	jmp level2_draw_common_replacement
 
+@state_Dead:
+	lda #chrb_lvl2b
+	sta spr1_bknum
+	
+	inc sprspace+sp_l2dc_timer, x
+	lda sprspace+sp_l2dc_timer, x
+	lsr
+	lsr
+	and #3
+	tay
+	lda laughingSprites, y
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	
+	jmp @drawTweeningPlayer
+
+@incrementStateToDead:
+	lda #3
+	sta sprspace+sp_l2dc_state, x
+	
+	ldy sprspace+sp_l2dc_index, x
+	
+	; copy the player's positions
+	lda adv_trace_x, y
+	sta sprspace+sp_x, x
+	lda adv_trace_x_pg, y
+	sta sprspace+sp_x_pg, x
+	lda adv_trace_y, y
+	sta sprspace+sp_y, x
+	lda #0
+	sta sprspace+sp_l2dc_timer, x
+	beq @state_Dead
+
+@setStateToDeadNoCopyPos:
+	lda #3
+	sta sprspace+sp_l2dc_state, x
+	lda #0
+	sta sprspace+sp_l2dc_timer, x
+	beq @state_Dead
+	
 rotateBy5IntoTemp10:
 .repeat 5, i
 	cmp #$80
@@ -1573,6 +1633,7 @@ incrementPoppingInTimer:
 	rts
 
 poppingInSprites:	.byte $50,$54,$58,$5C
+laughingSprites:	.byte $40,$44,$48,$4C
 
 calculateXYOnScreen:
 	; don't care about the result, only that it calculates temp2 and temp4 for us
