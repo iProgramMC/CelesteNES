@@ -1,4 +1,4 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 
 ;   temp1 - Entity Index (passed in through X too)
 ;   temp2 - X Screen Position
@@ -635,6 +635,33 @@ tableTimer:	.byte 0, 10
 	lda #chrb_splvl2
 	sta spr1_bknum
 	
+	lda sprspace+sp_l1cf_state, x
+	beq @stateIdle
+	cmp #1
+	beq @stateWaiting
+	cmp #2
+	beq @stateBurning
+	
+@stateIdle:
+	lda player_x
+	cmp #$C0
+	bcc @return
+	
+	inc sprspace+sp_l1cf_state, x
+	
+	lda temp1
+	pha
+	ldx #<ch1_ending
+	ldy #>ch1_ending
+	jsr dlg_begin_cutscene_g
+	pla
+	sta temp1
+	
+@return:
+@stateWaiting:
+	rts
+	
+@stateBurning:
 	lda #pal_fire
 	jsr gm_allocate_palette
 	sta temp5

@@ -11,7 +11,9 @@ level1_music:
 	.word music_data_ch1 ; song list
 	.byte $00            ; default song
 
-.include "entity.asm"
 .include "roomlist.asm"
 .include "warplist.asm"
 .include "palette.asm"
+.include "dialog.asm"
+.res 400
+.include "entity.asm"

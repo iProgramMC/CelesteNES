@@ -130,13 +130,14 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	jsr gm_update_game_cont
-	jsr gm_check_pause
-	
 	lda paused
 	bne @gamePaused
 	
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
+	
+	jsr gm_update_game_cont
+	jsr gm_check_pause
+	
 	jsr gm_draw_respawn
 	
 	lda camera_y_hi

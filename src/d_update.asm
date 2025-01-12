@@ -36,9 +36,9 @@ dlg_start_dialog:
 	ora gamectrl
 	sta gamectrl
 	
-	lda #<irq_dialog_split
+	lda #<irq_idle
 	sta irqaddr
-	lda #>irq_dialog_split
+	lda #>irq_idle
 	sta irqaddr+1
 	
 	jsr @enqueueColumnsForClearing
@@ -230,6 +230,14 @@ dlg_start_dialog:
 
 @setupDialogSplit:
 	; dialog is now open, scrollsplit time
+	; disable the idle IRQ first though
+	sta mmc3_irqdi
+	
+	lda #<irq_dialog_split
+	sta irqaddr
+	lda #>irq_dialog_split
+	sta irqaddr+1
+	
 	lda #58
 	sta scrollsplit
 	
