@@ -133,6 +133,9 @@
 ; Madeline dialog frames
 .segment "CHR_DMADE"
 .incbin  "chr/d_made.chr"
+; Badeline dialog frames
+.segment "CHR_DBADE"
+.incbin  "chr/d_bade.chr"
 ; Theo dialog frames
 .segment "CHR_DTHEO"
 .incbin  "chr/d_theo.chr"

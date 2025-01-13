@@ -101,22 +101,22 @@ MEMORY
 	CHR_SLV2L: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$49;
 	CHR_SLV2M: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4A;
 	CHR_SLV2N: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4B;
+	CHR_PAUSE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C;
+	CHR_DPLDI: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$50;
+	CHR_U10_B: start=$1400, size=$0400, fill=yes, fillval=$FF, bank=$51;
+	CHR_U10_C: start=$1800, size=$0400, fill=yes, fillval=$FF, bank=$52;
+	CHR_U10_D: start=$1C00, size=$0400, fill=yes, fillval=$FF, bank=$53;
 	
-	CHR_UN003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C;
-	CHR_UN004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$50;
 	CHR_UN005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$54;
 	CHR_UN006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58;
 	CHR_UN007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C;
-	CHR_UN008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
+	CHR_UN003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
+	CHR_UN004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
 	
 	# Extra Banks
-	CHR_PAUSE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
-	CHR_DPLDI: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$68;
-	CHR_U10_B: start=$1400, size=$0400, fill=yes, fillval=$FF, bank=$69;
-	CHR_U10_C: start=$1800, size=$0400, fill=yes, fillval=$FF, bank=$6A;
-	CHR_U10_D: start=$1C00, size=$0400, fill=yes, fillval=$FF, bank=$6B;
 	
 	## Dialog Pattern Tables ##
+	CHR_DBADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68;
 	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$6C;
 	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$70;
 	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$74;
@@ -196,7 +196,7 @@ SEGMENTS
 	CHR_UN005: load = CHR_UN005, type = ro;
 	CHR_UN006: load = CHR_UN006, type = ro;
 	CHR_UN007: load = CHR_UN007, type = ro;
-	CHR_UN008: load = CHR_UN008, type = ro;
+	CHR_DBADE: load = CHR_DBADE, type = ro;
 	CHR_PAUSE: load = CHR_PAUSE, type = ro;
 	CHR_DPLDI: load = CHR_DPLDI, type = ro;
 	CHR_U10_B: load = CHR_U10_B, type = ro;

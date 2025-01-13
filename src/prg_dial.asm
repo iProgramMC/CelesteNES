@@ -13,6 +13,7 @@ dlg_cursor_x:	.res 1 ; the X position of the cursor
 dlg_cursor_y:	.res 1 ; the Y position of the cursor
 dlg_crsr_home:	.res 1 ; the home X position (on the $0A/'\n' character, will go here and advance row)
 dlg_port_pal:	.res 1 ; the palette used by the portrait
+dlg_port_pala:  .res 1 ; the allocated palette
 dlg_temporary:	.res 1
 dlg_skipping:	.res 1 ; is the cutscene being skipped
 dlg_havenext:	.res 1 ; if this dialog has a "next" dialog after it

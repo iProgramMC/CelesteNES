@@ -130,9 +130,12 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
+	inc framectr
+	lda scrollsplit
+	beq :+
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
 	
-	jsr gm_update_game_cont
+:	jsr gm_update_game_cont
 	jsr gm_check_pause
 	
 	lda paused
@@ -144,10 +147,7 @@ gm_game_update:
 	sta camera_y_ho
 	
 	jsr gm_clear_palette_allocator
-	inc framectr
-	lda scrollsplit
-	beq :+
-:	jsr gm_update_lift_boost
+	jsr gm_update_lift_boost
 	jsr gm_check_climb_input
 	jsr gm_clear_collided
 	jsr gm_physics

@@ -53,6 +53,10 @@ MAD_normal   = $00
 MAD_sad      = $01
 MAD_upset    = $02
 MAD_angry    = $03
+MAD_distract = $04
+
+; ** Badeline's expressions
+BAD_normal   = $00
 
 ; ** Granny's expressions
 GRN_normal   = $00

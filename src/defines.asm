@@ -331,10 +331,11 @@ chrb_lvl2h  = $34
 ;chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
 
 ; EXTRA SPRITE BANKS
-chrb_pause  = $64
-chrb_dpldi  = $68
+chrb_pause  = $4C
+chrb_dpldi  = $50
 
 ; DIALOG DATA BANKS
+chrb_dbade  = $68   ; graphics bank for dialog with Badeline
 chrb_dcntr  = $6C   ; dialogue binary counting pattern
 chrb_dmain  = $70
 chrb_dmade  = $74   ; graphics bank for dialog with Madeline

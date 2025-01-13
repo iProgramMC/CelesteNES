@@ -51,15 +51,52 @@ ch2_mirror_shatter:
 	unlock_input
 	end
 
+; Madeline frames:
+;   normal
+;   distracted
+;   sad
+; Badeline frames:
+;   normal
+;   worried
+;   angry
+;   upset
+;   scoff
+;   serious
+
 ch2_badeline_start:
 	begin
 	lock_input
 	
 	wait        5
-	speaker     SPK_madeline ; SPK_badeline
-	expression  MAD_normal
-	dialogE     @d0
+	speaker     SPK_badeline
+	expression  BAD_normal
+	dialog2     @d0
 	
+	wait        60
+	right
+	speaker     SPK_madeline
+	expression  MAD_distract
+	dialog2     @d1
+	
+	wait        20
+	left
+	speaker     SPK_badeline
+	expression  BAD_normal
+	dialog2     @d2
+	
+	; trigger-- Badeline is revealed
+	wait        50
+	right
+	speaker     SPK_madeline
+	expression  MAD_sad
+	dialog2     @d3
+	
+	left
+	speaker     SPK_badeline
+	expression  BAD_normal
+	dialogE     @d4
+	
+	; TODO
 	
 	trigger     0
 	unlock_input

@@ -6,23 +6,34 @@ speaker_banks:
 	.byte chrb_dmade ; SPK_madeline
 	.byte chrb_dgran ; SPK_granny
 	.byte chrb_dtheo ; SPK_theo
+	.byte chrb_dbade ; SPK_badeline
 
 speaker_palettes:
-	.byte $1
-	.byte $2
-	.byte $2
+	.byte pal_red
+	.byte pal_granny
+	.byte pal_green
+	.byte pal_chaser
 
 speaker_portrait_tables_lo:
 	.byte <portraits_madeline
 	.byte <portraits_granny
 	.byte <portraits_madeline
+	.byte <portraits_badeline
 
 speaker_portrait_tables_hi:
 	.byte >portraits_madeline
 	.byte >portraits_granny
 	.byte >portraits_madeline
+	.byte >portraits_badeline
 
 portraits_madeline:
+	.word portrait_00
+	.word portrait_10
+	.word portrait_20
+	.word portrait_01
+	.word portrait_X1
+
+portraits_badeline:
 	.word portrait_00
 	.word portrait_10
 	.word portrait_20
@@ -54,6 +65,10 @@ portrait_11:
 	.byte $6A,$6C,$6E,$70,$72
 	.byte $8A,$8C,$8E,$90,$92
 	.byte $AA,$AC,$AE,$B0,$B2
+portrait_X1:
+	.byte $AA,$AC,$AE,$B0,$B2
+	.byte $CA,$CC,$CE,$D0,$D2
+	.byte $EA,$EC,$EE,$F0,$F2
 
 ; ** SUBROUTINE: dlg_set_speaker
 ; desc: Sets the current speaker's portrait bank.
@@ -109,6 +124,10 @@ dlg_set_expression:
 ; ** SUBROUTINE: dlg_draw_portrait
 ; desc: Draws the active portrait.
 .proc dlg_draw_portrait
+	lda dlg_port_pal
+	jsr gm_allocate_palette
+	sta dlg_port_pala
+	
 	ldx #0
 	jsr homeX
 	lda #(dialog_border_upp-8)
@@ -118,7 +137,7 @@ loop:
 	tay
 	lda dlg_portrait, y
 	tay
-	lda dlg_port_pal
+	lda dlg_port_pala
 	jsr oam_putsprite
 	jsr incrementX
 	inx
