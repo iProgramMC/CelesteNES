@@ -94,7 +94,26 @@ ch2_badeline_start:
 	left
 	speaker     SPK_badeline
 	expression  BAD_normal
-	dialogE     @d4
+	dialog2     @d4
+	
+	right
+	speaker     SPK_madeline
+	expression  MAD_distract
+	dialog2     @d5
+	
+	left
+	speaker     SPK_badeline
+	expression  BAD_worried
+	dialog2     @d6
+	
+	expression  BAD_angry
+	dialog      @d7
+	dialog2     @d8
+	
+	right
+	speaker     SPK_madeline
+	expression  MAD_distract
+	dialog2     @d9
 	
 	; TODO
 	

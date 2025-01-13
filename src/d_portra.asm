@@ -103,6 +103,7 @@ dlg_set_speaker:
 ; arguments:
 ;     A - current expression
 dlg_set_expression:
+	sta dlg_portraitid
 	asl
 	tay
 	lda (dlg_porttbl), y
@@ -217,12 +218,9 @@ homeX:
 	rts
 
 badelineExtra:
+	jsr badelineRedEyes	
+
 	lda dlg_portrait+11
-	cmp #$42
-	bne :+
-	jsr badelineRedEyes
-	
-:	lda dlg_portrait+11
 	cmp #$42
 	beq @goToNormalSpeak
 	cmp #$4C
@@ -242,25 +240,53 @@ badelineRedEyes:
 	jsr gm_allocate_palette
 	sta temp11
 	
-	ldy #$C0
+	ldy dlg_portraitid
+	lda @leftEyeOffsets, y
+	sta temp9
+	lda @eyeSpriteNumbers, y
+	sta temp10
+	
+	cpy #BAD_scoff
+	bne :+
+	inc x_crd_temp
+:	cpy #BAD_worried
+	bne :+
+	lda y_crd_temp
+	clc
+	adc #4
+	sta y_crd_temp
+:	lda temp10
+	tay
+	sty temp10
+	lda temp11
 	jsr oam_putsprite
 	
 	jsr incrementX
 	
 	lda temp11
-	ldy #$C2
+	ldy temp10
+	iny
+	iny
+	sty temp10
+	
 	jsr oam_putsprite
 	
 	lda x_crd_temp
 	clc
-	adc #12
+	adc temp9
 	sta x_crd_temp
 	
 	lda temp11
-	ldy #$C4
+	ldy temp10
+	iny
+	iny
 	jsr oam_putsprite
 	
 	rts
+
+; note: anatomically left - it's actually on the right!
+@leftEyeOffsets:	.byte 12, 10, 8,  8
+@eyeSpriteNumbers:	.byte $C0,$C6,$E0,$CC
 
 madelineExtra:
 	lda dlg_portrait+11

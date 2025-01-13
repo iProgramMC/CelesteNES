@@ -57,6 +57,9 @@ MAD_distract = $04
 
 ; ** Badeline's expressions
 BAD_normal   = $00
+BAD_worried  = $01
+BAD_scoff    = $02
+BAD_angry    = $03
 
 ; ** Granny's expressions
 GRN_normal   = $00
