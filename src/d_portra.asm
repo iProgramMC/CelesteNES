@@ -158,11 +158,16 @@ break:
 	beq grannyExtra
 	cmp #chrb_dmade
 	beq madelineExtra_
+	cmp #chrb_dbade
+	beq badelineExtra_
 return:
 	rts
 
 madelineExtra_:
 	jmp madelineExtra
+
+badelineExtra_:
+	jmp badelineExtra
 
 grannyExtra:
 	lda dlg_portrait+11
@@ -211,15 +216,61 @@ homeX:
 	sta x_crd_temp
 	rts
 
+badelineExtra:
+	lda dlg_portrait+11
+	cmp #$42
+	bne :+
+	jsr badelineRedEyes
+	
+:	lda dlg_portrait+11
+	cmp #$42
+	beq @goToNormalSpeak
+	cmp #$4C
+	beq @goToNormalSpeak
+	rts
+
+@goToNormalSpeak:
+	jmp madeline_normalSpeak
+
+badelineRedEyes:
+	jsr homeX
+	jsr incrementX
+	lda #(dialog_border_upp-8+16)
+	sta y_crd_temp
+	
+	lda #pal_red
+	jsr gm_allocate_palette
+	sta temp11
+	
+	ldy #$C0
+	jsr oam_putsprite
+	
+	jsr incrementX
+	
+	lda temp11
+	ldy #$C2
+	jsr oam_putsprite
+	
+	lda x_crd_temp
+	clc
+	adc #12
+	sta x_crd_temp
+	
+	lda temp11
+	ldy #$C4
+	jsr oam_putsprite
+	
+	rts
+
 madelineExtra:
 	lda dlg_portrait+11
 	cmp #$42
-	beq @normalSpeak
+	beq madeline_normalSpeak
 	cmp #$4C
-	beq @normalSpeak
+	beq madeline_normalSpeak
 	rts
 	
-@normalSpeak:
+madeline_normalSpeak:
 	; normal, so select mouth frame
 	lda dlg_speaktimer
 	cmp #$FF

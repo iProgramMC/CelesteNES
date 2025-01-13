@@ -1230,7 +1230,7 @@ gm_load_hair_palette:
 	lda dbenable
 	bne :+
 	ldx #chrb_lvl2e
-:	cmp #2
+:	cmp #3
 	bne :+
 	ldy #chrb_gensp1
 :	stx bg1_bknum
