@@ -128,10 +128,10 @@ level2_r10_,992,-1200
 Props,level2_r10_,2,0
 Spawn,level2_r10_,296,8
 level2_r2_,1056,-720
-Props,level2_r2_,0,0
+Props,level2_r2_,2,0
 Spawn,level2_r2_,24,0
 level2_r2,1056,-480
-Props,level2_r2,0,0
+Props,level2_r2,2,0
 Spawn,level2_r2,24,56
 Spawn,level2_r2,336,160
 level2_r11,1408,-480

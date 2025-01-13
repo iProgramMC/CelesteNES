@@ -296,8 +296,8 @@ level2_r2__t:
 	.byte $4A,$83,$FF
 level2_r2_:
 	.byte 32, 0
-	.byte 71, 72, 255, 255
-	.byte 248, 0, 0, 0
+	.byte 255, 71, 255, 255
+	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
 	.word level2_r2__t
@@ -357,7 +357,7 @@ level2_r12bp_t:
 	.byte $2F,$85,$FF
 level2_r12bp:
 	.byte 32, 0
-	.byte 255, 255, 77, 78
+	.byte 255, 255, 75, 76
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
@@ -400,7 +400,7 @@ level2_end_chase_t:
 	.byte $86,$FF
 level2_end_chase:
 	.byte 40, 0
-	.byte 255, 255, 88, 255
+	.byte 255, 255, 86, 255
 	.byte 0, 0, 0, 0
 	.byte 40
 	.byte 255

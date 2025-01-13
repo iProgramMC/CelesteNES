@@ -987,11 +987,11 @@ level2_r12b_t:
 	.byte $FF
 level2_r12b:
 	.byte 48, 0
-	.byte 255, 81, 79, 80
+	.byte 255, 79, 77, 78
 	.byte 0, 12, 0, 0
 	.byte 32
 	.byte 254, 0, 0, 0
-	.byte 82, 0, 0, 0
+	.byte 80, 0, 0, 0
 	.byte 4, 0, 0, 0
 	.word level2_r12b_t
 	.word level2_r12b_p
@@ -1083,7 +1083,7 @@ level2_r12_t:
 	.byte $85,$FF
 level2_r12:
 	.byte 60, 0
-	.byte 255, 255, 83, 84
+	.byte 255, 255, 81, 82
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
@@ -1174,11 +1174,11 @@ level2_r12d_t:
 	.byte $AC,$EE,$FF
 level2_r12d:
 	.byte 48, 0
-	.byte 86, 255, 255, 255
+	.byte 84, 255, 255, 255
 	.byte 36, 0, 0, 0
 	.byte 32
 	.byte 254, 0, 0, 0
-	.byte 85, 0, 0, 0
+	.byte 83, 0, 0, 0
 	.byte 244, 0, 0, 0
 	.word level2_r12d_t
 	.word level2_r12d_p
