@@ -289,13 +289,15 @@ badelineRedEyes:
 @eyeSpriteNumbers:	.byte $C0,$C6,$E0,$CC
 
 madelineExtra:
+	jsr madelineWhiteEyes
+	
 	lda dlg_portrait+11
 	cmp #$42
 	beq madeline_normalSpeak
 	cmp #$4C
 	beq madeline_normalSpeak
 	rts
-	
+
 madeline_normalSpeak:
 	; normal, so select mouth frame
 	lda dlg_speaktimer
@@ -328,6 +330,62 @@ madeline_normalSpeak:
 @mouthFrames:
 	.byte $44, $6A, $72, $6E
 	.byte $4E, $8A, $92, $8E
+
+madelineWhiteEyes:
+	jsr homeX
+	jsr incrementX
+	lda #(dialog_border_upp-8+16)
+	sta y_crd_temp
+	
+	lda #pal_gray
+	jsr gm_allocate_palette
+	sta temp11
+	
+	ldy dlg_portraitid
+	lda @leftEyeOffsets, y
+	sta temp9
+	lda @eyeSpriteNumbers, y
+	sta temp10
+	
+	cpy #MAD_distract
+	bne :+
+	lda x_crd_temp
+	sec
+	sbc #8
+	sta x_crd_temp
+	inc y_crd_temp
+	inc y_crd_temp
+:	lda temp10
+	tay
+	sty temp10
+	lda temp11
+	jsr oam_putsprite
+	
+	jsr incrementX
+	
+	lda temp11
+	ldy temp10
+	iny
+	iny
+	sty temp10
+	
+	jsr oam_putsprite
+	
+	lda x_crd_temp
+	clc
+	adc temp9
+	sta x_crd_temp
+	
+	lda temp11
+	ldy temp10
+	iny
+	iny
+	jsr oam_putsprite
+	
+	rts
+
+@leftEyeOffsets:	.byte 8,  8,  12, 12, 16
+@eyeSpriteNumbers:	.byte $76,$96,$B6,$D6,$F6
 
 transformYBasedOnExpression:
 	lda dlg_portrait+11

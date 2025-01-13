@@ -1865,7 +1865,7 @@ gm_on_level_init:
 	lda (musictable), y
 	tay
 	
-	lda #1
+	lda #1 ; NTSC
 	jsr famistudio_init
 	
 	ldy #2
