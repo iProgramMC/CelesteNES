@@ -113,48 +113,6 @@ oam_dma_and_read_cont:
 	pla               ; pop the signature nybble
 	rts
 
-; ** SUBROUTINE: far_call2
-; desc: Does a far call in a slightly slower, but slimmer way
-; parameters:
-;     X - The low byte of the address
-;     Y - The high byte of the address
-;     A - The bank to load
-far_call2:
-	stx farcalladdr
-	sty farcalladdr+1
-	tay
-	jmp far_call
-
-; ** SUBROUTINE: oam_putsprite
-; arguments:
-;   a - attributes
-;   y - tile number
-;   [x_crd_temp] - y position of sprite
-;   [y_crd_temp] - y position of sprite
-; clobbers:  a, y
-; desc:      inserts a sprite into OAM memory
-oam_putsprite:
-	pha             ; preserve the attributes
-	tya
-	pha             ; preserve the tile number
-	ldy oam_wrhead  ; load the write head into Y
-	lda y_crd_temp  ; store the Y coordinate into OAM
-	sta oam_buf, y
-	iny             ; move on to the tile number byte
-	pla
-	; flip bit 1 because I am lazy and don't want to make every tile index be odd...
-	eor #$01
-	sta oam_buf, y  ; store the tile number into OAM
-	iny
-	pla
-	sta oam_buf, y  ; store the attributes into OAM
-	iny
-	lda x_crd_temp
-	sta oam_buf, y  ; store the X coordinate into OAM
-	iny
-	sty oam_wrhead
-	rts
-
 ; ** SUBROUTINE: calc_approach
 ; desc: Approaches an 8-bit value towards another 8-bit value.
 ;
@@ -201,59 +159,6 @@ calc_approach:
 	rts
 
 .endif
-
-; ** SUBROUTINE: fade_once_color
-; desc: Fades a color once.
-.proc fade_once_color
-	cmp #$10
-	bcc justBlack
-	
-	cmp #$1D
-	beq justBlack  ; special exception as we'd end up in $0D
-	
-	sec
-	sbc #$10
-	rts
-
-justBlack:
-	lda #$0F
-	rts
-.endproc
-
-; ** SUBROUTINE: fade_twice_if_high
-; desc: Fades twice if >= $30, fades once otherwise
-.proc fade_twice_if_high
-	cmp #$30
-	bcc fadeOnce
-	
-	jsr fade_once_color
-fadeOnce:
-	jmp fade_once_color
-.endproc
-
-; ** SUBROUTINE: ppu_wrstring
-; arguments:
-;   x - low 8 bits of address
-;   y - high 8 bits of address
-;   a - length of string
-; assumes:  - PPUADDR was programmed to the PPU dest address
-;             writes can happen (in vblank or rendering disabled)
-;           - that the string does not straddle a page
-;             boundary (256 bytes)
-; desc:     copies a string from memory to the PPU
-; clobbers: PPUADDR, all regs
-ppu_wrstring:
-	stx wr_str_temp       ; store the address into a temporary
-	sty wr_str_temp + 1   ; indirection slot
-	ldy #$00
-	tax                   ; A cannot be incremented with 1 instruction
-ppu_wrsloop:              ; so use X for that purpose
-	lda (wr_str_temp), y  ; use that indirection we setup earlier
-	sta ppu_data
-	iny
-	dex
-	bne ppu_wrsloop       ; if X != 0 print another
-	rts
 
 ; ** ENTRY POINT
 reset:

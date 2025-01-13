@@ -104,7 +104,7 @@ level2_banks:
 	.byte prgb_lvl2e	; level2_w_s0_to_s1
 	.byte prgb_lvl2a	; level2_w_r1_to_0
 	.byte prgb_lvl2c	; level2_w_r1_to_d0
-	.byte prgb_lvl2d	; level2_w_r1_to_r2_fake
+	.byte prgb_lvl2e	; level2_w_r1_to_r2_fake
 	.byte prgb_lvl2d	; level2_w_r1_to_r1b
 	.byte prgb_lvl2a	; level2_w_d1_to_0
 	.byte prgb_lvl2c	; level2_w_d1_to_d0
@@ -163,10 +163,10 @@ level2_banks:
 	.byte prgb_lvl2a	; level2_w_r9z_to_r10
 	.byte prgb_lvl2c	; level2_w_r9b_to_r9
 	.byte prgb_lvl2a	; level2_w_r10_to_r10_
-	.byte prgb_lvl2d	; level2_w_r10__to_r2_
+	.byte prgb_lvl2e	; level2_w_r10__to_r2_
 	.byte prgb_lvl2a	; level2_w_r2__to_r10_
 	.byte prgb_lvl2d	; level2_w_r2__to_r2
-	.byte prgb_lvl2d	; level2_w_r2_to_r2_
+	.byte prgb_lvl2e	; level2_w_r2_to_r2_
 	.byte prgb_lvl2d	; level2_w_r2_to_r11
 	.byte prgb_lvl2d	; level2_w_r11_to_r2
 	.byte prgb_lvl2e	; level2_w_r11_to_r12bp

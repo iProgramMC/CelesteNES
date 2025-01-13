@@ -147,9 +147,9 @@ level2_s_mirror:
 	sta gamectrl
 	
 	; Dream Blocks are enabled, so set the broken mirror already and stop
-	lda #<mirrorFrame5
+	lda #<level2_mirror_frame_5
 	sta setdataaddr
-	lda #>mirrorFrame5
+	lda #>level2_mirror_frame_5
 	sta setdataaddr+1
 	
 	lda #6
@@ -359,9 +359,9 @@ level2_s_mirror:
 :	lsr
 	lsr
 	tax
-	lda dataSourcesLow, x
+	lda level2_mirror_frames_lo, x
 	sta setdataaddr
-	lda dataSourcesHigh, x
+	lda level2_mirror_frames_hi, x
 	sta setdataaddr+1
 	
 	lda #6
@@ -1044,52 +1044,7 @@ revealDreamBlock_revealRow:
 	ldx temp1
 	rts
 
-dataSourcesLow: 	.byte <mirrorFrame0, <mirrorFrame1, <mirrorFrame2, <mirrorFrame3, <mirrorFrame4, <mirrorFrame5
-dataSourcesHigh:	.byte >mirrorFrame0, >mirrorFrame1, >mirrorFrame2, >mirrorFrame3, >mirrorFrame4, >mirrorFrame5
-
-mirrorFrame0:
-	.byte $61,$71,$72,$79
-	.byte $62,$72,$73,$7A
-	.byte $63,$73,$74,$7B
-	.byte $64,$74,$75,$7C
-	.byte $65,$75,$6D,$7D
-	.byte $66,$76,$6E,$7E
-mirrorFrame1:
-	.byte $61,$71,$72,$5F
-	.byte $62,$72,$73,$7A
-	.byte $63,$73,$74,$7B
-	.byte $64,$4F,$75,$7C
-	.byte $65,$75,$6D,$7D
-	.byte $66,$76,$6E,$7E
-mirrorFrame2:
-	.byte $61,$71,$72,$5F
-	.byte $62,$72,$16,$06
-	.byte $63,$73,$27,$7B
-	.byte $64,$4F,$28,$7C
-	.byte $65,$75,$6D,$7D
-	.byte $66,$76,$6E,$7E
-mirrorFrame3:
-	.byte $61,$01,$01,$01
-	.byte $69,$01,$01,$01
-	.byte $6A,$01,$01,$01
-	.byte $6B,$01,$01,$01
-	.byte $6C,$01,$01,$01
-	.byte $66,$01,$01,$01
-mirrorFrame4:
-	.byte $61,$01,$01,$26
-	.byte $69,$01,$17,$01
-	.byte $6A,$02,$18,$01
-	.byte $6B,$03,$19,$29
-	.byte $6C,$01,$01,$01
-	.byte $66,$01,$01,$01
-mirrorFrame5:
-	.byte $04,$0A,$1A,$2A
-	.byte $05,$0B,$1B,$2B
-	.byte $63,$0C,$1C,$2C
-	.byte $07,$0D,$1D,$2D
-	.byte $08,$0E,$1E,$2E
-	.byte $09,$0F,$1F,$2F
-
+; Mirror frame data was here, but moved out to bank_3.asm
 .endproc
 
 ; ** IRQ HANDLER: level2_dream_block_reveal_irq
@@ -1110,62 +1065,7 @@ mirrorFrame5:
 	rti
 .endproc
 
-level2_db_opening_row_1: .byte $41,$42,$41,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$36,$42
-level2_db_opening_row_2: .byte $4C,$5B,$4D,$5D,$55,$42,$44,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$47,$5C
-level2_db_opening_row_3: .byte $00,$00,$00,$00,$00,$4D,$58,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$42,$43,$56,$00
-level2_db_opening_row_4: .byte $00,$00,$00,$00,$00,$5B,$57,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56,$5C,$5D,$00,$00
-level2_db_opening_row_5: .byte $00,$00,$00,$00,$00,$00,$55,$42,$43,$41,$42,$37,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$41,$41,$56,$4C,$5B,$00,$00,$00,$00,$00
-level2_db_opening_row_6: .byte $00,$00,$00,$00,$00,$00,$00,$5D,$5C,$4C,$4D,$55,$43,$41,$44,$F8,$D8,$D9,$DA,$DB,$DC,$DD,$DE,$DF,$FD,$49,$5C,$4E,$00,$00,$00,$00,$00,$00,$00,$00
-level2_db_closing_row_1: .byte $00,$00,$00,$4B,$57,$00,$00,$00,$00,$00,$00,$36,$42,$42,$41,$41,$41,$41,$42,$42,$42,$43,$43,$42,$42,$43,$41,$42,$44,$00,$00,$47,$4C,$00,$00,$00
-level2_db_closing_row_2: .byte $00,$00,$00,$4C,$58,$00,$00,$00,$40,$41,$41,$56,$5C,$5D,$5C,$4D,$4C,$5E,$5B,$4D,$4D,$4C,$5C,$4C,$5E,$5D,$4C,$4D,$55,$43,$41,$56,$00,$00,$00,$00
-level2_db_closing_row_3: .byte $00,$00,$00,$00,$55,$41,$42,$43,$56,$5D,$4B,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$4C,$5E,$00,$00,$00,$00,$00
-level2_db_closing_row_4: .byte $00,$00,$00,$00,$00,$5E,$5C,$4D,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-level2_db_opening_empty: .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
-level2_db_opening_rows_lo:
-	.byte <level2_db_opening_row_6
-	.byte <level2_db_opening_row_5
-	.byte <level2_db_opening_row_4
-	.byte <level2_db_opening_row_3
-	.byte <level2_db_opening_row_2
-	.byte <level2_db_opening_row_1
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-level2_db_opening_rows_hi:
-	.byte >level2_db_opening_row_6
-	.byte >level2_db_opening_row_5
-	.byte >level2_db_opening_row_4
-	.byte >level2_db_opening_row_3
-	.byte >level2_db_opening_row_2
-	.byte >level2_db_opening_row_1
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-level2_db_closing_rows_lo:
-	.byte <level2_db_closing_row_1
-	.byte <level2_db_closing_row_2
-	.byte <level2_db_closing_row_3
-	.byte <level2_db_closing_row_4
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-level2_db_closing_rows_hi:
-	.byte >level2_db_closing_row_1
-	.byte >level2_db_closing_row_2
-	.byte >level2_db_closing_row_3
-	.byte >level2_db_closing_row_4
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
+; Dream block opening cutscene data was here, but moved out to bank_3.asm
 
 .proc level2_campfire
 	lda #chrb_splvl2
@@ -1193,7 +1093,7 @@ level2_db_closing_rows_hi:
 	
 	jmp gm_draw_common
 
-palettes:	.byte pal_green, pal_green, pal_fire
+palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 .endproc
 
 ; ** SUBROUTINE: level2_init_adv_trace
@@ -1208,7 +1108,12 @@ palettes:	.byte pal_green, pal_green, pal_fire
 .endproc
 
 .proc level2_dark_chaser
-	lda #g3_transitA
+	lda sprspace+sp_l2dc_state, x
+	cmp #4
+	bcc :+
+	jmp @state_Cutscene
+	
+:	lda #g3_transitA
 	bit gamectrl3
 	bne @return2
 	
@@ -1228,7 +1133,6 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	cmp #3
 	bne :+
 	jmp @state_Dead
-	
 :	lda sprspace+sp_l2dc_timer, x
 	bne @alreadyPoppedIn
 	
@@ -1580,6 +1484,51 @@ palettes:	.byte pal_green, pal_green, pal_fire
 	lda #0
 	sta sprspace+sp_l2dc_timer, x
 	beq @state_Dead
+
+@state_Cutscene:
+	lda #g3_transitA
+	bit gamectrl3
+	bne @state_CutsceneWait
+	
+	lda sprspace+sp_l2dc_state, x
+	cmp #5
+	bcs @state_CutsceneWait
+	
+	lda dbenable
+	cmp #2
+	bcc @continue
+	
+	lda #0
+	sta sprspace+sp_l2dc_state, x
+	rts
+	
+@continue:
+	jsr @state_CutsceneWait
+	
+	inc sprspace+sp_l2dc_state, x
+	txa
+	pha
+	
+	;txa
+	ldx #<ch2_badeline_start
+	ldy #>ch2_badeline_start
+	jsr dlg_begin_cutscene_g
+	lda #2
+	sta dbenable
+	
+	pla
+	sta temp1
+@return3:
+	rts
+
+@state_CutsceneWait:
+	lda #$60
+	sta temp6
+	lda #$62
+	sta temp7
+	lda #0
+	sta temp11
+	jmp @drawTweeningPlayer
 	
 rotateBy5IntoTemp10:
 .repeat 5, i
@@ -1635,7 +1584,7 @@ calculateXYOnScreen:
 	rts
 
 prepareTween:
-		ldy #0
+	ldy #0
 	sty temp10
 	
 	lda camera_x

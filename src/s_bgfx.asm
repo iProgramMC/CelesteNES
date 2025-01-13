@@ -92,7 +92,7 @@ loopDraw:
 	ldx #0
 loopUpdate:
 	lda dbenable
-	cmp #2
+	cmp #3
 	bcs @dontApplyGravity
 	
 	txa
@@ -146,7 +146,16 @@ stars_successors:
 ; desc: Checks if this star is being occluded by a solid tile.
 ; parameters: x_crd_temp, y_crd_temp
 .proc s_bg_check_occluded
-	lda x_crd_temp
+	lda dialogsplit
+	beq :+
+	
+	lda y_crd_temp
+	cmp #60
+	bcs :+
+	lda #1
+	rts
+	
+:	lda x_crd_temp
 	clc
 	adc #3
 	sta temp4

@@ -1554,6 +1554,16 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notBreakable:
+	cmp #e_l2chaser
+	bne @notChaser
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_l2dc_state, y
+	jmp @tyxReturn
+	
+@notChaser:
 	; todo: more cases ...
 	rts
 

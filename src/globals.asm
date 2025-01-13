@@ -421,7 +421,7 @@ spryoffbase : .res 1 ; hair sprite Y offset base (used for af_oddryth)
 plh_forcepal: .res 1 ; forced hair palette if non-zero
 
 ; chapter 2 control
-dbenable    : .res 1 ; 1+ = dream blocks are enabled, 2+ = in "awake" stage
+dbenable    : .res 1 ; 1+ = dream blocks are enabled, 2+ = Badeline initted, 3+ = in "awake" stage
 
 game_cont_force : .res 2
 

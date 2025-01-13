@@ -130,13 +130,13 @@ gamemode_game:
 	and #gs_1stfr
 	beq gm_game_init
 gm_game_update:
-	lda paused
-	bne @gamePaused
-	
 	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
 	
 	jsr gm_update_game_cont
 	jsr gm_check_pause
+	
+	lda paused
+	bne @gamePaused
 	
 	jsr gm_draw_respawn
 	
@@ -1238,73 +1238,5 @@ gm_load_hair_palette:
 	rts
 .endproc
 
-; ** SUBROUTINE: rand
-; arguments: none
-; clobbers:  a
-; returns:   a - the pseudorandom number
-; desc:      generates a pseudo random number
-; credits:   https://www.nesdev.org/wiki/Random_number_generator#Overlapped
-.proc rand
-seed := rng_state
-	lda temp11
-	pha
-	
-	lda seed+1
-	sta temp11 ; store copy of high byte
-	; compute seed+1 ($39>>1 = %11100)
-	lsr ; shift to consume zeroes on left...
-	lsr
-	lsr
-	sta seed+1 ; now recreate the remaining bits in reverse order... %111
-	lsr
-	eor seed+1
-	lsr
-	eor seed+1
-	eor seed+0 ; recombine with original low byte
-	sta seed+1
-	; compute seed+0 ($39 = %111001)
-	lda temp11 ; original high byte
-	sta seed+0
-	asl
-	eor seed+0
-	asl
-	eor seed+0
-	asl
-	asl
-	asl
-	eor seed+0
-	sta seed+0
-	
-	pla
-	sta temp11
-	
-	lda seed+0
-	rts
-.endproc
-
-; ** SUBROUTINE: clear_nt
-; arguments: a - high 8 bits of nametable address (20,24,28,2C)
-; clobbers:  a, x, y
-; assumes:   rendering is disabled (not enough bandwidth to clear the entire nametable during vblank)
-; desc:      clears 1KB of RAM in PPU memory with video output disabled
-clear_nt:
-	sta ppu_addr
-	lda #$00
-	sta ppu_addr
-	lda #blank_tile  ; clear all 1K of vram to 0x20 - the blank tile
-	ldx #$00
-	ldy #$00
-inner_loop:
-	sta ppu_data
-	iny
-	bne inner_loop
-	inx
-	cpx #$04
-	bcc inner_loop   ; jump to the inner loop because y==0 guaranteed
-                     ; we didn't branch because carry was set so y==0
-	rts
-
-
 ; This is seriously supposed to be in PRG_LVL2B, but I'm trying to fit 3.9k of DMC samples..
-.include "g_testdata.asm"
-
+.include "mai_game.asm"
