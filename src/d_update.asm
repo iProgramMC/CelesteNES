@@ -136,6 +136,18 @@ dlg_start_dialog:
 	lda #0
 	sta dlg_cursor_y
 	
+	lda dlg_speaker
+	bne @notMadeline
+	
+	lda playerctrl
+	and #pl_left
+	sta dlg_facing
+	rts
+
+@notMadeline:
+	; TODO: just always right for now
+	lda #0
+	sta dlg_facing
 	rts
 
 @calculatePPUAddresses:

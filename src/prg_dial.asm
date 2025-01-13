@@ -22,6 +22,7 @@ dlg_upds2:		.res 32
 dlg_upds3:		.res 32
 dlg_walkdstx:	.res 1
 dlg_walkdsty:	.res 1
+dlg_speaker:	.res 1
 
 .segment "DLGTEMP"
 
@@ -44,6 +45,7 @@ dlg_waittimer:	.res 1
 dlg_speaktimer:	.res 1
 dlg_portraitx:	.res 1
 dlg_portraitid: .res 1
+dlg_facing:		.res 1  ; 0 - right, non-zero - left
 dlg_portrait:	.res 25
 
 .segment "PRG_DIAL"

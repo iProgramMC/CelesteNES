@@ -75,6 +75,8 @@ portrait_X1:
 ; arguments:
 ;     X - current speaker
 dlg_set_speaker:
+	stx dlg_speaker
+	
 	; set the bank
 	lda speaker_banks, x
 	tay
@@ -127,15 +129,21 @@ dlg_set_expression:
 .proc dlg_draw_portrait
 	lda dlg_port_pal
 	jsr gm_allocate_palette
-	sta dlg_port_pala
+	ldx dlg_facing
+	beq :+
+	ora #obj_fliphz
+:	sta dlg_port_pala
 	
 	ldx #0
 	jsr homeX
 	lda #(dialog_border_upp-8)
 	sta y_crd_temp
 loop:
+	lda dlg_facing
+	bne facingDetour
 	txa
 	tay
+facingDetoured:
 	lda dlg_portrait, y
 	tay
 	lda dlg_port_pala
@@ -163,6 +171,16 @@ break:
 	beq badelineExtra_
 return:
 	rts
+facingDetour:
+	ldy reversedIndices, x
+	jmp facingDetoured
+
+reversedIndices:
+	.byte 4,3,2,1,0
+	.byte 9,8,7,6,5
+	.byte 14,13,12,11,10
+	.byte 19,18,17,16,15
+	.byte 24,23,22,21,20
 
 madelineExtra_:
 	jmp madelineExtra
@@ -206,6 +224,21 @@ incrementX:
 	adc #8
 	sta x_crd_temp
 	rts
+incrementX2:
+	lda dlg_facing
+	beq incrementX
+	lda x_crd_temp
+	sec
+	sbc #8
+	sta x_crd_temp
+	rts
+incrementX1:
+	lda dlg_facing
+	bne :+
+	inc x_crd_temp
+	rts
+:	dec x_crd_temp
+	rts
 incrementY:
 	lda y_crd_temp
 	clc
@@ -216,6 +249,16 @@ homeX:
 	lda dlg_portraitx
 	sta x_crd_temp
 	rts
+homeX2:
+	lda dlg_portraitx
+	sta x_crd_temp
+	lda dlg_facing
+	beq :+
+	lda x_crd_temp
+	clc
+	adc #32
+	sta x_crd_temp
+:	rts
 
 badelineExtra:
 	jsr badelineRedEyes	
@@ -231,14 +274,17 @@ badelineExtra:
 	jmp madeline_normalSpeak
 
 badelineRedEyes:
-	jsr homeX
-	jsr incrementX
+	jsr homeX2
+	jsr incrementX2
 	lda #(dialog_border_upp-8+16)
 	sta y_crd_temp
 	
 	lda #pal_red
 	jsr gm_allocate_palette
-	sta temp11
+	ldx dlg_facing
+	beq :+
+	ora #obj_fliphz
+:	sta temp11
 	
 	ldy dlg_portraitid
 	lda @leftEyeOffsets, y
@@ -248,7 +294,7 @@ badelineRedEyes:
 	
 	cpy #BAD_scoff
 	bne :+
-	inc x_crd_temp
+	jsr incrementX1
 :	cpy #BAD_worried
 	bne :+
 	lda y_crd_temp
@@ -261,7 +307,7 @@ badelineRedEyes:
 	lda temp11
 	jsr oam_putsprite
 	
-	jsr incrementX
+	jsr incrementX2
 	
 	lda temp11
 	ldy temp10
@@ -271,11 +317,21 @@ badelineRedEyes:
 	
 	jsr oam_putsprite
 	
+	lda dlg_facing
+	bne @faceLeft
+	
 	lda x_crd_temp
 	clc
 	adc temp9
 	sta x_crd_temp
+	bne @done
 	
+@faceLeft:
+	lda x_crd_temp
+	sec
+	sbc temp9
+	sta x_crd_temp
+@done:
 	lda temp11
 	ldy temp10
 	iny
@@ -332,14 +388,17 @@ madeline_normalSpeak:
 	.byte $4E, $8A, $92, $8E
 
 madelineWhiteEyes:
-	jsr homeX
-	jsr incrementX
+	jsr homeX2
+	jsr incrementX2
 	lda #(dialog_border_upp-8+16)
 	sta y_crd_temp
 	
 	lda #pal_gray
 	jsr gm_allocate_palette
-	sta temp11
+	ldx dlg_facing
+	beq :+
+	ora #obj_fliphz
+:	sta temp11
 	
 	ldy dlg_portraitid
 	lda @leftEyeOffsets, y
@@ -348,20 +407,35 @@ madelineWhiteEyes:
 	sta temp10
 	
 	cpy #MAD_distract
-	bne :+
+	bne @notDistract
+	
+	lda dlg_facing
+	bne @distractLeft
+	
 	lda x_crd_temp
 	sec
 	sbc #8
 	sta x_crd_temp
+	bne @distractIncrement
+
+@distractLeft:
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	
+@distractIncrement:
 	inc y_crd_temp
 	inc y_crd_temp
-:	lda temp10
+	
+@notDistract:
+	lda temp10
 	tay
 	sty temp10
 	lda temp11
 	jsr oam_putsprite
 	
-	jsr incrementX
+	jsr incrementX2
 	
 	lda temp11
 	ldy temp10
@@ -371,11 +445,21 @@ madelineWhiteEyes:
 	
 	jsr oam_putsprite
 	
+	lda dlg_facing
+	bne @faceLeft
+	
 	lda x_crd_temp
 	clc
 	adc temp9
 	sta x_crd_temp
+	bne @done
 	
+@faceLeft:
+	lda x_crd_temp
+	sec
+	sbc temp9
+	sta x_crd_temp
+@done:
 	lda temp11
 	ldy temp10
 	iny
