@@ -2,13 +2,13 @@
 
 ; some defines:
 dialog_char_timer = 3
-dialog_border     = 8
+dialog_border     = 16
 dialog_border_upp = 20
 dialog_port_size  = 40
 dialog_port_brdr  = 8
 
 dialog_upper_space  = 24 ; 16
-dialog_total_height = 42 ; height until next IRQ
+dialog_total_height = 41 ; height until next IRQ
 
 .segment "DLGRAM"
 dlg_chartimer:	.res 1 ; when this timer ticks down to zero, show a new character
@@ -26,6 +26,7 @@ dlg_upds3:		.res 32
 dlg_walkdstx:	.res 1
 dlg_walkdsty:	.res 1
 dlg_speaker:	.res 1
+dlg_colnum:     .res 1 ; used by dlg_nmi_clear_256
 
 .segment "DLGTEMP"
 

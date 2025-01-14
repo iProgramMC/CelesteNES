@@ -1,13 +1,13 @@
 ; Copyright (C) 2024 iProgramInCpp
 
 ; ** NMI
-nmi_:
+.proc nmi_
 	inc nmicount
 	sta mmc3_irqdi       ; disable IRQ for this frame
 	pha
 	
 	lda nmi_disable
-	bne @dontRunNmi      ; if the game is resetting, don't run the NMI thread
+	bne dontRunNmi       ; if the game is resetting, don't run the NMI thread
 	
 	txa
 	pha
@@ -15,7 +15,7 @@ nmi_:
 	pha
 	
 	lda nmienable
-	beq @onlyAudioPlease ; if NMIs are softly disabled, then ONLY run audio
+	beq onlyAudioPlease  ; if NMIs are softly disabled, then ONLY run audio
 	
 	jsr nmi_check_flags
 	jsr nmi_check_gamemodes
@@ -25,24 +25,25 @@ nmi_:
 	jsr nmi_anims_update
 	
 	lda scrollsplit
-	beq @onlyAudioPlease
+	beq onlyAudioPlease
 	
 	jsr gm_calc_camera_split
 	
-@onlyAudioPlease:
+onlyAudioPlease:
 	; Enable interrupts to run audio. Sometimes, running audio takes a long time
 	; (25 scanlines+!), so let it be interrupted, since our IRQs won't mess with it.
 	cli
 	jsr aud_run
 	
-@dontRunAudio:
+dontRunAudio:
 	pla
 	tay
 	pla
 	tax
-@dontRunNmi:
+dontRunNmi:
 	pla
 	rti
+.endproc
 
 nmi_check_flags:
 	lda #nc_flushcol
@@ -122,7 +123,7 @@ nmi_check_flags:
 	tay
 	lda #mmc3bk_prg1
 	jsr mmc3_set_bank_nmi
-	jmp @end
+	jmp @endForceReturn
 
 @tryCheckCols:
 	lda #nc2_dlgupd
@@ -239,6 +240,17 @@ nmi_check_flags:
 	
 @noTurnOn:
 	rts
+
+@endForceReturn:
+	; do this hacky stuff to avoid doing OAM DMA and reading controllers
+	; (frees up bandwidth for more advanced patterns in dlg_nmi_clear_256)
+	
+	; skip return address from nmi_check_flags call
+	pla
+	pla
+	jsr nmi_scrollsplit
+	jsr nmi_anims_update
+	jmp nmi_::onlyAudioPlease
 
 nmi_check_gamemodes:
 	lda gamemode
@@ -449,12 +461,14 @@ nmi_scrollsplit:
 	lda camera_x
 	sta ppu_scroll
 	
-	lda #<irq_dialog_split
+	lda #<irq_dialog_split_2
 	sta irqaddr
-	lda #>irq_dialog_split
+	lda #>irq_dialog_split_2
 	sta irqaddr+1
 	lda #$E8
 	sta ppu_scroll
+	lda #%00010100 ; only enable sprites
+	sta ppu_mask
 	bne @ahead
 	
 @noDialogSplit:

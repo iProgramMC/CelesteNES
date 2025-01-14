@@ -121,7 +121,11 @@ irq_dialog_split:
 	; restore scroll_x. not sure if this is needed
 	stx scroll_x
 	
+	lda #%00010100
+	sta ppu_mask
 	jsr nmi_anims_normal
+	lda #def_ppu_msk
+	sta ppu_mask
 	
 @otherGameMode:
 	pla
@@ -315,3 +319,19 @@ irq_dialog_split:
 	pha   ;          3 cycles
 	pla   ;          4 cycles
 	rts   ;          6 cycles
+
+irq_dialog_split_2:
+	pha
+	lda #def_ppu_msk
+	sta ppu_mask
+	sta mmc3_irqdi
+	lda #<irq_dialog_split
+	sta irqaddr
+	lda #>irq_dialog_split
+	sta irqaddr+1
+	lda #8-1
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	sta mmc3_irqen
+	pla
+	rti

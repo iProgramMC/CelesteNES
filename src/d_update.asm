@@ -24,6 +24,7 @@ dlg_start_dialog:
 	
 :	ldy #0
 	sty dlg_speaktimer
+	sty dlg_colnum
 @loopOpen:
 	; TODO LIMITATION:
 	; once a dialog is initiated, you CANNOT scroll left.
@@ -168,7 +169,7 @@ dlg_start_dialog:
 	lsr
 	lsr
 	lsr
-	ora #%00100000
+	ora #%00110000
 	sta temp1         ; calculated the high address
 	sta temp3
 	sta splgapaddr+1
@@ -245,15 +246,15 @@ dlg_start_dialog:
 	; disable the idle IRQ first though
 	sta mmc3_irqdi
 	
-	lda #<irq_dialog_split
+	lda #<irq_dialog_split_2
 	sta irqaddr
-	lda #>irq_dialog_split
+	lda #>irq_dialog_split_2
 	sta irqaddr+1
 	
 	lda #dialog_upper_space+dialog_total_height
 	sta scrollsplit
 	
-	lda #dialog_upper_space
+	lda #dialog_upper_space-8
 	sta dialogsplit
 	
 	lda #chrb_dcntr
@@ -282,6 +283,9 @@ dlg_start_dialog:
 
 @wasAlreadyOpen:
 	jsr dlg_draw_portrait
+	
+	lda #0
+	sta dlg_colnum
 	
 	ldy #0
 @loopAlreadyOpenClear:
@@ -949,9 +953,9 @@ dlg_cmd_left:
 
 ; Portrait Right
 dlg_cmd_right:
-	lda #208
+	lda #(256-dialog_border-dialog_port_size)
 	sta dlg_portraitx
-	lda #(dialog_border)
+	lda #(dialog_border+4)
 	sta dlg_crsr_home
 	lda #0
 	rts

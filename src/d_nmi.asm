@@ -9,51 +9,30 @@ dlg_nmi_clear_256:
 	ora #pctl_adv32
 	sta ppu_ctrl
 	
-	ldy #$8 ; write 4 columns
+	ldy dlg_colnum
 	ldx #$FF
 @beginning:
 	lda clearpahi
 	sta ppu_addr
 	lda clearpalo
 	sta ppu_addr
+	cpy #1
+	beq @writeLeftEdge
+	bcc @writeNoEdge
+	cpy #30
+	beq @writeRightEdge
+	bcs @writeNoEdge
 	
 	; 30 writes.
 	lda #0
 	sta ppu_data
 	stx ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
-	sta ppu_data
+	beq @write28x
 	
+@wr28xReturn:
 	lda clearpalo
 	clc
 	adc #1
-	sta clearpalo
 	
 	; check if it's zero
 	and #%00011111
@@ -68,13 +47,69 @@ dlg_nmi_clear_256:
 	eor #$4
 	sta clearpahi
 	
-:	dey
+:	iny
+	tya
+	and #7
 	bne @beginning
 	
+	sty dlg_colnum
 	lda ctl_flags
 	sta ppu_ctrl
 	
 	rts
+
+@writeNoEdge:
+	lda #0
+	sta ppu_data
+	sta ppu_data
+	beq @write28x
+
+@writeLeftEdge:
+	ldx #%11111000
+	lda #%00001000
+	bne @write30x
+	sta ppu_data
+	sta ppu_data
+
+@writeRightEdge:
+	ldx #%00011111
+	lda #%00010000
+
+@write30x:
+	sta ppu_data
+	stx ppu_data
+
+@write28x:
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	ldx #$FF
+	jmp @wr28xReturn
 
 ; ** SUBROUTINE: dlg_nmi_check_upds
 ; desc: Checks for updates for the dialog columns.

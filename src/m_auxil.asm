@@ -166,4 +166,4 @@ mmc3_initialize:
 	sta mmc3_pram
 	rts
 
-irqdelays:	.byte 2, 2, 5
+irqdelays:	.byte 2, 2, 4

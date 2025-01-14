@@ -199,7 +199,7 @@ ch2_badeline_start:
 	line @dF, "You are many things, darling,\nbut you are not a mountain climber."
 	line @dG, "Who says I can't be?"
 	line @dH, "I know it's not your strong suit,\nbut be reasonable for once."
-	line @dI, "You have no idea what you're getting into."
+	line @dI, "You have no idea what you're getting\ninto."
 	line @dJ, "You can't handle this."
 	line @dK, "That is exactly why I need to do this."
 	line @dL, "Are you the weak Part of Me, or the\nlazy part?"
