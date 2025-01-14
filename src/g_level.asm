@@ -291,19 +291,21 @@ h_flush_row:
 ;    clearsizey - the height of the cleared region
 ;    X register - the X position of the upper left corner
 ;    Y register - the Y position of the upper left corner
+;    A register - the tile to place
 ; clobbers: clearsizex, clearsizey, temp2, temp3
 .proc h_clear_tiles
 	sty temp3
 	
 loopColumn:
+	pha
 	jsr h_comp_addr
+	pla
 	
 	; do one column
 	ldy clearsizey
 	sty temp2
 	
 	ldy temp3
-	lda #0
 loopRow:
 	sta (lvladdr), y
 	iny
@@ -1564,6 +1566,16 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notChaser:
+	cmp #e_fallblock
+	bne @notFalling
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_fall_dindx, y
+	jmp @tyxReturn
+	
+@notFalling:
 	; todo: more cases ...
 	rts
 

@@ -154,6 +154,15 @@ sp_l2dc_timer = sp_entspec3
 sp_l2dc_ssize = sp_entspec4
 sp_l2dc_velxh = sp_entspec5
 
+sp_fall_state = sp_entspec1
+sp_fall_dindx = sp_entspec2 ; data index
+sp_fall_datlo = sp_entspec2 ; overlapped with data index
+sp_fall_dathi = sp_entspec3
+sp_fall_tilid = sp_entspec4 ; tile ID to fill after falling
+sp_fall_bknum = sp_entspec5 ; bank number
+sp_fall_palet = sp_entspec6 ; palette
+sp_fall_fally = sp_entspec7 ; max Y in pixels
+
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02
@@ -199,6 +208,7 @@ e_l2mirror  = $12 ; LEVEL 2: mirror
 e_l2cmpfire = $13 ; LEVEL 2: campfire
 e_l1cmpfire = $14 ; LEVEL 1: campfire
 e_l2chaser  = $15 ; LEVEL 2: dark chaser
+e_fallblock = $16 ; Falling Block
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance
@@ -294,6 +304,7 @@ chrb_anisp3 = $07   ;
 chrb_splvl0 = $08   ; sprites for level 0
 chrb_splvl1 = $09   ; sprites for level 1
 chrb_splv1b = $0A   ; sprites for level 1
+chrb_splv1c = $0D   ; sprites for level 1
 chrb_splvl2 = $0B   ; sprites for level 2
 chrb_splv2b = $0C   ; sprites for level 2
 chrb_splv2l = $49   ; sprites for level 2

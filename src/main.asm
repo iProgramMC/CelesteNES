@@ -64,6 +64,8 @@
 .incbin  "chr/sp_level1.chr"
 .segment "CHR_SLV1B"
 .incbin  "chr/sp_level1b.chr"
+.segment "CHR_SLV1C"
+.incbin  "chr/sp_level1c.chr"
 
 .segment "CHR_SLVL2"
 .incbin  "chr/sp_level2.chr"
@@ -159,7 +161,6 @@
 .segment "CHR_UN007"
 .segment "CHR_UN008"
 .segment "CHR_UN009"
-.segment "CHR_UN100"
 .segment "CHR_UN101"
 .segment "CHR_UN102"
 .segment "CHR_U10_B"

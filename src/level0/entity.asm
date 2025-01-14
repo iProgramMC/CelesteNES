@@ -851,6 +851,7 @@ entityY := temp9
 	ldy temp3
 	jsr h_request_transfer
 	
+	lda #0
 	jsr h_clear_tiles
 	
 	lda temp11
@@ -1298,33 +1299,9 @@ level0_intro_crusher:
 	sty temp3
 	jsr h_request_transfer
 	
-.if 0
-	; clear it in the actual tile data
-	ldx #0
-@loop:
-	stx temp4
-	
-	ldy temp3
 	ldx temp2
-	jsr h_comp_addr
-	inx
-	stx temp2
-	
-	ldx #4
+	ldy temp3
 	lda #0
-:	sta (lvladdr), y
-	iny
-	dex
-	bne :-
-	
-	ldx temp4
-	inx
-	cpx #7
-	bne @loop
-.endif
-	
-	ldx temp2
-	ldy temp3
 	jsr h_clear_tiles
 	
 	lda #7

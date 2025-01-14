@@ -151,6 +151,12 @@ gm_draw_berry:
 	lda #prgb_paus
 	jmp far_call2
 
+gm_draw_falling_block:
+	ldx #<xt_draw_falling_block
+	ldy #>xt_draw_falling_block
+	lda #prgb_paus
+	jmp far_call2
+
 ; ** SUBROUTINE: gm_draw_common
 ; desc: draws a common 2X sprite.
 ; parameters:
@@ -315,7 +321,8 @@ gm_draw_ent_call:
 	level2_mirror,          \
 	level2_campfire,        \
 	level1_campfire,        \
-	level2_dark_chaser
+	level2_dark_chaser,     \
+	gm_draw_falling_block
 
 gm_entjtable_lo: .lobytes entity_jump_table
 gm_entjtable_hi: .hibytes entity_jump_table

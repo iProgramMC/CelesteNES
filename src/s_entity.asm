@@ -242,6 +242,7 @@ collidedforce:
 	sta setdataaddr+1
 	jsr h_request_transfer
 	
+	lda #0
 	jsr h_clear_tiles
 	
 	lda temp10
@@ -447,3 +448,252 @@ return:
 	lda #1
 	rts
 .endproc
+
+; ** ENTITY: Falling Block
+.proc xt_draw_falling_block
+	ldx temp1
+	lda sprspace+sp_fall_state, x
+	beq @state_Init
+	cmp #1
+	beq @state_Hanging
+	cmp #2
+	beq @state_Shaking
+	cmp #3
+	beq @state_Falling
+	
+@state_Init:
+	inc sprspace+sp_fall_state, x
+	
+	; Initialization: load some properties from the data index
+	lda sprspace+sp_fall_dindx, x
+	asl
+	tay
+	lda xt_falling_block_table, y
+	sta temp10
+	iny
+	lda xt_falling_block_table, y
+	sta temp10+1
+	
+	ldy #0
+	lda (temp10), y
+	sta sprspace+sp_fall_datlo, x
+	iny
+	lda (temp10), y
+	sta sprspace+sp_fall_dathi, x
+	iny
+	lda (temp10), y
+	sta sprspace+sp_wid, x
+	iny
+	lda (temp10), y
+	sta sprspace+sp_hei, x
+	iny
+	lda (temp10), y
+	sta sprspace+sp_fall_tilid, x
+	iny
+	lda (temp10), y
+	sta sprspace+sp_fall_bknum, x
+	iny
+	lda (temp10), y
+	sta sprspace+sp_fall_palet, x
+	iny
+	lda (temp10), y
+	sta sprspace+sp_fall_fally, x
+	iny
+	
+	; set ourself as collidable
+	lda sprspace+sp_flags, x
+	ora #ef_collidable
+	sta sprspace+sp_flags, x
+	
+	; clear the tiles in the tile map though --
+	; we want the player to collide with this object instead
+	lda sprspace+sp_wid, x
+	lsr
+	lsr
+	lsr
+	sta clearsizex
+	
+	lda sprspace+sp_hei, x
+	lsr
+	lsr
+	lsr
+	sta clearsizey
+	
+	lda sprspace+sp_y, x
+	lsr
+	lsr
+	lsr
+	tay
+	
+	lda sprspace+sp_x_pg, x
+	lsr
+	lda sprspace+sp_x, x
+	ror
+	lsr
+	lsr
+	tax
+	
+	lda #0
+	jsr h_clear_tiles
+	
+	rts
+	
+@state_Shaking:
+	
+@state_Falling:
+	
+	rts
+
+@state_Hanging:
+	cpx entground
+	bne @return
+	
+	; clear it from the visible tiles and replace with a sprite version
+	jsr drawSpriteVersion
+	
+@return:
+	rts
+
+drawSpriteVersion:
+@xLimit  := plattemp1
+@yLimit  := plattemp2
+@attrib  := temp9
+@dataPtr := temp10 ; and temp11
+@currY   := temp7
+@spridx  := temp6
+	; Draws the sprite version of this entity.
+	
+	; Check if the bank needs to be loaded
+	lda sprspace+sp_fall_bknum, x
+	beq @noBankNeeded
+	
+	sta spr1_bknum
+	
+@noBankNeeded:
+	lda sprspace+sp_wid, x
+	clc
+	adc #7
+	lsr
+	lsr
+	lsr
+	sta @xLimit
+	;dec @xLimit
+	
+	lda sprspace+sp_hei, x
+	clc
+	adc #15
+	lsr
+	lsr
+	lsr
+	lsr
+	sta @yLimit
+	;dec @yLimit
+	
+	lda sprspace+sp_fall_palet, x
+	jsr gm_allocate_palette
+	sta @attrib
+	
+	lda sprspace+sp_fall_datlo, x
+	sta @dataPtr+0
+	lda sprspace+sp_fall_dathi, x
+	sta @dataPtr+1
+	
+	lda temp3
+	sta y_crd_temp
+	
+	lda #0
+	sta @spridx
+	jsr @skipLeftSpriteIfNeeded
+	
+	; if the amount of cols to draw is now 0
+	lda @xLimit
+	beq @breakColumn
+	
+@loopColumn:
+	lda temp3
+	sta y_crd_temp
+	
+	lda @yLimit
+	sta @currY
+	
+@loopRow:
+	ldy @spridx
+	inc @spridx
+	lda (@dataPtr), y
+	tay
+	lda @attrib
+	jsr oam_putsprite
+	
+	lda y_crd_temp
+	clc
+	adc #16
+	bcs @breakRow
+	sta y_crd_temp
+	
+	dec @currY
+	bne @loopRow
+	
+@breakRow:
+	; row complete, increment column
+	lda x_crd_temp
+	clc
+	adc #8
+	bcs @breakColumn
+	sta x_crd_temp
+	
+	dec @xLimit
+	bne @loopColumn
+
+@breakColumn:
+	rts
+
+@skipLeftSpriteIfNeeded:
+	lda temp2
+	cmp #$F8
+	bcc :+
+	
+	; sprite X is bigger than $F8, because either the sprite is to the
+	; left of the screen (so fraudulently got there via overflow), or
+	; legitimately to the right
+	lda temp4
+	bmi @skipLeftSprite
+	lda temp2
+:	sta x_crd_temp
+	rts
+	
+@skipLeftSprite:
+	lda x_crd_temp
+	and #7
+	sta x_crd_temp
+	
+	; decrement the width (used to terminate the loop)
+	dec @xLimit
+	
+	; also skip the first column in the data
+	lda sprspace+sp_hei, x
+	lsr
+	lsr
+	lsr
+	sta @spridx
+	rts
+.endproc
+
+; FALLING BLOCK tiles
+xt_falling_block_table:
+	.word xt_falling_block_ch1_a
+
+; chapter 1 falling blocks
+xt_falling_block_ch1_a:
+	.word xt_falling_block_ch1_a_spr
+	.byte 32, 24      ; width, height
+	.byte 1           ; tile to set
+	.byte chrb_splv1c ; sprite bank, or $00 for none
+	.byte pal_blue    ; palette
+	.byte 200         ; max Y
+	
+; sprite data (stored column-wise)
+xt_falling_block_ch1_a_spr:
+	.byte $40,$68 ; col 1
+	.byte $42,$6A ; col 2
+	.byte $44,$6C ; col 3
+	.byte $46,$6E ; col 4

@@ -336,9 +336,7 @@ skipLeftSpriteIfNeeded:
 	lda x_crd_temp
 	and #7
 	sta x_crd_temp
-	lda temp10
-	clc
-	adc #8
+	lda #8
 	sta temp10
 	rts
 
