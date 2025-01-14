@@ -158,10 +158,11 @@ sp_fall_state = sp_entspec1
 sp_fall_dindx = sp_entspec2 ; data index
 sp_fall_datlo = sp_entspec2 ; overlapped with data index
 sp_fall_dathi = sp_entspec3
-sp_fall_tilid = sp_entspec4 ; tile ID to fill after falling
-sp_fall_bknum = sp_entspec5 ; bank number
-sp_fall_palet = sp_entspec6 ; palette
-sp_fall_fally = sp_entspec7 ; max Y in pixels
+sp_fall_timer = sp_entspec4
+;sp_fall_tilid = sp_entspec4 ; tile ID to fill after falling
+;sp_fall_bknum = sp_entspec5 ; bank number
+;sp_fall_palet = sp_entspec6 ; palette
+;sp_fall_fally = sp_entspec7 ; max Y in pixels
 
 ; entity flags
 ef_collidable = $01

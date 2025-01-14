@@ -470,35 +470,18 @@ return:
 	tay
 	lda xt_falling_block_table, y
 	sta temp10
+	sta sprspace+sp_fall_datlo, x
 	iny
 	lda xt_falling_block_table, y
 	sta temp10+1
+	sta sprspace+sp_fall_dathi, x
 	
 	ldy #0
-	lda (temp10), y
-	sta sprspace+sp_fall_datlo, x
-	iny
-	lda (temp10), y
-	sta sprspace+sp_fall_dathi, x
-	iny
 	lda (temp10), y
 	sta sprspace+sp_wid, x
 	iny
 	lda (temp10), y
 	sta sprspace+sp_hei, x
-	iny
-	lda (temp10), y
-	sta sprspace+sp_fall_tilid, x
-	iny
-	lda (temp10), y
-	sta sprspace+sp_fall_bknum, x
-	iny
-	lda (temp10), y
-	sta sprspace+sp_fall_palet, x
-	iny
-	lda (temp10), y
-	sta sprspace+sp_fall_fally, x
-	iny
 	
 	; set ourself as collidable
 	lda sprspace+sp_flags, x
@@ -507,31 +490,8 @@ return:
 	
 	; clear the tiles in the tile map though --
 	; we want the player to collide with this object instead
-	lda sprspace+sp_wid, x
-	lsr
-	lsr
-	lsr
-	sta clearsizex
-	
-	lda sprspace+sp_hei, x
-	lsr
-	lsr
-	lsr
-	sta clearsizey
-	
-	lda sprspace+sp_y, x
-	lsr
-	lsr
-	lsr
-	tay
-	
-	lda sprspace+sp_x_pg, x
-	lsr
-	lda sprspace+sp_x, x
-	ror
-	lsr
-	lsr
-	tax
+	jsr computeClearSizeEntity
+	jsr computeTileXYForEntity
 	
 	lda #0
 	jsr h_clear_tiles
@@ -539,6 +499,7 @@ return:
 	rts
 	
 @state_Shaking:
+	; shake!
 	
 @state_Falling:
 	
@@ -548,13 +509,36 @@ return:
 	cpx entground
 	bne @return
 	
-	; clear it from the visible tiles and replace with a sprite version
+	;inc sprspace+sp_fall_state, x
+	;lda #48
+	;sta sprspace+sp_fall_timer, x
+	;
+	;; clear it from the visible tiles
+	;lda #$01
+	;sta setdataaddr
+	;sta setdataaddr+1
+	;
+	;jsr computeClearSizeEntity
+	;jsr computeTileXYForEntity
+	;jsr h_request_transfer
+	
+	; start drawing the sprite version
 	jsr drawSpriteVersion
 	
 @return:
 	rts
 
 drawSpriteVersion:
+; Falling Block Data struct offsets:
+; 0 - Width
+; 1 - Height
+; 2 - Tile to set when landing
+; 3 - Bank to set while rendering
+; 4 - Palette to use
+; 5 - Y before the platform lands
+;+6 - Sprite Data
+@off_sprite_data = 6
+
 @xLimit  := plattemp1
 @yLimit  := plattemp2
 @attrib  := temp9
@@ -563,14 +547,18 @@ drawSpriteVersion:
 @spridx  := temp6
 @oldoam  := temp8
 	; Draws the sprite version of this entity.
+	lda sprspace+sp_fall_datlo, x
+	sta @dataPtr+0
+	lda sprspace+sp_fall_dathi, x
+	sta @dataPtr+1
 	
 	; Check if the bank needs to be loaded
-	lda sprspace+sp_fall_bknum, x
+	ldy #3
+	lda (@dataPtr), y
 	beq @noBankNeeded
-	
 	sta spr1_bknum
-	
 @noBankNeeded:
+	
 	lda sprspace+sp_wid, x
 	clc
 	adc #7
@@ -590,19 +578,15 @@ drawSpriteVersion:
 	sta @yLimit
 	;dec @yLimit
 	
-	lda sprspace+sp_fall_palet, x
+	iny ; now looking at the palette
+	lda (@dataPtr), y
 	jsr gm_allocate_palette
 	sta @attrib
-	
-	lda sprspace+sp_fall_datlo, x
-	sta @dataPtr+0
-	lda sprspace+sp_fall_dathi, x
-	sta @dataPtr+1
 	
 	lda temp3
 	sta y_crd_temp
 	
-	lda #0
+	lda #@off_sprite_data
 	sta @spridx
 	jsr @skipLeftSpriteIfNeeded
 	
@@ -678,6 +662,8 @@ drawSpriteVersion:
 	lsr
 	lsr
 	lsr
+	clc
+	adc #@off_sprite_data
 	sta @spridx
 
 @dont:
@@ -693,6 +679,38 @@ drawSpriteVersion:
 	ldx @oldoam
 	ldy oam_wrhead
 	jmp invert_oam_order
+
+computeClearSizeEntity:
+	lda sprspace+sp_wid, x
+	lsr
+	lsr
+	lsr
+	sta clearsizex
+	
+	lda sprspace+sp_hei, x
+	lsr
+	lsr
+	lsr
+	sta clearsizey
+	rts
+
+computeTileXYForEntity:
+	lda sprspace+sp_y, x
+	lsr
+	lsr
+	lsr
+	tay
+	
+	lda sprspace+sp_x_pg, x
+	lsr
+	lda sprspace+sp_x, x
+	ror
+	lsr
+	lsr
+	tax
+	rts
+
+shakeTable:	.byte $01,$00,$FF,$00
 .endproc
 
 ; FALLING BLOCK tiles
@@ -701,15 +719,12 @@ xt_falling_block_table:
 
 ; chapter 1 falling blocks
 xt_falling_block_ch1_a:
-	.word xt_falling_block_ch1_a_spr
 	.byte 32, 24      ; width, height
 	.byte 1           ; tile to set
 	.byte chrb_splv1c ; sprite bank, or $00 for none
 	.byte pal_blue    ; palette
 	.byte 200         ; max Y
-	
-; sprite data (stored column-wise)
-xt_falling_block_ch1_a_spr:
+	; sprite data (stored column-wise)
 	.byte $40,$68 ; col 1
 	.byte $42,$6A ; col 2
 	.byte $44,$6C ; col 3
