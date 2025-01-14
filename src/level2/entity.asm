@@ -1161,7 +1161,7 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 	lda advtracehd
 	sta sprspace+sp_l2dc_index, x
 	
-	lda #32
+	lda #adv_trace_hist_size
 	sta sprspace+sp_l2dc_timer, x
 	
 @drawTweeningPlayer:
@@ -1207,6 +1207,10 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 	adc sprspace+sp_vel_x, x
 	sta sprspace+sp_x, x
 	
+	lda sprspace+sp_x_pg, x
+	adc sprspace+sp_l2dc_velxh, x
+	sta sprspace+sp_x_pg, x
+	
 	lda sprspace+sp_y_lo, x
 	clc
 	adc sprspace+sp_vel_y_lo, x
@@ -1243,13 +1247,13 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 	
 	; calculate Y, the simplest
 	lda adv_trace_y, y
-	sta sprspace+sp_y, x
 	sec
 	sbc camera_y
 	bcs :+
 	sbc #15
 	clc
 :	sta temp3
+	sta sprspace+sp_y, x
 	
 	lda adv_trace_y_hi, y
 	sbc camera_y_hi
@@ -1447,6 +1451,7 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 	lda #chrb_lvl2b
 	sta spr1_bknum
 	
+	; what's so funny huh?
 	inc sprspace+sp_l2dc_timer, x
 	lda sprspace+sp_l2dc_timer, x
 	lsr
@@ -1472,8 +1477,7 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 	sta sprspace+sp_x, x
 	lda adv_trace_x_pg, y
 	sta sprspace+sp_x_pg, x
-	lda adv_trace_y, y
-	sta sprspace+sp_y, x
+	
 	lda #0
 	sta sprspace+sp_l2dc_timer, x
 	beq @state_Dead
@@ -1492,7 +1496,9 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 	
 	lda sprspace+sp_l2dc_state, x
 	cmp #5
-	bcs @state_CutsceneWait
+	beq @state_CutsceneWait
+	cmp #10
+	beq @state_StartChasing
 	
 	lda dbenable
 	cmp #2
@@ -1521,6 +1527,13 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 @return3:
 	rts
 
+@state_StartChasing:
+	lda #0
+	sta sprspace+sp_l2dc_state, x
+	lda #20
+	sta sprspace+sp_l2dc_timer, x
+	rts
+
 @state_CutsceneWait:
 	lda #$60
 	sta temp6
@@ -1529,14 +1542,6 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 	lda #0
 	sta temp11
 	jmp @drawTweeningPlayer
-	
-rotateBy5IntoTemp10:
-.repeat 5, i
-	cmp #$80
-	ror
-	ror temp10
-.endrepeat
-	rts
 
 incrementPoppingInTimer:
 	ldy sprspace+sp_l2dc_ssize, x
@@ -1562,24 +1567,15 @@ laughingSprites:	.byte $40,$44,$48,$4C
 
 calculateXYOnScreen:
 	; don't care about the result, only that it calculates temp2 and temp4 for us
-	jsr gm_check_ent_onscreen
+	lda sprspace+sp_x, x
+	sec
+	sbc camera_x
+	sta temp2
+	lda sprspace+sp_x_pg, x
+	sbc camera_x_pg
+	sta temp4
 	
-	; copied from e_draw again
-	lda lvlyoff
-	asl
-	asl
-	asl
-	sta temp3
 	lda sprspace+sp_y, x
-	clc
-	adc temp3
-	sta temp3
-	sec
-	sbc camera_y_bs
-	sec
-	sbc camera_y_sub
-	sec
-	sbc temp10
 	sta temp3
 	rts
 
@@ -1590,13 +1586,31 @@ prepareTween:
 	lda camera_x
 	clc
 	adc player_x
+	sta temp11
+	
+	lda camera_x_pg
+	adc #0
+	sta temp9
+	
+	lda temp11
 	sec
 	sbc sprspace+sp_x, x
 	sta temp11
 	
-	; [A REGISTER, temp10] represents, the amount to move IN TOTAL. shift it by 5
-	jsr rotateBy5IntoTemp10
+	lda temp9
+	sbc sprspace+sp_x_pg, x
+	;sta temp9
 	
+	; [A Reg, temp11, temp10] represents, the amount to move IN TOTAL. shift it by 5
+.repeat 6, i
+	cmp #$80
+	ror
+	ror temp11
+	ror temp10
+.endrepeat
+	
+	sta sprspace+sp_l2dc_velxh, x
+	lda temp11
 	sta sprspace+sp_vel_x, x
 	lda temp10
 	sta sprspace+sp_vel_x_lo, x
@@ -1608,8 +1622,11 @@ prepareTween:
 	sec
 	sbc sprspace+sp_y, x
 	
-	jsr rotateBy5IntoTemp10
-	
+.repeat 6, i
+	cmp #$80
+	ror
+	ror temp10
+.endrepeat
 	sta sprspace+sp_vel_y, x
 	lda temp10
 	sta sprspace+sp_vel_y_lo, x

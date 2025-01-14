@@ -498,7 +498,8 @@ level1_rs0_p:
 	.byte $FF
 level1_rs0_e:
 	.byte $70,$A0,$0F,$10,$E9,$00
-	.byte $B8,$38,$0F,$10,$00,$32
+	.byte $B8,$38,$0F,$90,$00,$32
+	.byte $D0,$D0,$03
 	.byte $FF
 level1_rs0_t:
 	.byte $60,$47,$00,$00,$4D,$58,$57,$5B

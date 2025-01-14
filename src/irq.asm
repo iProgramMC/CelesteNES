@@ -275,13 +275,9 @@ irq_dialog_split:
 	;jsr @actuallyReturn
 	lda irqtmp3
 	and #%00000111
-	;nop
 	tax
-	;nop
 	lda irqtmp4
-	
 	and #%00011111
-	;nop
 	
 	stx ppu_scroll
 	sta ppu_addr

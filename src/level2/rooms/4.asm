@@ -246,6 +246,7 @@ level2_r2__p:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $FE,$FE,$FE,$FE,$FE,$FE,$FE,$FF
 level2_r2__e:
+	.byte $10,$00,$15,$00
 	.byte $FF
 level2_r2__t:
 	.byte $FE,$5C,$56,$EE,$5D,$5C,$5D,$EE

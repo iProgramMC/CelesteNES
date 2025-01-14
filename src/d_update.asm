@@ -250,10 +250,10 @@ dlg_start_dialog:
 	lda #>irq_dialog_split
 	sta irqaddr+1
 	
-	lda #58
+	lda #dialog_upper_space+dialog_total_height
 	sta scrollsplit
 	
-	lda #16
+	lda #dialog_upper_space
 	sta dialogsplit
 	
 	lda #chrb_dcntr

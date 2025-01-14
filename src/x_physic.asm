@@ -1510,8 +1510,9 @@ gm_applyy_checkdone:
 	bmi applyXSub
 	
 	lda sprspace+sp_flags, y
-	and #ef_collidable
-	bne isCHopEntCollidable
+	and #(ef_collidable|ef_limbo)
+	cmp #ef_collidable
+	beq isCHopEntCollidable
 	
 	lda #$FF
 	sta chopentity
@@ -1940,9 +1941,10 @@ gm_calchorzplat:
 xt_collentfloor:
 	ldy #0
 @loop:
-	lda #ef_collidable
+	lda #(ef_collidable|ef_limbo)
 	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
-	beq @noHitBox
+	cmp #ef_collidable
+	bne @noHitBox
 	
 	; also check the type
 	lda sprspace+sp_kind, y
@@ -2012,9 +2014,10 @@ xt_collentfloor:
 xt_collentceil:
 	ldy #0
 @loop:
-	lda #ef_collidable
+	lda #(ef_collidable|ef_limbo)
 	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
-	beq @noHitBox
+	cmp #ef_collidable
+	bne @noHitBox
 	
 	; also check the type
 	lda sprspace+sp_kind, y
@@ -2128,9 +2131,10 @@ gm_wjckentright:
 gm_collentside:
 	ldy #0
 @loop:
-	lda #ef_collidable
+	lda #(ef_collidable|ef_limbo)
 	and sprspace+sp_flags, y ; if the flag isn't set then why should we bother?
-	beq @noHitBox
+	cmp #ef_collidable
+	bne @noHitBox
 	
 	; also check the type
 	lda sprspace+sp_kind, y
@@ -2720,8 +2724,9 @@ haveStamina:
 	beq release     ; If the entity's type is just zero, then release the climb.
 	
 	lda sprspace+sp_flags, y
-	and #ef_collidable
-	beq release     ; If this entity is no longer collidable, then release the climb.
+	and #(ef_collidable|ef_limbo)
+	cmp #ef_collidable
+	bne release     ; If this entity is no longer collidable, then release the climb.
 	
 noEntity:
 	

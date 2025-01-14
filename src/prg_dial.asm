@@ -3,9 +3,12 @@
 ; some defines:
 dialog_char_timer = 3
 dialog_border     = 8
-dialog_border_upp = 12
+dialog_border_upp = 20
 dialog_port_size  = 40
 dialog_port_brdr  = 8
+
+dialog_upper_space  = 24 ; 16
+dialog_total_height = 42 ; height until next IRQ
 
 .segment "DLGRAM"
 dlg_chartimer:	.res 1 ; when this timer ticks down to zero, show a new character

@@ -24,6 +24,11 @@ nmi_:
 	jsr oam_dma_and_read_cont
 	jsr nmi_anims_update
 	
+	lda scrollsplit
+	beq @onlyAudioPlease
+	
+	jsr gm_calc_camera_split
+	
 @onlyAudioPlease:
 	; Enable interrupts to run audio. Sometimes, running audio takes a long time
 	; (25 scanlines+!), so let it be interrupted, since our IRQs won't mess with it.
@@ -448,14 +453,16 @@ nmi_scrollsplit:
 	sta irqaddr
 	lda #>irq_dialog_split
 	sta irqaddr+1
+	lda #$E8
+	sta ppu_scroll
 	bne @ahead
 	
 @noDialogSplit:
 	sta ppu_ctrl
 	sty ppu_scroll
-@ahead:
 	sty ppu_scroll
 	
+@ahead:
 	lda dialogsplit ; -- dialogsplit takes priority over scrollsplit
 	bne :+
 	lda scrollsplit
@@ -505,8 +512,3 @@ nmi_scrollsplit:
 	lda scroll_y
 	sta ppu_scroll
 	rts
-
-irq_idle:
-	inc rununimport
-	sta mmc3_irqdi
-	rti

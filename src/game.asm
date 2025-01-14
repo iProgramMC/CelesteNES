@@ -131,11 +131,7 @@ gamemode_game:
 	beq gm_game_init
 gm_game_update:
 	inc framectr
-	lda scrollsplit
-	beq :+
-	jsr gm_calc_camera_split ; calculate the position of the camera so that the IRQ can pick it up
-	
-:	jsr gm_update_game_cont
+	jsr gm_update_game_cont
 	jsr gm_check_pause
 	
 	lda paused
