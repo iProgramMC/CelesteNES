@@ -1236,3 +1236,62 @@ gm_load_hair_palette:
 
 ; This is seriously supposed to be in PRG_LVL2B, but I'm trying to fit 3.9k of DMC samples..
 .include "mai_game.asm"
+
+; ** SUBROUTINE: invert_oam_order
+; desc: Inverts the order of sprites in OAM.
+; arguments:
+;     X - Old OAM Head
+;     Y - New OAM Head
+; clobbers: temp11
+; note: X&3 == Y&3 == 0!!
+.proc invert_oam_order
+	; if list is empty
+	sty temp11
+	cpx temp11
+	beq @break
+	
+	; if list is 1 byte in size
+	; also gets the last item in the list of items to shuffle
+	dey
+	dey
+	dey
+	dey
+	
+	sty temp11
+	cpx temp11
+	beq @break
+@loop:
+
+.repeat 4, i
+	lda oam_buf+i, x
+	sta temp11
+	
+	lda oam_buf+i, y
+	sta oam_buf+i, x
+	
+	lda temp11
+	sta oam_buf+i, y
+.endrepeat
+	
+	; increment X four times, if it matches Y then break
+	inx
+	inx
+	inx
+	inx
+	sty temp11
+	cpx temp11
+	beq @break
+	
+	; decrement Y four times and see if it matches X
+	dey
+	dey
+	dey
+	dey
+	sty temp11
+	cpx temp11
+	bne @loop
+
+@break:
+	rts
+.endproc
+

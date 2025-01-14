@@ -561,6 +561,7 @@ drawSpriteVersion:
 @dataPtr := temp10 ; and temp11
 @currY   := temp7
 @spridx  := temp6
+@oldoam  := temp8
 	; Draws the sprite version of this entity.
 	
 	; Check if the bank needs to be loaded
@@ -609,6 +610,9 @@ drawSpriteVersion:
 	lda @xLimit
 	beq @breakColumn
 	
+	lda oam_wrhead
+	sta @oldoam
+	
 @loopColumn:
 	lda temp3
 	sta y_crd_temp
@@ -645,7 +649,7 @@ drawSpriteVersion:
 	bne @loopColumn
 
 @breakColumn:
-	rts
+	jmp @shuffleOAM
 
 @skipLeftSpriteIfNeeded:
 	lda temp2
@@ -675,7 +679,20 @@ drawSpriteVersion:
 	lsr
 	lsr
 	sta @spridx
+
+@dont:
 	rts
+
+@shuffleOAM:
+	lda framectr
+	and #1
+	bne @dont
+	
+	; @oldoam    - OLD OAM head
+	; oam_wrhead - NEW OAM head
+	ldx @oldoam
+	ldy oam_wrhead
+	jmp invert_oam_order
 .endproc
 
 ; FALLING BLOCK tiles
