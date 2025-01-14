@@ -15,5 +15,25 @@ level1_music:
 .include "warplist.asm"
 .include "palette.asm"
 .include "dialog.asm"
-.res 400
 .include "entity.asm"
+
+fall_ch1_a:
+	.byte 32, 24      ; width, height
+	.byte 1           ; tile to set
+	.byte chrb_splv1c ; sprite bank, or $00 for none
+	.byte pal_blue    ; palette
+	.byte 200         ; max Y
+	.word fall_ch1_a_chr ; CHR data address
+	; sprite data (stored column-wise)
+	.byte $40,$68 ; col 1
+	.byte $42,$6A ; col 2
+	.byte $44,$6C ; col 3
+	.byte $46,$6E ; col 4
+
+
+fall_ch1_a_chr:
+	; CHR data (stored column-wise)
+	.byte $80,$90,$92
+	.byte $8B,$84,$94
+	.byte $8C,$85,$95
+	.byte $81,$83,$93

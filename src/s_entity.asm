@@ -455,7 +455,7 @@ return:
 	lda sprspace+sp_fall_state, x
 	beq @state_Init
 	cmp #1
-	beq @state_Hanging
+	beq @state_Hanging_
 	cmp #2
 	beq @state_Shaking
 	cmp #3
@@ -499,33 +499,129 @@ return:
 	rts
 	
 @state_Shaking:
+	dec sprspace+sp_fall_timer, x
+	beq @startFalling
+	
 	; shake!
+	lda sprspace+sp_fall_timer, x
+	and #3
+	tay
+	lda shakeTable, y
+	clc
+	adc temp2
+	sta temp2
+	lda temp4
+	adc shakeTableH, y
+	sta temp4
+	jmp drawSpriteVersion
+
+@startFalling:
+	lda #0
+	sta sprspace+sp_vel_y, x
+	sta sprspace+sp_vel_y_lo, x
 	
+	inc sprspace+sp_fall_state, x
+	jmp drawSpriteVersion
+
+@state_Hanging_:
+	beq @state_Hanging
+
 @state_Falling:
+	txa
+	tay
+	jsr gm_ent_move_y
 	
-	rts
+	ldx temp1
+	
+	; set up the data pointer
+	lda sprspace+sp_fall_datlo, x
+	sta temp10
+	lda sprspace+sp_fall_dathi, x
+	sta temp10+1
+	
+	; maxY resides at index 5
+	ldy #5
+	lda sprspace+sp_y, x
+	cmp (temp10), y
+	bcs @landed
+	
+	; gravity
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc #$20
+	sta sprspace+sp_vel_y_lo, x
+	bcc :+
+	inc sprspace+sp_vel_y, x
+	
+:	jmp drawSpriteVersion
 
 @state_Hanging:
 	cpx entground
 	bne @return
 	
-	;inc sprspace+sp_fall_state, x
-	;lda #48
-	;sta sprspace+sp_fall_timer, x
-	;
-	;; clear it from the visible tiles
-	;lda #$01
-	;sta setdataaddr
-	;sta setdataaddr+1
-	;
-	;jsr computeClearSizeEntity
-	;jsr computeTileXYForEntity
-	;jsr h_request_transfer
+	inc sprspace+sp_fall_state, x
+	lda #48
+	sta sprspace+sp_fall_timer, x
+	
+	; clear it from the visible tiles
+	lda #$01
+	sta setdataaddr
+	sta setdataaddr+1
+	
+	lda temp1
+	pha
+	
+	jsr computeClearSizeEntity
+	jsr computeTileXYForEntity
+	jsr h_request_transfer
+	
+	pla
+	sta temp1
 	
 	; start drawing the sprite version
+	ldx temp1
 	jsr drawSpriteVersion
 	
 @return:
+	rts
+
+@landed:
+	lda #0
+	sta sprspace+sp_kind, x
+	
+	lda (temp10), y
+	sta sprspace+sp_y, x
+	
+	; prepare the data
+	iny ; maxY resides at index 5, chr offset at index 6
+	lda (temp10), y
+	sta setdataaddr
+	iny
+	lda (temp10), y
+	sta setdataaddr+1
+	
+	; get the tile number
+	ldy #2
+	lda (temp10), y
+	sta temp11
+	
+	; first, modify the tilemap to set the solid tiles
+	jsr computeClearSizeEntity
+	jsr computeTileXYForEntity
+	lda temp11
+	jsr h_clear_tiles
+	
+	; then program the PPU transfer
+	; TODO: figure out a way not to call these twice.
+	; they're not that expensive, but they are annoying
+	ldx temp1
+	jsr computeClearSizeEntity
+	jsr computeTileXYForEntity
+	jsr h_request_transfer
+	
+	lda #$7
+	sta quakeflags
+	sta quaketimer
 	rts
 
 drawSpriteVersion:
@@ -536,8 +632,10 @@ drawSpriteVersion:
 ; 3 - Bank to set while rendering
 ; 4 - Palette to use
 ; 5 - Y before the platform lands
-;+6 - Sprite Data
-@off_sprite_data = 6
+; 6 - Low byte of CHR data addr
+; 7 - High byte of CHR data addr
+;+8 - Sprite Data
+@off_sprite_data = 8
 
 @xLimit  := plattemp1
 @yLimit  := plattemp2
@@ -576,7 +674,6 @@ drawSpriteVersion:
 	lsr
 	lsr
 	sta @yLimit
-	;dec @yLimit
 	
 	iny ; now looking at the palette
 	lda (@dataPtr), y
@@ -710,22 +807,10 @@ computeTileXYForEntity:
 	tax
 	rts
 
-shakeTable:	.byte $01,$00,$FF,$00
+shakeTable:		.byte $01,$00,$FF,$00
+shakeTableH:	.byte $00,$00,$FF,$00
 .endproc
 
 ; FALLING BLOCK tiles
 xt_falling_block_table:
-	.word xt_falling_block_ch1_a
-
-; chapter 1 falling blocks
-xt_falling_block_ch1_a:
-	.byte 32, 24      ; width, height
-	.byte 1           ; tile to set
-	.byte chrb_splv1c ; sprite bank, or $00 for none
-	.byte pal_blue    ; palette
-	.byte 200         ; max Y
-	; sprite data (stored column-wise)
-	.byte $40,$68 ; col 1
-	.byte $42,$6A ; col 2
-	.byte $44,$6C ; col 3
-	.byte $46,$6E ; col 4
+	.word fall_ch1_a
