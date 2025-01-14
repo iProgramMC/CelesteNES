@@ -71,7 +71,7 @@ ch0_granny:
 	line @d0, "Excuse me, ma'am?"
 	line @d1, "The sign out front is busted...\nis this the Mountain trail?"
 	line @d2, "You're almost there.\nIt's just across the bridge."
-	line @d3, "By the way, you should call someone\nabout your driveway. The ridge collapsed\nand I nearly died."
+	line @d3, "By the way, you should call someone\nabout your driveway. The ridge\ncollapsed and I nearly died."
 	line @d4, "If my \"driveway\" almost did you in,\nthe Mountain might be a bit much\nfor you."
 	line @d5, "..."
 	line @d6, "Well, if an old bat like *you* can\nsurvive out here, I think I'll be fine."

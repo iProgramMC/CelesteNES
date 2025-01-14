@@ -198,7 +198,7 @@ grannyExtra:
 	clc
 	adc #9
 	sta x_crd_temp
-	lda #$1A
+	lda #$1A+8
 	sta y_crd_temp
 	lda #1           ; TODO: hardcoded to the first palette, the hair palette
 	ldy #$14
