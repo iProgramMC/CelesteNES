@@ -527,11 +527,19 @@ return:
 	beq @state_Hanging
 
 @state_Falling:
+	lda temp3
+	pha
+	
 	txa
+	pha
 	tay
 	jsr gm_ent_move_y
+	pla
+	sta temp1
+	tax
 	
-	ldx temp1
+	pla
+	sta temp3
 	
 	; set up the data pointer
 	lda sprspace+sp_fall_datlo, x

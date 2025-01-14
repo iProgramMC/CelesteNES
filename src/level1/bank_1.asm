@@ -22,7 +22,7 @@ fall_ch1_a:
 	.byte 1           ; tile to set
 	.byte chrb_splv1c ; sprite bank, or $00 for none
 	.byte pal_blue    ; palette
-	.byte 200         ; max Y
+	.byte 136         ; max Y
 	.word fall_ch1_a_chr ; CHR data address
 	; sprite data (stored column-wise)
 	.byte $40,$68 ; col 1
