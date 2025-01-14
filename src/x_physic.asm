@@ -549,6 +549,7 @@ gm_normaljump_bne:
 	; set the climbing flag and fall into gm_walljump
 	lda playerctrl
 	ora #pl_climbing
+	and #<~pl_ground
 	sta playerctrl
 	
 gm_walljump:
@@ -1409,8 +1410,8 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	ldx temp2
 	lda #gc_ceil
 	jsr xt_collide
-	bne @snapToCeil
-	beq gm_applyy_checkdone
+	;bne @snapToCeil
+	beq @gm_applyy_checkdone_
 
 @snapToCeil:
 	lda y_crd_temp    ; load the y position of the tile that was collided with
@@ -1427,6 +1428,9 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	sta player_vl_y   ; also clear the velocity
 	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
 	sta jcountdown    ; also clear the jump timer
+	beq gm_applyy_checkdone
+
+@gm_applyy_checkdone_:
 	beq gm_applyy_checkdone
 
 gm_checkfloor:
@@ -1450,7 +1454,7 @@ gm_checkfloor:
 	ldx temp2
 	lda #gc_floor
 	jsr xt_collide
-	bne @snapToFloor
+	;bne @snapToFloor
 	beq gm_applyy_checkdone
 	
 @snapToFloor:
@@ -1466,13 +1470,21 @@ gm_checkfloor:
 	lda dashtime
 	cmp #(defdashtime-dashgrndtm)
 	bcs @done         ; until the player has started their dash, exempt from ground check
-	lda #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
-	ora playerctrl
+	
+	; is the player climbing? if so, don't actually set the ground flag
+	lda playerctrl
+	and #pl_climbing
+	bne :+
+	
+	lda playerctrl
+	ora #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
 	and #(pl_dashed^$FF) ; clear the dashed flag
 	sta playerctrl
-	lda gamectrl4
+	
+:	lda gamectrl4
 	and #<~g4_nosjump
 	sta gamectrl4
+	
 	lda #defjmpcoyot
 	sta jumpcoyote    ; assign coyote time because we're on the ground
 	lda #0
@@ -2572,6 +2584,7 @@ haveStamina:
 	
 	lda playerctrl
 	ora #pl_climbing
+	and #<~pl_ground
 	sta playerctrl
 	
 	jsr gm_gettopy
@@ -2654,6 +2667,7 @@ noLowStaminaFlash:
 	; we can start climbing!!
 :	lda playerctrl
 	ora #pl_climbing
+	and #<~pl_ground
 	sta playerctrl
 	
 	jsr gm_reduce_vel_climb
