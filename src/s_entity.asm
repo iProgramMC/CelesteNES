@@ -933,3 +933,5 @@ xt_falling_block_table:
 	.word fall_ch1_d ; 3 - level1_r12, 24, 40, max Y 176
 	.word fall_ch1_e ; 4 - level1_r12, 16, 24, max Y 200
 	.word fall_ch1_f ; 5 - level1_r12, 24, 32+128, max Y 184
+	.word fall_ch2_a ; 6
+	.word fall_ch2_b ; 7

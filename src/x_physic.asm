@@ -3015,13 +3015,25 @@ checkClimbHopSafety:
 	sec
 	sbc #e_l1zipmovr
 	cmp #2
-	bcs @skipEntityChecking
+	bcs @notZipMover
 	
 	lda sprspace+sp_l1zm_flags, y
 	and #sp_l1zmf_spikyUP
 	beq @skipEntityChecking
 	
 	; spikey! so, don't allow climb hops
+	rts
+
+@notZipMover:
+	lda sprspace+sp_kind, y
+	cmp #e_fallblock
+	bne @skipEntityChecking
+	
+	lda sprspace+sp_fall_spike, y
+	; and #$80
+	beq @skipEntityChecking
+	
+	; spikey!
 	rts
 	
 @skipEntityChecking:
