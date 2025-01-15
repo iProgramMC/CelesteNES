@@ -43,16 +43,23 @@ fall_ch2_a_chr:
 fall_ch2_b:
 	.byte 40, 56      ; width, height
 	.byte 1           ; tile to set
-	.byte chrb_splvl2 ; sprite bank, or $00 for none
+	.byte 0           ; sprite bank, or $00 for none
 	.byte pal_blue    ; palette
 	.byte 176         ; max Y
 	.word fall_ch2_b_chr ; CHR data offset
 	; sprite data
-	.byte $66,$6E,$6E,$76
-	.byte $68,$70,$70,$78
-	.byte $6A,$7E,$7E,$7A
-	.byte $68,$72,$72,$78
-	.byte $6C,$74,$74,$7C
+	; below doesn't work because of bank conflicts
+	;.byte $66,$6E,$6E,$76
+	;.byte $68,$70,$70,$78
+	;.byte $6A,$7E,$7E,$7A
+	;.byte $68,$72,$72,$78
+	;.byte $6C,$74,$74,$7C
+	
+	.byte $03,$0B,$0B,$1F
+	.byte $05,$0D,$0D,$3D
+	.byte $07,$01,$01,$3F
+	.byte $05,$1B,$1B,$3D
+	.byte $09,$1D,$1D,$2B
 
 fall_ch2_b_chr:
 	.byte $A5,$A9,$B9,$A9,$B9,$A9,$B5
