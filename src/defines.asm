@@ -1,4 +1,4 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 
 ; Addresses
 ppu_ctrl    = $2000
@@ -160,10 +160,8 @@ sp_fall_datlo = sp_entspec2 ; overlapped with data index
 sp_fall_dathi = sp_entspec3
 sp_fall_timer = sp_entspec4
 sp_fall_spike = sp_entspec5 ; spike flags ($80 - spikes, $00 - no spike)
-;sp_fall_tilid = sp_entspec4 ; tile ID to fill after falling
-;sp_fall_bknum = sp_entspec5 ; bank number
-;sp_fall_palet = sp_entspec6 ; palette
-;sp_fall_fally = sp_entspec7 ; max Y in pixels
+
+sp_l1me_index = sp_entspec1
 
 ; entity flags
 ef_collidable = $01
@@ -385,7 +383,7 @@ nc_flushpal = $20   ; Game: flush 1 row of palettes
 nc_flushcol = $40   ; Game: flush 1 column
 nc_flshpalv = $80   ; Game: flush 1 column of palettes
 nc2_clrcol  = $01   ; Game: clear two columns (death cutscene)
-nc2_freeflg = $02   ; Game: FREE FLAG
+nc2_memorsw = $02   ; Game: memorial switch
 nc2_clr256  = $04   ; Dialog: clear 256 bytes of columns to zero starting at the registered [clearpahi, clearpalo] address
 nc2_dlgupd  = $08   ; Dialog: columns have been updated
 nc2_updpal1 = $10   ; Game: Update palette 1

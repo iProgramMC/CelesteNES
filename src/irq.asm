@@ -321,10 +321,11 @@ irq_dialog_split:
 	rts   ;          6 cycles
 
 irq_dialog_split_2:
+	sta mmc3_irqdi
+	
 	pha
 	lda #def_ppu_msk
 	sta ppu_mask
-	sta mmc3_irqdi
 	lda #<irq_dialog_split
 	sta irqaddr
 	lda #>irq_dialog_split
@@ -333,5 +334,21 @@ irq_dialog_split_2:
 	sta mmc3_irqla
 	sta mmc3_irqrl
 	sta mmc3_irqen
+	pla
+	rti
+
+irq_memorial_split:
+	sta mmc3_irqdi
+	pha
+	
+	lda #mmc3bk_bg0 | def_mmc3_bn
+	sta mmc3_bsel
+	
+	lda bg0_bknum
+	sta mmc3_bdat
+	
+	lda mmc3_shadow
+	sta mmc3_bsel
+	
 	pla
 	rti

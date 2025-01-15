@@ -255,6 +255,10 @@ main_loop:
 .include "audio/audio.asm"
 .include "nmi.asm"
 
+memorial_text_line_1:	.byte "  @@ CELESTE MOUNTAIN @@  "
+memorial_text_line_2:	.byte "  THIS MEMORIAL TO THOSE  "
+memorial_text_line_3:	.byte "WHO PERISHED  ON THE CLIMB"
+
 .segment "PRG_VECS"
 	.word nmi_
 	.word reset

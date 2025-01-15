@@ -322,7 +322,8 @@ gm_draw_ent_call:
 	level2_campfire,        \
 	level1_campfire,        \
 	level2_dark_chaser,     \
-	gm_draw_falling_block
+	gm_draw_falling_block,  \
+	level1_memorial
 
 gm_entjtable_lo: .lobytes entity_jump_table
 gm_entjtable_hi: .hibytes entity_jump_table

@@ -402,12 +402,37 @@ nmi_anims_normal:
 	lda #mmc3bk_spr2
 	jsr mmc3_set_bank_nmi
 	
-	ldy bg0_bknum
-	lda #mmc3bk_bg0
-	jsr mmc3_set_bank_nmi
-	
 	ldy bg1_bknum
 	lda #mmc3bk_bg1
+	jsr mmc3_set_bank_nmi
+	
+	lda #nc2_memorsw
+	bit nmictrl2
+	beq @setRegularBg0
+	
+	eor nmictrl2
+	sta nmictrl2
+	
+	; prepare the IRQ that switches the banks
+	; note: doesn't matter if there's scanline level jitter really, as long
+	; as it doesn't go below scanline 90 we're good.
+	lda #82
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	sta mmc3_irqen
+	
+	lda #>irq_memorial_split
+	sta irqaddr+1
+	lda #<irq_memorial_split
+	sta irqaddr
+	
+	ldy #chrb_lvl1
+	lda #mmc3bk_bg0
+	jmp mmc3_set_bank_nmi
+	
+@setRegularBg0:
+	ldy bg0_bknum
+	lda #mmc3bk_bg0
 	jmp mmc3_set_bank_nmi
 	
 nmi_anims_scrollsplit:
