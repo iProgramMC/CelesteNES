@@ -406,7 +406,9 @@ pal_bubble  = $08 ; palette for tutorial bubble
 pal_chaser  = $09
 pal_mirror  = $0A ; mirror edge
 pal_fire    = $0B
-pal_max     = $0C
+pal_tower   = $0C
+pal_stone   = $0D
+pal_max     = $0E
 
 ; Controller Buttons
 cont_a      = $80  ; SNES controller B

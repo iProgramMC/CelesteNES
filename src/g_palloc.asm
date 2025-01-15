@@ -134,3 +134,5 @@ sprite_palettes:
 	.byte $34,$14,$04 ; dark chaser palette
 	.byte $30,$21,$0f ; mirror edge palette
 	.byte $30,$26,$06 ; fire palette
+	.byte $30,$1C,$0C ; tower palette
+	.byte $30,$23,$03 ; stone palette

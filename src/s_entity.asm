@@ -459,10 +459,12 @@ return:
 	lda sprspace+sp_fall_state, x
 	beq @state_Init
 	cmp #1
-	beq @state_Hanging_
+	beq @state_Init2
 	cmp #2
-	beq @state_Shaking
+	beq @state_Hanging_
 	cmp #3
+	beq @state_Shaking
+	cmp #4
 	beq @state_Falling
 
 @return_first:
@@ -494,6 +496,18 @@ return:
 	lda sprspace+sp_hei, x
 	and #$7F
 	sta sprspace+sp_hei, x
+
+@state_Init2:
+	; Check if the entirety of the block is visble
+	; If the screen position PLUS the width overflows, then the other
+	; end is off screen and may not necessarily have been loaded.
+	lda temp2
+	clc
+	adc sprspace+sp_wid, x
+	bcs @return_first
+	
+	; Totally visible, so continue the init process
+	inc sprspace+sp_fall_state, x
 	
 	; set ourself as collidable
 	lda sprspace+sp_flags, x
@@ -506,10 +520,8 @@ return:
 	jsr computeTileXYForEntity
 	
 	lda #0
-	jsr h_clear_tiles
-	
-	rts
-	
+	jmp h_clear_tiles
+
 @state_Shaking:
 	dec sprspace+sp_fall_timer, x
 	beq @startFalling
@@ -527,6 +539,9 @@ return:
 	sta temp4
 	jmp drawSpriteVersion
 
+@state_Hanging_:
+	beq @state_Hanging
+
 @startFalling:
 	lda #0
 	sta sprspace+sp_vel_y, x
@@ -535,10 +550,27 @@ return:
 	inc sprspace+sp_fall_state, x
 	jmp drawSpriteVersion
 
-@state_Hanging_:
-	beq @state_Hanging
-
 @state_Falling:
+	; set up the data pointer
+	lda sprspace+sp_fall_datlo, x
+	sta plattemp1
+	lda sprspace+sp_fall_dathi, x
+	sta plattemp1+1
+	
+	; Preliminarily try to add the Y vel to the Y and compare
+	lda sprspace+sp_y, x
+	clc
+	adc sprspace+sp_vel_y, x
+	ldy #5
+	cmp (plattemp1), y
+	bcc @dontNeedToClamp
+	
+	lda (plattemp1), y
+	sec
+	sbc sprspace+sp_y, x
+	sta sprspace+sp_vel_y, x
+	
+@dontNeedToClamp:
 	lda temp3
 	pha
 	
@@ -558,16 +590,16 @@ return:
 	cmp #240
 	bcs @die
 	
-	; set up the data pointer
+	; set up the data pointer again
 	lda sprspace+sp_fall_datlo, x
-	sta temp10
+	sta plattemp1
 	lda sprspace+sp_fall_dathi, x
-	sta temp10+1
+	sta plattemp1+1
 	
 	; maxY resides at index 5
 	ldy #5
 	lda sprspace+sp_y, x
-	cmp (temp10), y
+	cmp (plattemp1), y
 	bcs @landed
 	
 	; gravity
@@ -624,20 +656,20 @@ return:
 	lda #0
 	sta sprspace+sp_kind, x
 	
-	lda (temp10), y
+	lda (plattemp1), y
 	sta sprspace+sp_y, x
 	
 	; prepare the data
 	iny ; maxY resides at index 5, chr offset at index 6
-	lda (temp10), y
+	lda (plattemp1), y
 	sta setdataaddr
 	iny
-	lda (temp10), y
+	lda (plattemp1), y
 	sta setdataaddr+1
 	
 	; get the tile number
 	ldy #2
-	lda (temp10), y
+	lda (plattemp1), y
 	sta temp11
 	
 	; first, modify the tilemap to set the solid tiles
@@ -672,6 +704,22 @@ return:
 	lda #$7
 	sta quakeflags
 	sta quaketimer
+	
+	lda temp11
+	cmp #2
+	beq @deleteBerries
+	rts
+
+@deleteBerries:
+	ldy #0
+:	lda sprspace+sp_kind, y
+	cmp #e_strawb
+	bne :+
+	lda #0
+	sta sprspace+sp_kind, y
+:	iny
+	cpy #sp_max
+	bne :--
 	rts
 
 drawSpriteVersion:
@@ -925,7 +973,9 @@ shakeTable:		.byte $01,$00,$FF,$00
 shakeTableH:	.byte $00,$00,$FF,$00
 .endproc
 
-; FALLING BLOCK tiles
+; FALLING BLOCK definitions
+
+; NOTE about the "tile to set": 2 means to delete all strawberries!!
 xt_falling_block_table:
 	.word fall_ch1_a
 	.word fall_ch1_b

@@ -29,7 +29,7 @@ fall_ch2_a:
 	.byte 24, 16      ; width, height
 	.byte 1           ; tile to set
 	.byte chrb_splvl2 ; sprite bank, or $00 for none
-	.byte pal_blue    ; palette
+	.byte pal_stone   ; palette
 	.byte 176         ; max Y
 	.word fall_ch2_a_chr ; CHR data offset
 	; sprite data
@@ -42,9 +42,9 @@ fall_ch2_a_chr:
 	
 fall_ch2_b:
 	.byte 40, 56      ; width, height
-	.byte 1           ; tile to set
+	.byte 2           ; tile to set
 	.byte 0           ; sprite bank, or $00 for none
-	.byte pal_blue    ; palette
+	.byte pal_tower   ; palette
 	.byte 176         ; max Y
 	.word fall_ch2_b_chr ; CHR data offset
 	; sprite data
