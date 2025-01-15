@@ -681,3 +681,153 @@ tableTimer:	.byte 0, 10
 	
 	jmp gm_draw_common
 .endproc
+
+; IMPORTANT: >>DO NOT<< use position dependent code for this! No absolute jumps within this function allowed.
+;            This is because I plan to share this between level 1 and level 2.
+;
+; This routine will be available at EITHER $A000 or $C000
+; (from level 1, at $C000, from level 2, at $A000 through a remote call)
+.proc level1_memorial
+@dialogWidth = 26
+
+	lda #g3_transitA
+	bit gamectrl3
+	beq @notInTransition
+	
+	lda nmictrl2
+	and #<~nc2_memorsw
+	sta nmictrl2
+@return:
+	rts
+	
+@notInTransition:
+	ldx temp1
+	
+	lda nmictrl2
+	ora #nc2_memorsw
+	sta nmictrl2
+	
+	; calculate the write head necessary
+	lda sprspace+sp_x_pg, x
+	lsr
+	lda sprspace+sp_x, x
+	ror
+	lsr
+	lsr
+	; ok, but we only calculated the position of the
+	; memorial object itself
+	sec
+	sbc #(@dialogWidth-4)/2
+	and #$3F
+	; now *that* is the position we need to start writing to
+	sta temp11
+	
+	lda #0
+	sta temp7
+	sta temp8
+	lda #32
+	sta temp9
+	lda #64
+	sta temp10
+	ldy temp1
+	jsr gm_check_collision_ent
+	beq @removeText
+	
+	; draw text
+	; check which row we need to draw
+	lda sprspace+sp_l1me_index, x
+	cmp #@dialogWidth*3
+	bcs @return
+	cmp #@dialogWidth
+	bcc @firstRow
+	cmp #@dialogWidth*2
+	bcc @secondRow
+	; third row
+	sbc #@dialogWidth*2
+	ldy #9
+	bne @donePickingY
+@secondRow:
+	sbc #(@dialogWidth-1)
+	ldy #7
+	bne @donePickingY
+@firstRow:
+	ldy #4
+@donePickingY:
+	
+	clc
+	adc temp11
+	and #$3F
+	sta temp11
+	
+	lda sprspace+sp_l1me_index, x
+	clc
+	adc #<memorial_text_line_1
+	sta setdataaddr
+	
+	lda #>memorial_text_line_1
+	adc #0
+	sta setdataaddr+1
+	
+	ldx temp11
+	
+	; X - X coord
+	; Y - Y coord
+	lda #1
+	sta clearsizex
+	sta clearsizey
+	
+	jsr h_request_transfer
+	
+	ldx temp1
+	inc sprspace+sp_l1me_index, x
+
+@return2:
+	rts
+	
+@removeText:
+	lda sprspace+sp_l1me_index, x
+	beq @return2
+	
+	; removal incomplete: remove 2 characters now
+	sec
+	sbc #1
+	and #%11111110
+	sta sprspace+sp_l1me_index, x
+	
+	cmp #@dialogWidth*3
+	bcs @return2
+	cmp #@dialogWidth
+	bcc @firstRowRM
+	cmp #@dialogWidth*2
+	bcc @secondRowRM
+	; third row
+	sbc #@dialogWidth*2
+	ldy #9
+	bne @donePickingYRM
+@secondRowRM:
+	sbc #(@dialogWidth-1)
+	ldy #7
+	bne @donePickingYRM
+@firstRowRM:
+	ldy #4
+@donePickingYRM:
+	clc
+	adc temp11
+	and #$3F
+	sta temp11
+	
+	lda #$01
+	sta setdataaddr
+	sta setdataaddr+1
+	
+	ldx temp11
+	
+	; X - X coord
+	; Y - Y coord
+	lda #2
+	sta clearsizex
+	lda #1
+	sta clearsizey
+	
+	jmp h_request_transfer
+.endproc

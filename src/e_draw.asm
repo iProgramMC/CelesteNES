@@ -157,6 +157,12 @@ gm_draw_falling_block:
 	lda #prgb_paus
 	jmp far_call2
 
+level2_memorial_kludge:
+	ldx #<level1_memorial
+	ldy #>(level1_memorial - ($C000-$A000))
+	lda #prgb_lvl1b
+	jmp far_call2
+
 ; ** SUBROUTINE: gm_draw_common
 ; desc: draws a common 2X sprite.
 ; parameters:
@@ -323,7 +329,8 @@ gm_draw_ent_call:
 	level1_campfire,        \
 	level2_dark_chaser,     \
 	gm_draw_falling_block,  \
-	level1_memorial
+	level1_memorial,        \
+	level2_memorial_kludge
 
 gm_entjtable_lo: .lobytes entity_jump_table
 gm_entjtable_hi: .hibytes entity_jump_table
