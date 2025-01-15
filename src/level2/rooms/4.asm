@@ -1,14 +1,17 @@
 level2_start_p:
-	.byte $00,$00,$00,$00,$00,$A0,$08,$00
-	.byte $00,$00,$00,$00,$00,$60,$22,$02
-	.byte $00,$00,$00,$00,$00,$90,$AA,$0A
-	.byte $00,$00,$00,$00,$00,$A0,$0A,$00
-	.byte $00,$00,$F0,$FD,$FF,$FD,$FF,$2A
-	.byte $00,$00,$00,$00,$F0,$FD,$FF,$FD
-	.byte $FF,$0A,$00,$00,$00,$00,$00,$00
-	.byte $00,$8A,$00,$00,$00,$00,$00,$00
-	.byte $00,$54,$00,$00,$00,$00,$00,$00
-	.byte $00,$51,$00,$00,$00,$00,$00,$00
+	.byte $CC,$CC,$CC,$0C,$00,$A0,$08,$00
+	.byte $FD,$FF,$FD,$FF,$FD,$FF,$0F,$00
+	.byte $60,$22,$02,$FD,$FF,$FD,$FF,$FD
+	.byte $FF,$0F,$00,$90,$AA,$0A,$FD,$FF
+	.byte $FD,$FF,$FD,$FF,$0F,$00,$A0,$0A
+	.byte $00,$FD,$FF,$FD,$FF,$FD,$FF,$FD
+	.byte $FF,$FD,$FF,$2A,$00,$00,$FD,$FF
+	.byte $FD,$FF,$FD,$FF,$FD,$FF,$FD,$FF
+	.byte $0A,$00,$00,$FD,$FF,$FD,$FF,$FD
+	.byte $FF,$0F,$00,$8A,$00,$00,$FD,$FF
+	.byte $FD,$FF,$FD,$FF,$0F,$00,$54,$00
+	.byte $00,$FD,$FF,$FD,$FF,$FD,$FF,$0F
+	.byte $00,$51,$00,$00,$33,$33,$33,$03
 	.byte $00,$A0,$00,$00,$FF
 level2_start_e:
 	.byte $90,$58,$18
