@@ -45,7 +45,7 @@ mmc3bk_prg1 = 7   ; prg1 controls $A000-$BFFF
 ; This allows easy indexing via the X/Y registers as you can simply do:
 ;   lda sprspace + sp_kind, x
 
-sp_max      = $08   ; maximum of 12 sprites.
+sp_max      = $0C   ; maximum of 12 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
 sp_flags    = (sp_max * 1)   ; flags
@@ -159,6 +159,7 @@ sp_fall_dindx = sp_entspec2 ; data index
 sp_fall_datlo = sp_entspec2 ; overlapped with data index
 sp_fall_dathi = sp_entspec3
 sp_fall_timer = sp_entspec4
+sp_fall_spike = sp_entspec5 ; spike flags ($80 - spikes, $00 - no spike)
 ;sp_fall_tilid = sp_entspec4 ; tile ID to fill after falling
 ;sp_fall_bknum = sp_entspec5 ; bank number
 ;sp_fall_palet = sp_entspec6 ; palette

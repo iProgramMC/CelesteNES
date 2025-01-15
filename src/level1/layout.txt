@@ -69,6 +69,7 @@ Spawn,level1_r8,336,64
 Spawn,level1_r8,224,80
 Spawn,level1_r8,272,192
 Spawn,level1_r8,32,168
+PaletteOverride,level1_r8,8,9,2,8,10,2,8,11,2,8,12,2
 level1_r8z,2048,-2160
 Props,level1_r8z,0,8
 Spawn,level1_r8z,304,-48
@@ -122,6 +123,7 @@ level1_r12,3424,-3376
 Props,level1_r12,4,0
 Spawn,level1_r12,24,200
 Spawn,level1_r12,400,176
+PaletteOverride,level1_r12,5,11,2,5,12,2,5,13,2,11,11,2,12,11,2,11,12,2,12,12,2,11,13,2,12,13,2,6,11,2,7,11,2,6,12,2,7,12,2,6,13,2,7,13,2,6,10,2,7,10,2
 level1_r11z,3040,-3136
 Props,level1_r11z,4,2
 Spawn,level1_r11z,304,160

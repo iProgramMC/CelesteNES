@@ -451,6 +451,10 @@ return:
 
 ; ** ENTITY: Falling Block
 .proc xt_draw_falling_block
+	lda #g3_transitA
+	bit gamectrl3
+	bne @return_first
+	
 	ldx temp1
 	lda sprspace+sp_fall_state, x
 	beq @state_Init
@@ -460,6 +464,9 @@ return:
 	beq @state_Shaking
 	cmp #3
 	beq @state_Falling
+
+@return_first:
+	rts
 	
 @state_Init:
 	inc sprspace+sp_fall_state, x
@@ -481,6 +488,11 @@ return:
 	sta sprspace+sp_wid, x
 	iny
 	lda (temp10), y
+	sta sprspace+sp_hei, x
+	and #$80
+	sta sprspace+sp_fall_spike, x
+	lda sprspace+sp_hei, x
+	and #$7F
 	sta sprspace+sp_hei, x
 	
 	; set ourself as collidable
@@ -541,6 +553,11 @@ return:
 	pla
 	sta temp3
 	
+	; if it somehow fell >= $F0, then just return
+	lda sprspace+sp_y, x
+	cmp #240
+	bcs @die
+	
 	; set up the data pointer
 	lda sprspace+sp_fall_datlo, x
 	sta temp10
@@ -554,14 +571,24 @@ return:
 	bcs @landed
 	
 	; gravity
+@didntLand:
 	lda sprspace+sp_vel_y_lo, x
 	clc
 	adc #$20
 	sta sprspace+sp_vel_y_lo, x
 	bcc :+
 	inc sprspace+sp_vel_y, x
-	
+	lda sprspace+sp_vel_y, x
+	cmp #8
+	bcc :+
+	lda #8
+	sta sprspace+sp_vel_y, x
 :	jmp drawSpriteVersion
+
+@die:
+	lda #0
+	sta sprspace+sp_kind, x
+	rts
 
 @state_Hanging:
 	cpx entground
@@ -619,9 +646,24 @@ return:
 	lda temp11
 	jsr h_clear_tiles
 	
+	ldx temp1
+	lda sprspace+sp_fall_spike, x
+	;and #$80
+	beq @notSpikedWhenSetting
+	
+	; well yeah we'll have to set the spikes
+	; TODO depend on the level? for now, #$3F
+	jsr computeClearSizeEntity
+	lda #1
+	sta clearsizey
+	jsr computeTileXYForEntity
+	lda #$3F
+	jsr h_clear_tiles
+	
 	; then program the PPU transfer
 	; TODO: figure out a way not to call these twice.
 	; they're not that expensive, but they are annoying
+@notSpikedWhenSetting:
 	ldx temp1
 	jsr computeClearSizeEntity
 	jsr computeTileXYForEntity
@@ -652,6 +694,23 @@ drawSpriteVersion:
 @currY   := temp7
 @spridx  := temp6
 @oldoam  := temp8
+	
+	; TODO: this probably isn't the right place
+	cpx entground
+	bne @thisIsntTheGround
+	
+	lda sprspace+sp_fall_spike, x
+	;and #$80
+	beq @thisIsntTheGround
+	
+	lda playerctrl
+	and #pl_ground
+	beq @thisIsntTheGround
+	
+	; die!!
+	jsr gm_killplayer
+	
+@thisIsntTheGround:
 	; Draws the sprite version of this entity.
 	lda sprspace+sp_fall_datlo, x
 	sta @dataPtr+0
@@ -688,9 +747,6 @@ drawSpriteVersion:
 	jsr gm_allocate_palette
 	sta @attrib
 	
-	lda temp3
-	sta y_crd_temp
-	
 	lda #@off_sprite_data
 	sta @spridx
 	jsr @skipLeftSpriteIfNeeded
@@ -698,6 +754,44 @@ drawSpriteVersion:
 	; if the amount of cols to draw is now 0
 	lda @xLimit
 	beq @breakColumn
+	
+	ldx temp1
+	lda sprspace+sp_fall_spike, x
+	;and #$80
+	beq @notSpiked
+	
+	lda @xLimit
+	pha
+	lda x_crd_temp
+	pha
+	lda y_crd_temp
+	pha
+	
+	lda temp3
+	sec
+	sbc #16
+	sta y_crd_temp
+	
+@loopSpikeColumn:
+	lda @attrib
+	ldy #$5E
+	jsr oam_putsprite
+	
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	
+	dec @xLimit
+	bne @loopSpikeColumn
+	
+	pla
+	sta y_crd_temp
+	pla
+	sta x_crd_temp
+	pla
+	sta @xLimit
+@notSpiked:
 	
 	lda oam_wrhead
 	sta @oldoam
@@ -797,7 +891,13 @@ computeClearSizeEntity:
 	lsr
 	lsr
 	sta clearsizey
-	rts
+	
+	; if spiked on top, also take the upper tile with it
+	lda sprspace+sp_fall_spike, x
+	;and #$80
+	beq :+
+	inc clearsizey
+:	rts
 
 computeTileXYForEntity:
 	lda sprspace+sp_y, x
@@ -806,7 +906,13 @@ computeTileXYForEntity:
 	lsr
 	tay
 	
-	lda sprspace+sp_x_pg, x
+	; if spiked on top, also take the upper tile with it
+	lda sprspace+sp_fall_spike, x
+	;and #$80
+	beq :+
+	dey
+	
+:	lda sprspace+sp_x_pg, x
 	lsr
 	lda sprspace+sp_x, x
 	ror
@@ -822,3 +928,8 @@ shakeTableH:	.byte $00,$00,$FF,$00
 ; FALLING BLOCK tiles
 xt_falling_block_table:
 	.word fall_ch1_a
+	.word fall_ch1_b
+	.word fall_ch1_c
+	.word fall_ch1_d ; 3 - level1_r12, 24, 40, max Y 176
+	.word fall_ch1_e ; 4 - level1_r12, 16, 24, max Y 200
+	.word fall_ch1_f ; 5 - level1_r12, 24, 32+128, max Y 184
