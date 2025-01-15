@@ -737,29 +737,26 @@ tableTimer:	.byte 0, 10
 	; check which row we need to draw
 	lda sprspace+sp_l1me_index, x
 	cmp #@dialogWidth*3
-	bcs @return
-	cmp #@dialogWidth
-	bcc @firstRow
-	cmp #@dialogWidth*2
-	bcc @secondRow
-	; third row
-	sbc #@dialogWidth*2
-	ldy #9
-	bne @donePickingY
-@secondRow:
-	sbc #(@dialogWidth-1)
-	ldy #7
-	bne @donePickingY
-@firstRow:
-	ldy #4
-@donePickingY:
+	bcs @corruptRandomlyIfNeeded
 	
-	clc
-	adc temp11
-	and #$3F
-	sta temp11
+	jsr memorial_get_position
+	pha
 	
 	lda sprspace+sp_l1me_index, x
+	sta temp10
+	
+	lda levelnumber
+	cmp #2
+	bne @dontCorrupt
+	
+	; either subtract or add 1
+	jsr rand_m1_p1
+	clc
+	adc temp10
+	sta temp10
+
+@dontCorrupt:
+	lda temp10
 	clc
 	adc #<memorial_text_line_1
 	sta setdataaddr
@@ -768,20 +765,57 @@ tableTimer:	.byte 0, 10
 	adc #0
 	sta setdataaddr+1
 	
-	ldx temp11
+	ldx temp1
+	inc sprspace+sp_l1me_index, x
 	
-	; X - X coord
-	; Y - Y coord
+	pla
+	tax
+	
 	lda #1
 	sta clearsizex
 	sta clearsizey
 	
-	jsr h_request_transfer
+	jmp h_request_transfer
 	
-	ldx temp1
-	inc sprspace+sp_l1me_index, x
+@corruptRandomlyIfNeeded:
+	lda levelnumber
+	cmp #2
+	bne @return2
+	
+	; Also corrupt a random index
+	jsr rand
+	and #$7F
+	cmp #@dialogWidth*3
+	bcs @tryToSalvage
+@salvaged:
+	sta temp10
+	
+	jsr memorial_get_position
+	tax
+	
+	jsr rand_m1_p1
+	clc
+	adc temp10
+	clc
+	adc #<memorial_text_line_1
+	sta setdataaddr
+	
+	lda #>memorial_text_line_1
+	adc #0
+	sta setdataaddr+1
+	
+	lda #1
+	sta clearsizex
+	sta clearsizey
+	jsr h_request_transfer
 
 @return2:
+	rts
+
+@tryToSalvage:
+	sbc #50
+	cmp #@dialogWidth*3
+	bcc @salvaged
 	rts
 	
 @removeText:
@@ -794,40 +828,16 @@ tableTimer:	.byte 0, 10
 	and #%11111110
 	sta sprspace+sp_l1me_index, x
 	
-	cmp #@dialogWidth*3
-	bcs @return2
-	cmp #@dialogWidth
-	bcc @firstRowRM
-	cmp #@dialogWidth*2
-	bcc @secondRowRM
-	; third row
-	sbc #@dialogWidth*2
-	ldy #9
-	bne @donePickingYRM
-@secondRowRM:
-	sbc #(@dialogWidth-1)
-	ldy #7
-	bne @donePickingYRM
-@firstRowRM:
-	ldy #4
-@donePickingYRM:
-	clc
-	adc temp11
-	and #$3F
-	sta temp11
+	jsr memorial_get_position
+	tax
 	
 	lda #$01
 	sta setdataaddr
 	sta setdataaddr+1
+	sta clearsizey
 	
-	ldx temp11
-	
-	; X - X coord
-	; Y - Y coord
 	lda #2
 	sta clearsizex
-	lda #1
-	sta clearsizey
 	
 	jmp h_request_transfer
 .endproc

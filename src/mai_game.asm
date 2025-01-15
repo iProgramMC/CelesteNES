@@ -173,4 +173,46 @@ death_irq_table_2:	.byte 1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,17,17,17,17
 death_irq_table_3:	.byte 1,1,1,1,1,1,2,3,4,5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,17,17,17
 death_irq_table_4:	.byte 1,1,1,1,1,1,2,3,4,5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,17,17,17
 
+; ** SUBROUTINE: memorial_get_position
+; desc: To avoid code repetition while also avoiding use of position dependent code,
+;       offload some processing here
+; parameters:
+;       A - the index of the character
+; returns:
+;       Y - the Y position of the char
+;       A - the X position of the char (also in temp11)
+.proc memorial_get_position
+@dialogWidth = 26
+	cmp #@dialogWidth
+	bcc @firstRow
+	cmp #@dialogWidth*2
+	bcc @secondRow
+	; third row
+	sbc #@dialogWidth*2
+	ldy #9
+	bne @donePickingY
+@secondRow:
+	sbc #(@dialogWidth-1)
+	ldy #7
+	bne @donePickingY
+@firstRow:
+	ldy #4
+@donePickingY:
+	clc
+	adc temp11
+	and #$3F
+	rts
+.endproc
+
+; ** SUBROUTINE: rand_m1_p1
+; desc: Gets a random number, either -1, 0, or 1.
+.proc rand_m1_p1
+	jsr rand
+	bpl :+
+	lda #$FF
+	rts
+:	and #1
+	rts
+.endproc
+
 .include "math.asm"
