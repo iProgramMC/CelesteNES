@@ -28,7 +28,10 @@ ch2_mirror_shatter:
 	
 	; shatter the mirror
 	trigger     5
-	wait        22
+	wait        10
+	
+	call_rt     level2_sfx_shatter
+	wait        12
 	
 	; trigger Badeline to wait, after shattering the mirror
 	trigger     6

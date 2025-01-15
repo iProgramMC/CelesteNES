@@ -254,7 +254,6 @@ main_loop:
 .include "gam_main.asm"
 .include "audio/audio.asm"
 .include "nmi.asm"
-.include "math.asm"
 
 .segment "PRG_VECS"
 	.word nmi_

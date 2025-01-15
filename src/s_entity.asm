@@ -250,6 +250,9 @@ collidedforce:
 	lda temp11
 	sta clearsizey
 	
+	; TODO: not yet that good
+	;jsr gm_crumble_sfx
+	
 	pla
 	beq return
 	jmp gm_rebound
