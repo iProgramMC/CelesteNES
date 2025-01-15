@@ -1758,12 +1758,57 @@ prepareTween:
 	
 	ldx temp1
 	inc sprspace+sp_l1me_index, x
-	
+
+@return2:
 	rts
 	
 @removeText:
-	; remove the written text
-	;lda #0
-	;sta sprspace+sp_l1me_index, x
-	rts
+	lda sprspace+sp_l1me_index, x
+	beq @return2
+	
+	; removal incomplete: remove now
+	sec
+	sbc #1
+	and #%11111110
+	sta sprspace+sp_l1me_index, x
+	
+	cmp #@dialogWidth*3
+	bcs @return2
+	cmp #@dialogWidth
+	bcc @firstRowRM
+	cmp #@dialogWidth*2
+	bcc @secondRowRM
+	; third row
+	sbc #@dialogWidth*2
+	ldy #9
+	bne @donePickingYRM
+@secondRowRM:
+	sbc #(@dialogWidth-1)
+	ldy #7
+	bne @donePickingYRM
+@firstRowRM:
+	ldy #4
+@donePickingYRM:
+	clc
+	adc temp11
+	and #$3F
+	sta temp11
+	
+	lda #$01
+	sta setdataaddr
+	sta setdataaddr+1
+	
+	ldx temp11
+	
+	; X - X coord
+	; Y - Y coord
+	lda #2
+	sta clearsizex
+	lda #1
+	sta clearsizey
+	
+	jsr h_request_transfer
+	
+	
+	rts	
 .endproc
