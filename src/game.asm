@@ -465,6 +465,9 @@ gm_leave_doframe:
 	lda camera_y_hi
 	sta temp2
 	
+	lda #0
+	sta temp11
+	
 	lda quaketimer
 	beq noQuake
 	
@@ -475,13 +478,7 @@ gm_leave_doframe:
 	beq notUp
 	
 	jsr rand_m2_to_p1
-	clc
-	adc scroll_y
-	sta scroll_y
-	lda temp2
-	adc temp5
-	and #1
-	sta temp2
+	sta temp11
 	
 notUp:
 	lda #cont_down
@@ -490,12 +487,8 @@ notUp:
 	
 	jsr rand_m1_to_p2
 	clc
-	adc scroll_y
-	sta scroll_y
-	lda temp2
-	adc temp5
-	and #1
-	sta temp2
+	adc temp11
+	sta temp11
 	
 notDown:
 	lda #cont_left
@@ -526,11 +519,25 @@ notLeft:
 	sta temp1
 	
 notRight:
-	lda scroll_y
+	lda temp11
+	bmi shakeNegative
+	
+	; shake positive
+	clc
+	adc scroll_y
 	cmp #240
-	bcc noQuake
+	bcc :+
+	adc #15
+:	sta scroll_y
+	jmp noQuake
+
+shakeNegative:
+	clc
+	adc scroll_y
+	cmp #240
+	bcc :+
 	sbc #16
-	sta scroll_y
+:	sta scroll_y
 	
 noQuake:
 	lda #0
