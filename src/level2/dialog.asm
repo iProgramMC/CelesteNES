@@ -70,12 +70,14 @@ ch2_badeline_start:
 	begin
 	lock_input
 	
+	; play_music here
+	
 	wait        5
 	speaker     SPK_badeline
 	expression  BAD_normal
 	dialog2     @d0 ; slow down
 	
-	; trigger 0 Madeline turns around
+	; TRIGGER 0 Madeline turns around
 	face_player 1
 	
 	wait        60
@@ -90,7 +92,8 @@ ch2_badeline_start:
 	expression  BAD_normal
 	dialog2     @d2 ; just a normal observer, mate
 	
-	; trigger 1 Badeline is revealed
+	; TRIGGER 1 Badeline is revealed
+	
 	wait        50
 	right
 	speaker     SPK_madeline
@@ -139,7 +142,8 @@ ch2_badeline_start:
 	expression  MAD_sad
 	dialog2     @dE ; i know it sounds crazy, but we have to climb this mountain
 	
-	; trigger 2 Badeline starts laughing
+	; TRIGGER 2 Badeline starts laughing
+	
 	left
 	speaker     SPK_badeline
 	expression  BAD_scoff
@@ -150,7 +154,8 @@ ch2_badeline_start:
 	expression  MAD_distract
 	dialog2     @dG ; who says i can't be?!
 	
-	; trigger 3 Badeline stops laughing
+	; TRIGGER 3 Badeline stops laughing
+	
 	left
 	speaker     SPK_badeline
 	;expression  BAD_upset TODO
@@ -178,7 +183,7 @@ ch2_badeline_start:
 	expression  BAD_normal
 	dialogE     @dO ; it's time to go home, together.
 	
-	; TODO
+	; play_music here
 	
 	trigger     10
 	unlock_input
