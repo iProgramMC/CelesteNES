@@ -2233,6 +2233,18 @@ gm_checkthisenty:
 	lda #0
 	rts
 
+; ** SUBROUTINE: gm_invert_x_vel
+; desc: Inverts the X velocity.
+gm_invert_x_vel:
+	lda #0
+	sec
+	sbc player_vs_x
+	sta player_vs_x
+	lda #0
+	sbc player_vl_x
+	sta player_vl_x
+	rts
+
 gm_dash_over:
 	; dash has terminated.
 	lda gamectrl2
@@ -2242,6 +2254,9 @@ gm_dash_over:
 	; if (DashDir.Y <= 0f) Speed = DashDir * 160f (when begun, it would be DashDir * 240f)
 	lda #(cont_down << 2)
 	bit dashdir
+	bne :+
+	
+	lda dbouttimer
 	bne :+
 	
 	; Speed = DashDir * 160f;
@@ -2303,13 +2318,7 @@ gm_superjump:
 	lda #pl_left
 	bit playerctrl
 	beq :+
-	lda #0
-	sec
-	sbc player_vs_x
-	sta player_vs_x
-	lda #0
-	sbc player_vl_x
-	sta player_vl_x
+	jsr gm_invert_x_vel
 :	jmp gm_superjumpepilogue
 @return:
 	rts
@@ -2440,7 +2449,11 @@ gm_timercheck:
 	bne @onGround
 
 @gndReturn:
-	lda dreinvtmr
+	lda dbouttimer
+	beq :+
+	dec dbouttimer
+	
+:	lda dreinvtmr
 	beq :+
 	dec dreinvtmr
 	
@@ -3236,6 +3249,7 @@ resetDreamDash:
 	sta stamina+1
 	lda #5
 	sta jumpcoyote
+	sta dbouttimer
 	lda #3
 	sta dashtime
 	

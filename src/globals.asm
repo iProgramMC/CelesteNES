@@ -422,14 +422,15 @@ plh_forcepal: .res 1 ; forced hair palette if non-zero
 
 ; chapter 2 control
 dbenable    : .res 1 ; 1+ = dream blocks are enabled, 2+ = Badeline initted, 3+ = in "awake" stage
-
-game_cont_force : .res 2
+dbouttimer  : .res 1 ; cooldown for the player exiting a dream block
 
 advtracesw  : .res 1 ; if advanced trace is enabled (YOU MUST NOT show a dialog during this phase!)
 advtracehd  : .res 1 ; advanced trace head
 chasercdown : .res 1 ; countdown until the next chaser can pop into existence
 
 starsbgctl  : .res 1 ; star background control
+
+game_cont_force : .res 2
 
 ; 23 bytes free
 
