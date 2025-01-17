@@ -254,6 +254,7 @@ main_loop:
 .include "gam_main.asm"
 .include "audio/audio.asm"
 .include "nmi.asm"
+.include "m_fade.asm"
 
 memorial_text_line_1:	.byte "  @@ CELESTE MOUNTAIN @@  "
 memorial_text_line_2:	.byte "  THIS MEMORIAL TO THOSE  "

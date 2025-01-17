@@ -11,15 +11,6 @@
 .include "g_wipe.asm"
 .include "xtraif.asm"
 
-; ** SUBROUTINE: gm_update_ptstimer
-gm_update_ptstimer:
-	lda ptstimer
-	beq :+            ; if ptstimer != 0, then just decrement it
-	dec ptstimer
-	rts
-:	sta ptscount      ; if they're both 0, reset the points count and return
-	rts
-
 ; ** SUBROUTINE: gm_load_room_fully
 gm_load_room_fully:
 	jsr h_gener_ents_r
@@ -173,8 +164,23 @@ gm_game_update:
 	jsr gm_calc_camera_nosplit
 	
 @dontCalcNoSplit:
-	; add more here?
-	rts
+	; if an exit to map is requested, so be it
+	lda exitmaptimer
+	cmp #1
+	bne @returnDontExit
+	
+	jsr fade_out
+	
+	lda #gm_overwld
+	sta gamemode
+	lda #0
+	sta gamestate
+	
+@returnDontExit:
+	lda exitmaptimer
+	beq :+
+	dec exitmaptimer
+:	rts
 
 @gamePaused:
 	; game is paused.
@@ -319,6 +325,7 @@ gm_game_clear_wx:
 	stx advtracesw
 	stx starsbgctl
 	stx rununimport
+	stx exitmaptimer
 	
 	lda #<~g3_transitX
 	and gamectrl3
@@ -1201,18 +1208,6 @@ doneWipe:
 	jsr gm_leave_doframe
 	rts
 .endproc
-
-; ** SUBROUTINE: gm_load_hair_palette
-; desc: Loads Madeline's hair's palette
-gm_load_hair_palette:
-	lda plh_forcepal
-	bne :+
-	lda #maxdashes
-	sec
-	sbc dashcount
-:	jsr gm_allocate_palette
-	sta plh_attrs
-	rts
 
 ; ** SUBROUTINE: gm_check_level_banks
 ; desc: Checks the loaded background banks for levels.

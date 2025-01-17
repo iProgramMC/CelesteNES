@@ -69,9 +69,6 @@ gamemode_overwd_update_FAR:
 	
 @startGame:
 	; now enter the game!
-	jsr vblank_wait
-	lda #0
-	sta ppu_mask        ; disable rendering to obscure that gm_set_level sets the bank early
 	
 	ldx ow_sellvl
 	beq @isPrologue

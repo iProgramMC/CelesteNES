@@ -164,11 +164,9 @@ pressedRestartChapter:
 	jmp gm_bird_caw_sfx
 	
 pressedReturnToMap:
-	lda #gm_overwld
-	sta gamemode
-	lda #0
-	sta gamestate
-	rts
+	lda #2
+	sta exitmaptimer
+	jmp pressedResume
 .endproc
 
 ; offsets for the ATTRIBUTES and X COORDINATE bytes

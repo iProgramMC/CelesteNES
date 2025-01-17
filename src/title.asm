@@ -26,11 +26,14 @@ tl_gameswitchpcard:
 	; just call it.
 	stx levelnumber
 	
+	jsr fade_out
+	
 	jsr postcard
 	
 	; Fall through to tl_gameswitch
 	ldx levelnumber
-tl_gameswitch:
+
+tl_gameswitch_nofade:
 	lda #gm_game
 	sta gamemode
 	lda #0
@@ -41,8 +44,17 @@ tl_gameswitch:
 	rts
 
 tl_prolswitch:
+	jsr fade_out
+
+tl_prolswitch_nofade:
 	lda #gm_prologue
 	sta gamemode
 	lda #0
 	sta prolctrl
 	rts
+
+tl_gameswitch:
+	stx levelnumber
+	jsr fade_out
+	ldx levelnumber
+	jmp tl_gameswitch_nofade

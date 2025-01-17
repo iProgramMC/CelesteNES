@@ -431,6 +431,7 @@ chasercdown : .res 1 ; countdown until the next chaser can pop into existence
 starsbgctl  : .res 1 ; star background control
 
 game_cont_force : .res 2
+exitmaptimer: .res 1
 
 ; 23 bytes free
 

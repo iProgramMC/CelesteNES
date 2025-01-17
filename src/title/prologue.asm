@@ -182,11 +182,5 @@ gamemode_prologue_update_FAR:
 	rts
 
 @gameswitch:
-	jsr vblank_wait
-	lda #0
-	sta ppu_mask        ; disable rendering to obscure that gm_set_level sets the bank early
-	sta pl_ppuaddr
-	sta pl_ppuaddr+1
-	
 	ldx #0              ; select level zero
 	jmp tl_gameswitch
