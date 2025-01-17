@@ -78,6 +78,7 @@ y_crd_temp  : .res 1 ; used by oam_putsprite
 scroll_x    : .res 1
 scroll_y    : .res 1
 scroll_flags: .res 1 ; the FLAGS for the scroll split part of PPUCTRL
+tempmaskover: .res 1 ; with the nc_turnon flag, this is the thing that's ORed onto the default PPU mask
 
 ; dialog stuff in the zeropage
 scrollsplit : .res 1 ; Y position of the scroll split

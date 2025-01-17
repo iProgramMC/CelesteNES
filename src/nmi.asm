@@ -236,7 +236,10 @@ nmi_check_flags:
 	eor nmictrl
 	sta nmictrl
 	lda #def_ppu_msk
+	ora tempmaskover
 	sta ppu_mask
+	lda #0
+	sta tempmaskover
 	
 @noTurnOn:
 	rts

@@ -227,6 +227,7 @@ reset:
 	jsr vblank_wait  ; one final vblank wait
 	
 	lda #0
+	sta tempmaskover
 	sta nmi_disable
 	jsr ppu_nmi_on
 	cli

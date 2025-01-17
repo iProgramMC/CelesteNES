@@ -18,7 +18,6 @@ gamemode_overwd_init_FAR:
 	sty paladdr
 	ldy #>owld_palette
 	sty paladdr+1
-	jsr load_palette
 	
 	lda #$20
 	jsr clear_nt
@@ -31,13 +30,9 @@ gamemode_overwd_init_FAR:
 	ora #os_1stfr
 	sta owldctrl
 	
-	; request a turn-on
-	lda nmictrl
-	ora #nc_turnon
-	sta nmictrl
-	
 	jsr ow_select_banks
-	jsr vblank_wait
+	
+	jsr fade_in
 
 gamemode_overwd_update_FAR:
 	;jsr tl_update_snow

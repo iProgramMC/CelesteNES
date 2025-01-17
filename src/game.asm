@@ -1,15 +1,24 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 
 .include "g_level.asm"
 .include "e_draw.asm"
 .include "e_update.asm"
 .include "e_physic.asm"
 .include "e_spawn.asm"
-;.include "p_draw.asm"
 .include "p_physic.asm"
 .include "g_palloc.asm"
 .include "g_wipe.asm"
+.include "g_sfx.asm"
 .include "xtraif.asm"
+
+; ** SUBROUTINE: gm_update_ptstimer
+gm_update_ptstimer:
+	lda ptstimer
+	beq :+            ; if ptstimer != 0, then just decrement it
+	dec ptstimer
+	rts
+:	sta ptscount      ; if they're both 0, reset the points count and return
+	rts
 
 ; ** SUBROUTINE: gm_load_room_fully
 gm_load_room_fully:
@@ -278,55 +287,6 @@ gm_game_clear_wx:
 	stx exitmaptimer
 	stx gamectrl      ; clear game related fields to zero
 	
-	;stx gamectrl4
-	;stx transoff
-	;stx tr_scrnpos
-	;stx ntwrhead
-	;stx arwrhead
-	;stx player_sp_x
-	;stx player_sp_y
-	;stx camera_x
-	;stx camera_y
-	;stx camera_x_hi
-	;stx playerctrl
-	;stx player_vl_x
-	;stx player_vs_x
-	;stx player_vl_y
-	;stx player_vs_y
-	;stx dashtime
-	;stx dashcount
-	;stx jumpbuff
-	;stx jumpcoyote
-	;stx wjumpcoyote
-	;stx roombeglo
-	;stx roombeghi
-	;stx roombeglo2
-	;stx liftboosttm
-	;stx liftboostX
-	;stx liftboostY
-	;stx lastlboostX
-	;stx lastlboostY
-	;stx currlboostX
-	;stx currlboostY
-	;stx player_x_d	
-	;stx hopcdown
-	;stx cjwindow
-	;stx climbcdown
-	;stx camera_x_lo
-	;stx camera_y_lo
-	;stx camlefthi
-	;stx plrtrahd
-	;stx plrstrawbs
-	;stx camera_y_sub
-	;stx stamflashtm
-	;stx camleftlo
-	;stx dredeatmr
-	;stx dreinvtmr
-	;stx rununimport
-	;stx paused
-	;stx cjwalldir
-	;stx camlimit
-	;stx camlimithi
 	txa
 	ldy #<zero_on_respawn_zp_begin
 :	sta $00, y
@@ -1243,7 +1203,18 @@ doneWipe:
 	rts
 .endproc
 
-; This is seriously supposed to be in PRG_LVL2B, but I'm trying to fit 3.9k of DMC samples..
+; ** SUBROUTINE: gm_load_hair_palette
+; desc: Loads Madeline's hair's palette
+gm_load_hair_palette:
+	lda plh_forcepal
+	bne :+
+	lda #maxdashes
+	sec
+	sbc dashcount
+:	jsr gm_allocate_palette
+	sta plh_attrs
+	rts
+
 .include "mai_game.asm"
 
 ; ** SUBROUTINE: invert_oam_order
