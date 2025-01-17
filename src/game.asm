@@ -17,13 +17,12 @@ gm_update_ptstimer:
 	beq :+            ; if ptstimer != 0, then just decrement it
 	dec ptstimer
 	rts
-:	sta ptscount      ; if they're both 0, reset the points count and return
+:	sta ptscount      ; if it's 0, also reset the points count and return
 	rts
 
 ; ** SUBROUTINE: gm_load_room_fully
 gm_load_room_fully:
-	jsr h_gener_ents_r
-	jsr h_gener_mts_r
+	jsr x_gener_mts_ents_r_fixed ; calls h_gener_ents_r and h_gener_mts_r
 	
 	lda #tilesahead
 	clc
@@ -67,19 +66,17 @@ gm_game_init:
 	inx
 	stx ppu_mask      ; disable rendering
 	
-	lda #g2_noclrall
-	bit gamectrl2
-	beq @clearAll
+	lda gamectrl2
+	and #g2_noclrall
+	pha               ; the stack will now contain a flag whether or not we respawned here or just started
+	beq @clearAll     ; we will have to play "hot potato" with it for a bit.
 	
+	; if we just respawned, call just clear_wx, and skip the rest of the code
 	jsr gm_game_clear_wx
 	jmp @clearDone
 	
 @clearAll:
 	jsr gm_game_clear_all_wx
-	
-	jsr vblank_wait
-	
-	jsr load_palette  ; load game palette into palette RAM
 	
 	lda #$20
 	jsr clear_nt
@@ -87,7 +84,6 @@ gm_game_init:
 	jsr clear_nt
 	
 @clearDone:
-	
 	lda #0
 	sta ntwrhead
 	sta arwrhead
@@ -121,8 +117,15 @@ gm_game_init:
 
 	jsr gm_update_bg_bank
 	
-	jsr vblank_wait
-	jmp gm_game_update
+	; pull the "have we just respawned here?" flag? if it's false, then fade in
+	pla
+	bne :+
+	
+	jsr gm_calc_camera_nosplit
+	lda #16
+	jsr fade_in_smaller_palette
+	
+:	jmp gm_game_update
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:

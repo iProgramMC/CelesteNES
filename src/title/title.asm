@@ -61,6 +61,8 @@ print_logo:
 	rts
 	
 tl_owldswitch:
+	jsr fade_out
+	
 	lda #gm_overwld
 	sta gamemode
 	lda #0
@@ -79,12 +81,11 @@ gamemode_title_init_FAR:
 	
 	jsr vblank_wait  ; wait for vblank
 	
-	; Also load the title screen palette.
+	; Set the title screen palette address, we'll fade in to it.
 	lda #<title_palette
 	sta paladdr
 	lda #>title_palette
 	sta paladdr+1
-	jsr load_palette
 	
 	lda #$20
 	jsr clear_nt     ; clear the screen
@@ -95,12 +96,10 @@ gamemode_title_init_FAR:
 	lda titlectrl
 	ora #ts_1stfr
 	sta titlectrl
-	lda nmictrl
-	ora #nc_turnon
-	sta nmictrl
 	
 	jsr tl_select_banks
-	jsr vblank_wait
+	
+	jsr fade_in
 
 gamemode_title_update_FAR:
 	jsr tl_update_snow

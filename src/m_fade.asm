@@ -1,11 +1,9 @@
 ; Copyright (C) 2025 iProgramInCpp
 
-; ** SUBROUTINE: prepare_vmcpy_fade
+; ** SUBROUTINE: fade_prepare_vmcpy
 ; desc: Set the video memory copy operation's address to the temprow1 array's,
 ;       set the count to 32, set the dest to $3F00, and return zero.
-.proc prepare_vmcpy_fade
-	lda #32
-	sta vmccount
+.proc fade_prepare_vmcpy
 	lda #<temprow1
 	sta vmcsrc
 	lda #>temprow1
@@ -17,17 +15,29 @@
 	rts
 .endproc
 
+; ** SUBROUTINE: fade_copy_palette
+; desc: Copies the selected palette from [paladdr] to temprow1.
+.proc fade_copy_palette
+	ldy vmccount
+	dey
+@loopCopy:
+	lda (paladdr), y
+	sta temprow1, y
+	dey
+	bpl @loopCopy ; it has to go to $FF first
+	rts
+.endproc
+
 ; ** SUBROUTINE: fade_in
 ; desc: Fades in to a palette.
 ; parameters: paladdr - The palette to fade into
 .proc fade_in
-	jsr copyPalette
+	lda #32
+differentPaletteSize:
+	sta vmccount
+	jsr fade_copy_palette
+	jsr fade_prepare_vmcpy
 	
-	; set up the video memory copy addresses
-	jsr prepare_vmcpy_fade
-	
-	sta scroll_x
-	sta scroll_y
 	sta ppu_mask
 	sta tempmaskover
 	
@@ -40,7 +50,7 @@
 	and #%00000111
 	bne @dontfade
 	
-	jsr copyPalette
+	jsr fade_copy_palette
 	cpx #%00001000
 	beq @fade0x
 	cpx #%00010000
@@ -48,11 +58,11 @@
 	;   #%00011000 -- fade2x
 	
 @fade2x:
-	jsr fadeTempRow
+	jsr fade_fade_temp_row
 @fade1x:
-	jsr fadeTempRow
+	jsr fade_fade_temp_row
 @fade0x:
-	jsr requestPush
+	jsr fade_set_vmc_flag
 @dontfade:
 	
 	; Well, as it turns out, we have to do it the dumb way.
@@ -71,7 +81,7 @@
 	ora #nc_turnon
 	sta nmictrl
 	
-	jsr waitOneFrame
+	jsr fade_wait_one_frame
 	
 	ldx transtimer
 	dex
@@ -79,36 +89,39 @@
 	cpx #0
 	bne @loop
 	
-	jsr copyPalette
-	jsr requestPush
-	jmp waitOneFrame
+	jsr fade_copy_palette
+	jsr fade_set_vmc_flag
+	
+	jmp fade_wait_one_frame
+.endproc
 
-fadeTempRow:
+fade_in_smaller_palette := fade_in::differentPaletteSize
+
+; ** SUBROUTINE: fade_fade_temp_row
+; desc: Fades all colors inside temprow1.
+.proc fade_fade_temp_row
 	ldx #0
 :	lda temprow1, x
 	jsr fade_twice_if_high
 	sta temprow1, x
 	inx
-	cpx #32
+	cpx vmccount
 	bne :-
-	;rts
+	rts
+.endproc
 
-requestPush:
+; ** SUBROUTINE: fade_set_vmc_flag
+; desc: Requests a video memory copy operation.
+.proc fade_set_vmc_flag
 	lda nmictrl2
 	ora #nc2_vmemcpy
 	sta nmictrl2
 	rts
+.endproc
 
-copyPalette:
-	ldy #31
-@loopCopy:
-	lda (paladdr), y
-	sta temprow1, y
-	dey
-	bpl @loopCopy ; it has to go to $FF first
-	rts
-
-waitOneFrame:
+; ** SUBROUTINE: fade_wait_one_frame
+; desc: Waits a single frame.
+.proc fade_wait_one_frame
 	jsr soft_nmi_on
 	jsr nmi_wait
 	jmp soft_nmi_off
@@ -117,19 +130,12 @@ waitOneFrame:
 ; ** SUBROUTINE: fade_out
 ; desc: Fades to black.  This is a synchronous routine.
 .proc fade_out
-	; The palette will be copied to temprow1.
+	lda #32
+	sta vmccount
+	jsr fade_prepare_vmcpy
+	jsr fade_copy_palette
 	
-	ldy #31
-@loopCopy:
-	lda (paladdr), y
-	sta temprow1, y
-	dey
-	bpl @loopCopy ; it has to go to $FF first
-	
-	; then set up the video memory copy addresses
-	jsr prepare_vmcpy_fade
-	
-	; it will take us thirty-two frames to do the fade out.
+	; it will take us 31 frames to do the fade out.
 	ldy #31
 @loopFadeOut:
 	sty transtimer
@@ -138,22 +144,11 @@ waitOneFrame:
 	and #%00000111
 	bne @dontFadePalette
 	
-	ldx #0
-:	lda temprow1, x
-	jsr fade_twice_if_high
-	sta temprow1, x
-	inx
-	cpx #32
-	bne :-
-	
-	lda nmictrl2
-	ora #nc2_vmemcpy
-	sta nmictrl2
+	jsr fade_fade_temp_row
+	jsr fade_set_vmc_flag
 	
 @dontFadePalette:
-	jsr soft_nmi_on
-	jsr nmi_wait
-	jsr soft_nmi_off
+	jsr fade_wait_one_frame
 	
 	ldy transtimer
 	dey
@@ -171,8 +166,7 @@ waitOneFrame:
 	
 	; everything is black, also disable rendering
 	
-	lda #0
-	sta ppu_mask
+	sty ppu_mask
 	
 	; the fade out is complete - everything's black now
 	; and rendering is disabled

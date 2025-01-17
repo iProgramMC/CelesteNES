@@ -190,7 +190,7 @@ reset:
 
 	; clears all 2KB of work RAM, except the zero page
 :	sta $100, x
-	sta $200, x
+	;sta $200, x
 	sta $300, x
 	sta $400, x
 	sta $500, x
@@ -205,6 +205,9 @@ reset:
 	jsr vblank_wait
 	
 	ldy #<init_palette
+	sty paladdr
+	ldy #>init_palette
+	sty paladdr+1
 	jsr load_palette ; move palette to palette RAM
 	
 	ldy #def_ppu_msk ; show background & sprites

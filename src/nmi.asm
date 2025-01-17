@@ -306,23 +306,25 @@ nmi_check_gamemodes:
 	rts
 
 @titleTra:
+	lda fade_active
+	bne :+
 	lda tl_timer
 	and #$08
 	lsr
 	lsr
 	lsr
+	tay
 	lda #$3F
 	sta ppu_addr
 	lda #$01
 	sta ppu_addr
-	tay
 	lda alt_colors, y
 	sta ppu_data
 	lda alt_colors+2, y
 	sta ppu_data
 	lda alt_colors+4, y
 	sta ppu_data
-	rts
+:	rts
 
 @game_:
 	lda stamflashtm
@@ -430,11 +432,13 @@ nmi_anims_normal:
 	sta irqaddr
 	
 	ldy #chrb_lvl1
-	lda #mmc3bk_bg0
-	jmp mmc3_set_bank_nmi
+	;lda #mmc3bk_bg0
+	;jmp mmc3_set_bank_nmi
+	bne @skipldybg0
 	
 @setRegularBg0:
 	ldy bg0_bknum
+@skipldybg0:
 	lda #mmc3bk_bg0
 	jmp mmc3_set_bank_nmi
 	
