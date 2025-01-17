@@ -255,54 +255,11 @@ gm_game_clear_all_wx:
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.
 gm_game_clear_wx:
-	;stx gamectrl2
-	stx gamectrl4
-	stx transoff
-	stx tr_scrnpos
-	stx gamectrl      ; clear game related fields to zero
-	stx ntwrhead
-	stx arwrhead
-	stx player_sp_x
-	stx player_sp_y
-	stx camera_x
-	stx camera_y
-	stx camera_x_hi
-	;stx lvladdr
-	;stx lvladdrhi
-	stx playerctrl
-	stx player_vl_x
-	stx player_vs_x
-	stx player_vl_y
-	stx player_vs_y
-	stx dashtime
-	stx dashcount
-	stx jumpbuff
-	stx jumpcoyote
-	stx wjumpcoyote
-	stx roombeglo
-	stx roombeghi
-	stx roombeglo2
-	stx liftboosttm
-	stx liftboostX
-	stx liftboostY
-	stx lastlboostX
-	stx lastlboostY
-	stx currlboostX
-	stx currlboostY
-	stx player_x_d
-	stx hopcdown
-	stx cjwindow
-	stx climbcdown
-	stx camera_x_lo
-	stx camera_y_lo
-	stx camlefthi
-	stx plrtrahd
-	stx plrstrawbs
 	stx scrollsplit
 	stx dialogsplit
-	stx camera_y_sub
-	stx stamflashtm
-	stx camleftlo
+	stx miscsplit
+	stx deathwipe
+	stx deathwipe2
 	stx irqtmp1
 	stx irqtmp2
 	stx irqtmp3
@@ -311,21 +268,71 @@ gm_game_clear_wx:
 	stx irqtmp6
 	stx irqtmp7
 	stx irqtmp8
-	stx deathwipe
-	stx deathwipe2
-	stx miscsplit
 	stx abovescreen
-	stx paused
 	stx pauseanim
-	stx dredeatmr
-	stx dreinvtmr
 	stx game_cont_force
 	stx game_cont_force+1
 	stx amodeforce
 	stx advtracesw
 	stx starsbgctl
-	stx rununimport
 	stx exitmaptimer
+	stx gamectrl      ; clear game related fields to zero
+	
+	;stx gamectrl4
+	;stx transoff
+	;stx tr_scrnpos
+	;stx ntwrhead
+	;stx arwrhead
+	;stx player_sp_x
+	;stx player_sp_y
+	;stx camera_x
+	;stx camera_y
+	;stx camera_x_hi
+	;stx playerctrl
+	;stx player_vl_x
+	;stx player_vs_x
+	;stx player_vl_y
+	;stx player_vs_y
+	;stx dashtime
+	;stx dashcount
+	;stx jumpbuff
+	;stx jumpcoyote
+	;stx wjumpcoyote
+	;stx roombeglo
+	;stx roombeghi
+	;stx roombeglo2
+	;stx liftboosttm
+	;stx liftboostX
+	;stx liftboostY
+	;stx lastlboostX
+	;stx lastlboostY
+	;stx currlboostX
+	;stx currlboostY
+	;stx player_x_d	
+	;stx hopcdown
+	;stx cjwindow
+	;stx climbcdown
+	;stx camera_x_lo
+	;stx camera_y_lo
+	;stx camlefthi
+	;stx plrtrahd
+	;stx plrstrawbs
+	;stx camera_y_sub
+	;stx stamflashtm
+	;stx camleftlo
+	;stx dredeatmr
+	;stx dreinvtmr
+	;stx rununimport
+	;stx paused
+	;stx cjwalldir
+	;stx camlimit
+	;stx camlimithi
+	txa
+	ldy #<zero_on_respawn_zp_begin
+:	sta $00, y
+	iny
+	cpy #<zero_on_respawn_zp_end
+	bne :-
 	
 	lda #<~g3_transitX
 	and gamectrl3

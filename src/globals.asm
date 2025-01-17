@@ -100,22 +100,12 @@ paladdr     : .res 2 ; currently loaded palette address.
 
 player_x    : .res 1 ; offset by the camera's position!
 player_y    : .res 1
-player_sp_x : .res 1 ; subpixel memory X
-player_sp_y : .res 1 ; subpixel memory Y
-camera_x    : .res 1
-camera_y    : .res 1
-camera_x_hi : .res 1
-camera_y_hi : .res 1
 camera_y_bs : .res 1 ; base camera Y
-camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
 camera_y_ho : .res 1 ; camera Y high OLD
 revealedrow : .res 1 ; row revealed by an up/down scroll
 vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
 camera_y_min: .res 1
 camera_y_max: .res 1
-camera_x_lo : .res 1 ; for linear interpolation
-camera_y_lo : .res 1
-paused      : .res 1 ; is the game paused right now?
 tl_timer    : .res 1 ; used for weather
 
 ; merged from individual variables between Prologue, Title and Overworld.
@@ -164,35 +154,15 @@ anfrptrlo   : .res 1 ; animation frame pointer low
 anfrptrhi   : .res 1 ; animation frame pointer high
 gamectrl2   : .res 1 ; second game control flags
 gamectrl3   : .res 1 ; third game control flags
-gamectrl4   : .res 1 ; fourth game control flags
-ntwrhead    : .res 1 ; name table write head (up to 64 columns)
-arwrhead    : .res 1 ; area space write head (up to 32 columns)
 camera_x_pg : .res 1
-tr_scrnpos  : .res 1 ; active screen position
 entdelay    : .res 1 ; entity row delay (vertical scrolling)
-playerctrl  : .res 1
-player_vl_x : .res 1 ; velocity X, pixels
-player_vs_x : .res 1 ; velocity X, subpixels
-player_vl_y : .res 1 ; velocity Y, pixels
-player_vs_y : .res 1 ; velocity Y, subpixels
 vmcsrc      : .res 2 ; Source of bytes to copy to
-dashtime    : .res 1
-dashcount   : .res 1 ; times player has dashed
-dashdir     : .res 1 ; dash direction X (controller inputs at time of dash SHIFTED LEFT by 2)
-jumpbuff    : .res 1 ; jump buff time
-jumpcoyote  : .res 1 ; jump coyote time, if not zero, player may jump
-wjumpcoyote : .res 1 ; wall jump coyote time
 player_yo   : .res 1 ; player Y old. used for spike collision
 player_xo   : .res 1 ; player Y old. used for horizontal spike collision
-transoff    : .res 1
 ptscount    : .res 1 ; last points count given
 ptstimer    : .res 1 ; time the ptscount is valid in frames
 palrdheadlo : .res 1 ; palette read head
 palrdheadhi : .res 1
-camlimit    : .res 1
-camlimithi  : .res 1
-camleftlo   : .res 1
-camlefthi   : .res 1
 lvlyoff     : .res 1 ; level Y offset when writing name table data
 trarwrhead  : .res 1
 transtimer  : .res 1
@@ -201,12 +171,6 @@ plr_spr_l   : .res 1 ; player sprite left
 plr_spr_r   : .res 1 ; player sprite right
 plh_spr_l   : .res 1 ; player hair sprite left
 plh_spr_r   : .res 1 ; player hair sprite right
-deathtimer  : .res 1
-roombeglo   : .res 1 ; beginning of room in pixels.  Used for entity placement
-roombeghi   : .res 1
-roombeglo2  : .res 1 ; beginning of room in the 2 loaded nametables.
-plrtrahd    : .res 1 ; plr trace head
-plrstrawbs  : .res 1 ; strawberries following this player
 ntrowhead   : .res 1
 ntrowhead2  : .res 1
 wrcountHP1  : .res 1 ; write count for HP1
@@ -237,28 +201,13 @@ setdataaddr : .res 2 ; enqueued name table set, data source.
 roomnumber  : .res 1 ; incremented every time a room transition happens
 climbbutton : .res 1 ; the state of the CLIMB button. Any non zero value works.
 stamina     : .res 2 ; stamina amount (16-bit integer)
-stamflashtm : .res 1 ; stamina flash timer
-climbcdown  : .res 1 ; climb cooldown (when transitioning rooms)
-cjwindow    : .res 1 ; climb jump window -- if you push the opposite direction while jumping, stamina will be refunded and a wall jump will happen
-cjwalldir   : .res 1 ; climb jump wall direction
 deathangle  : .res 1 ; death particles angle
-hopcdown    : .res 1 ; hop countdown HACK
-player_x_d  : .res 1
-liftboostX  : .res 1
-liftboostY  : .res 1
-lastlboostX : .res 1 ; last lift boost velocity
-lastlboostY : .res 1
-currlboostX : .res 1 ; lift boost calculation in progress
-currlboostY : .res 1
-liftboosttm : .res 1 ; lift boost time
+
 prevplrctrl : .res 1 ; last player control flags
 respawntmr  : .res 1 ; respawn timer
 chopentity  : .res 1 ; reference to the climb hop solid
 choplastX   : .res 1
 choplastY   : .res 1
-dredeatmr   : .res 1 ; dream death counter
-dreinvtmr   : .res 1 ; dream dash invincibility timer
-rununimport : .res 1 ; set this to 0 to allow running of unimportant stuff such as background effects
 
 scrchklo    : .res 1 ; temporaries used for scroll checking
 scrchkhi    : .res 1
@@ -294,6 +243,69 @@ startpx     : .res 1 ; starting player X position
 startpy     : .res 1 ; starting player Y position
 
 usedrunreduce : .res 1
+
+; these spots are always zeroed out on respawn
+zero_on_respawn_zp_begin:
+
+gamectrl4   : .res 1 ; fourth game control flags
+playerctrl  : .res 1
+
+player_sp_x : .res 1 ; subpixel memory X
+player_sp_y : .res 1 ; subpixel memory Y
+
+player_vl_x : .res 1 ; velocity X, pixels
+player_vs_x : .res 1 ; velocity X, subpixels
+player_vl_y : .res 1 ; velocity Y, pixels
+player_vs_y : .res 1 ; velocity Y, subpixels
+
+camera_x    : .res 1
+camera_y    : .res 1
+camera_x_hi : .res 1
+camera_y_hi : .res 1
+camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
+camera_x_lo : .res 1 ; for smoother scrolling
+camera_y_lo : .res 1
+camlimit    : .res 1
+camlimithi  : .res 1
+camleftlo   : .res 1
+camlefthi   : .res 1
+
+roombeglo   : .res 1 ; beginning of room in pixels.  Used for entity placement
+roombeghi   : .res 1
+roombeglo2  : .res 1 ; beginning of room in the 2 loaded nametables.
+
+transoff    : .res 1
+tr_scrnpos  : .res 1 ; active screen position
+ntwrhead    : .res 1 ; name table write head (up to 64 columns)
+arwrhead    : .res 1 ; area space write head (up to 32 columns)
+dashtime    : .res 1
+dashcount   : .res 1 ; times player has dashed
+dashdir     : .res 1 ; dash direction X (controller inputs at time of dash SHIFTED LEFT by 2)
+jumpbuff    : .res 1 ; jump buff time
+jumpcoyote  : .res 1 ; jump coyote time, if not zero, player may jump
+wjumpcoyote : .res 1 ; wall jump coyote time
+liftboosttm : .res 1 ; lift boost time
+liftboostX  : .res 1
+liftboostY  : .res 1
+lastlboostX : .res 1 ; last lift boost velocity
+lastlboostY : .res 1
+currlboostX : .res 1 ; lift boost calculation in progress
+currlboostY : .res 1
+player_x_d  : .res 1
+hopcdown    : .res 1 ; hop countdown HACK
+cjwindow    : .res 1 ; climb jump window -- if you push the opposite direction while jumping, stamina will be refunded and a wall jump will happen
+cjwalldir   : .res 1 ; climb jump wall direction
+climbcdown  : .res 1 ; climb cooldown (when transitioning rooms)
+plrtrahd    : .res 1 ; plr trace head
+plrstrawbs  : .res 1 ; strawberries following this player
+deathtimer  : .res 1
+stamflashtm : .res 1 ; stamina flash timer
+paused      : .res 1 ; is the game paused right now?
+dredeatmr   : .res 1 ; dream death counter
+dreinvtmr   : .res 1 ; dream dash invincibility timer
+rununimport : .res 1 ; set this to 0 to allow running of unimportant stuff such as background effects
+
+zero_on_respawn_zp_end:
 
 .segment "OAMBUF"
 oam_buf     : .res $100
