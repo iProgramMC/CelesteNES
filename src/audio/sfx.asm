@@ -13,6 +13,10 @@ game_sfx:
 	.word @sfx_ntsc_caw          ; 6 - bird caw
 	.word @sfx_ntsc_crumble      ; 7 - crumble
 	.word lsfx_ntsc_shatter      ; 8 - glass shatter
+	.word psfx_ntsc_ch1_in       ; 9 - Chapter 1 in
+	.word psfx_ntsc_ch1_out      ;10 - Chapter 1 out
+	.word psfx_ntsc_ch2_in       ;11 - Chapter 2 in
+	.word psfx_ntsc_ch2_out      ;12 - Chapter 2 out
 
 ; TODO: BORROWED FROM FAMIDASH. Provide original version soon.
 @sfx_ntsc_click:

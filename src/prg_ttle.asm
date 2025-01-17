@@ -7,6 +7,7 @@
 	.include "title/prologue.asm"
 	.include "title/titlescr.asm"
 	.include "title/mountain.asm"
+	.include "title/letter.asm"
 
 title_palette:
 	.incbin "title/title.pal"

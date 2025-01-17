@@ -127,6 +127,12 @@
 .segment "CHR_PAUSE"
 .incbin  "chr/sp_pause.chr"
 
+.segment "CHR_PCARD"
+.incbin  "chr/b_postcard.chr"
+
+.segment "CHR_OPTNS"
+.incbin  "chr/b_options.chr"
+
 ; Main dialog tiles
 .segment "CHR_DMAIN"
 .incbin  "chr/d_main.chr"
@@ -154,8 +160,6 @@
 .segment "CHR_SLV2L"
 .segment "CHR_SLV2M"
 .segment "CHR_SLV2N"
-.segment "CHR_UN003"
-.segment "CHR_UN004"
 .segment "CHR_UN005"
 .segment "CHR_UN006"
 .segment "CHR_UN007"

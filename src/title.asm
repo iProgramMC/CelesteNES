@@ -20,6 +20,16 @@ gamemode_title:
 gamemode_title_update_NEAR:
 	jmp gamemode_title_update_FAR
 
+tl_gameswitchpcard:
+	; We will want to show the postcard.
+	; Since the bank with the postcard code is already loaded, indeed we can
+	; just call it.
+	stx levelnumber
+	
+	jsr postcard
+	
+	; Fall through to tl_gameswitch
+	ldx levelnumber
 tl_gameswitch:
 	lda #gm_game
 	sta gamemode

@@ -76,7 +76,7 @@ gamemode_overwd_update_FAR:
 	ldx ow_sellvl
 	beq @isPrologue
 	
-	jmp tl_gameswitch
+	jmp tl_gameswitchpcard
 
 @isPrologue:
 	jmp tl_prolswitch

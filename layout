@@ -110,10 +110,10 @@ MEMORY
 	CHR_UN005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$54;
 	CHR_UN006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58;
 	CHR_UN007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C;
-	CHR_UN003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
-	CHR_UN004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
 	
-	# Extra Banks
+	## Extra Banks ##
+	CHR_PCARD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
+	CHR_OPTNS: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
 	
 	## Dialog Pattern Tables ##
 	CHR_DBADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68;
@@ -191,8 +191,8 @@ SEGMENTS
 	CHR_SLV2L: load = CHR_SLV2L, type = ro;
 	CHR_SLV2M: load = CHR_SLV2M, type = ro;
 	CHR_SLV2N: load = CHR_SLV2N, type = ro;
-	CHR_UN003: load = CHR_UN003, type = ro;
-	CHR_UN004: load = CHR_UN004, type = ro;
+	CHR_PCARD: load = CHR_PCARD, type = ro;
+	CHR_OPTNS: load = CHR_OPTNS, type = ro;
 	CHR_UN005: load = CHR_UN005, type = ro;
 	CHR_UN006: load = CHR_UN006, type = ro;
 	CHR_UN007: load = CHR_UN007, type = ro;

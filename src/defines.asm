@@ -346,6 +346,9 @@ chrb_lvl2h  = $34
 chrb_pause  = $4C
 chrb_dpldi  = $50
 
+chrb_pcard  = $60
+chrb_optns  = $64
+
 ; DIALOG DATA BANKS
 chrb_dbade  = $68   ; graphics bank for dialog with Badeline
 chrb_dcntr  = $6C   ; dialogue binary counting pattern
