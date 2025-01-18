@@ -92,8 +92,8 @@ MEMORY
 	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
 	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
 	CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
-	CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
-	CHR_BG008: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
+	CHR_LV1CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
+	CHR_LV1CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
 	
 	CHR_PAPH1: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40;
 	CHR_PAPH2: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44;
@@ -107,9 +107,10 @@ MEMORY
 	CHR_U10_C: start=$1800, size=$0400, fill=yes, fillval=$FF, bank=$52;
 	CHR_U10_D: start=$1C00, size=$0400, fill=yes, fillval=$FF, bank=$53;
 	
-	CHR_UN005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$54;
-	CHR_UN006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58;
-	CHR_UN007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C;
+	CHR_SL1CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$54;
+	CHR_SL2CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$56;
+	CHR_LV2CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58;
+	CHR_LV2CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C;
 	
 	## Extra Banks ##
 	CHR_PCARD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
@@ -183,8 +184,6 @@ SEGMENTS
 	CHR_BG004: load = CHR_BG004, type = ro;
 	CHR_BG005: load = CHR_BG005, type = ro;
 	CHR_BG006: load = CHR_BG006, type = ro;
-	CHR_BG007: load = CHR_BG007, type = ro;
-	CHR_BG008: load = CHR_BG008, type = ro;
 	CHR_PAPH1: load = CHR_PAPH1, type = ro;
 	CHR_PAPH2: load = CHR_PAPH2, type = ro;
 	CHR_PAPH3: load = CHR_PAPH3, type = ro;
@@ -193,9 +192,12 @@ SEGMENTS
 	CHR_SLV2N: load = CHR_SLV2N, type = ro;
 	CHR_PCARD: load = CHR_PCARD, type = ro;
 	CHR_OPTNS: load = CHR_OPTNS, type = ro;
-	CHR_UN005: load = CHR_UN005, type = ro;
-	CHR_UN006: load = CHR_UN006, type = ro;
-	CHR_UN007: load = CHR_UN007, type = ro;
+	CHR_SL1CO: load = CHR_SL1CO, type = ro;
+	CHR_SL2CO: load = CHR_SL2CO, type = ro;
+	CHR_LV1CA: load = CHR_LV1CA, type = ro;
+	CHR_LV1CB: load = CHR_LV1CB, type = ro;
+	CHR_LV2CA: load = CHR_LV2CA, type = ro;
+	CHR_LV2CB: load = CHR_LV2CB, type = ro;
 	CHR_DBADE: load = CHR_DBADE, type = ro;
 	CHR_PAUSE: load = CHR_PAUSE, type = ro;
 	CHR_DPLDI: load = CHR_DPLDI, type = ro;

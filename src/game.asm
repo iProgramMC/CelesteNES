@@ -121,6 +121,8 @@ gm_game_init:
 	bne :+
 	
 	jsr gm_calc_camera_nosplit
+	lda #0
+	sta lvlptrhi
 	lda #16
 	jsr fade_in_smaller_palette
 	

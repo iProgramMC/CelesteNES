@@ -82,6 +82,7 @@ differentPaletteSize:
 	ora #nc_turnon
 	sta nmictrl
 	
+	jsr callLevelPointer
 	jsr fade_wait_one_frame
 	
 	ldx transtimer
@@ -92,8 +93,15 @@ differentPaletteSize:
 	
 	jsr fade_copy_palette
 	jsr fade_set_vmc_flag
+	jsr callLevelPointer
 	dec fade_active
 	jmp fade_wait_one_frame
+
+callLevelPointer:
+	lda lvlptrhi
+	beq :+
+	jmp (lvlptrlo)
+:	rts
 .endproc
 
 fade_in_smaller_palette := fade_in::differentPaletteSize

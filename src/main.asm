@@ -6,18 +6,20 @@
 .byte $4E,$45,$53,$1A
 .byte 8         ; size of prg rom in 16kb units
 .byte 16        ; size of chr rom in 8kb units
-.byte %01000000 ; flags 6 -- switchable nametable mirroring, mapper 4
+.byte %01000010 ; flags 6 -- switchable nametable mirroring, mapper 4, battery present
 .byte %00001000 ; flags 7 -- NES 2.0 header
 .byte %00000000 ; mapper msb / submapper
 .byte %00000000 ; prg-rom / chr-rom size msb
-.byte %00000111 ; prg-ram / eeprom size (64 << 7 == 8192)
+.byte %01110111 ; prg-ram / eeprom size (64 << 7 == 8192) (note)
 .byte %00000000 ; chr-ram size
 .byte %00000000 ; cpu/ppu timing mode
 .byte %00000000 ; vs. system type
 .byte %00000000 ; misc ROMs
 .byte %00000000 ; default exp device
 
-; mapper 1 -- MMC1
+; note: not all 8K are actually *used* (only 256 bytes of that are),
+; but it's cheapest for hardware manufacturers to just hook up all 8K
+; of PRG to the same battery backup chip
 
 .include "defines.asm"
 .include "globals.asm"
@@ -120,6 +122,19 @@
 .segment "CHR_BG006"
 .incbin  "chr/b_lvl2h.chr" ; contains the dream block (dither stage 3)
 ; EMPTY 2KB
+
+.segment "CHR_LV1CA"
+.incbin  "chr/b_ch1ca.chr"
+.segment "CHR_LV1CB"
+.incbin  "chr/b_ch1cb.chr"
+.segment "CHR_LV2CA"
+;.incbin  "chr/b_ch2ca.chr"
+.segment "CHR_LV2CB"
+;.incbin  "chr/b_ch2cb.chr"
+.segment "CHR_SL1CO"
+.incbin  "chr/sp_ch1c.chr"
+.segment "CHR_SL2CO"
+;.incbin  "chr/sp_ch1c.chr"
 
 .segment "CHR_DPLDI"
 .incbin  "chr/sp_plrdie.chr"

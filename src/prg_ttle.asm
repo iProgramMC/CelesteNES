@@ -2,12 +2,14 @@
 
 .segment "PRG_TTLE"
 
+	.include "title/rle.asm"
 	.include "title/title.asm"
 	.include "title/overwld.asm"
 	.include "title/prologue.asm"
 	.include "title/titlescr.asm"
 	.include "title/mountain.asm"
 	.include "title/letter.asm"
+	.include "title/levelend.asm"
 
 title_palette:
 	.incbin "title/title.pal"

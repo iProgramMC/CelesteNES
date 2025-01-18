@@ -335,12 +335,14 @@ chrb_lvl2e  = $2E
 chrb_lvl2f  = $30
 chrb_lvl2g  = $32
 chrb_lvl2h  = $34
-;chrb_lvl3   = $28   ; graphics bank for level 3 "Celestial Resort"
-;chrb_lvl4   = $2C   ; graphics bank for level 4 "Golden Ridge"
-;chrb_lvl5   = $30   ; graphics bank for level 5 "Mirror Temple"
-;chrb_lvl6   = $34   ; graphics bank for level 6 "Reflection"
-;chrb_lvl7   = $38   ; graphics bank for level 7 "The Summit"
-;chrb_lvl8   = $3C   ; graphics bank for level 8 "Core"
+
+; COMPLETE SCREEN BANKS
+chrb_lvl1ca = $38   ; graphics bank for Ch.1 complete screen
+chrb_lvl1cb = $3C
+chrb_lvl2ca = $58   ; graphics bank for Ch.2 complete screen
+chrb_lvl2cb = $5C
+chrb_spl1co = $54
+chrb_spl2co = $56
 
 ; EXTRA SPRITE BANKS
 chrb_pause  = $4C

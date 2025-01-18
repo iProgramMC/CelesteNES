@@ -13,6 +13,7 @@ gamemode_overwd_init_FAR:
 	sta camera_y_hi
 	sta scroll_x
 	sta scroll_y
+	sta scroll_flags
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait
 	
@@ -34,6 +35,8 @@ gamemode_overwd_init_FAR:
 	
 	jsr ow_select_banks
 	
+	lda #0
+	sta lvlptrhi
 	jsr fade_in
 
 gamemode_overwd_update_FAR:
