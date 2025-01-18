@@ -41,7 +41,7 @@ level_end_ch2:
 level_end_ch1_pal:
 level_end_ch2_pal:
 	; BG
-	.byte $0f,$1a,$2a,$30
+	.byte $0f,$1c,$2c,$30
 	.byte $0f,$10,$30,$00
 	.byte $0f,$16,$26,$30
 	.byte $0f,$00,$16,$30
@@ -83,6 +83,9 @@ level_end_ch2_oam:
 	sprite 232, 96, $2A, $00
 	sprite 240, 96, $2C, $00
 	sprite 248, 96, $2E, $00
+	sprite 208, 80, $4C, $00
+	sprite 216, 80, $4E, $00
+	sprite 224, 80, $50, $00
 	; The Bird
 	sprite 104,112, $16, $03
 	sprite 96, 128, $34, $03

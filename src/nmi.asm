@@ -530,10 +530,7 @@ nmi_scrollsplit:
 	sta irqcounter
 	lda #0
 	sta miscsplit
-	
-	lda #def_ppu_msk
-	sta ppu_mask
-	bne @normalScrolling
+	beq @normalScrolling
 
 @normalScrollingWithIRQ:
 	; schedule the idle IRQ after $C0 scanlines. This IRQ will block the
