@@ -17,6 +17,55 @@ level2_music:
 .include "structs.asm"
 .include "dialog.asm"
 .include "entity.asm"
+.include "payphone.asm"
+
+level2_mirror_frames_lo: 	.byte <level2_mirror_frame_0, <level2_mirror_frame_1, <level2_mirror_frame_2, <level2_mirror_frame_3, <level2_mirror_frame_4, <level2_mirror_frame_5
+level2_mirror_frames_hi:	.byte >level2_mirror_frame_0, >level2_mirror_frame_1, >level2_mirror_frame_2, >level2_mirror_frame_3, >level2_mirror_frame_4, >level2_mirror_frame_5
+
+level2_db_opening_rows_lo:
+	.byte <level2_db_opening_row_6
+	.byte <level2_db_opening_row_5
+	.byte <level2_db_opening_row_4
+	.byte <level2_db_opening_row_3
+	.byte <level2_db_opening_row_2
+	.byte <level2_db_opening_row_1
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+level2_db_opening_rows_hi:
+	.byte >level2_db_opening_row_6
+	.byte >level2_db_opening_row_5
+	.byte >level2_db_opening_row_4
+	.byte >level2_db_opening_row_3
+	.byte >level2_db_opening_row_2
+	.byte >level2_db_opening_row_1
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+level2_db_closing_rows_lo:
+	.byte <level2_db_closing_row_1
+	.byte <level2_db_closing_row_2
+	.byte <level2_db_closing_row_3
+	.byte <level2_db_closing_row_4
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+	.byte <level2_db_opening_empty
+level2_db_closing_rows_hi:
+	.byte >level2_db_closing_row_1
+	.byte >level2_db_closing_row_2
+	.byte >level2_db_closing_row_3
+	.byte >level2_db_closing_row_4
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
+	.byte >level2_db_opening_empty
 
 level2_alt_palette:
 	.byte $0f,$30,$1c,$0c

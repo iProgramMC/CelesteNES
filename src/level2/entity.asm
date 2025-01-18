@@ -964,7 +964,7 @@ revealDreamBlock_revealRowUpper:
 	lsr
 	tay
 	
-	jmp revealDreamBlock_revealRow
+	jmp revealDreamBlock_revealRow_farCall
 
 revealDreamBlock_revealRowLower:
 	tya
@@ -981,7 +981,7 @@ revealDreamBlock_revealRowLower:
 	clc
 	adc #20
 	tay
-	; jmp revealDreamBlock_revealRow
+	jmp revealDreamBlock_revealRow_farCall
 
 revealDreamBlock_revealRow:
 	lda roombeglo2
@@ -1044,7 +1044,22 @@ revealDreamBlock_revealRow:
 	ldx temp1
 	rts
 
-; Mirror frame data was here, but moved out to bank_3.asm
+revealDreamBlock_revealRow2:
+	lda temp9
+	ldx temp10
+	ldy temp11
+	jmp revealDreamBlock_revealRow
+
+revealDreamBlock_revealRow_farCall:
+	sta temp9
+	stx temp10
+	sty temp11
+	
+	; far call to load the level data bank back in
+	ldx #<revealDreamBlock_revealRow2
+	ldy #>revealDreamBlock_revealRow2
+	lda lvldatabank
+	jmp far_call2
 .endproc
 
 ; ** IRQ HANDLER: level2_dream_block_reveal_irq

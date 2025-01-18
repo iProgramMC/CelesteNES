@@ -213,7 +213,7 @@ ow_Xof3A:
 	rts
 
 ow_draw_icon_fadeout:
-	ldy #0
+	ldy #2
 :	lda #$20
 	sta ppu_addr
 	tya
@@ -240,7 +240,7 @@ ow_draw_icon_fadeout:
 	sta ppu_data
 	jsr ow_Xof3A
 	iny
-	cpy #2
+	cpy #4
 	bne :--
 	rts
 
@@ -253,7 +253,7 @@ ow_draw_icons:
 	adc ow_iconoff
 	sta x_crd_temp          ; calculate the center coordinates
 	
-	lda #14                 ; note: ow_draw_level_icon clobbers x_crd_temp.
+	lda #14+16              ; note: ow_draw_level_icon clobbers x_crd_temp.
 	sta y_crd_temp
 	
 	lda ow_sellvl
@@ -317,7 +317,7 @@ ow_draw_icons:
 :	; draw the arrows on the current level
 	lda #((256-8)/2)
 	sta x_crd_temp
-	lda #4
+	lda #4+16
 	sta y_crd_temp
 	
 	lda #%00010000
@@ -329,19 +329,19 @@ ow_draw_icons:
 	ldy #$1E
 	jsr oam_putsprite
 	
-	lda #((256-8)/2)
-	sta x_crd_temp
-	lda #24
-	sta y_crd_temp
-	
-	lda #%00010000
-	bit ow_timer
-	beq :+
-	dec y_crd_temp
-	
-:	lda #(1 | obj_flipvt)
-	ldy #$1E
-	jsr oam_putsprite
+;	lda #((256-8)/2)
+;	sta x_crd_temp
+;	lda #24+16
+;	sta y_crd_temp
+;	
+;	lda #%00010000
+;	bit ow_timer
+;	beq :+
+;	dec y_crd_temp
+;	
+;:	lda #(1 | obj_flipvt)
+;	ldy #$1E
+;	jsr oam_putsprite
 	
 	rts
 
@@ -351,7 +351,7 @@ ow_draw_icons:
 ow_draw_level_name:
 	lda #$20
 	sta ppu_addr
-	lda #$C8
+	lda #$E8
 	sta ppu_addr
 	
 	lda ow_sellvl

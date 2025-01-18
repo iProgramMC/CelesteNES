@@ -3,9 +3,6 @@
 .segment "PRG_LVL2D"
 .include "rooms/3.asm"
 
-level2_mirror_frames_lo: 	.byte <level2_mirror_frame_0, <level2_mirror_frame_1, <level2_mirror_frame_2, <level2_mirror_frame_3, <level2_mirror_frame_4, <level2_mirror_frame_5
-level2_mirror_frames_hi:	.byte >level2_mirror_frame_0, >level2_mirror_frame_1, >level2_mirror_frame_2, >level2_mirror_frame_3, >level2_mirror_frame_4, >level2_mirror_frame_5
-
 level2_mirror_frame_0:
 	.byte $61,$71,$72,$79
 	.byte $62,$72,$73,$7A
@@ -60,48 +57,3 @@ level2_db_closing_row_2: .byte $00,$00,$00,$4C,$58,$00,$00,$00,$40,$41,$41,$56,$
 level2_db_closing_row_3: .byte $00,$00,$00,$00,$55,$41,$42,$43,$56,$5D,$4B,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$4C,$5E,$00,$00,$00,$00,$00
 level2_db_closing_row_4: .byte $00,$00,$00,$00,$00,$5E,$5C,$4D,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 level2_db_opening_empty: .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
-level2_db_opening_rows_lo:
-	.byte <level2_db_opening_row_6
-	.byte <level2_db_opening_row_5
-	.byte <level2_db_opening_row_4
-	.byte <level2_db_opening_row_3
-	.byte <level2_db_opening_row_2
-	.byte <level2_db_opening_row_1
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-level2_db_opening_rows_hi:
-	.byte >level2_db_opening_row_6
-	.byte >level2_db_opening_row_5
-	.byte >level2_db_opening_row_4
-	.byte >level2_db_opening_row_3
-	.byte >level2_db_opening_row_2
-	.byte >level2_db_opening_row_1
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-level2_db_closing_rows_lo:
-	.byte <level2_db_closing_row_1
-	.byte <level2_db_closing_row_2
-	.byte <level2_db_closing_row_3
-	.byte <level2_db_closing_row_4
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-level2_db_closing_rows_hi:
-	.byte >level2_db_closing_row_1
-	.byte >level2_db_closing_row_2
-	.byte >level2_db_closing_row_3
-	.byte >level2_db_closing_row_4
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
