@@ -9,6 +9,7 @@
 .include "g_palloc.asm"
 .include "g_wipe.asm"
 .include "g_sfx.asm"
+.include "g_save.asm"
 .include "xtraif.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer
@@ -184,6 +185,13 @@ gm_game_update:
 	
 	jsr fade_out
 	
+	lda gamectrl2
+	and #g2_exitlvl
+	bne @justReturnToOverworld
+	
+	jsr gm_level_end
+	
+@justReturnToOverworld:
 	lda #gm_overwld
 	sta gamemode
 	lda #0
@@ -264,6 +272,8 @@ gm_game_clear_all_wx:
 	stx lvlyoff
 	stx old_lvlyoff
 	stx dbenable
+	stx gamectrl2
+	stx gamectrl3
 
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.

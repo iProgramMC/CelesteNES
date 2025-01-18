@@ -109,6 +109,17 @@
 	jmp far_call2
 .endproc
 
+.proc gm_level_end
+	; stop music from playing - this will free up the $C000 bank
+	jsr aud_reset
+	
+	lda #mmc3bk_prg0
+	ldy #prgb_ttle
+	jsr mmc3_set_bank
+	
+	jmp level_end
+.endproc
+
 .proc gm_anim_and_draw_player
 	ldx #<sgm_anim_and_draw_player
 	ldy #>sgm_anim_and_draw_player

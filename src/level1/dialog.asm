@@ -38,10 +38,8 @@ ch1_ending:
 	dialog2     @d1
 	
 	wait        18
-	;finish_level
-	unlock_input
-	end
-	rts
+
+	finish_level
 
 	line @d0, "Ugh, I'm exhausted."
 	line @d1, "This might have been a mistake."

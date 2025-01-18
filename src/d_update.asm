@@ -685,6 +685,7 @@ dlg_cmd_table:
 	.word dlg_cmd_zerovel
 	.word dlg_cmd_callrt
 	.word dlg_cmd_playmusic
+	.word dlg_cmd_endlevel
 
 dlg_cmd_begin:
 	jsr dlg_cmd_left
@@ -1117,6 +1118,16 @@ dlg_cmd_playmusic:
 	lda musicbank
 	jsr far_call2
 	lda #0
+	rts
+
+; Finish Level
+dlg_cmd_endlevel:
+	lda gamectrl2
+	and #<~g2_exitlvl
+	sta gamectrl2
+	
+	lda #2
+	sta exitmaptimer
 	rts
 
 ; ** SUBROUTINE: dlg_recheck_next_frame

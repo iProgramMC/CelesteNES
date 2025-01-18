@@ -4,7 +4,7 @@ gamemode_overwd_init_FAR:
 	lda #0
 	sta ow_sellvl
 	
-	lda #0
+	;lda #0
 	sta ow_slidetmr
 	sta ow_iconoff
 	sta camera_x

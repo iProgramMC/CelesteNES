@@ -201,6 +201,8 @@ reset:
 	
 	jsr mmc3_initialize
 	
+	jsr save_file_verify
+	
 	bit ppu_status   ; clear status
 	jsr vblank_wait
 	
@@ -210,8 +212,8 @@ reset:
 	sty paladdr+1
 	jsr load_palette ; move palette to palette RAM
 	
-	ldy #def_ppu_msk ; show background & sprites
-	sty ppu_mask     ; set the ppu mask
+	;ldy #def_ppu_msk ; show background & sprites
+	;sty ppu_mask     ; set the ppu mask
 	ldy #(pctl_sprsz | pctl_sppat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable
 	sty ctl_flags
 	sty ppu_ctrl

@@ -166,6 +166,9 @@ pressedRestartChapter:
 pressedReturnToMap:
 	lda #2
 	sta exitmaptimer
+	lda gamectrl2
+	ora #g2_exitlvl
+	sta gamectrl2
 	jmp pressedResume
 .endproc
 

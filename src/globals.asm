@@ -478,20 +478,27 @@ areapal4X4  : .res $40  * 4 ; 8 X 8  X 4 (4 screens' worth of attribute table da
 ; (note: this data is laid out column-wise)
 
 .segment "SAVEFILE"
+save_file_begin:
+
+save_file_checksum: .res 3
+
 save_file_0:
 	sf_berries:   .res 22    ; bitset for 176 total strawberries
-	sf_name:      .res 16    ; player's name (default is "Madeline")
+	sf_name:      .res 12    ; player's name (default is "Madeline")
+	sf_completed: .res 1     ; chapters completed
 	sf_times:     .res 3*8   ; times for each chapter (in frames. Up to 77 hours / 16.7 million frames)
 	sf_totaltime: .res 4     ; total time spent in-game (up to 2 years / 4 billion frames)
 	sf_deaths:    .res 2*8   ; total deaths (max. 65K)
 	sf_cassettes: .res 1     ; cassettes (B-sides) unlocked (note: probably won't actually have B-sides !)
 	sf_hearts:    .res 1     ; crystal hearts obtained
-	sf_flags:     .res 1     ; miscellaneous flags
+	sf_unused:    .res 3
 
 save_file_size = * - save_file_0
 
 save_file_1:      .res save_file_size
 save_file_2:      .res save_file_size
+
+save_file_final_bit:	.res 1 ; it's just gonna be $A5 always
 
 ; The advanced trace is enabled by the "advtracesw" global. By default, it's not enabled, as it overlaps
 ; with the dialog temporary area.
