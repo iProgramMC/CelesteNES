@@ -24,27 +24,49 @@ gamemode_overwd_init_FAR:
 	
 	lda #$20
 	jsr clear_nt
+	lda #$24
+	jsr clear_nt
+	
+	lda #$27
+	sta ppu_addr
+	lda #$C0
+	sta ppu_addr
+	lda #$FF
+	ldy #64
+:	sta ppu_data
+	dey
+	bne :-
 	
 	jsr ow_draw_mtn
 	jsr ow_draw_level_name
 	jsr ow_draw_icon_fadeout
-	;jsr tl_init_snow
+
 	lda owldctrl
 	ora #os_1stfr
 	sta owldctrl
 	
+	lda #$F1
+	sta ow_splity
+	
 	jsr ow_select_banks
 	
 	lda #0
+	sta ow_timer
+	sta miscsplit
 	sta fadeupdrt+1
 	jsr fade_in
 
 gamemode_overwd_update_FAR:
-	;jsr tl_update_snow
-	;jsr tl_render_snow
-	
 	; draw features
 	inc ow_timer
+	
+	ldx ow_timer2
+	inx
+	cpx #4
+	bcc :+
+	ldx #4
+:	stx	ow_timer2
+	
 	jsr ow_handle_input
 	jsr ow_level_slide
 	jsr ow_draw_player
@@ -56,19 +78,21 @@ gamemode_overwd_update_FAR:
 	jsr ow_draw_c5_temple
 	jsr ow_draw_c7_summit
 	jsr ow_draw_icons
+	jsr ow_update_irq
 	
 	lda #(os_leftmov | os_rightmov)
 	bit owldctrl
 	bne @return         ; don't handle controller input during a transition
 	
 	lda #(cont_a | cont_start)
-	bit ow_temp5
+	bit temp5
 	bne @startGame
 @return:
 	rts
 	
 @startGame:
 	; now enter the game!
+	jsr ow_clear_irq
 	
 	ldx ow_sellvl
 	beq @isPrologue
@@ -349,7 +373,7 @@ ow_draw_icons:
 ; desc: Draws the new level name.
 ; assumes: Inside of NMI
 ow_draw_level_name:
-	lda #$20
+	lda #$24
 	sta ppu_addr
 	lda #$E8
 	sta ppu_addr
@@ -381,13 +405,13 @@ ow_handle_input:
 :	lda p1_cont
 	eor p1_conto
 	and p1_cont
-	sta ow_temp5
+	sta temp5
 	
 	lda #0
 	sta ow_slidetmr
 	
 	lda #cont_left
-	bit ow_temp5
+	bit temp5
 	beq :+
 	
 	lda owldctrl
@@ -396,7 +420,7 @@ ow_handle_input:
 	sta owldctrl
 	
 :	lda #cont_right
-	bit ow_temp5
+	bit temp5
 	beq :+
 	
 	lda owldctrl
@@ -426,43 +450,43 @@ ow_anim_frame:
 ; desc: Draws the player on the selected level's relevant waypoint.
 ow_draw_player:
 	lda #0
-	sta ow_temp1
+	sta temp1
 	jsr ow_anim_frame
 	asl
 	asl
 	clc
 	adc #$02
-	sta ow_temp2
+	sta temp2
 	clc
 	adc #$02
-	sta ow_temp3
+	sta temp3
 	
 	ldx ow_sellvl
 	lda ow_waypoints_x, x
 	ldy ow_waypoints_y, x
-	ldx #<ow_temp1
+	ldx #<temp1
 	jsr gm_draw_2xsprite
 	
 	; draw hair
 	lda #1
-	sta ow_temp1
+	sta temp1
 	lda #$1A
-	sta ow_temp2
+	sta temp2
 	lda #$1C
-	sta ow_temp3
+	sta temp3
 	
 	ldx ow_sellvl
 	lda ow_waypoints_y, x
-	sta ow_temp4
+	sta temp4
 	
 	jsr ow_anim_frame
 	and #1
 	beq :+
-	inc ow_temp4
+	inc temp4
 	
-:	ldy ow_temp4
+:	ldy temp4
 	lda ow_waypoints_x, x
-	ldx #<ow_temp1
+	ldx #<temp1
 	jsr gm_draw_2xsprite
 	
 	; draw arrow
@@ -492,47 +516,47 @@ ow_draw_player:
 ; desc: Draws a mountain to the screen.
 ow_draw_mtn:
 	lda #$21
-	sta ow_temp1
+	sta temp1
 	lda #$23
-	sta ow_temp2
+	sta temp2
 	
 	lda #<MTN_data
-	sta ow_temp3
+	sta temp3
 	lda #>MTN_data
-	sta ow_temp4
+	sta temp4
 	
 	lda #0
-	sta ow_temp5
+	sta temp5
 	
-:	lda ow_temp1
+:	lda temp1
 	sta ppu_addr
-	lda ow_temp2
+	lda temp2
 	sta ppu_addr
-	ldx ow_temp3
-	ldy ow_temp4
+	ldx temp3
+	ldy temp4
 	lda #26
 	jsr ppu_wrstring
 	
 	clc
-	lda ow_temp3
+	lda temp3
 	adc #26
-	sta ow_temp3
-	lda ow_temp4
+	sta temp3
+	lda temp4
 	adc #0
-	sta ow_temp4
+	sta temp4
 	
 	clc
-	lda ow_temp2
+	lda temp2
 	adc #$20
-	sta ow_temp2
-	lda ow_temp1
+	sta temp2
+	lda temp1
 	adc #0
-	sta ow_temp1
+	sta temp1
 	
 	clc
-	lda ow_temp5
+	lda temp5
 	adc #1
-	sta ow_temp5
+	sta temp5
 	
 	cmp #20
 	bne :-
@@ -758,49 +782,16 @@ ow_waypoints_y:
 
 ; note: each space is 16 bytes wide
 ow_level_names:
-	.pushcharmap
-	.charmap $20, $00
-	.charmap $61, $41 ; a
-	.charmap $63, $42 ; c
-	.charmap $64, $43 ; d
-	.charmap $65, $44 ; e
-	.charmap $67, $46 ; g
-	.charmap $68, $47 ; h
-	.charmap $69, $48 ; i
-	.charmap $6B, $49 ; k
-	.charmap $6C, $4A ; l
-	.charmap $6D, $4B ; m
-	.charmap $6E, $4C ; n
-	.charmap $6F, $4D ; o
-	.charmap $70, $4E ; p
-	.charmap $72, $4F ; r
-	.charmap $73, $50 ; s
-	.charmap $74, $51 ; t
-	.charmap $75, $52 ; u
-	.charmap $79, $53 ; y
-	.charmap $43, $54 ; C
-	.charmap $45, $55 ; E
-	.charmap $46, $56 ; F
-	.charmap $47, $57 ; G
-	.charmap $4D, $58 ; M
-	.charmap $4F, $59 ; O
-	.charmap $50, $5A ; P
-	.charmap $52, $30 ; R
-	.charmap $53, $31 ; S
-	.charmap $54, $32 ; T
-	
 	.byte "    Prologue    "
-	.byte "  Forsaken C3y  "
-	.byte "     O9 S3e     "
-	.byte " C56s7al Resort "
+	.byte " Forsaken  City "
+	.byte "    Old Site    "
+	.byte "Celestial Resort"
 	.byte "  Golden Ridge  "
-	.byte "  M4ror Temple  "
-	.byte "    Re8ec7on    "
+	.byte " Mirror  Temple "
+	.byte "   Reflection   "
 	.byte "   The Summit   "
 	.byte "    Epilogue    "
 	
-	.popcharmap
-
 ow_icon_pals:
 	; note: bit 0x20 SHOULD be set else the level select effect won't work.
 	.byte $21, $23, $21, $21, $22, $21, $22, $23
@@ -825,3 +816,96 @@ ow_select_banks:
 	ldy #chrb_owsp03
 	sty spr3_bknum
 	rts
+
+.proc ow_clear_irq
+	sei
+	lda #<irq_idle
+	sta irqaddr
+	lda #>irq_idle
+	sta irqaddr+1
+	lda #0
+	sta miscsplit
+	cli
+	rts
+.endproc
+
+.proc ow_update_irq
+	; I don't know why I have to delay setting the IRQ address
+	; away from irq_idle by at least one frame for this, but fine.
+	lda ow_splity
+	sta miscsplit
+	
+	lda ow_timer2
+	cmp #4
+	bcc :+
+	
+	sei
+	lda #<irq_overworld
+	sta irqaddr
+	lda #>irq_overworld
+	sta irqaddr+1
+	cli
+	
+:	rts
+.endproc
+
+; The IRQ for the overworld, reveals the level panel
+.proc irq_overworld
+	pha
+	sta mmc3_irqdi
+	nop
+	
+	; Nametable number << 2 (we want nametable $2400)
+	lda #4
+	sta ppu_addr
+	; New Y is zero.
+	lda #0
+	sta ppu_scroll
+	
+	; Wait for h-blank.
+	
+	; I know using the accumulator to count isn't great. It allowed me
+	; to save a clobbered register, until I realized I needed the X reg
+	; anyway.
+	lda #11
+:	sec
+	sbc #1
+	bne :-
+	
+	; New X to $2005
+	sta ppu_scroll
+	; Low byte of nametable address to $2006
+	sta ppu_addr
+	
+	txa
+	pha
+	tya
+	pha
+	
+	; also update the BG bank
+	ldx #mmc3bk_bg0 | def_mmc3_bn
+	ldy #chrb_dmain
+	stx mmc3_bsel
+	sty mmc3_bdat
+	inx
+	iny
+	stx mmc3_bsel
+	sty mmc3_bdat
+	inx
+	iny
+	stx mmc3_bsel
+	sty mmc3_bdat
+	inx
+	iny
+	stx mmc3_bsel
+	sty mmc3_bdat
+	ldx mmc3_shadow
+	stx mmc3_bsel
+	
+	pla
+	tay
+	pla
+	tax
+	pla
+	rti
+.endproc

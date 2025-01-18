@@ -117,11 +117,11 @@ pot_merged  : .res 10
 ; title
 tl_gametime := pot_merged + 0
 ; overworld
-ow_temp1    := pot_merged + 0
-ow_temp2    := pot_merged + 1
-ow_temp3    := pot_merged + 2
-ow_temp4    := pot_merged + 3
-ow_temp5    := pot_merged + 4
+ow_lvlopen  := pot_merged + 0 ; is the level drawer open
+ow_unused2  := pot_merged + 1
+ow_unused3  := pot_merged + 2
+ow_timer2   := pot_merged + 3
+ow_splity   := pot_merged + 4
 ow_timer    := pot_merged + 5
 ow_sellvl   := pot_merged + 6 ; selected level
 ow_iconoff  := pot_merged + 7
