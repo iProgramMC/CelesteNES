@@ -63,66 +63,61 @@ MEMORY
 	##### CHR ROM #####
 	## Sprites ##
 	
-	# Permanent Sprite Banks
-	CHR_SPMAD: start=$0000, size=$0800, fill=yes, fillval=$FF, bank=$00;
-	CHR_SPGEN: start=$0800, size=$0400, fill=yes, fillval=$FF, bank=$02;
-	CHR_SLV0B: start=$0C00, size=$0400, fill=yes, fillval=$FF, bank=$03;
-	CHR_SPANI: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$04;
+	## Global Sprite Banks ##
+	CHR_SPMAD: start=$0000, size=$0800, fill=yes, fillval=$FF, bank=$00; # Madeline sprites (2 banks)
+	CHR_DPLDI: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$02; # Player death particles bank
+	CHR_SPGEN: start=$0800, size=$0400, fill=yes, fillval=$FF, bank=$03; # Generic sprites
+	CHR_SPANI: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$04; # Animated sprites (4 banks)
 	
-	# Level Specific Sprite Banks
-	CHR_SLVL0: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$08;
-	CHR_SLVL1: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$09;
-	CHR_SLV1B: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0A;
-	CHR_SLVL2: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0B;
-	CHR_SLV2B: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0C;
-	CHR_SLV1C: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0D;
-	CHR_UN101: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0E;
-	CHR_UN102: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0F;
+	## Level Specific Sprite Banks ##
+	CHR_SLVL0: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$08; # Level 0 sprite bank (Granny+Bird)
+	CHR_SLV0B: start=$0C00, size=$0400, fill=yes, fillval=$FF, bank=$09; # Level 0 sprite bank (Bird tutorial)
+	CHR_SLVL1: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0A; # Level 1 sprite bank (zip mover)
+	CHR_SLV1B: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0B; # Level 1 sprite bank (tall zip mover)
+	CHR_SLV1C: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0C; # Level 2 sprite bank (payphone)
+	CHR_SLVL2: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0D; # Level 2 sprite bank (campfire, falling blocks)
+	CHR_SLV2B: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$0E; # Level 2 sprite bank (extra Badeline actions)
+	CHR_PAPH3: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$0F; # Level 2 Payphone animation (8)
+	CHR_PAPH1: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$10; # Level 2 Payphone animation (0,1,2,3)
+	CHR_PAPH2: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$14; # Level 2 Payphone animation (4,5,6,7)
+	CHR_SLV2L: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$18; # Level 2 Mirror Badeline
+	CHR_SLV2N: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$1A; # Level 2 Generic bank clone with different stars
+	CHR_UN101: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$1B; #      <<<<< UNUSED (1 bank)
 	
-	# Overworld Sprite Banks
-	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$10;
+	## Level Tilesets ##
+	CHR_BGTTL: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$1C; # Title screen
+	CHR_BGOWD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$20; # Overworld screen
+	CHR_BG000: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$24; # Level 0
+	CHR_BG001: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$28; # Level 1
+	CHR_BG002: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C; # Level 2 (main)
+	CHR_BG003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30; # Level 2 (additional prop tiles [lvl2, lvl2b])
+	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34; # Level 2 (dream block in different states)
+	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38; # Level 2 (dream block in different states)
+	CHR_BG006: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3C; # Level 2 (dream block in different states)
+	CHR_UN102: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; #      <<<<< UNUSED (2 banks)
+	CHR_UN103: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$40; #      <<<<< UNUSED (4 banks)
 	
-	## Backgrounds ##
-	CHR_BGTTL: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$14;
-	CHR_BGOWD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$18;
-	CHR_BG000: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$1C;
-	CHR_BG001: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$20;
-	CHR_BG002: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$24;
-	CHR_BG003: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$28;
-	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$2C;
-	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$30;
-	CHR_BG006: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34;
-	CHR_LV1CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38;
-	CHR_LV1CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$3C;
+	## Complete Screens ##
+	CHR_LV1CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44; # Level 1 Complete A
+	CHR_LV1CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$48; # Level 1 Complete B
+	CHR_LV2CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C; # Level 2 Complete A
+	CHR_LV2CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$50; # Level 2 Complete B
+	CHR_SL1CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$54; # Level 1 Complete Sprites
+	CHR_SL2CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$56; # Level 2 Complete Sprites
 	
-	CHR_PAPH1: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40;
-	CHR_PAPH2: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44;
-	CHR_PAPH3: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$48;
-	CHR_SLV2L: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$49;
-	CHR_SLV2M: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4A;
-	CHR_SLV2N: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$4B;
-	CHR_PAUSE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C;
-	CHR_DPLDI: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$50;
-	CHR_U10_B: start=$1400, size=$0400, fill=yes, fillval=$FF, bank=$51;
-	CHR_U10_C: start=$1800, size=$0400, fill=yes, fillval=$FF, bank=$52;
-	CHR_U10_D: start=$1C00, size=$0400, fill=yes, fillval=$FF, bank=$53;
-	
-	CHR_SL1CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$54;
-	CHR_SL2CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$56;
-	CHR_LV2CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58;
-	CHR_LV2CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C;
-	
-	## Extra Banks ##
-	CHR_PCARD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60;
-	CHR_OPTNS: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64;
+	## User Interface ##
+	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$58; # Overworld sprites
+	CHR_PAUSE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C; # Pause graphics
+	CHR_PCARD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60; # Postcard text bank
+	CHR_OPTNS: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64; # Options text bank
 	
 	## Dialog Pattern Tables ##
-	CHR_DBADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68;
-	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$6C;
-	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$70;
-	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$74;
-	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$78;
-	CHR_DGRAN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$7C;
+	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68; # Dialog text font (unused)
+	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$6C; # Binary counting pattern for text rendering
+	CHR_DBADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$70; # Badeline dialog portraits
+	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$74; # Madeline dialog portraits
+	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$78; # Theo dialog portraits (unused for now)
+	CHR_DGRAN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$7C; # Granny dialog portraits
 }
 
 SEGMENTS
@@ -163,18 +158,22 @@ SEGMENTS
 	PRG_VECS:  load = PRG_VECS,  type = ro;
 	
 	CHR_SPMAD: load = CHR_SPMAD, type = ro;
+	CHR_DPLDI: load = CHR_DPLDI, type = ro;
 	CHR_SPGEN: load = CHR_SPGEN, type = ro;
 	CHR_SPANI: load = CHR_SPANI, type = ro;
 	CHR_SLVL0: load = CHR_SLVL0, type = ro;
-	CHR_SLVL1: load = CHR_SLVL1, type = ro;
 	CHR_SLV0B: load = CHR_SLV0B, type = ro;
+	CHR_SLVL1: load = CHR_SLVL1, type = ro;
 	CHR_SLV1B: load = CHR_SLV1B, type = ro;
+	CHR_SLV1C: load = CHR_SLV1C, type = ro;
 	CHR_SLVL2: load = CHR_SLVL2, type = ro;
 	CHR_SLV2B: load = CHR_SLV2B, type = ro;
-	CHR_SLV1C: load = CHR_SLV1C, type = ro;
+	CHR_PAPH3: load = CHR_PAPH3, type = ro;
+	CHR_PAPH1: load = CHR_PAPH1, type = ro;
+	CHR_PAPH2: load = CHR_PAPH2, type = ro;
+	CHR_SLV2L: load = CHR_SLV2L, type = ro;
+	CHR_SLV2N: load = CHR_SLV2N, type = ro;
 	CHR_UN101: load = CHR_UN101, type = ro;
-	CHR_UN102: load = CHR_UN102, type = ro;
-	CHR_SPOWD: load = CHR_SPOWD, type = ro;
 	CHR_BGTTL: load = CHR_BGTTL, type = ro;
 	CHR_BGOWD: load = CHR_BGOWD, type = ro;
 	CHR_BG000: load = CHR_BG000, type = ro;
@@ -184,28 +183,21 @@ SEGMENTS
 	CHR_BG004: load = CHR_BG004, type = ro;
 	CHR_BG005: load = CHR_BG005, type = ro;
 	CHR_BG006: load = CHR_BG006, type = ro;
-	CHR_PAPH1: load = CHR_PAPH1, type = ro;
-	CHR_PAPH2: load = CHR_PAPH2, type = ro;
-	CHR_PAPH3: load = CHR_PAPH3, type = ro;
-	CHR_SLV2L: load = CHR_SLV2L, type = ro;
-	CHR_SLV2M: load = CHR_SLV2M, type = ro;
-	CHR_SLV2N: load = CHR_SLV2N, type = ro;
-	CHR_PCARD: load = CHR_PCARD, type = ro;
-	CHR_OPTNS: load = CHR_OPTNS, type = ro;
-	CHR_SL1CO: load = CHR_SL1CO, type = ro;
-	CHR_SL2CO: load = CHR_SL2CO, type = ro;
+	CHR_UN102: load = CHR_UN102, type = ro;
+	CHR_UN103: load = CHR_UN103, type = ro;
 	CHR_LV1CA: load = CHR_LV1CA, type = ro;
 	CHR_LV1CB: load = CHR_LV1CB, type = ro;
 	CHR_LV2CA: load = CHR_LV2CA, type = ro;
 	CHR_LV2CB: load = CHR_LV2CB, type = ro;
-	CHR_DBADE: load = CHR_DBADE, type = ro;
+	CHR_SL1CO: load = CHR_SL1CO, type = ro;
+	CHR_SL2CO: load = CHR_SL2CO, type = ro;
+	CHR_SPOWD: load = CHR_SPOWD, type = ro;
 	CHR_PAUSE: load = CHR_PAUSE, type = ro;
-	CHR_DPLDI: load = CHR_DPLDI, type = ro;
-	CHR_U10_B: load = CHR_U10_B, type = ro;
-	CHR_U10_C: load = CHR_U10_C, type = ro;
-	CHR_U10_D: load = CHR_U10_D, type = ro;
-	CHR_DCNTR: load = CHR_DCNTR, type = ro;
+	CHR_PCARD: load = CHR_PCARD, type = ro;
+	CHR_OPTNS: load = CHR_OPTNS, type = ro;
 	CHR_DMAIN: load = CHR_DMAIN, type = ro;
+	CHR_DCNTR: load = CHR_DCNTR, type = ro;
+	CHR_DBADE: load = CHR_DBADE, type = ro;
 	CHR_DMADE: load = CHR_DMADE, type = ro;
 	CHR_DTHEO: load = CHR_DTHEO, type = ro;
 	CHR_DGRAN: load = CHR_DGRAN, type = ro;

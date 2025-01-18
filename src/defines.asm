@@ -294,67 +294,73 @@ level_data    = $A000 ; address of actual level data
 
 chrb_plrsp0 = $00   ; player sprite banks
 chrb_plrsp1 = $01   ;
-chrb_gensp1 = $02   ; generic sprites
-chrb_splv0b = $03   ; level 0 alternate sprite bank
+chrb_dpldi  = $02   ; player death sprite bank
+chrb_gensp1 = $03   ; generic sprites
 chrb_anisp0 = $04   ; animated sprites   
 chrb_anisp1 = $05   ;
 chrb_anisp2 = $06   ;
 chrb_anisp3 = $07   ;
 
 chrb_splvl0 = $08   ; sprites for level 0
-chrb_splvl1 = $09   ; sprites for level 1
-chrb_splv1b = $0A   ; sprites for level 1
-chrb_splv1c = $0D   ; sprites for level 1
-chrb_splvl2 = $0B   ; sprites for level 2
-chrb_splv2b = $0C   ; sprites for level 2
-chrb_splv2l = $49   ; sprites for level 2
-chrb_splv2m = $4A   ; sprites for level 2
-chrb_splv2n = $4B   ; sprites for level 2
-
-; don't know when these will be used.
-chrb_gesp21 = $0D
-chrb_gesp22 = $0E
-chrb_gesp23 = $0F
-
-; OVERWORLD SPRITE BANKS
-chrb_owsp00 = $10   ; sprite banks for Overworld
-chrb_owsp01 = $11
-chrb_owsp02 = $12
-chrb_owsp03 = $13
+chrb_splv0b = $09   ; sprites for level 0
+chrb_splvl1 = $0A   ; sprites for level 1
+chrb_splv1b = $0B   ; sprites for level 1
+chrb_splv1c = $0C   ; sprites for level 1
+chrb_splvl2 = $0D   ; sprites for level 2
+chrb_splv2b = $0E   ; sprites for level 2
+chrb_papho8 = $0F   ; splv2k
+chrb_papho0 = $10   ; splv2c
+chrb_papho1 = $11   ; splv2d
+chrb_papho2 = $12   ; splv2e
+chrb_papho3 = $13   ; splv2f
+chrb_papho4 = $14   ; splv2g
+chrb_papho5 = $15   ; splv2h
+chrb_papho6 = $16   ; splv2i
+chrb_papho7 = $17   ; splv2j
+chrb_splv2l = $18   ; sprites for level 2
+chrb_splv2m = $19   ; sprites for level 2
+chrb_splv2n = $1A   ; sprites for level 2
+; $1B free
 
 ; BACKGROUND BANKS
-chrb_bgttl  = $14   ; graphics bank for title screen
-chrb_bgowd  = $18   ; graphics bank for Overworld
-chrb_lvl0   = $1C   ; graphics bank for level 0 "Prologue"
-chrb_lvl1   = $20   ; graphics bank for level 1 "Forsaken City"
-chrb_lvl2   = $24   ; graphics bank for level 2 "Old Site"
-chrb_lvl2b  = $28   ; alternate graphics bank for level 2 "Old Site"
-chrb_lvl2c  = $2A   ; alternate graphics bank for level 2 "Old Site"
-chrb_lvl2d  = $2C   ; alternate graphics bank for level 2 "Old Site"
-chrb_lvl2e  = $2E
-chrb_lvl2f  = $30
-chrb_lvl2g  = $32
-chrb_lvl2h  = $34
+chrb_bgttl  = $1C   ; graphics bank for title screen
+chrb_bgowd  = $20   ; graphics bank for Overworld
+chrb_lvl0   = $24   ; graphics bank for level 0 "Prologue"
+chrb_lvl1   = $28   ; graphics bank for level 1 "Forsaken City"
+chrb_lvl2   = $2C   ; graphics bank for level 2 "Old Site"
+chrb_lvl2b  = $30   ; alternate graphics bank for level 2 "Old Site"
+chrb_lvl2c  = $32   ; alternate graphics bank for level 2 "Old Site"
+chrb_lvl2d  = $34   ; alternate graphics bank for level 2 "Old Site"
+chrb_lvl2e  = $36
+chrb_lvl2f  = $38
+chrb_lvl2g  = $3A
+chrb_lvl2h  = $3C
+; $3E-$3F free
+; $40-$43 free
 
 ; COMPLETE SCREEN BANKS
-chrb_lvl1ca = $38   ; graphics bank for Ch.1 complete screen
-chrb_lvl1cb = $3C
-chrb_lvl2ca = $58   ; graphics bank for Ch.2 complete screen
-chrb_lvl2cb = $5C
+chrb_lvl1ca = $44   ; graphics bank for Ch.1 complete screen
+chrb_lvl1cb = $48
+chrb_lvl2ca = $4C   ; graphics bank for Ch.2 complete screen
+chrb_lvl2cb = $50
 chrb_spl1co = $54
 chrb_spl2co = $56
 
-; EXTRA SPRITE BANKS
-chrb_pause  = $4C
-chrb_dpldi  = $50
+; OVERWORLD SPRITE BANKS
+chrb_owsp00 = $58   ; sprite banks for Overworld
+chrb_owsp01 = $59
+chrb_owsp02 = $5A
+chrb_owsp03 = $5B
 
+; EXTRA SPRITE BANKS
+chrb_pause  = $5C
 chrb_pcard  = $60
 chrb_optns  = $64
 
 ; DIALOG DATA BANKS
-chrb_dbade  = $68   ; graphics bank for dialog with Badeline
+chrb_dmain  = $68   ; dialogue font (unused)
 chrb_dcntr  = $6C   ; dialogue binary counting pattern
-chrb_dmain  = $70
+chrb_dbade  = $70   ; graphics bank for dialog with Badeline
 chrb_dmade  = $74   ; graphics bank for dialog with Madeline
 chrb_dtheo  = $78   ; graphics bank for dialog with Theo
 chrb_dgran  = $7C   ; graphics bank for dialog with Granny

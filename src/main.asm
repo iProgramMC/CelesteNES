@@ -17,9 +17,9 @@
 .byte %00000000 ; misc ROMs
 .byte %00000000 ; default exp device
 
-; note: not all 8K are actually *used* (only 256 bytes of that are),
-; but it's cheapest for hardware manufacturers to just hook up all 8K
-; of PRG to the same battery backup chip
+; note: not all 8K bytes of battery backed RAM are actually *used*,
+; (only 256 bytes) but it's cheapest for hardware manufacturers to
+; just hook up all 8K of PRG to the same battery backup chip
 
 .include "defines.asm"
 .include "globals.asm"
@@ -44,9 +44,12 @@
 .include "prg_dial.asm"
 .include "prg_paus.asm"
 
-; NOTE(iProgram): Keep this up to date with LEVELEDITOR\MainGame.cs (public string bankNumbers[])
+; ** Global Sprite Banks
 .segment "CHR_SPMAD"
 .incbin  "chr/sp_player.chr"
+
+.segment "CHR_DPLDI"
+.incbin  "chr/sp_plrdie.chr"
 
 .segment "CHR_SPGEN"
 .incbin  "chr/sp_gener.chr"
@@ -54,9 +57,7 @@
 .segment "CHR_SPANI"
 .incbin  "chr/sp_anim.chr"
 
-.segment "CHR_BGTTL"
-.incbin  "chr/b_title.chr"
-
+; ** Level Specific Sprite Banks
 .segment "CHR_SLVL0"
 .incbin  "chr/sp_level0.chr"
 .segment "CHR_SLV0B"
@@ -86,17 +87,18 @@
 .segment "CHR_PAPH3"
 .incbin  "chr/sp_level2k.chr"
 .segment "CHR_SLV2L"
-.incbin  "chr/sp_level2lm.chr", $000, $400
-.segment "CHR_SLV2M"
-.incbin  "chr/sp_level2lm.chr", $400, $400
+.incbin  "chr/sp_level2lm.chr"
 .segment "CHR_SLV2N"
 .incbin  "chr/sp_level2n.chr"
 
+.segment "CHR_UN101" ; UNUSED
+
+; ** Level Tilesets
+.segment "CHR_BGTTL"
+.incbin  "chr/b_title.chr"
+
 .segment "CHR_BGOWD"
 .incbin  "chr/b_overw.chr"
-
-.segment "CHR_SPOWD"
-.incbin  "chr/sp_overw.chr"
 
 .segment "CHR_BG000"
 .incbin  "chr/b_lvl0.chr"
@@ -121,23 +123,29 @@
 
 .segment "CHR_BG006"
 .incbin  "chr/b_lvl2h.chr" ; contains the dream block (dither stage 3)
-; EMPTY 2KB
 
+.segment "CHR_UN102"
+.segment "CHR_UN103"
+
+; ** Complete Screens
 .segment "CHR_LV1CA"
 .incbin  "chr/b_ch1ca.chr"
 .segment "CHR_LV1CB"
 .incbin  "chr/b_ch1cb.chr"
+
 .segment "CHR_LV2CA"
 ;.incbin  "chr/b_ch2ca.chr"
 .segment "CHR_LV2CB"
 ;.incbin  "chr/b_ch2cb.chr"
+
 .segment "CHR_SL1CO"
 .incbin  "chr/sp_ch1c.chr"
 .segment "CHR_SL2CO"
 ;.incbin  "chr/sp_ch1c.chr"
 
-.segment "CHR_DPLDI"
-.incbin  "chr/sp_plrdie.chr"
+; ** User Interface
+.segment "CHR_SPOWD"
+.incbin  "chr/sp_overw.chr"
 
 .segment "CHR_PAUSE"
 .incbin  "chr/sp_pause.chr"
@@ -148,40 +156,17 @@
 .segment "CHR_OPTNS"
 .incbin  "chr/b_options.chr"
 
-; Main dialog tiles
+; ** Dialog Pattern Tables
 .segment "CHR_DMAIN"
 .incbin  "chr/d_main.chr"
 .segment "CHR_DCNTR"
 .incbin  "chr/d_count.chr"
-; Madeline dialog frames
-.segment "CHR_DMADE"
-.incbin  "chr/d_made.chr"
-; Badeline dialog frames
+
 .segment "CHR_DBADE"
 .incbin  "chr/d_bade.chr"
-; Theo dialog frames
+.segment "CHR_DMADE"
+.incbin  "chr/d_made.chr"
 .segment "CHR_DTHEO"
 .incbin  "chr/d_theo.chr"
-; Granny dialog frames
 .segment "CHR_DGRAN"
 .incbin  "chr/d_gran.chr"
-
-; UNUSED segments
-.segment "CHR_BG007"
-.segment "CHR_BG008"
-.segment "CHR_UN000"
-.segment "CHR_UN001"
-
-.segment "CHR_SLV2L"
-.segment "CHR_SLV2M"
-.segment "CHR_SLV2N"
-.segment "CHR_UN005"
-.segment "CHR_UN006"
-.segment "CHR_UN007"
-.segment "CHR_UN008"
-.segment "CHR_UN009"
-.segment "CHR_UN101"
-.segment "CHR_UN102"
-.segment "CHR_U10_B"
-.segment "CHR_U10_C"
-.segment "CHR_U10_D"

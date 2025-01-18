@@ -28,15 +28,6 @@ level2_s_info_kiosk:
 	.byte $00,$25,$00,$00,$48,$58,$59,$59,$4F
 
 ; level2_end_chase is located here, so also add the payphone data
-chrb_papho0 = $40
-chrb_papho1 = $41
-chrb_papho2 = $42
-chrb_papho3 = $43
-chrb_papho4 = $44
-chrb_papho5 = $45
-chrb_papho6 = $46
-chrb_papho7 = $47
-chrb_papho8 = $48
 
 ; ######### ANIMATION TABLES #########
 .proc level2_payphone_idle
