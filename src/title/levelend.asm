@@ -99,9 +99,9 @@
 	sta bg1_bknum
 	
 	lda #>level_end_fade_update
-	sta lvlptrhi
+	sta fadeupdrt+1
 	lda #<level_end_fade_update
-	sta lvlptrlo
+	sta fadeupdrt
 	jsr fade_in
 	
 @wait:

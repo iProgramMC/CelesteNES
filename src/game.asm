@@ -122,7 +122,7 @@ gm_game_init:
 	
 	jsr gm_calc_camera_nosplit
 	lda #0
-	sta lvlptrhi
+	sta fadeupdrt+1
 	lda #16
 	jsr fade_in_smaller_palette
 	

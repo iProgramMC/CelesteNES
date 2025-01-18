@@ -247,6 +247,7 @@ startpy     : .res 1 ; starting player Y position
 usedrunreduce : .res 1
 
 camera_y_hi : .res 1
+fadeupdrt   : .res 2
 
 ; these spots are always zeroed out on respawn
 zero_on_respawn_zp_begin:

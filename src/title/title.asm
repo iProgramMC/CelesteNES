@@ -100,7 +100,7 @@ gamemode_title_init_FAR:
 	jsr tl_select_banks
 	
 	lda #0
-	sta lvlptrhi
+	sta fadeupdrt+1
 	jsr fade_in
 
 gamemode_title_update_FAR:

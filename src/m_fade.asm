@@ -98,9 +98,9 @@ differentPaletteSize:
 	jmp fade_wait_one_frame
 
 callLevelPointer:
-	lda lvlptrhi
+	lda fadeupdrt+1
 	beq :+
-	jmp (lvlptrlo)
+	jmp (fadeupdrt)
 :	rts
 .endproc
 

@@ -36,7 +36,7 @@ gamemode_overwd_init_FAR:
 	jsr ow_select_banks
 	
 	lda #0
-	sta lvlptrhi
+	sta fadeupdrt+1
 	jsr fade_in
 
 gamemode_overwd_update_FAR:
