@@ -35,6 +35,7 @@
 	lda #32
 differentPaletteSize:
 	sta vmccount
+	inc fade_active
 	jsr fade_copy_palette
 	jsr fade_prepare_vmcpy
 	
@@ -91,7 +92,7 @@ differentPaletteSize:
 	
 	jsr fade_copy_palette
 	jsr fade_set_vmc_flag
-	
+	dec fade_active
 	jmp fade_wait_one_frame
 .endproc
 
@@ -132,6 +133,7 @@ fade_in_smaller_palette := fade_in::differentPaletteSize
 .proc fade_out
 	lda #32
 	sta vmccount
+	inc fade_active
 	jsr fade_prepare_vmcpy
 	jsr fade_copy_palette
 	
@@ -170,5 +172,6 @@ fade_in_smaller_palette := fade_in::differentPaletteSize
 	
 	; the fade out is complete - everything's black now
 	; and rendering is disabled
+	dec fade_active
 	rts
 .endproc

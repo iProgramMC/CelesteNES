@@ -380,7 +380,7 @@ postcard_setup_palette_request:
 	jmp @loopFadeOut
 
 @step5o:
-	lda #def_ppu_msk
+	lda #0
 	sta ppu_mask
 
 @waitLoop:
@@ -390,8 +390,6 @@ postcard_setup_palette_request:
 	
 	dec ow_timer
 	bne @waitLoop
-	
-	; fade out TODO
 	
 @return:
 	rts

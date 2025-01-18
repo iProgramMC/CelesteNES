@@ -11,6 +11,8 @@ gamemode_overwd_init_FAR:
 	sta camera_x_hi
 	sta camera_y
 	sta camera_y_hi
+	sta scroll_x
+	sta scroll_y
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait
 	

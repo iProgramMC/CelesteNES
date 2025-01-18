@@ -1801,10 +1801,8 @@ gm_fetch_room:
 
 @level2B:
 	lda #<level2_alt_palette
-	sta vmcsrc
 	sta paladdr
 	lda #>level2_alt_palette
-	sta vmcsrc+1
 	sta paladdr+1
 	
 	lda #g4_altpal
@@ -1829,14 +1827,17 @@ gm_fetch_room:
 	asl
 	tax
 	lda level_palettes, x
-	sta vmcsrc
 	sta paladdr
 	inx
 	lda level_palettes, x
-	sta vmcsrc+1
 	sta paladdr+1
 	
 @schedulePaletteUpload:
+	lda paladdr
+	sta vmcsrc
+	lda paladdr+1
+	sta vmcsrc+1
+	
 	lda #$3F
 	sta vmcaddr+1
 	lda #$00

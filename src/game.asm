@@ -109,12 +109,11 @@ gm_game_init:
 	sta gamectrl
 	
 	lda nmictrl
-	and #((nc_flushcol|nc_flshpalv|nc_flushrow|nc_flushpal)^$FF)
-	ldy respawntmr
-	bne :+          ; do not instantly turn on the screen if we're respawning. Let that routine handle it
-	ora #nc_turnon
-:	sta nmictrl
-
+	and #((nc_flushcol|nc_flshpalv|nc_flushrow|nc_flushpal|nc_turnon)^$FF)
+	; do not instantly turn on the screen if we're respawning. Let that routine handle it
+	; also don't instantly turn on if we just arrived in here. Let the fade_in routine handle it
+	sta nmictrl
+	
 	jsr gm_update_bg_bank
 	
 	; pull the "have we just respawned here?" flag? if it's false, then fade in
