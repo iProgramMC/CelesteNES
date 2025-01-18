@@ -491,12 +491,15 @@ save_file_0:
 	sf_deaths:    .res 2*8   ; total deaths (max. 65K)
 	sf_cassettes: .res 1     ; cassettes (B-sides) unlocked (note: probably won't actually have B-sides !)
 	sf_hearts:    .res 1     ; crystal hearts obtained
-	sf_unused:    .res 3
+	sf_unused:    .res 2
 
 save_file_size = * - save_file_0
 
+; TODO: use the other files
 save_file_1:      .res save_file_size
 save_file_2:      .res save_file_size
+
+save_file_options:		.res 3
 
 save_file_final_bit:	.res 1 ; it's just gonna be $A5 always
 

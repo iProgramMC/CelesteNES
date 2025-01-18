@@ -6,6 +6,47 @@
 ; desc: Verifies the save file for correctness.  If the save file is incorrect,
 ;       it is cleared.
 .proc save_file_verify
+	lda save_file_checksum+2
+	pha
+	lda save_file_checksum+1
+	pha
+	lda save_file_checksum+0
+	pha
+	
+	jsr save_file_calc_checksum
+	
+	; compare each of the three bytes
+	pla
+	cmp save_file_checksum+0
+	bne @invalidSaveFile_Pull2
+	
+	pla
+	cmp save_file_checksum+1
+	bne @invalidSaveFile_Pull1
+	
+	pla
+	cmp save_file_checksum+2
+	bne @invalidSaveFile
+	
+	lda save_file_final_bit
+	cmp #$A5
+	bne @invalidSaveFile
+	
+	; save file is valid!!
+	rts
+
+@invalidSaveFile_Pull2:
+	pla
+@invalidSaveFile_Pull1:
+	pla
+@invalidSaveFile:
+	; save file is invalid!! So clear
+	jmp save_file_wipe
+.endproc
+
+; ** SUBROUTINE: save_file_calc_checksum
+; desc: Calculates the check sum for a save file.
+.proc save_file_calc_checksum
 	lda #0
 	sta temp1
 	sta temp2
@@ -36,44 +77,40 @@
 	cpy #<save_file_final_bit
 	bne @loop
 	
-	; compare each of the three bytes
 	lda temp1
 	eor #$5A
-	cmp save_file_checksum+0
-	bne @invalidSaveFile
-	
+	sta save_file_checksum+0
 	lda temp2
 	eor #$A5
-	cmp save_file_checksum+1
-	bne @invalidSaveFile
-	
+	sta save_file_checksum+1
 	lda temp3
 	eor #$E7
-	cmp save_file_checksum+2
-	bne @invalidSaveFile
-	
-	lda save_file_final_bit
-	cmp #$A5
-	bne @invalidSaveFile
-	
-	; save file is valid!!
+	sta save_file_checksum+2
 	rts
-	
-@invalidSaveFile:
-	; save file is invalid!! So clear
+.endproc
+
+; ** SUBROUTINE: save_file_wipe
+; desc: Wipes the current save file.
+.proc save_file_wipe
 	ldy #0
 	tya
 :	sta save_file_begin, y
 	iny
 	bne :-
 	
-	; of course, setup the checksum correctly
-	lda #$5A
-	sta save_file_checksum+0
+	; write the name "Madeline" to the first save
+	ldy #0
+:	lda @defaultName, y
+	sta sf_name, y
+	iny
+	cpy #8
+	bne :-
+	
 	lda #$A5
-	sta save_file_checksum+1
 	sta save_file_final_bit
-	lda #$E7
-	sta save_file_checksum+2
-	rts
+	
+	; finally, setup the checksum
+	jmp save_file_calc_checksum
+
+@defaultName:	.byte "Madeline"
 .endproc
