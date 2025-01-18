@@ -1,5 +1,340 @@
 ; Copyright (C) 2024-2025 iProgramInCpp
 
+; I know it sounds absurd that we're putting this type of code into the "pause"
+; bank, of all things, but come on, it's 7K free, it's fine...
+
+; ** Entity Draw/Update routines
+; Parameters:
+;   temp1 - Entity Index (passed in through X too)
+;   temp2 - X Screen Position
+;   temp3 - Y Screen Position
+;   temp4 - X High Position
+
+; ** ENTITY: Particle
+.proc xt_draw_particle
+	lda temp2
+	cmp #$F8
+	bcc @dontCheckOffScreen
+	
+	lda temp4
+	bmi @returnEarly
+	lda temp2
+
+@dontCheckOffScreen:
+	sta x_crd_temp
+	lda temp3
+	sta y_crd_temp
+	ldy sprspace+sp_part_chrti, x
+	lda sprspace+sp_part_chrat, x
+	jsr oam_putsprite
+
+@returnEarly:
+	;jmp xt_update_particle
+.endproc
+
+.proc xt_update_particle
+	ldx temp1
+	lda #0
+	sta temp7
+	
+	lda sprspace+sp_part_vel_x, x
+	sta temp5
+	bpl :+
+	lda #$FF
+	sta temp7
+	
+:	clc
+	lda sprspace+sp_x, x
+	adc temp5
+	sta sprspace+sp_x, x
+	lda sprspace+sp_x_pg, x
+	adc temp7
+	sta sprspace+sp_x_pg, x
+	
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc sprspace+sp_y_lo, x
+	sta sprspace+sp_y_lo, x
+	
+	lda sprspace+sp_part_vel_y, x
+	bmi @velMinus
+	
+	; velocity is positive. that means that a SET carry determines overflow
+	adc sprspace+sp_y, x
+	bcc @setY
+	
+	lda #0
+	sta sprspace+sp_kind, x  ; particle went off screen, actually!
+	lda #$F0
+	bne @setY
+	
+@velMinus:
+	; velocity is negative. means that a CLEAR carry determines overflow
+	adc sprspace+sp_y, x
+	bcs @setY
+	lda #$00
+@setY:
+	sta sprspace+sp_y, x
+	
+	; gravity
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc sprspace+sp_part_gravi, x
+	sta sprspace+sp_vel_y_lo, x
+	
+	bcc @done
+	inc sprspace+sp_vel_y, x
+@done:
+	dec sprspace+sp_part_timer, x
+	bne :+
+	lda #0
+	sta sprspace+sp_kind, x
+:	rts
+.endproc
+
+; ** ENTITY: Refill Placeholder
+.proc xt_draw_refillhold
+	lda #pal_green
+	jsr gm_allocate_palette
+	sta temp5
+	ora #$40
+	sta temp8
+	lda #$9A
+	sta temp6
+	sta temp7
+	jsr gm_draw_common
+	;jmp xt_update_refillhold
+.endproc
+
+.proc xt_update_refillhold
+	ldx temp1
+	dec sprspace+sp_oscill_timer, x
+	bne :+
+	; time to replace with a normal one
+	lda sprspace+sp_refill_oldos, x
+	sta sprspace+sp_oscill_timer, x
+	lda #e_refill
+	sta sprspace+sp_kind, x
+	
+:	rts
+.endproc
+
+; ** ENTITY: Refill
+.proc xt_draw_refill
+	lda #pal_green
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	lda #$FC
+	sta temp6
+	lda #$FE
+	sta temp7
+	jsr gm_draw_common
+	;jmp xt_update_refill
+.endproc
+
+.proc xt_update_refill
+	jsr gm_ent_oscillate
+	
+	jsr gm_check_player_bb
+	beq @return
+	
+	; collided!
+	; check if the dash count is non zero.
+	lda dashcount
+	bne @break
+	
+	; dash count is zero (never dashed), so check stamina
+	lda stamina+1
+	bne @return
+	
+	lda stamina
+	cmp #stamlowthre
+	bcs @return
+	
+@break:
+	; player has dashed which means 
+	; break into 4 pieces, destroy, and give the player their dashes back
+	
+	lda #$98
+	sta temp4   ; character tile
+	lda #3
+	sta temp5   ; tile attributes
+	
+	lda #8
+	sta temp9   ; lifetime
+	lda #0
+	sta temp8   ; gravity
+	
+	ldx #0
+	jsr gm_spawn_particle_at_ent
+	inx
+	jsr gm_spawn_particle_at_ent
+	inx
+	jsr gm_spawn_particle_at_ent
+	inx
+	jsr gm_spawn_particle_at_ent
+	
+	ldx temp1
+	lda sprspace+sp_refill_flags, x
+	and #erf_regen
+	beq @setKind
+	
+	lda sprspace+sp_oscill_timer, x
+	sta sprspace+sp_refill_oldos, x
+	
+	lda #$96
+	sta sprspace+sp_oscill_timer, x
+	lda #e_refillhd
+	
+@setKind:
+	sta sprspace+sp_kind, x
+	
+	lda #0
+	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	
+@return:
+	rts
+.endproc
+
+; ** ENTITY: Spring
+.proc xt_draw_spring
+	jsr xt_update_spring
+	lda #pal_red
+	jsr gm_allocate_palette
+	sta temp5
+	ora #obj_fliphz
+	sta temp8
+	ldy temp1
+	ldx sprspace+sp_spring_frame, y
+	lda @frames, x
+	sta temp6
+	sta temp7
+	dec temp3 ; correction because sprites are drawn with a 1 px down offset
+	jmp gm_draw_common
+
+@frames: .byte $C0, $C2, $C4, $CA, $C4, $CA, $C4, $C2, $C6, $C8
+.endproc
+
+.proc xt_update_spring
+	ldy temp1
+	ldx temp1
+	lda sprspace+sp_spring_frame, y
+	beq @idleTime
+	
+	dec sprspace+sp_spring_timer, x
+	bne @idleTime
+	
+	ldx sprspace+sp_spring_frame, y
+	inx
+	cpx #10
+	bne :+
+	ldx #0
+:	txa
+	sta sprspace+sp_spring_frame, y
+	lda @frametimes, x
+	sta sprspace+sp_spring_timer, y
+
+@idleTime:
+	; is the player colliding?
+	lda #14
+	sta temp8
+	lda #0
+	sta temp7
+	lda #16
+	sta temp9
+	sta temp10
+	jsr gm_check_collision_ent
+	beq @return
+	
+	lda #1
+	sta sprspace+sp_spring_frame, y
+	lda #5
+	sta sprspace+sp_spring_timer, y
+	
+	jsr gm_spring_sfx
+	
+	; propel the player!
+	lda temp10
+	jmp gm_superbounce
+	
+@return:
+	rts
+
+@frametimes:	.byte 5, 3, 6, 8, 7, 8, 9, 5, 4, 4
+; note: frame 2 is constantly oscillating
+.endproc
+
+; ** ENTITY: Key
+.proc xt_draw_key
+	lda #pal_gold
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	lda #$DC
+	sta temp6
+	lda #$DE
+	sta temp7
+	jmp gm_draw_common
+.endproc
+
+; ** ENTITY: Points
+.proc xt_draw_points
+	lda #pal_blue
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	ldx temp1
+	
+	sec
+	lda sprspace+sp_y_lo, x
+	sbc #$60
+	sta sprspace+sp_y_lo, x
+	
+	lda sprspace+sp_y, x
+	sbc #0
+	beq @clearKind
+	sta sprspace+sp_y, x
+	
+	lda sprspace+sp_points_timer, x
+	sec
+	sbc #1
+	bne @skipClearKind
+@clearKind:
+	sta sprspace+sp_kind, x
+@skipClearKind:
+	sta sprspace+sp_points_timer, x
+	
+	lda sprspace+sp_points_count, x
+	pha
+	cmp #6
+	bne @no1UpMode
+	
+	; 1 up mode
+	lda #$8E
+	sta temp7
+	bne @done
+	
+@no1UpMode:
+	; normal points mode
+	lda #$80
+	sta temp7
+	
+@done:
+	pla
+	asl
+	clc
+	adc #$80
+	sta temp6
+	
+	jmp gm_draw_common
+.endproc
+
 ; ** ENTITY: Crumble Block
 .proc xt_inactive_block
 	lda sprspace+sp_flags, x
@@ -988,3 +1323,257 @@ xt_falling_block_table:
 	.word fall_ch1_f ; 5 - level1_r12, 24, 32+128, max Y 184
 	.word fall_ch2_a ; 6
 	.word fall_ch2_b ; 7
+
+
+
+; *********************************************************
+
+; ** SUBROUTINE: xt_draw_ent_call
+; desc: Calls the relevant entity draw function.
+; arguments:
+;     A - entity type
+;     temp1 - entity index
+; note: temp1 is occupied by xt_draw_entities and represents the index within the sprspace array.
+xt_draw_ent_call:
+	pha
+	lda #e_l2chaser
+	cmp sprspace+sp_kind, x
+	beq @isDarkChaser
+	
+	jsr xt_check_ent_onscreen
+	bne @notOffScreen
+	
+	pla
+	cmp #e_particle
+	bne @notParticle
+	
+	; particle went off screen HAHA, destroy it
+	lda #0
+	sta sprspace+sp_kind, x
+	
+@notParticle:
+	rts
+	
+@notOffScreen:
+	; note: xt_check_ent_onscreen already calculated the x coordinate for us
+	
+	lda #e_strawb
+	cmp sprspace+sp_kind, x
+	bne @forceAddingCamY
+	
+	lda sprspace+sp_y, x
+	sec
+	sbc camera_y_sub
+	sec
+	sbc temp10
+	sta temp3
+	
+	lda sprspace+sp_strawb_flags, x
+	and #esb_picked    ; picked sprites do not need cameraY added to them
+	bne @doNotAddCamY
+	
+@forceAddingCamY:
+	jsr @decideLvlOff
+	asl
+	asl
+	asl
+	sta temp3
+	lda sprspace+sp_y, x
+	clc
+	adc temp3
+	sta temp3
+	sec
+	sbc camera_y_bs
+	sec
+	sbc camera_y_sub
+	sec
+	sbc temp10
+	sta temp3
+	
+@doNotAddCamY:
+@isDarkChaser:
+	pla
+	tax
+	lda xt_entjtable_lo, x
+	sta lvladdr
+	lda xt_entjtable_hi, x
+	sta lvladdrhi
+	
+	ldx temp1
+	
+	jmp (lvladdr)
+
+@decideLvlOff:
+	lda sprspace+sp_flags, x
+	lsr ; assert: ef_oddroom == $02
+	eor roomnumber
+	and #1
+	beq @decideLvlOff_same
+	
+	; different
+	lda old_lvlyoff
+	rts
+
+@decideLvlOff_same:
+	lda lvlyoff
+	rts
+
+level2_memorial_kludge:
+	ldx #<level1_memorial
+	ldy #>(level1_memorial - ($C000-$A000))
+	lda #prgb_lvl1b
+	jmp far_call2
+
+.define entity_jump_table   \
+	$0000,                  \
+	xt_draw_berry,          \
+	xt_draw_refill,         \
+	xt_draw_spring,         \
+	xt_draw_key,            \
+	xt_draw_particle,       \
+	xt_draw_refillhold,     \
+	xt_draw_points,         \
+	level0_intro_crusher,   \
+	xt_draw_crumble_block,  \
+	level0_bridge_manager,  \
+	level0_granny,          \
+	level0_bird_climb,      \
+	level0_bird_dash,       \
+	level1_zip_mover,       \
+	level1_zip_mover,       \
+	level2_payphone,        \
+	xt_draw_breakable_block,\
+	level2_mirror,          \
+	level2_campfire,        \
+	level1_campfire,        \
+	level2_dark_chaser,     \
+	xt_draw_falling_block,  \
+	level1_memorial,        \
+	level2_memorial_kludge
+
+xt_entjtable_lo: .lobytes entity_jump_table
+xt_entjtable_hi: .hibytes entity_jump_table
+
+; ** SUBROUTINE: xt_check_ent_onscreen
+; desc:     Checks if an entity is off of the screen.
+; parms:    Y - entity index
+; returns:  ZF - entity is off-screen
+; clobbers: A, X, temp3, temp4, temp10. not Y
+xt_check_ent_onscreen:
+	lda #0
+	sta temp10
+	
+	lda sprspace+sp_flags, x
+	and #ef_limbo
+	bne @returnZero             ; if entity is in limbo
+	lda sprspace+sp_x, x
+	sec
+	sbc camera_x
+	sta temp2
+	
+	lda sprspace+sp_x_pg, x
+	sbc camera_x_pg
+	sta temp4
+	
+	; result < 0: sprite went off the left side.
+	; result = 0: sprite is in view.
+	; result > 0: sprite is to the right.
+	bmi @checkLeft
+	beq @moreChecking
+	
+	; result is 0.
+@returnZero:
+	lda sprspace+sp_kind, x
+	cmp #e_strawb
+	bne @notStrawBerry
+	
+	lda sprspace+sp_strawb_flags, x
+	and #esb_picked
+	beq @notStrawBerry
+	
+	; ALWAYS render this
+	bne @returnOne
+	
+@notStrawBerry:
+	lda #0
+	rts
+	
+@checkLeft:
+	; result is different from 0. we should check if the low byte is > $F8
+	lda temp2
+	cmp #$F8
+	bcc @returnZero
+
+@moreChecking:
+	; ok, totally in bounds, now see if we're in an up room transition
+	lda #g3_transitU
+	bit gamectrl3
+	beq @returnOne
+	
+	; if the room numbers are different
+	lda sprspace+sp_flags, x
+	; ef_oddroom == $02
+	lsr
+	eor roomnumber
+	and #1
+	asl
+	asl
+	asl
+	asl
+	sta temp10
+	
+	lda sprspace+sp_y, x
+	sec
+	sbc camera_y
+	
+	; carry SET -- return zero for OLD ROOM
+	lda #0
+	rol
+	; ef_oddroom == $02
+	asl
+	eor sprspace+sp_flags, x
+	lsr
+	eor roomnumber
+	and #1
+	
+	; carry ^ (entityRoomNumberParity ^ activeRoomNumberParity)
+	beq @returnZero
+	
+@returnOne:
+	lda #1
+	rts
+
+; ** SUBROUTINE: xt_draw_entities
+; desc: Draws visible entities to the screen.
+.proc xt_draw_entities
+	lda #1
+	bit framectr
+	
+	beq @evenFrame
+	
+	; odd frame
+	ldx #(sp_max - 1)
+@loopOdd:
+	lda sprspace+sp_kind, x
+	beq :+             ; this is an empty entity slot. waste no time
+	stx temp1
+	jsr xt_draw_ent_call
+	ldx temp1
+:	dex
+	cpx #$FF
+	bne @loopOdd
+	rts
+	
+@evenFrame:
+	ldx #0
+@loopEven:
+	lda sprspace+sp_kind, x
+	beq :+             ; this is an empty entity slot. waste no time
+	stx temp1
+	jsr xt_draw_ent_call
+	ldx temp1
+:	inx
+	cpx #sp_max
+	bne @loopEven
+	rts
+.endproc

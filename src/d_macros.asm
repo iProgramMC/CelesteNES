@@ -32,6 +32,7 @@ DOP_rm25pcv = $16  ; Remove 25% of both velocities
 DOP_zerovel = $17  ; Set velocity to zero
 DOP_callrt  = $18  ; Call subroutine
 DOP_music   = $19  ; Play music track
+DOP_finish  = $1A  ; Finish level
 
 DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
@@ -220,4 +221,9 @@ name:
 ; Play music
 .macro play_music idx
 	.byte DOP_music, idx
+.endmacro
+
+; Finish level
+.macro finish_level
+	.byte DOP_finish
 .endmacro
