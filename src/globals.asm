@@ -351,6 +351,9 @@ pauseoption : .res 1 ; selected pause option
 pauseanim   : .res 1 ; selected option animation
 levelnumber : .res 1 ; level number
 
+; Loaded from savefile
+sstrawberries: .res 4 ; 32 bit bitset of strawberries collected before the current session.
+
 ; Loaded sprite banks
 spr0_bknum  : .res 1
 spr1_bknum  : .res 1

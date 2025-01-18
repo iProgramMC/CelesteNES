@@ -1897,6 +1897,9 @@ gm_on_level_init:
 gm_set_level:
 	stx levelnumber
 	
+	jsr save_file_load_berries
+	
+	ldx levelnumber
 	lda lvldatabank
 	pha
 	

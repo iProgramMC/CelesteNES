@@ -113,6 +113,9 @@
 	; stop music from playing - this will free up the $C000 bank
 	jsr aud_reset
 	
+	; declare the level ended with the save file also
+	jsr save_file_level_end
+	
 	lda #mmc3bk_prg0
 	ldy #prgb_ttle
 	jsr mmc3_set_bank

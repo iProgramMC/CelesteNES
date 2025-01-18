@@ -114,3 +114,141 @@
 
 @defaultName:	.byte "Madeline"
 .endproc
+
+; ** SUBROUTINE: save_file_level_end
+; desc: Marks a level as complete and sets the collected strawberries flags.
+.proc save_file_level_end
+	; note: the Prologue can't be "finished" for now
+	ldx levelnumber
+	beq return
+	dex
+	
+	; set the completed flag
+	lda bitSet, x
+	ora sf_completed
+	sta sf_completed
+	
+	; note: this calls the checksum function
+	jmp save_file_flush_berries
+
+return:
+	rts
+	
+bitSet:	.byte $01, $02, $04, $08, $10, $20, $40, $80
+.endproc
+
+; ** SUBROUTINE: save_file_flush_berries
+; desc: Flushes the bitset of collected strawberries to the save file.
+.proc save_file_flush_berries
+	ldx levelnumber
+	beq return
+	dex
+	
+	lda strawberryBitOffsets, x
+	lsr
+	lsr
+	lsr
+	; that is the byte offset that we need to start writing to
+	sta temp11
+	
+	; copy the strawberries to a temporary variable
+	ldy #3
+:	lda strawberries, y
+	sta temp1, y
+	dey
+	bpl :-
+	
+	; temp1-4 have the bitset, temp5 will have a zero.
+	lda #0
+	sta temp5
+	
+	lda strawberryBitOffsets, x
+	and #7
+	beq noShifting
+	tay
+:	clc
+	rol temp1
+	rol temp2
+	rol temp3
+	rol temp4
+	rol temp5
+	dey
+	bne :-
+
+noShifting:
+	; finally, OR with the save file's strawberry flags
+	ldy temp11
+	ldx #0
+:	lda sf_berries, y
+	ora temp1, x
+	sta sf_berries, y
+	iny
+	inx
+	cpx #5
+	bne :-
+	
+	; done!! now calculate the checksum
+	jmp save_file_calc_checksum
+	
+return:
+	rts
+strawberryBitOffsets:
+	.byte 0    ; 20 - forsaken city
+	.byte 20   ; 18 - old site
+	.byte 38   ; 25 - celestial resort
+	.byte 63   ; 29 - golden ridge
+	.byte 92   ; 31 - mirror temple
+	.byte 123  ; 0  - reflection
+	.byte 123  ; 47 - summit
+	.byte 170  ; 5  - core
+.endproc
+
+; ** SUBROUTINE: save_file_load_berries
+; desc: Loads the berry flags from the save file.
+.proc save_file_load_berries
+	ldx levelnumber
+	beq return
+	dex
+	
+	lda save_file_flush_berries::strawberryBitOffsets, x
+	sta temp11
+	lsr
+	lsr
+	lsr
+	
+	; that is the byte offset that we need to start reading from
+	tax
+	ldy #0
+:	lda sf_berries, x
+	sta temp1, y
+	inx
+	iny
+	cpy #5
+	bne :-
+	
+	; shift that many times
+	lda temp11
+	and #7
+	tay
+	beq final
+	
+:	clc
+	ror temp5
+	ror temp4
+	ror temp3
+	ror temp2
+	ror temp1
+	dey
+	bne :-
+	
+final:
+	ldy #3
+:	lda temp1, y
+	sta sstrawberries, y
+	dey
+	bpl :-
+	
+return:
+	rts
+.endproc
+

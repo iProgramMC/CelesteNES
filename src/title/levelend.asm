@@ -21,6 +21,7 @@
 	lda #0
 	sta scroll_x
 	sta scroll_y
+	sta scroll_flags
 	
 	; disable rendering
 	jsr vblank_wait
