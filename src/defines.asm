@@ -79,9 +79,10 @@ sp_refill_flags = sp_entspec2
 sp_refill_oldos = sp_entspec3
 
 sp_strawb_flags = sp_entspec2
-sp_strawb_colid = sp_entspec3 ; TODO: For keys, reuse this field
+sp_strawb_colid = sp_entspec3
 sp_strawb_ident = sp_entspec4
 sp_strawb_timer = sp_entspec5
+sp_strawb_state = sp_entspec6
 
 sp_points_count = sp_entspec1
 sp_points_timer = sp_entspec2
@@ -223,6 +224,7 @@ ec_dataend  = $FF
 erf_regen   = $01
 esb_picked  = $01
 esb_shrink  = $02 ; shrinking for the collection animation
+esb_ppicked = $04 ; previously picked
 
 ; Sprite Indices
 plr_idle1_l = $04

@@ -621,16 +621,61 @@ return:
 	rts
 .endproc
 
+xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
+
 ; ** ENTITY: Strawberry
 .proc xt_draw_berry
-	lda temp1
+	ldx temp1
+	lda sprspace+sp_strawb_state, x
+	bne @skipInit
+	
+	inc sprspace+sp_strawb_state, x
+	lda sprspace+sp_strawb_ident, x
+	lsr
+	lsr
+	lsr
+	sta temp11
+	
+	lda sprspace+sp_strawb_ident, x
+	and #7
+	tay
+	lda xt_berry_bitset, y
 	pha
+	ldy temp11
+	and sstrawberries, y
+	beq @wasntCollectedBefore
+	
+	lda sprspace+sp_strawb_flags, x
+	ora #esb_ppicked
+	sta sprspace+sp_strawb_flags, x
+	
+@wasntCollectedBefore:
+	pla
+	and strawberries, y
+	beq @skipInit
+	
+	; actually it's not even supposed to be here
+	lda #0
+	sta sprspace+sp_kind, x
+	rts
+	
+@skipInit:
+	txa
+	pha
+	
+	; NOTE: pal_red==1, pal_blue==0, this is what's being assumed here!]
+	lda sprspace+sp_strawb_flags, x
+	and #esb_ppicked
+	lsr
+	lsr
+	eor #1
+	sta temp11
 	
 	jsr xt_update_berry
 	bne @shrinking
 	
 	; normal rendering
-	lda #pal_red
+	lda temp11
 	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
@@ -647,7 +692,7 @@ return:
 
 @shrinking:
 	; shrinking
-	lda #pal_red
+	lda temp11
 	jsr gm_allocate_palette
 	sta temp8
 	ora #obj_fliphz
@@ -745,7 +790,8 @@ return:
 	rts
 	
 :	; collided, set to picked up mode
-	lda #esb_picked
+	lda sprspace+sp_strawb_flags, x
+	ora #esb_picked
 	sta sprspace+sp_strawb_flags, x
 	
 	inc plrstrawbs

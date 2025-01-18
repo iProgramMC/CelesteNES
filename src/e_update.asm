@@ -139,8 +139,13 @@ continue:
 	lda temp11
 	pha
 	stx temp11
-	lda #esb_shrink
-	sta sprspace+sp_strawb_flags, x
+	;lda sprspace+sp_strawb_flags, x
+	;ora #esb_shrink
+	;and #<~esb_picked
+	;sta sprspace+sp_strawb_flags, x
+	
+	; since esb_picked == 1 and esb_shrink == 2
+	inc sprspace+sp_strawb_flags, x
 	
 	lda #0
 	sta sprspace+sp_strawb_timer, x
