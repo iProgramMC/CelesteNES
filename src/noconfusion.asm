@@ -325,8 +325,6 @@ dontdeccamy:
 	sta camera_x
 	lda camdst_x_pg
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	lda player_x_d
 	sta player_x
@@ -633,8 +631,6 @@ transLoopMain:
 	lda camera_x_pg
 	sbc #0
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	lda #cspeed
 	jsr gm_shiftrighttrace
@@ -720,8 +716,6 @@ transLoopDone:
 	sta camlimit
 	lda camera_x_pg
 	sta camlimithi
-	and #1
-	sta camera_x_hi
 	
 	; finally, done.
 	lda trantmp5

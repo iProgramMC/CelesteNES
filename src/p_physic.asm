@@ -310,7 +310,7 @@ gm_getmidx:
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda camera_x_hi
+	lda camera_x_pg
 	adc #0
 	ror               ; rotate it into carry
 	lda x_crd_temp

@@ -2095,7 +2095,7 @@ gm_load_generics:
 ; ** SUBROUTINE: gm_respawn
 ; desc: Respawns the player.
 gm_respawn:
-	lda camera_x_hi
+	lda camera_x_pg
 	lsr
 	lda camera_x
 	ror

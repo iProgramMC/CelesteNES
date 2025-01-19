@@ -303,8 +303,6 @@ transLoopMain:
 	lda camera_x_pg
 	adc #0
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	lda #cspeed
 	jsr gm_shifttrace
@@ -776,8 +774,6 @@ dontdeccamy:
 	sta camera_x
 	lda camdst_x_pg
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	;lda camera_x
 	;sta roombeglo
@@ -884,8 +880,6 @@ addtocameraX:
 	lda camera_x_pg
 	adc camoff_H
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	lda player_sp_x
 	sec
@@ -919,8 +913,6 @@ add2ndtocameraX:
 	lda camera_x_pg
 	adc camoff2_H
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	lda player_sp_x
 	sec

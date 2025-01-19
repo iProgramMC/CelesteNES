@@ -457,7 +457,8 @@ gm_leave_doframe:
 ; desc: Shakes the camera according to quakeflags, and calculates the high bits of scroll.
 .proc gm_calc_camera_shake_and_hi
 	; scroll X/Y high
-	lda camera_x_hi
+	lda camera_x_pg
+	and #1
 	sta temp1
 	lda camera_y_hi
 	sta temp2

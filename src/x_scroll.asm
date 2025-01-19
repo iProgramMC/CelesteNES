@@ -61,8 +61,6 @@ xt_scroll_r_cond:
 	lda camera_x_pg
 	adc #0
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	; is there a camera limit yet?
 	lda #gs_scrstopR
@@ -190,8 +188,6 @@ xt_scroll_l_cond:
 	bmi @limit
 	
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 	; figure out if we need to limit
 	
@@ -219,8 +215,6 @@ xt_scroll_l_cond:
 	sta camera_x
 	lda camlefthi
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	
 @noLimit:
 	; also move the PLAYER's x coordinate
@@ -240,8 +234,6 @@ xt_scroll_l_cond:
 	sta camera_x
 	lda camlefthi
 	sta camera_x_pg
-	and #1
-	sta camera_x_hi
 	rts
 
 ; ** SUBROUTINE: xt_scroll_d_cond

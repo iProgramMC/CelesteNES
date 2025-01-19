@@ -265,7 +265,6 @@ player_vs_y : .res 1 ; velocity Y, subpixels
 
 camera_x    : .res 1
 camera_y    : .res 1
-camera_x_hi : .res 1
 camera_y_sub: .res 1 ; sub-tile camera Y (0-7) (3)
 camera_x_lo : .res 1 ; for smoother scrolling
 camera_y_lo : .res 1

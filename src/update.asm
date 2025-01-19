@@ -114,10 +114,12 @@ com_calc_camera:
 	sta scroll_x
 	lda camera_y
 	sta scroll_y
-	lda #0
-	ldx camera_x_hi
+	
+	lda camera_x_pg
+	and #1
 	beq :+
-	ora #pctl_highx
+	lda #pctl_highx
+	
 :	ldx camera_y_hi
 	beq :+
 	ora #pctl_highy

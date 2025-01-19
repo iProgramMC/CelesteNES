@@ -5,7 +5,7 @@
 ; ** SUBROUTINE: dlg_get_clear_start
 ; desc: Get the column where dialog data is to be loaded.
 dlg_get_clear_start:
-	lda camera_x_hi
+	lda camera_x_pg
 	eor #1
 	lsr
 	lda camera_x
@@ -156,7 +156,7 @@ dlg_start_dialog:
 	; temp1 - HIGH address, temp2 - LOW address
 	
 	; calculate the tile index
-	lda camera_x_hi
+	lda camera_x_pg
 	eor #1
 	lsr
 	lda camera_x

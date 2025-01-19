@@ -75,8 +75,9 @@ tl_owldswitch:
 
 gamemode_title_init_FAR:
 	lda #$00
-	sta camera_x     ; clear some fields
-	sta camera_x_hi
+	sta scroll_x     ; clear some fields
+	sta scroll_y
+	sta scroll_flags
 	sta ppu_mask     ; disable rendering
 	
 	jsr vblank_wait  ; wait for vblank

@@ -50,9 +50,9 @@ gamemode_prologue_init_FAR:
 	sta pl_ppuaddr
 	sta pl_state
 	sta ppu_mask     ; disable rendering
-	sta camera_x
-	sta camera_x_hi
-	sta camera_y
+	sta scroll_x
+	sta scroll_y
+	sta scroll_flags
 	jsr vblank_wait
 	
 	ldy #<init_palette

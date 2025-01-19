@@ -9,10 +9,6 @@ gamemode_overwd_init_FAR:
 	sta ow_slidetmr
 	sta ow_iconoff
 	sta ow_timer2
-	sta camera_x
-	sta camera_x_hi
-	sta camera_y
-	sta camera_y_hi
 	sta scroll_x
 	sta scroll_y
 	sta scroll_flags
