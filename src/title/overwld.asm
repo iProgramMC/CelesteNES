@@ -5,8 +5,10 @@ gamemode_overwd_init_FAR:
 	sta ow_sellvl
 	
 	;lda #0
+	sta ow_lvlopen
 	sta ow_slidetmr
 	sta ow_iconoff
+	sta ow_timer2
 	sta camera_x
 	sta camera_x_hi
 	sta camera_y
@@ -24,8 +26,20 @@ gamemode_overwd_init_FAR:
 	
 	lda #$20
 	jsr clear_nt
+	
+	;lda #$24
+	;jsr clear_nt
 	lda #$24
-	jsr clear_nt
+	sta ppu_addr
+	lda #$00
+	sta ppu_addr
+	ldx #>OWL_drawer_data
+	lda #<OWL_drawer_data
+	jsr nexxt_rle_decompress
+	ldy #128
+:	sta ppu_data
+	dey
+	bne :-
 	
 	lda #$27
 	sta ppu_addr
@@ -79,6 +93,7 @@ gamemode_overwd_update_FAR:
 	jsr ow_draw_c7_summit
 	jsr ow_draw_icons
 	jsr ow_update_irq
+	jsr ow_update_drawer
 	
 	lda #(os_leftmov | os_rightmov)
 	bit owldctrl
@@ -86,11 +101,21 @@ gamemode_overwd_update_FAR:
 	
 	lda #(cont_a | cont_start)
 	bit temp5
-	bne @startGame
+	bne @pressedAOrStart
 @return:
 	rts
 	
-@startGame:
+@pressedAOrStart:
+	; check if we need to open the drawer first
+	lda ow_lvlopen
+	bne @enterGame
+	
+	; just begin opening the drawer
+	inc ow_lvlopen
+	
+	rts
+	
+@enterGame:
 	; now enter the game!
 	jsr ow_clear_irq
 	
@@ -156,7 +181,7 @@ ow_level_slide:
 	dec ow_sellvl
 	lda #$F0
 	sta ow_iconoff
-	jsr ow_queue_lvlnm_upd
+	jsr ow_on_update_lvl
 	rts
 
 @right_frame4:
@@ -164,7 +189,7 @@ ow_level_slide:
 	inc ow_sellvl
 	lda #$10
 	sta ow_iconoff
-	jsr ow_queue_lvlnm_upd
+	jsr ow_on_update_lvl
 	rts
 
 @cancel_slide:
@@ -372,10 +397,10 @@ ow_draw_icons:
 ; ** SUBROUTINE: ow_draw_level_name
 ; desc: Draws the new level name.
 ; assumes: Inside of NMI
-ow_draw_level_name:
+.proc ow_draw_level_name
 	lda #$24
 	sta ppu_addr
-	lda #$E8
+	lda #$49
 	sta ppu_addr
 	
 	lda ow_sellvl
@@ -391,8 +416,79 @@ ow_draw_level_name:
 	adc #0
 	tay
 	
-	lda #16
-	jmp ppu_wrstring
+	lda #14
+	jsr ppu_wrstring
+	
+	lda #$24
+	sta ppu_addr
+	lda #$AF
+	sta ppu_addr
+	
+	lda levelnumber
+	beq berriesBothZero
+	lda ow_berries1
+	ora ow_berries2
+	beq berriesBothZero
+	
+	lda #$82
+	sta ppu_data
+	lda #$00
+	sta ppu_data
+	
+	lda ow_berries2
+	beq :+
+	clc
+	adc #$20 ; I should have done $30 but whatever
+:	sta ppu_data
+	
+	lda ow_berries1
+	clc
+	adc #$20 ; I should have done $30 but whatever
+	sta ppu_data
+	
+	; check if we need to push the /XX or blank
+	ldx ow_sellvl
+	lda bitSet, x
+	and sf_completed
+	bne useLevel
+	ldx #0
+	beq displayAnyway
+useLevel:
+	lda ow_sellvl
+	asl
+	asl
+	tax
+displayAnyway:
+	lda amountData, x
+	sta ppu_data
+	inx
+	lda amountData, x
+	sta ppu_data
+	inx
+	lda amountData, x
+	sta ppu_data
+	inx
+	bne berriesNotAllZero
+
+berriesBothZero:
+	lda #0
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+
+berriesNotAllZero:
+	rts
+
+bitSet:	.byte $00,$01,$02,$04,$08,$10,$20,$40,$80
+amountData:
+	.byte $00,$00,$00,$00
+	.byte $81,$22,$20,$00 ; / 20
+	.byte $81,$21,$28,$00 ; / 18
+.endproc
 
 ; ** SUBROUTINE: ow_handle_input
 ; desc: Handles input.
@@ -409,6 +505,9 @@ ow_handle_input:
 	
 	lda #0
 	sta ow_slidetmr
+	
+	lda ow_lvlopen
+	bne @isLevelOpen
 	
 	lda #cont_left
 	bit temp5
@@ -430,11 +529,77 @@ ow_handle_input:
 	
 :	rts
 
-ow_queue_lvlnm_upd:
+@isLevelOpen:
+	lda #cont_b
+	bit temp5
+	beq :+
+	dec ow_lvlopen
+:	rts
+
+.proc ow_on_update_lvl
+	lda ow_sellvl
+	sta levelnumber
+	tax
+	lda level_berry_counts, x
+	sta temp10
+	
+	jsr save_file_load_berries
+	
+	; count the amount of berries
+	lda #0
+	sta ow_berries1
+	sta ow_berries2
+	sta temp11
+	
+	ldy #0
+@loop:
+	ldx #8
+	lda sstrawberries, y
+@loop2:
+	pha
+	
+	; check if we've checked enough bits
+	lda temp11
+	cmp temp10
+	bcs @doneAdding
+	inc temp11
+	
+	pla
+	
+	lsr
+	pha
+	bcc @dontAdd
+	
+	lda ow_berries1
+	clc
+	adc #1
+	sta ow_berries1
+	
+	cmp #10
+	bcc @dontAdd
+	
+	inc ow_berries2
+	lda #0
+	sta ow_berries1
+	
+@dontAdd:
+	pla
+	dex
+	bne @loop2
+	
+	iny
+	cpy #4
+	bne @loop
+	
+	pha
+@doneAdding:
+	pla
+	
 	lda #nc_updlvlnm
 	ora nmictrl
 	sta nmictrl
 	rts
+.endproc
 
 ; ** SUBROUTINE: ow_anim_frame
 ; desc: Gets the current animation frame from the timer.
@@ -465,7 +630,7 @@ ow_draw_player:
 	lda ow_waypoints_x, x
 	ldy ow_waypoints_y, x
 	ldx #<temp1
-	jsr gm_draw_2xsprite
+	jsr ow_draw_2xsprite
 	
 	; draw hair
 	lda #1
@@ -487,7 +652,7 @@ ow_draw_player:
 :	ldy temp4
 	lda ow_waypoints_x, x
 	ldx #<temp1
-	jsr gm_draw_2xsprite
+	jsr ow_draw_2xsprite
 	
 	; draw arrow
 	ldx ow_sellvl
@@ -508,7 +673,7 @@ ow_draw_player:
 	
 	ldy #$1E
 	lda #3
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	rts
 
@@ -582,7 +747,7 @@ ow_draw_c0_hut:
 	sta y_crd_temp
 	lda #1
 	ldy #$32
-	jmp oam_putsprite
+	jmp ow_put_sprite
 
 ow_draw_c1_city:
 	lda #111
@@ -591,7 +756,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #3
 	ldy #$28
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #125
 	sta x_crd_temp
@@ -599,7 +764,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #1
 	ldy #$30
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #129
 	sta x_crd_temp
@@ -607,7 +772,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #3
 	ldy #$28
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #122
 	sta x_crd_temp
@@ -615,7 +780,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #2
 	ldy #$2E
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #130
 	sta x_crd_temp
@@ -623,7 +788,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #2
 	ldy #$28
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #114
 	sta x_crd_temp
@@ -631,7 +796,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #1
 	ldy #$30
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #122
 	sta x_crd_temp
@@ -639,7 +804,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #1
 	ldy #$2A
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #130
 	sta x_crd_temp
@@ -647,7 +812,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #1
 	ldy #$2C
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #119
 	sta x_crd_temp
@@ -655,7 +820,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #2
 	ldy #$2E
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #111
 	sta x_crd_temp
@@ -663,7 +828,7 @@ ow_draw_c1_city:
 	sta y_crd_temp
 	lda #2
 	ldy #$28
-	jmp oam_putsprite
+	jmp ow_put_sprite
 
 ow_draw_c2_tower:
 	lda #94
@@ -673,7 +838,7 @@ ow_draw_c2_tower:
 	
 	lda #2
 	ldy #$28
-	jmp oam_putsprite
+	jmp ow_put_sprite
 
 ow_draw_c3_hotel:
 	lda #150
@@ -683,25 +848,25 @@ ow_draw_c3_hotel:
 	
 	lda #1          ; use pink color
 	ldy #$20
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #158
 	sta x_crd_temp
 	lda #1
 	ldy #$22
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #166
 	sta x_crd_temp
 	lda #1
 	ldy #$24
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #174
 	sta x_crd_temp
 	lda #1
 	ldy #$26
-	jmp oam_putsprite
+	jmp ow_put_sprite
 
 ow_draw_c4_cliff:
 	lda #130
@@ -710,7 +875,7 @@ ow_draw_c4_cliff:
 	sta y_crd_temp
 	ldy #$34
 	lda #(1 | obj_backgd)
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #138
 	sta x_crd_temp
@@ -718,7 +883,7 @@ ow_draw_c4_cliff:
 	sta y_crd_temp
 	ldy #$34
 	lda #1
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #146
 	sta x_crd_temp
@@ -726,7 +891,7 @@ ow_draw_c4_cliff:
 	sta y_crd_temp
 	ldy #$36
 	lda #1
-	jsr oam_putsprite
+	jsr ow_put_sprite
 	
 	lda #154
 	sta x_crd_temp
@@ -734,7 +899,7 @@ ow_draw_c4_cliff:
 	sta y_crd_temp
 	ldy #$34
 	lda #(1 | obj_backgd)
-	jmp oam_putsprite
+	jmp ow_put_sprite
 
 ow_draw_c5_temple:
 	lda #100
@@ -743,7 +908,7 @@ ow_draw_c5_temple:
 	sta y_crd_temp
 	ldy #$38
 	lda #1
-	jmp oam_putsprite
+	jmp ow_put_sprite
 
 
 ow_draw_c7_summit:
@@ -758,7 +923,7 @@ ow_draw_c7_summit:
 	adc #$40
 	tay
 	lda #1
-	jmp oam_putsprite
+	jmp ow_put_sprite
 
 ow_waypoints_x:
 	.byte 84    ; prologue
@@ -780,17 +945,18 @@ ow_waypoints_y:
 	.byte 137-4+yoff   ; chapter 6
 	.byte  36-4+yoff   ; chapter 7
 
-; note: each space is 16 bytes wide
+; note: each space is 16 bytes wide, but only 14 are used
 ow_level_names:
-	.byte "    Prologue    "
-	.byte " Forsaken  City "
-	.byte "    Old Site    "
-	.byte "Celestial Resort"
-	.byte "  Golden Ridge  "
-	.byte " Mirror  Temple "
-	.byte "   Reflection   "
-	.byte "   The Summit   "
-	.byte "    Epilogue    "
+	.byte $00,$00,$00,$00,$6f,$3d,$7e,$7f,$2a,$8f,$00,$00,$00,$00,$FF,$FF
+	.byte $00,$00,$00,$3e,$3f,$48,$49,$4a,$4b,$4c,$4d,$00,$00,$00,$FF,$FF
+	.byte $00,$00,$00,$00,$4e,$4f,$5b,$5c,$5d,$8e,$00,$00,$00,$00,$FF,$FF
+	; TODO the rest
+	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
+	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
+	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
+	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
+	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
+	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
 	
 ow_icon_pals:
 	; note: bit 0x20 SHOULD be set else the level select effect won't work.
@@ -817,6 +983,81 @@ ow_select_banks:
 	sty spr3_bknum
 	rts
 
+.proc ow_update_drawer
+	lda ow_splity
+	pha
+	
+	ldx ow_lvlopen
+	bne @isOpen
+	
+	; close
+	lda #$F1
+	sec
+	sbc ow_splity
+	clc
+	adc #3
+	lsr
+	lsr
+	clc
+	adc ow_splity
+	sta ow_splity
+	jmp @drawBerrySprite
+
+@isOpen:
+	lda ow_splity
+	sec
+	sbc #$60
+	clc
+	adc #3
+	lsr
+	lsr
+	sta temp11
+	lda ow_splity
+	sec
+	sbc temp11
+	sta ow_splity
+
+@drawBerrySprite:
+	pla
+	clc
+	adc #36
+	bcs @dontDraw
+	sta y_crd_temp
+	
+	lda ow_sellvl
+	beq @dontDraw
+	
+	lda ow_berries1
+	ora ow_berries2
+	beq @dontDraw
+	
+	lda #100
+	sta x_crd_temp
+	
+	lda ow_timer
+	and #%00011000
+	lsr
+	ora #%10000000
+	pha
+	tay
+	lda #1
+	jsr oam_putsprite
+	
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	
+	pla
+	ora #%00000010
+	tay
+	lda #1
+	jsr oam_putsprite
+	
+@dontDraw:
+	rts
+.endproc
+
 .proc ow_clear_irq
 	sei
 	lda #<irq_idle
@@ -829,11 +1070,26 @@ ow_select_banks:
 	rts
 .endproc
 
+.proc ow_put_sprite
+	pha
+	lda y_crd_temp
+	cmp ow_splity
+	bcs @dont
+	pla
+	jmp oam_putsprite
+@dont:
+	pla
+	rts
+.endproc
+
 .proc ow_update_irq
 	; I don't know why I have to delay setting the IRQ address
 	; away from irq_idle by at least one frame for this, but fine.
 	lda ow_splity
-	sta miscsplit
+	cmp #$F0
+	bne :+
+	lda #$F1
+:	sta miscsplit
 	
 	lda ow_timer2
 	cmp #4
@@ -882,25 +1138,40 @@ ow_select_banks:
 	tya
 	pha
 	
+	; turn off rendering of background
+	lda #<(def_ppu_msk & ~%00001000)
+	sta ppu_mask
+	
+	; prepare the mask to turn off sprites this time
+	lda #<(def_ppu_msk & ~%00010000)
+	
 	; also update the BG bank
 	ldx #mmc3bk_bg0 | def_mmc3_bn
-	ldy #chrb_dmain
+	ldy #chrb_optns
 	stx mmc3_bsel
 	sty mmc3_bdat
 	inx
 	iny
-	stx mmc3_bsel
-	sty mmc3_bdat
-	inx
 	iny
 	stx mmc3_bsel
 	sty mmc3_bdat
-	inx
-	iny
-	stx mmc3_bsel
-	sty mmc3_bdat
-	ldx mmc3_shadow
-	stx mmc3_bsel
+	
+	; make sure the PPUMASK write lands in h-blank
+	ldy #14
+:	dey
+	bne :-
+	sta ppu_mask
+	lda #def_ppu_msk
+	
+	; wait like 16 scanlines more
+	ldy #251
+:	dey
+	bne :-
+	ldy #110
+:	dey
+	bne :-
+	
+	sta ppu_mask
 	
 	pla
 	tay
@@ -908,4 +1179,28 @@ ow_select_banks:
 	tax
 	pla
 	rti
+.endproc
+
+; ** SUBROUTINE: ow_draw_2xsprite
+; desc: Draws a double sprite.
+; NOTE: copy of gm_draw_2xsprite
+.proc ow_draw_2xsprite
+	sta x_crd_temp
+	sty y_crd_temp
+	lda $00,x       ; get shared attributes into a
+	inx
+	ldy $00,x       ; get left sprite
+	inx
+	stx temp7
+	jsr ow_put_sprite
+	ldx temp7
+	ldy $00,x       ; get right sprite
+	lda x_crd_temp  ; add 8 to x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	dex
+	dex
+	lda $00,x       ; get shared attributes again
+	jmp ow_put_sprite
 .endproc

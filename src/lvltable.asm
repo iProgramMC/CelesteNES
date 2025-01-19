@@ -49,3 +49,14 @@ level_palettes:
 	.word level0_palette
 	.word level0_palette
 	.word level0_palette
+
+level_berry_counts:
+	.byte 0
+	.byte 20
+	.byte 18
+	.byte 25
+	.byte 29
+	.byte 31
+	.byte 0
+	.byte 47
+	.byte 5

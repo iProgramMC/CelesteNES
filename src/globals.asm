@@ -118,8 +118,8 @@ pot_merged  : .res 10
 tl_gametime := pot_merged + 0
 ; overworld
 ow_lvlopen  := pot_merged + 0 ; is the level drawer open
-ow_unused2  := pot_merged + 1
-ow_unused3  := pot_merged + 2
+ow_berries1 := pot_merged + 1
+ow_berries2 := pot_merged + 2
 ow_timer2   := pot_merged + 3
 ow_splity   := pot_merged + 4
 ow_timer    := pot_merged + 5
