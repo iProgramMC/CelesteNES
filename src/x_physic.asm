@@ -454,7 +454,6 @@ gm_dontjump:
 	sta player_vl_y
 	sta player_vs_y
 	lda playerctrl
-	ora #pl_dashed
 	and #<~(pl_climbing|pl_nearwall|pl_pushing|pl_wallleft)
 	sta playerctrl
 gm_dontdash:
@@ -634,7 +633,7 @@ gm_walljump:
 	lsr               ; move bit 3 (pl_wallleft) into bit 0 (pl_left)'s position
 	sta temp1
 	lda playerctrl
-	and #((pl_left|pl_dashed|pl_climbing)^$FF) ; also clear the pl_dashed flag to allow the wall jump at full force
+	and #((pl_left|pl_climbing)^$FF)
 	ora temp1
 	sta playerctrl
 	
@@ -1478,7 +1477,6 @@ gm_checkfloor:
 	
 	lda playerctrl
 	ora #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
-	and #(pl_dashed^$FF) ; clear the dashed flag
 	sta playerctrl
 	
 :	lda gamectrl4
@@ -1661,10 +1659,14 @@ checkRightLoop:
 	dec temp10
 	beq checkRDoneReturn     ; nope, out of here with your stupid games
 	
+	lda #pl_noentchk
+	bit playerctrl
+	bne :+
+	
 	jsr gm_collentright
 	bne collidedRight
 	
-	jsr gm_getrightx
+:	jsr gm_getrightx
 	tax
 	stx y_crd_temp           ; note: x_crd_temp is clobbered by xt_collide!
 	ldy temp1
@@ -1723,10 +1725,14 @@ checkLeftLoop:
 	dec temp10
 	beq checkRDoneReturn     ; nope, out of here with your stupid games
 	
+	lda #pl_noentchk
+	bit playerctrl
+	bne :+
+	
 	jsr gm_collentleft
 	bne collidedLeft
 	
-	jsr gm_getleftx
+:	jsr gm_getleftx
 	tax
 	stx y_crd_temp
 	ldy temp1

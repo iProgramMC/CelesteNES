@@ -72,7 +72,7 @@ gm_ent_move_x:
 :	sta player_x
 	
 	jmp @doneAdding
-	
+
 @addMinus:
 	; Adding a negative player velocity.  Fix up all instances of player being moved to <$00.
 	adc player_x
