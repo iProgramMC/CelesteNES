@@ -193,6 +193,7 @@ xt_scroll_l_cond:
 	and #1
 	sta camera_x_hi
 	
+	; figure out if we need to limit
 	lda camleftlo
 	sta scrchklo
 	lda camlefthi
@@ -203,15 +204,28 @@ xt_scroll_l_cond:
 	bne :+
 	lda camleftlo
 	cmp camera_x
-:	; if camleft > cameraX then limit
-	bcs @limit
 	
-	; no limitation. also move the PLAYER's x coordinate
-@shouldNotLimit:
-	;lda player_sp_x
-	;clc
-	;adc temp2
-	;sta player_sp_x
+:	; if camleft > cameraX then limit
+	bcc @noLimit
+
+@doLimit:
+	lda camleftlo
+	sec
+	sbc camera_x
+	sta scrchklo
+	
+	lda temp1
+	sec
+	sbc scrchklo
+	sta temp1
+	
+	lda camleftlo
+	sta camera_x
+	lda camlefthi
+	sta camera_x_pg
+	
+@noLimit:
+	; also move the PLAYER's x coordinate
 	lda player_x
 	clc
 	adc temp1
