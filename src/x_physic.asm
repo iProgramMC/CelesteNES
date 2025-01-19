@@ -1608,10 +1608,11 @@ applyXSub:
 	
 	lda player_vl_x
 	bmi @dontLeaveRoomR
+	bne :+
 	lda player_vs_x
 	beq @dontLeaveRoomR
 	
-	lda player_x
+:	lda player_x
 	cmp #$F0
 	bcs @callLeaveRoomR      ; try to leave the room
 	

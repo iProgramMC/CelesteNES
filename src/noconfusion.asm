@@ -719,9 +719,9 @@ transLoopDone:
 	lda camera_x
 	sta camlimit
 	lda camera_x_pg
+	sta camlimithi
 	and #1
 	sta camera_x_hi
-	sta camlimithi
 	
 	; finally, done.
 	lda trantmp5

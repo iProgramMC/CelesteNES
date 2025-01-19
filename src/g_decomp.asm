@@ -524,24 +524,7 @@ finally:
 	jmp h_genertiles_inc_arwrhead
 
 dataEnd:
-	lda arwrhead          ; arwrhead: 0-63
-	rol
-	rol
-	rol
-	rol                   ; rotate that ANDed bit back to bit 0
-	and #1
-	eor #1                ; subtract 256 from it
-	sta camlimithi
-	lda arwrhead
-	asl
-	asl
-	asl
-	sta camlimit
-	lda #(gs_scrstopR | gs_lvlend)
-	ora gamectrl
-	sta gamectrl
-	lda arwrhead
-	sta trarwrhead
+	jsr h_genertiles_calc_camlimit
 	jmp finally
 
 isInverted:

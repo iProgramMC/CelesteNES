@@ -16,6 +16,7 @@ gamemode_overwd_init_FAR:
 	sta scroll_x
 	sta scroll_y
 	sta scroll_flags
+	sta irqtmp1
 	sta ppu_mask     ; disable rendering
 	jsr vblank_wait
 	
@@ -71,6 +72,9 @@ gamemode_overwd_init_FAR:
 	jsr fade_in
 
 gamemode_overwd_update_FAR:
+	lda #0
+	sta irqtmp1
+	
 	; draw features
 	inc ow_timer
 	
@@ -1178,8 +1182,18 @@ ow_select_banks:
 .proc irq_overworld
 	pha
 	sta mmc3_irqdi
-	nop
+	lda irqtmp1
+	bne secondPhase
+	inc irqtmp1
 	
+	lda levelnumber
+	bne @dontReProgram
+	lda #31
+	sta mmc3_irqla
+	sta mmc3_irqrl
+	sta mmc3_irqen
+	
+@dontReProgram:
 	; Nametable number << 2 (we want nametable $2400)
 	lda #4
 	sta ppu_addr
@@ -1192,10 +1206,11 @@ ow_select_banks:
 	; I know using the accumulator to count isn't great. It allowed me
 	; to save a clobbered register, until I realized I needed the X reg
 	; anyway.
-	lda #11
+	lda #8
 :	sec
 	sbc #1
 	bne :-
+	nop
 	
 	; New X to $2005
 	sta ppu_scroll
@@ -1246,6 +1261,33 @@ ow_select_banks:
 	tay
 	pla
 	tax
+	pla
+	rti
+
+secondPhase:
+	; Nametable number << 2 (we want nametable $2400)
+	lda #4
+	sta ppu_addr
+	; New Y is 80.
+	lda #80
+	sta ppu_scroll
+	
+	; Wait for h-blank.
+	
+	; I know using the accumulator to count isn't great. It allowed me
+	; to save a clobbered register, until I realized I needed the X reg
+	; anyway.
+	lda #10
+:	sec
+	sbc #1
+	bne :-
+	
+	; New X to $2005
+	sta ppu_scroll
+	; Low byte of nametable address to $2006
+	lda #<(80<<2)
+	sta ppu_addr
+	
 	pla
 	rti
 .endproc

@@ -1234,29 +1234,57 @@ h_genertiles_lvlend:
 	dec arrdheadhi
 :	dec arrdheadlo
 	
-	lda arwrhead          ; arwrhead: 0-63
-	rol
-	rol
-	rol
-	rol                   ; rotate that ANDed bit back to bit 0
-	and #1
-	eor #1                ; subtract 256 from it
-	sta camlimithi
-	lda arwrhead
-	asl
-	asl
-	asl
-	sta camlimit
-	lda #(gs_scrstopR | gs_lvlend)
-	ora gamectrl
-	sta gamectrl
-	lda arwrhead
-	sta trarwrhead
+	jsr h_genertiles_calc_camlimit
+	
 	lda #0                ; just store 0 as the tile
 	sta (lvladdr), y
 	sta lastcolumn, y
 	iny
 	jmp h_genertiles_cont
+
+; ** SUBROUTINE: h_genertiles_calc_camlimit
+; desc: Calculates the rightward camera scrolling limit when hitting an end marker.
+.proc h_genertiles_calc_camlimit
+	lda camera_x
+	; is a "clc" needed? sometimes it adds 41, but does that even matter
+	adc #40                ; the scroll seam is always 4 tiles (32px) ahead, but add 64 just in case
+	lda camera_x_pg        ; the only reason we add though is to figure out the high byte
+	adc #0                 ; of the camera limit. the low byte is derived from arwrhead
+	lsr
+	sta camlimithi
+	
+	lda arwrhead
+	eor #%00100000
+	asl
+	asl
+	asl
+	rol camlimithi
+	sta camlimit
+	
+	; FAILSAFE: This isn't supposed to fail, 99% of cases seem to be covered by the value of 40 up there.
+	; Put in an unofficial opcode here to alert me (while having the debugger open of course) that the
+	; failsafe triggered, and open the debugger, but otherwise remain functional. It's almost like
+	; *nothing ever happened*.
+	lda camlimithi
+	sec
+	sbc camera_x_pg
+	cmp #2
+	bcc noFailSafe
+	
+	; unofficial opcode to trip mesen's debugger
+	.byte $A7, camera_x_pg  ; LAX z:camera_x_pg (camera_x_pg must be in zp)
+	
+	lda camera_x_pg
+	sta camlimithi
+	
+noFailSafe:
+	lda #(gs_scrstopR | gs_lvlend)
+	ora gamectrl
+	sta gamectrl
+	lda arwrhead
+	sta trarwrhead
+	rts
+.endproc
 
 ; ** SUBROUTINE: h_gener_mts_r
 ; desc:    Generates a column of metatiles ahead of the visual column render head.

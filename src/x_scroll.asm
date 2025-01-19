@@ -58,52 +58,54 @@ xt_scroll_r_cond:
 	adc camera_x      ; add the delta to the camera X
 	sta camera_x
 	
-	lda #0
-	adc camera_x_pg
+	lda camera_x_pg
+	adc #0
 	sta camera_x_pg
 	and #1
 	sta camera_x_hi
-	lda #gs_scrstopR  ; check if we overstepped the camera boundary, if needed
+	
+	; is there a camera limit yet?
+	lda #gs_scrstopR
 	bit gamectrl
 	beq @noLimit
 	
-	lda camlimit
+	; figure out the (camera X - camlimit X)
+	lda camera_x
+	sec
+	sbc camlimit
 	sta scrchklo
+	
+	lda camera_x_pg
+	sbc camlimithi
+	
+	; negative value means there's no limit (camera X < camlimit X)
+	bmi @noLimit
+	
+	; limited
+	; scrchklo contains the amount the limit was passed by
+	lda temp1
+	sec
+	sbc scrchklo
+	sta temp1
+	tax
+	
+	lda gamectrl
+	ora #gs_scrstodR
+	sta gamectrl
+	
+	lda camlimit
+	sta camera_x
 	lda camlimithi
-	sta scrchkhi
-	lda camlimithi    ; check if [camlimithi,camlimit] < [camera_x_hi,camera_x]
-	cmp camera_x_hi
-	bcs :+
-	lda camlimit
-	cmp camera_x
-	bcs :+
-	lda #2            ; note: carry clear here
-	adc scrchkhi
-	sta scrchkhi
-:	sec
-	lda scrchklo
-	sbc camera_x
-	sta scrchklo
-	lda scrchkhi
-	sbc camera_x_hi
-	bmi @camXLimited
-	;sta scrchkhi
+	sta camera_x_pg
 	
 @noLimit:
-	;lda #scrolllimit  ; set the player's X relative-to-the-camera to scrolllimit
-	;lda player_sp_x
-	;sec
-	;sbc temp2
-	;sta player_sp_x
 	lda player_x
 	sec
 	sbc temp1
 	sta player_x
-	txa               ; restore the delta to add to camera_rev
-	pha
 	lda temp1
 	jsr gm_shifttrace
-	pla
+	lda temp1
 	clc
 	adc camera_rev
 	sta camera_rev
@@ -117,17 +119,6 @@ xt_scroll_r_cond:
 	sbc #8
 	sta camera_rev
 	jmp xt_gener_col_r
-@camXLimited:
-	lda camlimithi
-	sta camera_x_hi
-	lda camlimit
-	sta camera_x
-	lda #gs_scrstodR
-	bit gamectrl
-	bne :+
-	ora gamectrl
-	sta gamectrl
-:	rts
 
 ; ** SUBROUTINE: xt_scroll_l_cond
 xt_scroll_l_cond:
