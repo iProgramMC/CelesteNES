@@ -209,25 +209,21 @@ gm_ent_move_y:
 	sta player_y
 	
 @notStanding:
-	
-	; Check for a squish. First, determine the direction of the platform.
+	; check for a squish. First, determine the direction of the platform.
 	lda sprspace+sp_vel_y, y
 	bmi @checkSquishUP
 	
-	; Platform is falling, so check that the player wasn't placed inside a floor.
-	; TODO: don't call the whole of gm_collentceil, just the one for this Y
+	; the platform is falling, so ensure the player's being pushed by it.
 	jsr gm_collentceil
-	bne :+
+	beq @notBeingPushedDown
 	
-	; no collision here!
-	rts
-
-:	; Platform has collided with player. It has returned a Y position, so snap the player there.
+	; it collided with the player. gm_collentceil returned a Y position, so snap the player there.
 	clc
 	adc #(8-(16-plrheight)) ; add the height of the tile, minus the top Y offset of the player hitbox
 	sta player_y
 	
-	; Ok, now check if a floor is here
+@notBeingPushedDown:
+	; the platform is falling, so check that the player wasn't placed inside a floor.
 	jsr gm_getmidx
 	tax
 	jsr gm_getbottomy_f
@@ -236,31 +232,29 @@ gm_ent_move_y:
 	jsr gm_collide
 	beq :+
 	
-	; Collided with a floor also!
+	; collided with a floor. snap her up there
 	lda #%11111000
 	and player_y
 	sta player_y
 	
-	; one more collision check for good measure
+	; check if we're colliding with anything else?
 	jsr gm_collentceil
 	beq :+
 	
-	; ok, we know for SURE the player was squished in between this platform and the ground. Die :(
+	; looks like the player was squished in between this platform and the ground. RIP :(
 	jsr gm_killplayer
 :	rts
 	
 @checkSquishUP:
+	; the platform is going up, so ensure the player's being pushed by it.
 	jsr gm_collentfloor
-	bne :+
+	beq :+
 	
-	; no collision here!
-	rts
-	
-:	; Platform has collided with player. It returned a Y position, so snap there.
+	; it collided with player. gm_collentfloor returned a Y position, so snap there.
 	sta player_y
 	
-	; Ok, now check if a ceiling is here
-	jsr gm_getmidx
+	; the platform is going up, so check that the player wasn't placed inside a ceiling.
+:	jsr gm_getmidx
 	tax
 	jsr gm_gettopy
 	tay
@@ -268,7 +262,7 @@ gm_ent_move_y:
 	jsr gm_collide
 	beq :+
 	
-	; Collided with a ceiling also!
+	; collided with a ceiling, snap the player there
 	lda player_y
 	clc
 	adc #plr_y_top
@@ -277,7 +271,7 @@ gm_ent_move_y:
 	adc #(8-(16-plrheight))
 	sta player_y
 	
-	; one more collision check for good measure
+	; check if they're now in the entity's floor
 	jsr gm_collentfloor
 	beq :+
 	
