@@ -162,6 +162,13 @@ sp_fall_dathi = sp_entspec3
 sp_fall_timer = sp_entspec4
 sp_fall_spike = sp_entspec5 ; spike flags ($80 - spikes, $00 - no spike)
 
+sp_tswi_state = sp_entspec1 ; touch switch state (0 - uninitialized, 1 - not touched, 2 - touched)
+
+sp_sgat_state = sp_entspec1 ; switch gate state (0 - waiting for touchswitch, 1 - inactive, 2 - rumbling, 3 - sliding, 4 - stopped)
+sp_sgat_timer = sp_entspec2 ; switch gate timer
+sp_sgat_trajx = sp_entspec3 ; trajectory X
+sp_sgat_trajy = sp_entspec4 ; trajectory Y
+
 sp_l1me_index = sp_entspec1
 
 ; entity flags
@@ -210,6 +217,10 @@ e_l2cmpfire = $13 ; LEVEL 2: campfire
 e_l1cmpfire = $14 ; LEVEL 1: campfire
 e_l2chaser  = $15 ; LEVEL 2: dark chaser
 e_fallblock = $16 ; Falling Block
+e_l1memor   = $17 ; LEVEL 1: memorial
+e_l2memor   = $18 ; LEVEL 2: memorial
+e_tswitch   = $19 ; Touch Switch
+e_swgate    = $1A ; Switch Gate
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance

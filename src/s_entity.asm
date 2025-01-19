@@ -1183,6 +1183,9 @@ drawSpriteVersion:
 	sta @spridx
 	jsr @skipLeftSpriteIfNeeded
 	
+	lda oam_wrhead
+	sta @oldoam
+	
 	; if the amount of cols to draw is now 0
 	lda @xLimit
 	beq @breakColumn
@@ -1195,8 +1198,6 @@ drawSpriteVersion:
 	lda @xLimit
 	pha
 	lda x_crd_temp
-	pha
-	lda y_crd_temp
 	pha
 	
 	lda temp3
@@ -1218,15 +1219,10 @@ drawSpriteVersion:
 	bne @loopSpikeColumn
 	
 	pla
-	sta y_crd_temp
-	pla
 	sta x_crd_temp
 	pla
 	sta @xLimit
 @notSpiked:
-	
-	lda oam_wrhead
-	sta @oldoam
 	
 @loopColumn:
 	lda temp3
@@ -1281,7 +1277,7 @@ drawSpriteVersion:
 	rts
 	
 @skipLeftSprite:
-	lda x_crd_temp
+	lda temp2
 	and #7
 	sta x_crd_temp
 	
@@ -1370,7 +1366,341 @@ xt_falling_block_table:
 	.word fall_ch2_a ; 6
 	.word fall_ch2_b ; 7
 
+; ** ENTITY: Touch Switch
+; desc: This entity is simple - when touched, it decrements the tswitches counter.
+.proc xt_draw_touch_switch
+	ldx temp1
+	lda sprspace+sp_tswi_state, x
+	beq state_Init
+	cmp #1             ; inactive state
+	bne drawSprite
+	
+	; check for collision
+	lda #0
+	sta temp7
+	sta temp8
+	lda #16
+	sta temp9
+	sta temp10
+	ldy temp1
+	jsr gm_check_collision_ent
+	beq drawSprite
+	
+	; activate!
+	; TODO: different sound
+	jsr gm_bird_caw_sfx
+	ldx temp1
+	dec tswitches
+	inc sprspace+sp_tswi_state, x
 
+drawSprite:
+	ldy sprspace+sp_tswi_state, x
+	lda tswitches
+	bne :+
+	ldy #3             ; if all touch switches have been activated, turn pink
+:	lda palettes, y
+	jsr gm_allocate_palette
+	sta temp5
+	
+	; draw the little key inside the switch
+	lda temp2
+	clc
+	adc #4
+	sta x_crd_temp
+	lda temp3
+	sta y_crd_temp
+	ldy #$E0
+	lda temp5
+	jsr oam_putsprite
+	
+	; and draw the container
+	lda temp5
+	ora #obj_fliphz
+	sta temp8
+	lda #$94
+	sta temp6
+	sta temp7
+	jmp gm_draw_common
+	
+state_Init:
+	; increment the state to 1, and increment the amount of
+	; touchswitches that need to be active
+	inc sprspace+sp_tswi_state, x
+	inc tswitches
+	bne drawSprite
+
+palettes:	.byte pal_blue, pal_blue, pal_gray, pal_pink
+.endproc
+
+; ** ENTITY: xt_draw_switch_gate
+; desc: Draws the switch gate.
+.proc xt_draw_switch_gate
+	ldx temp1
+	lda sprspace+sp_flags, x
+	ora #ef_collidable
+	sta sprspace+sp_flags, x
+	
+	lda sprspace+sp_sgat_state, x
+	bne @noInitState
+	
+	; if there haven't been any touch switches so far do not activate
+	lda tswitches
+	beq @justDraw
+	
+	; now wait for the value to return to 0 again.
+@incrementStateAndDraw:
+	inc sprspace+sp_sgat_state, x
+	bne @justDraw
+	
+@noInitState:
+	cmp #1
+	bne @notInactive
+	
+	lda tswitches
+	bne @justDraw
+	
+	lda #40
+	sta sprspace+sp_sgat_timer, x
+	lda #0
+	sta sprspace+sp_vel_x, x
+	sta sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_vel_y, x
+	sta sprspace+sp_vel_y_lo, x
+	beq @incrementStateAndDraw
+	
+@notInactive:
+	cmp #2
+	bne @notRumbling
+	
+	lda sprspace+sp_sgat_timer, x
+	bne :+
+	
+	lda #32
+	sta sprspace+sp_sgat_timer, x
+	bne @incrementStateAndDraw
+	
+:	dec sprspace+sp_sgat_timer, x
+	
+	; rumble
+	lda sprspace+sp_sgat_timer, x
+	and #3
+	tay
+	lda xt_draw_falling_block::shakeTable, y
+	clc
+	adc temp2
+	sta temp2
+	lda temp4
+	adc xt_draw_falling_block::shakeTableH, y
+	sta temp4
+	jmp drawSprite
+	
+@notRumbling:
+	cmp #3
+	bne @notSliding
+	
+	lda sprspace+sp_sgat_timer, x
+	beq @incrementStateAndDraw
+	
+	dec sprspace+sp_sgat_timer, x
+	
+	jsr slideAddVelocity
+	jsr slideMove
+	
+@notSliding:
+	; stopped
+@justDraw:
+	jmp drawSprite
+
+drawSprite:
+@xLimit  := plattemp1
+@yLimit  := plattemp2
+@attrib  := temp9
+@currY   := temp7
+@spridx  := temp6
+@oldoam  := temp8 ; NOTE: this MUST be the same as xt_draw_falling_block
+	
+	; TODO: A lot of code copied from xt_draw_falling_block. When running out of space,
+	; try to deduplicate some of this.
+	lda #pal_blue
+	jsr gm_allocate_palette
+	sta @attrib
+	
+	ldx temp1
+	lda sprspace+sp_wid, x
+	clc
+	adc #7
+	lsr
+	lsr
+	lsr
+	sta @xLimit
+	
+	lda sprspace+sp_hei, x
+	clc
+	adc #15
+	lsr
+	lsr
+	lsr
+	lsr
+	sta @yLimit
+	
+	lda #0
+	sta @spridx
+	jsr @skipLeftSpriteIfNeeded
+	
+	lda oam_wrhead
+	sta @oldoam
+	
+	; if the amount of cols to draw is now 0
+	lda @xLimit
+	beq @breakColumn
+	
+@loopColumn:
+	lda temp3
+	sta y_crd_temp
+	
+	lda @yLimit
+	sta @currY
+	
+	lda @spridx
+	beq @skipProcessing
+	
+	lda @xLimit
+	cmp #1
+	beq @skipProcessing
+	
+	lda #2
+@skipProcessing:
+	tay
+	lda spriteNumbersBelow, y
+	sta temp11
+	lda spriteNumbersAbove, y
+	
+	; above
+	tay
+	lda @attrib
+	jsr oam_putsprite
+	
+	; below
+	lda y_crd_temp
+	pha
+	clc
+	adc #16
+	bcs @dontDrawBottom
+	sta y_crd_temp
+	ldy temp11
+	lda @attrib
+	jsr oam_putsprite
+	
+@dontDrawBottom:
+	pla
+	sta y_crd_temp
+	
+	; increment column
+	lda x_crd_temp
+	clc
+	adc #8
+	bcs @breakColumn
+	sta x_crd_temp
+	
+	inc @spridx
+	dec @xLimit
+	bne @loopColumn
+
+@breakColumn:
+	lda framectr
+	and #1
+	bne @dont
+	
+	; @oldoam    - OLD OAM head
+	; oam_wrhead - NEW OAM head
+	ldx @oldoam
+	ldy oam_wrhead
+	jmp invert_oam_order
+
+@skipLeftSpriteIfNeeded:
+	lda temp2
+	cmp #$F8
+	bcc :+
+	
+	; sprite X is bigger than $F8, because either the sprite is to the
+	; left of the screen (so fraudulently got there via overflow), or
+	; legitimately to the right
+	lda temp4
+	bmi @skipLeftSprite
+	lda temp2
+:	sta x_crd_temp
+	rts
+	
+@skipLeftSprite:
+	lda temp2
+	and #7
+	sta x_crd_temp
+	; decrement the width (used to terminate the loop)
+	dec @xLimit
+	; also skip the first column in the data
+	inc @spridx
+@dont:
+	rts
+
+slideAddVelocity:
+	ldy #0
+	lda sprspace+sp_sgat_trajy, x
+	bpl :+
+	dey
+:	clc
+	adc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_vel_y_lo, x
+	
+	tya
+	adc sprspace+sp_vel_y, x
+	sta sprspace+sp_vel_y, x
+	
+	ldy #0
+	lda sprspace+sp_sgat_trajx, x
+	bpl :+
+	dey
+:	clc
+	adc sprspace+sp_vel_x_lo, x
+	sta sprspace+sp_vel_x_lo, x
+	
+	tya
+	adc sprspace+sp_vel_x, x
+	sta sprspace+sp_vel_x, x
+	rts
+
+slideMove:
+	lda temp4
+	pha
+	lda temp3
+	pha
+	lda temp2
+	pha
+	lda temp1
+	pha
+	
+	pha
+	tay
+	jsr gm_ent_move_y
+	
+	pla
+	tay
+	jsr gm_ent_move_x
+	
+	
+	pla
+	sta temp1
+	pla
+	sta temp2
+	pla
+	sta temp3
+	pla
+	sta temp4
+	rts
+
+; left, right, middle
+spriteNumbersAbove:	.byte $B0,$B4,$B2
+spriteNumbersBelow:	.byte $BC,$96,$BE
+.endproc
 
 ; *********************************************************
 
@@ -1495,7 +1825,9 @@ level2_memorial_kludge:
 	level2_dark_chaser,     \
 	xt_draw_falling_block,  \
 	level1_memorial,        \
-	level2_memorial_kludge
+	level2_memorial_kludge, \
+	xt_draw_touch_switch,   \
+	xt_draw_switch_gate
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table

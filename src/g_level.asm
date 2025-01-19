@@ -1576,6 +1576,22 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notFalling:
+	cmp #e_swgate
+	bne @notSwitchGate
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_wid, y
+	jsr gm_read_ent
+	sta sprspace+sp_sgat_trajx, y
+	jsr gm_read_ent
+	sta sprspace+sp_sgat_trajy, y
+	lda #24
+	sta sprspace+sp_hei, y
+	jmp @tyxReturn
+	
+@notSwitchGate:
 	; todo: more cases ...
 	rts
 

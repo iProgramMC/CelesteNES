@@ -1592,46 +1592,75 @@ applyXSub:
 	adc player_x
 	sta player_x
 	
-	bcs dontCheckOffs        ; If the addition didn't overflow, we need to detour.
+	bcs @dontCheckOffs       ; If the addition didn't overflow, we need to detour.
 	ldx player_vl_x          ; check if the velocity was positive
-	bpl dontCheckOffs        ; yeah, of course it wouldn't overflow, it's positive!
+	bpl @dontCheckOffs       ; yeah, of course it wouldn't overflow, it's positive!
 	
 	lda #0                   ; we have an underflow, means the player is trying to leave the screen
 	sta player_x
 	jsr gm_leaveroomL_FAR
-	bne dontCheckOffs
+	bne @dontCheckOffs
 	rts
 
-dontCheckOffs:
+@dontCheckOffs:
 	jsr gm_gettopy
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
 	sta temp2                ; temp2 - bottom Y
+	
 	lda player_vl_x
-	bmi checkLeft
-	; >=0
-	bne checkRight
+	bmi @dontLeaveRoomR
 	lda player_vs_x
-	beq checkLeft
+	beq @dontLeaveRoomR
+	
+	lda player_x
+	cmp #$F0
+	bcs @callLeaveRoomR      ; try to leave the room
+	
+@dontLeaveRoomR:
+	lda player_vl_x
+	bmi @checkLeft
+	; >= 0
+	bne @checkRight
+	; == 0
+	lda player_vs_x
+	beq @checkBoth
+	bne @checkRight
 
+@checkLeft:
+	jsr checkLeft
+	jmp @checkDoneX
+@checkRight:
+	jsr checkRight
+	jmp @checkDoneX
+@checkBoth:
+	jsr checkLeft
+	jsr checkRight
+
+@checkDoneX:
+	lda player_xo
+	cmp player_x
+	beq :+
+	
+	lda gamectrl4
+	ora #g4_movedX
+	sta gamectrl4
+	
+:	jsr xt_scroll_l_cond
+	jmp xt_scroll_r_cond
+
+@callLeaveRoomR:
+	jmp gm_leaveroomR_FAR
+
+; routine: check right
 checkRight:
 	lda #(maxvelxhi+2)
 	sta temp10
 
 checkRightLoop:
 	dec temp10
-	beq checkDone            ; nope, out of here with your stupid games
+	beq checkRDoneReturn     ; nope, out of here with your stupid games
 	
-	lda player_vl_x
-	bne :+
-	lda player_vs_x
-	beq doneLeavingRoom
-	
-:	lda player_x
-	cmp #$F0
-	bcs callLeaveRoomR       ; try to leave the room
-	
-doneLeavingRoom:
 	jsr gm_collentright
 	bne collidedRight
 	
@@ -1647,7 +1676,7 @@ doneLeavingRoom:
 	ldx y_crd_temp           ;  I will not bother
 	lda #gc_right
 	jsr xt_collide
-	beq checkDone
+	beq checkRDoneReturn
 
 collidedRight:
 	lda hopcdown
@@ -1673,7 +1702,7 @@ collidedRight:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
 	ldx player_x
-	beq checkDone            ; if the player X is zero... we're stuck inside a wall
+	beq checkRDoneReturn     ; if the player X is zero... we're stuck inside a wall
 	
 	dex
 	stx player_x
@@ -1682,29 +1711,17 @@ collidedRight:
 	jmp checkRightLoop       ; !! note: in case of a potential clip, this might cause lag frames!
 	                         ; loops will be used to avoid this unfortunate case as much as possible.
 ;
-checkDone:
-	beq checkDoneX
-	bne checkDoneX
-
-checkDone2:
-	lda player_vl_x
-	bne checkDone
-	lda player_vs_x
-	bne checkDone
-	beq checkRight          ; also check right, if player is not moving at all
-
-callLeaveRoomR:
-	jsr gm_leaveroomR_FAR
-	bne doneLeavingRoom
+checkRDoneReturn:
 	rts
 
+; routine: check left
 checkLeft:
 	lda #(maxvelxhi+2)
 	sta temp10
 
 checkLeftLoop:
 	dec temp10
-	beq checkDone2           ; nope, out of here with your stupid games
+	beq checkRDoneReturn     ; nope, out of here with your stupid games
 	
 	jsr gm_collentleft
 	bne collidedLeft
@@ -1720,7 +1737,7 @@ checkLeftLoop:
 	ldx y_crd_temp
 	lda #gc_left
 	jsr xt_collide
-	beq checkDone2
+	beq checkRDoneReturn
 
 collidedLeft:
 	lda hopcdown
@@ -1744,24 +1761,12 @@ collidedLeft:
 	sta wjumpcoyote
 	ldx player_x
 	cpx #$F0                 ; compare to [screenWidth-16]
-	bcs checkDone2           ; if bigger or equal, just bail, we might be stuck in a wall
+	bcs checkRDoneReturn     ; if bigger or equal, just bail, we might be stuck in a wall
 	inx
 	stx player_x
 	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
 	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
 	jmp checkLeftLoop
-
-checkDoneX:
-	lda player_xo
-	cmp player_x
-	beq :+
-	
-	lda gamectrl4
-	ora #g4_movedX
-	sta gamectrl4
-	
-:	jsr xt_scroll_l_cond
-	jmp xt_scroll_r_cond
 .endproc
 
 gm_appx_checkleft  := gm_applyx::checkLeft

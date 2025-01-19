@@ -308,6 +308,7 @@ paused      : .res 1 ; is the game paused right now?
 dredeatmr   : .res 1 ; dream death counter
 dreinvtmr   : .res 1 ; dream dash invincibility timer
 rununimport : .res 1 ; set this to 0 to allow running of unimportant stuff such as background effects
+tswitches   : .res 1 ; amount of touch switches that have not been touched (platforms activate when this hits 0)
 
 zero_on_respawn_zp_end:
 
