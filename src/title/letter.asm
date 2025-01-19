@@ -71,6 +71,8 @@ postcard_setup_palette_request:
 	sta nmictrl2
 	rts
 
+postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
+
 ; ** SUBROUTINE: postcard
 ; desc: Initializes, shows the postcard screen, then fades out.  The game fadein will be handled by the caller.
 ; parameters:
@@ -80,11 +82,19 @@ postcard_setup_palette_request:
 	
 	ldy levelnumber
 	lda postcard_lo, y
-	bne :+
+	bne @continue
+@returnEarly:
 	rts
 	
-	; well, there is a postcard defined here so do it
-:	lda #$FF
+@continue:
+	; have we already completed the level?
+	ldy levelnumber
+	lda postcard_bitset, y
+	and sf_completed
+	bne @returnEarly
+	
+	; well, there is a postcard defined here, and we didn't yet finish the level, so do it
+	lda #$FF
 	sta p1_cont
 	sta p1_conto
 	
