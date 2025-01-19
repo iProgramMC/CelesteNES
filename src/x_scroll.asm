@@ -194,10 +194,6 @@ xt_scroll_l_cond:
 	sta camera_x_hi
 	
 	; figure out if we need to limit
-	lda camleftlo
-	sta scrchklo
-	lda camlefthi
-	sta scrchkhi
 	
 	lda camlefthi     ; check if [camlefthi, camleftlo] < [camera_x_pg, camera_x]
 	cmp camera_x_pg
@@ -223,6 +219,8 @@ xt_scroll_l_cond:
 	sta camera_x
 	lda camlefthi
 	sta camera_x_pg
+	and #1
+	sta camera_x_hi
 	
 @noLimit:
 	; also move the PLAYER's x coordinate
