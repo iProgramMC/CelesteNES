@@ -173,7 +173,11 @@ gm_killplayer:
 	ora playerctrl
 	sta playerctrl
 	
-	jsr gm_death_sfx
+	inc deaths
+	bne :+
+	inc deaths+1
+	
+:	jsr gm_death_sfx
 	lda #pl_dead
 	lda #0
 	sta deathtimer

@@ -189,8 +189,7 @@ ow_level_slide:
 	inc ow_sellvl
 	lda #$10
 	sta ow_iconoff
-	jsr ow_on_update_lvl
-	rts
+	jmp ow_on_update_lvl
 
 @cancel_slide:
 	lda #((os_leftmov | os_rightmov) ^ $FF)
@@ -481,6 +480,56 @@ berriesBothZero:
 	sta ppu_data
 
 berriesNotAllZero:
+	
+	; Update Death Counter
+	lda #$25
+	sta ppu_addr
+	lda #$11
+	sta ppu_addr
+	ldy #0
+	
+	lda ow_deathsE
+	beq skip10K
+	clc
+	adc #$20
+	sta ppu_data
+
+skip10K:
+	lda ow_deathsO
+	beq skip1K
+	clc
+	adc #$20
+	sta ppu_data
+	iny
+
+skip1K:
+	lda ow_deathsH
+	beq skip100
+	clc
+	adc #$20
+	sta ppu_data
+	iny
+
+skip100:
+	lda ow_deathsT
+	beq :+
+	clc
+	adc #$20
+:	sta ppu_data
+	iny
+	
+	lda ow_deathsU
+	clc
+	adc #$20
+	sta ppu_data
+	iny
+	
+	lda #0
+:	sta ppu_data
+	iny
+	cpy #6
+	bne :-
+	
 	rts
 
 bitSet:	.byte $00,$01,$02,$04,$08,$10,$20,$40,$80
@@ -594,6 +643,26 @@ ow_handle_input:
 	pha
 @doneAdding:
 	pla
+	
+	; update the deaths count
+	lda levelnumber
+	asl
+	tay
+	lda sf_deaths-1, y ; high byte
+	tax
+	lda sf_deaths-2, y ; low byte
+	jsr ow_to_decimal_16bit
+	
+	lda temp1
+	sta ow_deathsU
+	lda temp2
+	sta ow_deathsT
+	lda temp3
+	sta ow_deathsH
+	lda temp4
+	sta ow_deathsO
+	lda temp5
+	sta ow_deathsE
 	
 	lda #nc_updlvlnm
 	ora nmictrl
@@ -1203,4 +1272,118 @@ ow_select_banks:
 	dex
 	lda $00,x       ; get shared attributes again
 	jmp ow_put_sprite
+.endproc
+
+; ** SUBROUTINE: ow_to_decimal_16bit
+; desc: Converts a number from 16-bit binary to 5 decimal digits.
+; input:
+;     XA - The 16-bit number.
+; result:
+;     temp5, temp4, temp3, temp2, temp1 -- The digits (temp5 is most significant)
+; clobbers:
+;     temp6 - Used as temporary storage for the high byte of the number.  Is zero at the end.
+.proc ow_to_decimal_16bit
+byteHi := temp6
+byteLo := temp1
+digits := temp1
+	
+	stx byteHi
+	sta byteLo
+	
+	lda #0
+	sta digits+1
+	sta digits+2
+	sta digits+3
+	sta digits+4
+	
+sb10000Loop:
+	; load the high byte
+	lda byteHi
+	beq stop10000
+	cmp #>10000
+	; if it's less than 0x27 (10000>>8), then clearly we can't
+	bcc stop10000
+	; if it's different, then it's more, so totally can
+	bne :+
+	; the high byte is the same, check the low byte
+	lda byteLo
+	cmp #<10000
+	bcc stop10000
+:	; can subtract 10000!
+	lda byteLo
+	sec
+	sbc #<10000
+	sta byteLo
+	lda byteHi
+	sbc #>10000
+	sta byteHi
+	inc digits+4
+	bne sb10000Loop
+
+stop10000:
+	; try 1000
+sb1000Loop:
+	; load the high byte
+	lda byteHi
+	beq stop1000
+	cmp #>1000
+	; if it's less than 3 (1000>>8), then clearly we can't
+	bcc stop1000
+	; if it's different, then it's more, so totally can
+	bne :+
+	; the high byte is the same, check the low byte
+	lda byteLo
+	cmp #<1000
+	bcc stop1000
+:	; can subtract 1000!
+	lda byteLo
+	sec
+	sbc #<1000
+	sta byteLo
+	lda byteHi
+	sbc #>1000
+	sta byteHi
+	inc digits+3
+	bne sb1000Loop
+
+stop1000:
+	; try 100
+sb100Loop:
+	; load the high byte
+	lda byteHi
+	; if it's >0, then can subtract
+	bne :+
+	; check the low byte
+	lda byteLo
+	cmp #100
+	bcc stop100
+:	; can subtract 100!
+	lda byteLo
+	sec
+	sbc #100
+	sta byteLo
+	bcs :+
+	dec byteHi
+:	inc digits+2
+	bne sb100Loop
+
+stop100:
+	; try 10
+sb10Loop:
+	; don't need to check the high byte anymore since it's guaranteed to be 0
+	lda byteLo
+	beq stop10
+	cmp #10
+	bcc stop10
+	; can subtract 10!
+	lda byteLo
+	sec
+	sbc #10
+	sta byteLo
+	inc digits+1
+	bne sb10Loop
+
+stop10:
+	; the units digit was actually calculated in temp1 already.
+	rts
 .endproc

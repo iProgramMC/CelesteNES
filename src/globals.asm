@@ -346,6 +346,7 @@ palidxs     : .res pal_max; pal_max bytes - the indices of each loaded palette
 strawberries: .res 4 ; 32 bit bitset of strawberries collected.  Note that The Summit actually has 49 strawberries.
 abovescreen : .res 1 ; if the player is above the screen
 groundtimer : .res 1 ; how long the player is on the ground, max of 9 frames
+deaths      : .res 2
 
 pauseoption : .res 1 ; selected pause option
 pauseanim   : .res 1 ; selected option animation
@@ -452,7 +453,11 @@ starsbgctl  : .res 1 ; star background control
 game_cont_force : .res 2
 exitmaptimer: .res 1
 
-; 23 bytes free
+ow_deathsU  : .res 1 ; deaths units digit
+ow_deathsT  : .res 1 ; deaths tens digit
+ow_deathsH  : .res 1 ; deaths hundreds digit
+ow_deathsO  : .res 1 ; deaths thousands digit
+ow_deathsE  : .res 1 ; deaths tens-of-thousands digit
 
 .segment "LASTRAM"
 

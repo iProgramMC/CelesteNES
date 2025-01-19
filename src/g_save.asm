@@ -138,12 +138,23 @@ bitSet:	.byte $01, $02, $04, $08, $10, $20, $40, $80
 .endproc
 
 ; ** SUBROUTINE: save_file_flush_berries
-; desc: Flushes the bitset of collected strawberries to the save file.
+; desc: Flushes the bitset of collected strawberries, and the death counter, to the save file.
 .proc save_file_flush_berries
-	ldx levelnumber
+	lda levelnumber
 	beq return
-	dex
 	
+	asl
+	tax
+	lda sf_deaths-2, x
+	clc
+	adc deaths
+	sta sf_deaths-2, x
+	lda sf_deaths-1, x
+	adc deaths+1
+	sta sf_deaths-1, x
+	
+	ldx levelnumber
+	dex
 	lda strawberryBitOffsets, x
 	lsr
 	lsr

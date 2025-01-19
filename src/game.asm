@@ -277,6 +277,12 @@ gm_game_clear_all_wx:
 	stx dbenable
 	stx gamectrl2
 	stx gamectrl3
+	stx deaths+0
+	stx deaths+1
+	stx strawberries+0
+	stx strawberries+1
+	stx strawberries+2
+	stx strawberries+3
 
 ; ** SUBROUTINE: gm_game_clear_wx
 ; desc: Clears game variables with the X register.
