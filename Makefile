@@ -9,15 +9,15 @@ DEBUGSW=-DDEBUG
 
 .PHONY: clean
 
-build: main.nes
+build: celeste.nes
 
 %.o: src/%.asm
 	$(AS) -g --create-dep "$@.dep" --debug-info $< -o $@ --listing "$(notdir $@).lst" $(DEBUGSW)
 
-main.nes: layout main.o
+celeste.nes: layout celeste.o
 	$(LD) --dbgfile $@.dbg -C $^ -o $@ -m $@.map
 
 clean:
-	rm -f main.nes *.dep *.o *.dbg
+	rm -f celeste.nes *.dep *.o *.dbg
 
 include $(wildcard *.dep)
