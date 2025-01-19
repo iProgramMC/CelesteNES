@@ -33,7 +33,7 @@ gamemode_overwd_init_FAR:
 	ldx #>OWL_drawer_data
 	lda #<OWL_drawer_data
 	jsr nexxt_rle_decompress
-	ldy #128
+	ldy #0
 :	sta ppu_data
 	dey
 	bne :-
