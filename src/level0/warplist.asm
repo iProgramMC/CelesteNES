@@ -23,6 +23,6 @@ level0_w_r3_to_r4:
 	.byte 0, 160	; player spawn X/Y
 	.word level0_r4
 level0_w_r4_to_r3:
-	.byte 8			; room left offset
+	.byte 4			; room left offset
 	.byte 240, 128	; player spawn X/Y
 	.word level0_r3

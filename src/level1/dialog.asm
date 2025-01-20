@@ -8,12 +8,12 @@ ch1_ending:
 	walk_player $CE, $A0
 	
 	wait        90
-	face_player 1
+	face_player 0
 	
 	wait        30
 	
 	speaker     SPK_madeline
-	expression  MAD_normal ; distracted
+	expression  MAD_distract
 	dialog2     @d0
 	
 	wait        12

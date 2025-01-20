@@ -112,9 +112,9 @@ sp_l0bm_timer = sp_entspec3
 sp_l0bm_acoll = sp_entspec4  ; auto-collapse
 sp_l0bm_index = sp_entspec5  ; odd/even
 
-sp_l0gr_timer = sp_entspec1
+sp_l0gr_state = sp_entspec1  ; sp_entspec1 because that's what the trigger command does
 sp_l0gr_flags = sp_entspec2
-sp_l0gr_state = sp_entspec3
+sp_l0gr_timer = sp_entspec3
 sp_l0gr_ttimr = sp_wid
 sp_l0gr_cutsc = sp_hei       ; if granny initiated the cutscene
 
@@ -177,6 +177,9 @@ ef_oddroom    = $02
 ef_limbo      = $04 ; entity was scrolled away vertically, and will show up whenever the screen is scrolled
 ef_collided   = $08 ; entity was collided last frame
 
+ef_faceleft   = $80 ; used by dialog face_entity. An entity need not respect the value of this
+                    ; flag, but face_entity won't work right if there's no support for it.
+;
 ; room flags
 rf_godown     = $01 ; room descends
 rf_goup       = $02 ; room ascends

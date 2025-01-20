@@ -9,7 +9,6 @@ ch0_granny:
 	
 	; note: the camera should be fixed at a certain position, therefore
 	; we can get away with hardcoding walking positions
-	;walk_player
 	
 	speaker     SPK_madeline
 	expression  MAD_normal
@@ -17,7 +16,9 @@ ch0_granny:
 	
 	face_ent    1
 	
-	; walk
+	walk_player $7C, $70
+	wait        6
+	face_player 0
 	expression  MAD_normal
 	dialog2     @d1
 	
@@ -26,14 +27,16 @@ ch0_granny:
 	expression  GRN_normal
 	dialog2     @d2
 	
-	; walk
+	walk_player $BC, $70
+	wait        6
 	speaker     SPK_madeline
 	expression  MAD_sad
 	face_player 1
+	wait        5
 	face_ent    0
 	dialog2     @d3
 	
-	;trigger     0              ; "haha"
+	trigger     2              ; "haha"
 	wait        30             ; half a sec
 	left
 	speaker     SPK_granny
@@ -49,7 +52,7 @@ ch0_granny:
 	dialog2     @d6
 	
 	left
-	;trigger     1              ; stop laughing
+	trigger     0              ; stop laughing
 	speaker     SPK_granny
 	expression  GRN_normal
 	dialog      @d7

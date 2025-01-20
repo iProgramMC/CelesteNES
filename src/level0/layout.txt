@@ -2,6 +2,7 @@ level0_r1,0,0
 Props,level0_r1,0,0
 Spawn,level0_r1,0,144
 Spawn,level0_r1,432,160
+PaletteOverride,level0_r1,16,4,2,17,4,2,18,4,2,19,4,2,16,5,2,17,5,2,18,5,2,19,5,2,16,6,2,17,6,2,18,6,2,19,6,2,16,7,2,17,7,2,18,7,2,19,7,2,16,8,2,17,8,2,18,8,2,19,8,2,16,9,2,17,9,2,18,9,2,19,9,2
 level0_r2,448,-16
 Props,level0_r2,0,0
 Spawn,level0_r2,464,96
@@ -9,8 +10,8 @@ Spawn,level0_r2,0,176
 level0_r3,928,-80
 Props,level0_r3,0,0
 Spawn,level0_r3,0,160
-Spawn,level0_r3,304,128
-level0_r4,1248,-112
+Spawn,level0_r3,272,128
+level0_r4,1216,-112
 Props,level0_r4,0,0
 Spawn,level0_r4,0,160
 Filler,864,-128,64,112

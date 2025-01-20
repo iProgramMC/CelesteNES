@@ -28,7 +28,13 @@ level0_granny:
 :	lda #pal_granny
 	jsr gm_allocate_palette
 	ldx temp1
-	ora sprspace+sp_l0gr_flags, x
+	sta temp5
+	
+	lda sprspace+sp_flags, x
+	and #ef_faceleft
+	; assert(ef_faceleft == $80)
+	lsr
+	ora temp5
 	sta temp5
 	sta temp8
 	
@@ -92,9 +98,10 @@ level0_granny:
 	adc #2
 	sta temp7
 	
-	lda sprspace+sp_l0gr_flags, x
-	and #obj_fliphz
+	lda sprspace+sp_flags, x
+	and #ef_faceleft
 	beq @dontFlip
+	
 	lda temp6
 	pha
 	lda temp7
@@ -105,14 +112,17 @@ level0_granny:
 @dontFlip:
 	jsr gm_draw_common
 	
-	; Check if the player is at position 96 or greater.
-	; Actually this is what normal Celeste does!
+	; Check if the player is at position 64 or greater.
 	lda player_x
-	cmp #96
+	cmp #$40
 	bcc @return
 	
 	; Check if Granny already initiated the cutscene
 	lda sprspace+sp_l0gr_cutsc, x
+	bne @return
+	
+	lda #g3_transitA
+	bit gamectrl3
 	bne @return
 	
 	lda #1

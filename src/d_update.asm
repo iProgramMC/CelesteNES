@@ -146,8 +146,9 @@ dlg_start_dialog:
 	rts
 
 @notMadeline:
-	; TODO: just always right for now
-	lda #0
+	ldy dlg_entity
+	lda sprspace+sp_flags, y
+	and #ef_faceleft
 	sta dlg_facing
 	rts
 
@@ -782,9 +783,23 @@ dlg_cmd_dirplr:
 	lda #0
 	rts
 
+; Not "DIRectory ENTry", but "DIRection ENTity"!
 dlg_cmd_dirent:
-	; TODO
 	jsr dlg_read_script
+	tax
+	beq @right
+	
+	ldy dlg_entity
+	lda sprspace+sp_flags, y
+	ora #ef_faceleft
+	sta sprspace+sp_flags, y
+	bne @skip
+@right:
+	lda sprspace+sp_flags, y
+	and #<~ef_faceleft
+	sta sprspace+sp_flags, y
+
+@skip:
 	lda #0
 	rts
 
