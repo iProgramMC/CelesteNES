@@ -164,7 +164,7 @@ break:
 	; this compares the active bank
 	lda spr0_bkspl
 	cmp #chrb_dgran
-	beq grannyExtra
+	beq grannyExtra_
 	cmp #chrb_dmade
 	beq madelineExtra_
 	cmp #chrb_dbade
@@ -188,31 +188,10 @@ madelineExtra_:
 badelineExtra_:
 	jmp badelineExtra
 
-grannyExtra:
-	lda dlg_portrait+11
-	cmp #$4C
-	bne return
-	
-	; draw Granny's tongue in red. I was careful not to overstep the 8sp/sl limit
-	lda dlg_portraitx
-	clc
-	adc #9
-	sta x_crd_temp
-	lda #$1A+8
-	sta y_crd_temp
-	lda #1           ; TODO: hardcoded to the first palette, the hair palette
-	ldy #$14
-	jsr oam_putsprite
-	
-	jsr incrementX
-	lda #1
-	ldy #$16
-	jsr oam_putsprite
-	jsr incrementX
-	lda #1
-	ldy #$18
-	jmp oam_putsprite
+grannyExtra_:
+	jmp grannyExtra
 
+; small interface
 detour:
 	jsr homeX
 	jsr incrementY
@@ -259,6 +238,136 @@ homeX2:
 	adc #32
 	sta x_crd_temp
 :	rts
+
+grannyExtra:
+	lda dlg_portrait+10
+	cmp #$4A
+	beq @laughing
+	cmp #$40
+	beq @normal
+	rts
+
+@normal:
+	lda #$1C+16
+	sta y_crd_temp
+	
+	; normal, so select mouth frame
+	lda dlg_speaktimer
+	cmp #$FF
+	beq @setNormal_
+	
+	cmp #32
+	bcc :+
+	lda #0
+	sta dlg_speaktimer
+:	lsr
+	lsr
+	lsr
+	tay
+	lda @mouthFrames, y
+	sta dlg_portrait+11
+	clc
+	adc #2
+	sta dlg_portrait+12
+	clc
+	adc #2
+	sta dlg_portrait+13
+	clc
+	adc #2
+	sta dlg_portrait+14
+	
+	; also draw the mouth sprite
+	lda dlg_speaktimer
+	sec
+	sbc #1
+	and #%00011111
+	lsr
+	lsr
+	lsr
+	tay
+	sty temp11
+	
+	; Add the mouth offset
+	lda dlg_portraitx
+	clc
+	adc @mouthOffsets, y
+	;because why would it overflow right
+	adc #8
+	sta x_crd_temp
+	
+	; Draw the first sprite
+	lda @mouthSprites, y
+	tay
+	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	jsr oam_putsprite
+	
+	; Check if it was that 1 sprite version
+	ldx temp11
+	cpx #3
+	beq @return
+	
+	; No, so this is a 3x sprite
+	jsr incrementX
+	lda @mouthSprites, x
+	clc
+	adc #2
+	tay
+	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	jsr oam_putsprite
+	
+	; No, so this is a 3x sprite
+	jsr incrementX
+	lda @mouthSprites, x
+	clc
+	adc #4
+	tay
+	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	jsr oam_putsprite
+	
+@return:
+	rts
+
+@setNormal_:
+	beq @setNormal
+
+@laughing:
+	; draw Granny's tongue in red. I was careful not to overstep the 8sp/sl limit
+	lda dlg_portraitx
+	clc
+	adc #9
+	sta x_crd_temp
+	lda #$1A+16
+	sta y_crd_temp
+	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	ldy #$F6
+	jsr oam_putsprite
+	
+	jsr incrementX
+	lda #1
+	ldy #$F8
+	jsr oam_putsprite
+	jsr incrementX
+	lda #1
+	ldy #$FA
+	jmp oam_putsprite
+
+@setNormal:
+	lda #$42
+	sta dlg_portrait+11
+	lda #$44
+	sta dlg_portrait+12
+	lda #$46
+	sta dlg_portrait+13
+	lda #$48
+	sta dlg_portrait+14
+	rts
+
+@mouthFrames:
+	.byte $C0, $C8, $D0, $D8
+@mouthSprites:
+	.byte $E0, $E6, $EC, $F2
+@mouthOffsets:
+	.byte 2, 3, 4, 20
 
 badelineExtra:
 	jsr badelineRedEyes	
@@ -377,9 +486,18 @@ madeline_normalSpeak:
 	rts
 
 @setNormal:
+	lda dlg_portrait+10
+	cmp #$4A
+	beq @setSadNormal
 	lda #$44
 	sta dlg_portrait+12
 	lda #$46
+	sta dlg_portrait+13
+	rts
+@setSadNormal:
+	lda #$4E
+	sta dlg_portrait+12
+	lda #$50
 	sta dlg_portrait+13
 	rts
 
@@ -472,8 +590,8 @@ madelineWhiteEyes:
 @eyeSpriteNumbers:	.byte $76,$96,$B6,$D6,$F6
 
 transformYBasedOnExpression:
-	lda dlg_portrait+11
-	cmp #$4C
+	lda dlg_portrait+10
+	cmp #$4A
 	beq @sad
 	rts
 @sad:

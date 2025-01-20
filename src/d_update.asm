@@ -577,7 +577,12 @@ dlg_update_d:
 	inc dlg_speaktimer
 	
 @dontIncrement:
-	jsr dlg_draw_portrait
+	ldy #0
+	lda (dlg_textptr), y
+	bne :+
+	dey
+	sty dlg_speaktimer
+:	jsr dlg_draw_portrait
 	rts
 
 @exitDialog:
