@@ -253,18 +253,20 @@ irq_dialog_split:
 	sta irqtmp4
 	
 	; re-load a bunch to waste cycles until next h-blank
-	jsr @delay_28
-	cpy #$1
-	beq @return
 	jsr @delay_23_ldx_irqtmp3
+	cpy #1
+	beq @return
+	jsr @delay_28
 	
 	stx ppu_scroll
 	sta ppu_addr
 	
 	; stall a bit more
+	cpy #6
+	beq :+
+	;ldx irqtmp3
 	ldx irqtmp3
-	ldx irqtmp3
-	ldx irqtmp3
+:	nop
 	
 	dey
 	bne @loop_lineOne
@@ -282,7 +284,7 @@ irq_dialog_split:
 	tax
 	lda irqtmp4
 	and #%00011111
-	
+	nop
 	stx ppu_scroll
 	sta ppu_addr
 @actuallyReturn:
@@ -321,16 +323,15 @@ irq_dialog_split:
 	rts   ;          6 cycles
 
 irq_dialog_split_2:
-	sta mmc3_irqdi
-	
 	pha
 	lda #def_ppu_msk
 	sta ppu_mask
+	sta mmc3_irqdi
 	lda #<irq_dialog_split
 	sta irqaddr
 	lda #>irq_dialog_split
 	sta irqaddr+1
-	lda #8-1
+	lda #8-2
 	sta mmc3_irqla
 	sta mmc3_irqrl
 	sta mmc3_irqen

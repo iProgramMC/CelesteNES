@@ -169,9 +169,12 @@ dlg_start_dialog:
 	lsr
 	lsr
 	lsr
+	pha
 	ora #%00110000
 	sta temp1         ; calculated the high address
 	sta temp3
+	pla
+	ora #%00100000
 	sta splgapaddr+1
 	
 	pla
@@ -956,7 +959,7 @@ dlg_cmd_left:
 dlg_cmd_right:
 	lda #(256-dialog_border-dialog_port_size)
 	sta dlg_portraitx
-	lda #(dialog_border+4)
+	lda #(dialog_border+3)
 	sta dlg_crsr_home
 	lda #0
 	rts
