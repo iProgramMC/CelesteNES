@@ -1223,7 +1223,7 @@ level1_rend_p:
 level1_rend_e:
 	.byte $A0,$58,$17
 	.byte $FE
-	.byte $08,$9D,$14
+	.byte $08,$9C,$14
 	.byte $FF
 level1_rend_t:
 	.byte $D6,$21,$2B,$C6,$97,$33,$86,$97

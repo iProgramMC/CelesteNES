@@ -1475,7 +1475,7 @@ palettes:	.byte pal_blue, pal_blue, pal_gray, pal_pink
 	lda sprspace+sp_sgat_timer, x
 	bne :+
 	
-	lda #32
+	lda #64
 	sta sprspace+sp_sgat_timer, x
 	bne @incrementStateAndDraw
 	
@@ -1503,8 +1503,15 @@ palettes:	.byte pal_blue, pal_blue, pal_gray, pal_pink
 	
 	dec sprspace+sp_sgat_timer, x
 	
+	cmp #32
+	bcc @subtractSlide
 	jsr slideAddVelocity
 	jsr slideMove
+	jmp drawSprite
+@subtractSlide:
+	jsr slideSubVelocity
+	jsr slideMove
+	jmp drawSprite
 	
 @notSliding:
 	; stopped
@@ -1666,6 +1673,43 @@ slideAddVelocity:
 	tya
 	adc sprspace+sp_vel_x, x
 	sta sprspace+sp_vel_x, x
+	rts
+
+slideSubVelocity:
+	lda temp1
+	pha
+	
+	ldy #0
+	lda sprspace+sp_sgat_trajy, x
+	bpl :+
+	dey
+:	lda sprspace+sp_vel_y_lo, x
+	sec
+	sbc sprspace+sp_sgat_trajy, x
+	sta sprspace+sp_vel_y_lo, x
+	
+	sty temp1
+	lda sprspace+sp_vel_y, x
+	sbc temp1
+	sta sprspace+sp_vel_y, x
+	
+	ldy #0
+	lda sprspace+sp_sgat_trajx, x
+	bpl :+
+	dey
+:	lda sprspace+sp_vel_x_lo, x
+	sec
+	sbc sprspace+sp_sgat_trajx, x
+	sta sprspace+sp_vel_x_lo, x
+	
+	sty temp1
+	lda sprspace+sp_vel_x, x
+	sbc temp1
+	sta sprspace+sp_vel_x, x
+	
+	pla
+	sta temp1
+	tax
 	rts
 
 slideMove:

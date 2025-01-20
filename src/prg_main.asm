@@ -37,7 +37,7 @@ oam_dma_and_read_cont:
 	; thanks NESDEV wiki! :D
 	ldx #1             ; get put          <- strobe code must take an odd number of cycles total
 	stx p1_cont        ; get put get      <- buttons must be in the zeropage
-	stx p1_cont+1      ; get put get
+	stx p1_cont+1      ; put get put
 	stx p1_cont+1      ; get put get      <- redundant write to align to a put cycle
 	stx apu_joypad1    ; put get put get
 	dex                ; put get

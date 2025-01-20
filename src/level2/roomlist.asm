@@ -171,7 +171,7 @@ level2_banks:
 	.byte prgb_lvl2e	; level2_w_r12b_to_r12bp
 	.byte prgb_lvl2c	; level2_w_r12b_to_r12
 	.byte prgb_lvl2c	; level2_w_r12b_to_r12d
-	.byte prgb_lvl2a	; level2_w_r12b_to_r12c
+	.byte prgb_lvl2e	; level2_w_r12b_to_r12c
 	.byte prgb_lvl2c	; level2_w_r12_to_r12b
 	.byte prgb_lvl2e	; level2_w_r12_to_end_chase
 	.byte prgb_lvl2c	; level2_w_r12d_to_r12b
