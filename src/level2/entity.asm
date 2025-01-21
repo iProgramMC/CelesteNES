@@ -5,21 +5,53 @@
 ;   temp3 - Y Screen Position
 ;   temp4 - X High Position
 
-.define level2_payphone_table \
-	level2_payphone_idle,     \
-	level2_payphone_mad1,     \
-	level2_payphone_mad2,     \
-	level2_payphone_mad3,     \
-	level2_payphone_mad5,     \
-	level2_payphone_mad6,     \
-	level2_payphone_mad7,     \
-	level2_payphone_mad7,     \
+.define level2_payphone_table_1 \
+	level2_payphone_idle,       \
+	level2_payphone_mad1,       \
+	level2_payphone_mad2,       \
+	level2_payphone_mad3,       \
+	level2_payphone_mad4,       \
+	level2_payphone_mad5,       \
+	level2_payphone_mad6,       \
+	level2_payphone_mad7,       \
+	level2_payphone_mad8,       \
+	level2_payphone_mad9,       \
 	$0000
 
-level2_payphone_table_lo:	.lobytes level2_payphone_table
-level2_payphone_table_hi:	.hibytes level2_payphone_table
+.define level2_payphone_table_2 \
+	level2_payphone_madjump1,   \
+	level2_payphone_madjump2,   \
+	level2_payphone_madjump3,   \
+	level2_payphone_madjump4,   \
+	level2_payphone_xform1,     \
+	level2_payphone_xform2,     \
+	level2_payphone_xform3,     \
+	level2_payphone_xform4,     \
+	level2_payphone_xform5,     \
+	level2_payphone_xform6,     \
+	level2_payphone_xform7,     \
+	level2_payphone_xform8,     \
+	level2_payphone_xform9,     \
+	level2_payphone_xform10,    \
+	level2_payphone_xform11,    \
+	level2_payphone_xform12,    \
+	level2_payphone_xform13,    \
+	level2_payphone_monsterI,   \
+	level2_payphone_monster1,   \
+	level2_payphone_monster2,   \
+	$0000
+;	level2_payphone_monstere1,  \
+;	level2_payphone_monstere2,  \
+;	$0000
 
-level2_payphone_max_timer = 8
+level2_payphone_table_1_lo:	.lobytes level2_payphone_table_1
+level2_payphone_table_1_hi:	.hibytes level2_payphone_table_1
+level2_payphone_max_1_timer = 10
+
+level2_payphone_table_2_lo:	.lobytes level2_payphone_table_2
+level2_payphone_table_2_hi:	.hibytes level2_payphone_table_2
+level2_payphone_max_2_timer = 20
+
 
 ; ######### ANIMATION CODE #########
 
@@ -33,16 +65,21 @@ level2_payphone_max_timer = 8
 	pha
 	clc
 	adc #1
-	cmp #level2_payphone_max_timer
+	;cmp #level2_payphone_max_1_timer
+	cmp #level2_payphone_max_2_timer
 	bne :+
 	lda #0
 :	sta sprspace+sp_l2ph_timer, x
 	pla
 	
+	;lsr
+	;lsr
 	tax
-	lda level2_payphone_table_lo, x
+	;lda level2_payphone_table_1_lo, x
+	lda level2_payphone_table_2_lo, x
 	sta setdataaddr
-	lda level2_payphone_table_hi, x
+	;lda level2_payphone_table_1_hi, x
+	lda level2_payphone_table_2_hi, x
 	sta setdataaddr+1
 	
 	; draw
@@ -56,10 +93,16 @@ level2_payphone_max_timer = 8
 @loop:
 	; write Y coordinate
 	lda (setdataaddr), y
-	cmp #$FF
+	cmp #pph_exit
 	beq @return
-	cmp #$FE
+	cmp #pph_jump
 	beq @jump
+	cmp #pph_call
+	beq @call
+	cmp #pph_return
+	beq @returnInsn
+	cmp #pph_plrbrace
+	beq @playerInsn
 	clc
 	adc temp3
 	sta oam_buf, x
@@ -99,6 +142,10 @@ level2_payphone_max_timer = 8
 	jmp @loop
 
 @return:
+	;pla
+	;tay
+	;lda #mmc3bk_prg0
+	;sta 
 	rts
 
 @jump:
@@ -112,21 +159,93 @@ level2_payphone_max_timer = 8
 	ldx oam_wrhead
 	ldy #0
 	beq @loop
+
+@returnInsn:
+	pla
+	sta setdataaddr
+	pla
+	sta setdataaddr+1
+	ldy #0
+@loop_:
+	beq @loop
+
+@call:
+	iny
+	lda (setdataaddr), y
+	sta temp1
+	iny
+	lda (setdataaddr), y
+	sta temp2
+	iny
+	
+	; this will be our return address
+	tya
+	clc
+	adc setdataaddr
+	sta setdataaddr
+	bcc :+
+	inc setdataaddr+1
+:	lda setdataaddr+1
+	pha
+	lda setdataaddr
+	pha
+	
+	lda temp1
+	sta setdataaddr
+	lda temp2
+	sta setdataaddr+1
+	ldy #0
+	beq @loop_
+
+@playerInsn:
+	tya
+	pha
+	
+	; quick macro for the player standing at offset $F1, $28
+	lda #pal_red
+	jsr gm_allocate_palette
+	sta temp11
+	
+	lda #$28
+	clc
+	adc temp3
+	sta y_crd_temp
+	
+	lda #$F1
+	clc
+	adc temp2
+	sta x_crd_temp
+	
+	; body
+	ldy #$74
+	lda #0
+	jsr oam_putsprite
+	
+	; hair
+	ldy #$32
+	lda temp11
+	jsr oam_putsprite
+	
+	; body
+	ldy #$76
+	lda x_crd_temp
+	clc
+	adc #8
+	sta x_crd_temp
+	lda #0
+	jsr oam_putsprite
+	
+	; hair
+	ldy #$30
+	lda temp11
+	jsr oam_putsprite
+	
+	pla
+	tay
+	iny
+	ldx oam_wrhead
+	jmp @loop
 .endproc
-
-; would move to bank_3.asm, but doesn't work, since $26 (38) bytes isn't enough (we need $30 or 48)
-level2_s_mirror_offsets:
-	.byte 0, 5, 10, 15, 20, 25, 30, 35
-
-level2_s_mirror:
-	.byte $00,$60,$70,$68,$78
-	.byte $3A,$61,$71,$72,$79
-	.byte $3B,$62,$72,$73,$7A
-	.byte $3C,$63,$73,$74,$7B
-	.byte $3D,$64,$74,$75,$7C
-	.byte $3E,$65,$75,$6D,$7D
-	.byte $3F,$66,$76,$6E,$7E
-	.byte $00,$67,$77,$6F,$7F
 
 ; ** ENTITY: level2_mirror
 ; desc: The mirror that unlocks the Dream Blocks!

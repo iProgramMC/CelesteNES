@@ -82,7 +82,7 @@ MEMORY
 	CHR_PAPH2: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$14; # Level 2 Payphone animation (4,5,6,7)
 	CHR_SLV2L: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$18; # Level 2 Mirror Badeline
 	CHR_SLV2N: start=$1000, size=$0400, fill=yes, fillval=$FF, bank=$1A; # Level 2 Generic bank clone with different stars
-	CHR_UN101: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$1B; #      <<<<< UNUSED (1 bank)
+	CHR_PAPH4: start=$0000, size=$0400, fill=yes, fillval=$FF, bank=$1B; # Level 2 Payphone animation (9)
 	
 	## Level Tilesets ##
 	CHR_BGTTL: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$1C; # Title screen
@@ -173,7 +173,7 @@ SEGMENTS
 	CHR_PAPH2: load = CHR_PAPH2, type = ro;
 	CHR_SLV2L: load = CHR_SLV2L, type = ro;
 	CHR_SLV2N: load = CHR_SLV2N, type = ro;
-	CHR_UN101: load = CHR_UN101, type = ro;
+	CHR_PAPH4: load = CHR_PAPH4, type = ro;
 	CHR_BGTTL: load = CHR_BGTTL, type = ro;
 	CHR_BGOWD: load = CHR_BGOWD, type = ro;
 	CHR_BG000: load = CHR_BG000, type = ro;
