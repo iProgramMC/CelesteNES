@@ -129,14 +129,10 @@ gamemode_overwd_update_FAR:
 	ldx ow_sellvl
 	beq @isPrologue
 	
-	jsr tl_gameswitchpcard
-	jsr ow_clear_irq
-	rts
+	jmp tl_gameswitchpcard
 
 @isPrologue:
-	jsr tl_prolswitch
-	jsr ow_clear_irq
-	rts
+	jmp tl_prolswitch
 
 ; ** SUBROUTINE: ow_level_slide
 ; desc: Handles left/right slide of the level scroller.
@@ -434,7 +430,7 @@ ow_draw_icons:
 	lda #$AF
 	sta ppu_addr
 	
-	lda levelnumber
+	lda ow_sellvl
 	beq berriesBothZero
 	lda ow_berries1
 	ora ow_berries2
@@ -491,7 +487,6 @@ berriesBothZero:
 	sta ppu_data
 
 berriesNotAllZero:
-	
 	; Update Death Counter
 	lda #$25
 	sta ppu_addr
@@ -541,9 +536,51 @@ skip100:
 	cpy #6
 	bne :-
 	
+	; Update begin/climb text
+	ldx ow_sellvl
+	ldy beginClimb, x
+	
+	lda #$25
+	sta ppu_addr
+	lda #$6E
+	sta ppu_addr
+	
+	sty ppu_data
+	iny
+	sty ppu_data
+	iny
+	sty ppu_data
+	iny
+	sty ppu_data
+	
+	; Update "chapter" text
+	ldy #$95
+	lda #$24
+	sta ppu_addr
+	lda #$2E
+	sta ppu_addr
+	
+	lda ow_sellvl
+	beq @prologue
+	clc
+	adc #$98
+	
+	sty ppu_data
+	iny
+	sty ppu_data
+	iny
+	sty ppu_data
+	sta ppu_data
+	rts
+@prologue:
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
+	sta ppu_data
 	rts
 
 bitSet:	.byte $00,$01,$02,$04,$08,$10,$20,$40,$80
+beginClimb:	.byte $90,$39,$39,$39,$39,$39,$39,$39,$39
 amountData:
 	.byte $00,$00,$00,$00
 	.byte $81,$22,$20,$00 ; / 20
@@ -656,7 +693,7 @@ ow_handle_input:
 	pla
 	
 	; update the deaths count
-	lda levelnumber
+	lda ow_sellvl
 	asl
 	tay
 	lda sf_deaths-1, y ; high byte
@@ -1138,18 +1175,6 @@ ow_select_banks:
 	rts
 .endproc
 
-.proc ow_clear_irq
-	sei
-	lda #<irq_idle
-	sta irqaddr
-	lda #>irq_idle
-	sta irqaddr+1
-	lda #0
-	sta miscsplit
-	cli
-	rts
-.endproc
-
 .proc ow_put_sprite
 	pha
 	lda y_crd_temp
@@ -1196,7 +1221,7 @@ ow_select_banks:
 	bne secondPhase
 	inc irqtmp1
 	
-	lda levelnumber
+	lda ow_sellvl
 	bne @dontReProgram
 	lda #31
 	sta mmc3_irqla

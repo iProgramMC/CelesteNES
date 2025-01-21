@@ -135,6 +135,11 @@
 	beq @wait
 	
 	; ok, time to exit
+	lda #>level_end_fade_update
+	sta fadeupdrt+1
+	lda #<level_end_fade_update
+	sta fadeupdrt
+	jsr fade_out
 	
 	lda #<irq_idle
 	sta irqaddr

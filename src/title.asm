@@ -41,6 +41,7 @@ tl_gameswitch_nofade:
 	sta musictable
 	sta musictable+1
 	jsr gm_set_level
+	jsr ow_clear_irq
 	rts
 
 tl_prolswitch:
@@ -51,6 +52,7 @@ tl_prolswitch_nofade:
 	sta gamemode
 	lda #0
 	sta prolctrl
+	jsr ow_clear_irq
 	rts
 
 tl_gameswitch:
@@ -60,3 +62,15 @@ tl_gameswitch:
 	jsr fade_out
 	ldx levelnumber
 	jmp tl_gameswitch_nofade
+
+.proc ow_clear_irq
+	sei
+	lda #<irq_idle
+	sta irqaddr
+	lda #>irq_idle
+	sta irqaddr+1
+	lda #0
+	sta miscsplit
+	cli
+	rts
+.endproc
