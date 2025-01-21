@@ -2,3 +2,5 @@
 
 .segment "PRG_LVL2A"
 .include "rooms/0.asm"
+
+.include "payphone2.asm"

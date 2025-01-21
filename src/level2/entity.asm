@@ -39,10 +39,27 @@
 	level2_payphone_monsterI,   \
 	level2_payphone_monster1,   \
 	level2_payphone_monster2,   \
+	level2_payphone_monstere1,  \
+	level2_payphone_monstere2,  \
+	level2_payphone_monstere3,  \
+	level2_payphone_monstere4,  \
+	level2_payphone_monstere5,  \
+	level2_payphone_monstere6,  \
+	level2_payphone_monstere7,  \
+	level2_payphone_monsterd1,  \
+	level2_payphone_monsterd2,  \
+	level2_payphone_monsterd3,  \
+	level2_payphone_monsterd4,  \
+	level2_payphone_monsterd5,  \
+	level2_payphone_monsterd6,  \
+	level2_payphone_monsterd7,  \
+	level2_payphone_monsterd8,  \
+	level2_payphone_monsterd9,  \
+	level2_payphone_monsterd10, \
+	level2_payphone_monsterd11, \
+	level2_payphone_monsterd10, \
+	level2_payphone_monsterd12, \
 	$0000
-;	level2_payphone_monstere1,  \
-;	level2_payphone_monstere2,  \
-;	$0000
 
 level2_payphone_table_1_lo:	.lobytes level2_payphone_table_1
 level2_payphone_table_1_hi:	.hibytes level2_payphone_table_1
@@ -50,7 +67,7 @@ level2_payphone_max_1_timer = 10
 
 level2_payphone_table_2_lo:	.lobytes level2_payphone_table_2
 level2_payphone_table_2_hi:	.hibytes level2_payphone_table_2
-level2_payphone_max_2_timer = 20
+level2_payphone_max_2_timer = 40
 
 
 ; ######### ANIMATION CODE #########
@@ -59,7 +76,12 @@ level2_payphone_max_2_timer = 20
 ; desc: This draws and animates the payphone entity.
 .proc level2_payphone
 @currentPalette := temp10
-
+	lda currA000bank
+	pha
+	ldy #prgb_lvl2a
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank
+	
 	ldx temp1
 	lda sprspace+sp_l2ph_timer, x
 	
@@ -139,6 +161,10 @@ level2_payphone_max_2_timer = 20
 	jmp @loop
 
 @return:
+	pla
+	tay
+	lda #mmc3bk_prg1
+	jsr mmc3_set_bank
 	rts
 
 @jump:
@@ -165,10 +191,10 @@ level2_payphone_max_2_timer = 20
 @call:
 	iny
 	lda (setdataaddr), y
-	sta temp1
+	sta plattemp1
 	iny
 	lda (setdataaddr), y
-	sta temp2
+	sta plattemp2
 	iny
 	
 	; this will be our return address
@@ -183,9 +209,9 @@ level2_payphone_max_2_timer = 20
 	lda setdataaddr
 	pha
 	
-	lda temp1
+	lda plattemp1
 	sta setdataaddr
-	lda temp2
+	lda plattemp2
 	sta setdataaddr+1
 	ldy #0
 	beq @loop_
