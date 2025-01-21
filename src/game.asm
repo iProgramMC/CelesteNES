@@ -183,6 +183,8 @@ gm_game_update:
 	cmp #1
 	bne @returnDontExit
 	
+	lda #0
+	sta fadeupdrt+1
 	jsr fade_out
 	
 	lda gamectrl2

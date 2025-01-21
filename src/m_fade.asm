@@ -82,7 +82,7 @@ differentPaletteSize:
 	ora #nc_turnon
 	sta nmictrl
 	
-	jsr callLevelPointer
+	jsr fade_call_update_func
 	jsr fade_wait_one_frame
 	
 	ldx transtimer
@@ -93,15 +93,9 @@ differentPaletteSize:
 	
 	jsr fade_copy_palette
 	jsr fade_set_vmc_flag
-	jsr callLevelPointer
+	jsr fade_call_update_func
 	dec fade_active
 	jmp fade_wait_one_frame
-
-callLevelPointer:
-	lda fadeupdrt+1
-	beq :+
-	jmp (fadeupdrt)
-:	rts
 .endproc
 
 fade_in_smaller_palette := fade_in::differentPaletteSize
@@ -126,6 +120,15 @@ fade_in_smaller_palette := fade_in::differentPaletteSize
 	ora #nc2_vmemcpy
 	sta nmictrl2
 	rts
+.endproc
+
+; ** SUBROUTINE: fade_call_update_func
+; desc: Calls the update subroutine.
+.proc fade_call_update_func
+	lda fadeupdrt+1
+	beq :+
+	jmp (fadeupdrt)
+:	rts
 .endproc
 
 ; ** SUBROUTINE: fade_wait_one_frame
@@ -158,6 +161,7 @@ fade_in_smaller_palette := fade_in::differentPaletteSize
 	jsr fade_set_vmc_flag
 	
 @dontFadePalette:
+	jsr fade_call_update_func
 	jsr fade_wait_one_frame
 	
 	ldy transtimer

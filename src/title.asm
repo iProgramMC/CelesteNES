@@ -55,6 +55,8 @@ tl_prolswitch_nofade:
 
 tl_gameswitch:
 	stx levelnumber
+	lda #0
+	sta fadeupdrt+1
 	jsr fade_out
 	ldx levelnumber
 	jmp tl_gameswitch_nofade

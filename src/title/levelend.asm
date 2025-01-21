@@ -22,6 +22,10 @@
 	sta scroll_x
 	sta scroll_y
 	sta scroll_flags
+	sta camera_x
+	sta camera_y
+	sta camera_x_pg
+	sta camera_y_hi
 	
 	; disable rendering
 	jsr vblank_wait
@@ -105,12 +109,32 @@
 	sta fadeupdrt
 	jsr fade_in
 	
+	lda #60
+	sta ow_timer
+
 @wait:
 	jsr level_end_fade_update
 	jsr soft_nmi_on
 	jsr nmi_wait
 	jsr soft_nmi_off
-	jmp @wait
+	
+	; check if the timer expired
+	lda ow_timer
+	beq @checkButtonPress
+	
+	dec ow_timer
+	bne @wait
+	
+@checkButtonPress:
+	; check if A or Start are pressed
+	lda p1_conto
+	and #(cont_a | cont_start)
+	bne @wait
+	lda p1_cont
+	and #(cont_a | cont_start)
+	beq @wait
+	
+	; ok, time to exit
 	
 	lda #<irq_idle
 	sta irqaddr

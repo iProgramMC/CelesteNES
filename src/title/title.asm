@@ -61,6 +61,8 @@ print_logo:
 	rts
 	
 tl_owldswitch:
+	lda #0
+	sta fadeupdrt+1
 	jsr fade_out
 	
 	lda #gm_overwld
@@ -78,6 +80,10 @@ gamemode_title_init_FAR:
 	sta scroll_x     ; clear some fields
 	sta scroll_y
 	sta scroll_flags
+	sta camera_x
+	sta camera_y
+	sta camera_x_pg
+	sta camera_y_hi
 	sta ppu_mask     ; disable rendering
 	
 	jsr vblank_wait  ; wait for vblank

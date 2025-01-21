@@ -9,6 +9,10 @@ gamemode_overwd_init_FAR:
 	sta ow_slidetmr
 	sta ow_iconoff
 	sta ow_timer2
+	sta camera_x
+	sta camera_y
+	sta camera_x_pg
+	sta camera_y_hi
 	sta scroll_x
 	sta scroll_y
 	sta scroll_flags
@@ -117,15 +121,22 @@ gamemode_overwd_update_FAR:
 	
 @enterGame:
 	; now enter the game!
-	jsr ow_clear_irq
+	lda #<ow_update_irq
+	sta fadeupdrt
+	lda #>ow_update_irq
+	sta fadeupdrt+1
 	
 	ldx ow_sellvl
 	beq @isPrologue
 	
-	jmp tl_gameswitchpcard
+	jsr tl_gameswitchpcard
+	jsr ow_clear_irq
+	rts
 
 @isPrologue:
-	jmp tl_prolswitch
+	jsr tl_prolswitch
+	jsr ow_clear_irq
+	rts
 
 ; ** SUBROUTINE: ow_level_slide
 ; desc: Handles left/right slide of the level scroller.
@@ -1152,6 +1163,9 @@ ow_select_banks:
 .endproc
 
 .proc ow_update_irq
+	lda #0
+	sta irqtmp1
+	
 	; I don't know why I have to delay setting the IRQ address
 	; away from irq_idle by at least one frame for this, but fine.
 	lda ow_splity

@@ -53,6 +53,10 @@ gamemode_prologue_init_FAR:
 	sta scroll_x
 	sta scroll_y
 	sta scroll_flags
+	sta camera_x
+	sta camera_y
+	sta camera_x_pg
+	sta camera_y_hi
 	jsr vblank_wait
 	
 	ldy #<init_palette

@@ -105,6 +105,10 @@ postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
 	sta ppu_mask
 	sta scroll_x
 	sta scroll_y
+	sta camera_x
+	sta camera_y
+	sta camera_x_pg
+	sta camera_y_hi
 	
 	; since we might have interrupted rendering, wait for vblank to prevent tearing
 	jsr vblank_wait
