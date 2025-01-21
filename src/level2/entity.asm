@@ -58,6 +58,8 @@ level2_payphone_max_2_timer = 20
 ; ** ENTITY: level2_payphone
 ; desc: This draws and animates the payphone entity.
 .proc level2_payphone
+@currentPalette := temp10
+
 	ldx temp1
 	lda sprspace+sp_l2ph_timer, x
 	
@@ -93,6 +95,7 @@ level2_payphone_max_2_timer = 20
 @loop:
 	; write Y coordinate
 	lda (setdataaddr), y
+	bpl :+
 	cmp #pph_exit
 	beq @return
 	cmp #pph_jump
@@ -102,8 +105,10 @@ level2_payphone_max_2_timer = 20
 	cmp #pph_return
 	beq @returnInsn
 	cmp #pph_plrbrace
-	beq @playerInsn
-	clc
+	beq @playerInsn_
+	cmp #pph_palette
+	beq @palette
+:	clc
 	adc temp3
 	sta oam_buf, x
 	inx
@@ -119,17 +124,9 @@ level2_payphone_max_2_timer = 20
 	iny
 	
 	; write attributes
-	stx oam_wrhead
-	sty temp11
-	lda (setdataaddr), y
-	bmi :+
-	jsr gm_allocate_palette
-:	and #$7F
-	ldy temp11
-	ldx oam_wrhead
+	lda @currentPalette
 	sta oam_buf, x
 	inx
-	iny
 	
 	; write X coordinate
 	lda (setdataaddr), y
@@ -142,10 +139,6 @@ level2_payphone_max_2_timer = 20
 	jmp @loop
 
 @return:
-	;pla
-	;tay
-	;lda #mmc3bk_prg0
-	;sta 
 	rts
 
 @jump:
@@ -196,6 +189,24 @@ level2_payphone_max_2_timer = 20
 	sta setdataaddr+1
 	ldy #0
 	beq @loop_
+
+@playerInsn_:
+	beq @playerInsn
+
+@palette:
+	stx oam_wrhead
+	iny
+	sty temp11
+	lda (setdataaddr), y
+	bmi :+
+	jsr gm_allocate_palette
+:	and #$7F
+	ldy temp11
+	ldx oam_wrhead
+	iny
+	
+	sta @currentPalette
+	jmp @loop
 
 @playerInsn:
 	tya
