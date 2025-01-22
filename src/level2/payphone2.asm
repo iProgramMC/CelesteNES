@@ -1,5 +1,30 @@
 ; Copyright (C) 2025 iProgramInCpp
 
+.proc level2_payphone_monstere6
+	;     Y,  TN, X
+	.byte chrb_papho6
+	
+	.byte pph_palette, pal_red
+	.byte $10,$00,<(-24+$10)
+	.byte $10,$02,<(-24+$18)
+	.byte $10,$04,<(-24+$20)
+	.byte $10,$06,<(-24+$28)
+	
+	.byte $20,$20,<(-24+$10)
+	.byte $20,$22,<(-24+$18)
+	.byte $20,$24,<(-24+$20)
+	.byte $20,$26,<(-24+$28)
+	.byte $20,$28,<(-24+$30)
+	
+	.byte $30,$16,<(-24+$10)
+	;.byte $30,$18,<(-24+$18)
+	.byte $30,$1A,<(-24+$20)
+	.byte $30,$1C,<(-24+$28)
+	.byte $30,$1E,<(-24+$30)
+	
+	.byte pph_exit
+.endproc
+
 .proc level2_payphone_monstere7
 	;     Y,  TN, X
 	.byte chrb_papho6

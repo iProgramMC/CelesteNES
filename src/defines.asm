@@ -359,27 +359,28 @@ chrb_lvl2h  = $3C
 ; $40-$43 free
 
 ; COMPLETE SCREEN BANKS
-chrb_lvl1ca = $44   ; graphics bank for Ch.1 complete screen
-chrb_lvl1cb = $48
-chrb_lvl2ca = $4C   ; graphics bank for Ch.2 complete screen
-chrb_lvl2cb = $50
-chrb_spl1co = $54
-chrb_spl2co = $56
+chrb_lvl1ca = $40   ; graphics bank for Ch.1 complete screen
+chrb_lvl1cb = $44
+chrb_lvl2ca = $48   ; graphics bank for Ch.2 complete screen
+chrb_lvl2cb = $4C
+chrb_spl1co = $50
+chrb_spl2co = $52
 
 ; OVERWORLD SPRITE BANKS
-chrb_owsp00 = $58   ; sprite banks for Overworld
-chrb_owsp01 = $59
-chrb_owsp02 = $5A
-chrb_owsp03 = $5B
+chrb_owsp00 = $54   ; sprite banks for Overworld
+chrb_owsp01 = $55
+chrb_owsp02 = $56
+chrb_owsp03 = $57
 
 ; EXTRA SPRITE BANKS
-chrb_pause  = $5C
-chrb_pcard  = $60
-chrb_optns  = $64
+chrb_pause  = $58
+chrb_pcard  = $5C
+chrb_optns  = $60
 
 ; DIALOG DATA BANKS
-chrb_dmain  = $68   ; dialogue font (unused)
-chrb_dcntr  = $6C   ; dialogue binary counting pattern
+chrb_dmain  = $64   ; dialogue font (unused)
+chrb_dcntr  = $68   ; dialogue binary counting pattern
+chrb_dmome  = $6C   ; graphics bank for dialog with Mom and Ex
 chrb_dbade  = $70   ; graphics bank for dialog with Badeline
 chrb_dmade  = $74   ; graphics bank for dialog with Madeline
 chrb_dtheo  = $78   ; graphics bank for dialog with Theo

@@ -45,9 +45,8 @@ SPK_madeline = $00
 SPK_granny   = $01
 SPK_theo     = $02
 SPK_badeline = $03
-SPK_ex       = $04
-SPK_mom      = $05
-SPK_oshiro   = $06
+SPK_momex    = $04
+SPK_oshiro   = $05
 
 ; ** Madeline's expressions
 MAD_normal   = $00
@@ -67,6 +66,11 @@ GRN_normal   = $00
 GRN_laugh    = $01
 GRN_creepA   = $02
 GRN_creepB   = $03
+
+; ** Mom's expression
+MOM_normal   = $00
+MOM_concern  = $01
+MOM_exph     = $02
 
 ; Define a dialog line
 .macro line name, text

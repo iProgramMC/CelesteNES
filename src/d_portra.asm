@@ -7,6 +7,7 @@ speaker_banks:
 	.byte chrb_dgran ; SPK_granny
 	.byte chrb_dtheo ; SPK_theo
 	.byte chrb_dbade ; SPK_badeline
+	.byte chrb_dmome ; SPK_momex
 
 speaker_palettes:
 	.byte pal_red
@@ -19,12 +20,14 @@ speaker_portrait_tables_lo:
 	.byte <portraits_granny
 	.byte <portraits_madeline
 	.byte <portraits_badeline
+	.byte <portraits_momex
 
 speaker_portrait_tables_hi:
 	.byte >portraits_madeline
 	.byte >portraits_granny
 	.byte >portraits_madeline
 	.byte >portraits_badeline
+	.byte >portraits_momex
 
 portraits_madeline:
 	.word portrait_00
@@ -44,6 +47,11 @@ portraits_granny:
 	.word portrait_10
 	.word portrait_01
 	.word portrait_11
+
+portraits_momex:
+	.word portrait_00
+	.word portrait_10
+	.word portrait_ex
 
 portrait_00:
 	.byte $00,$02,$04,$06,$08
@@ -69,6 +77,30 @@ portrait_X1:
 	.byte $AA,$AC,$AE,$B0,$B2
 	.byte $CA,$CC,$CE,$D0,$D2
 	.byte $EA,$EC,$EE,$F0,$F2
+	
+portrait_ex:
+	; NOTE: non standard format
+	; Y, TN, PAL, X
+	.byte $00, $15, pal_green, $00
+	.byte $00, $17, pal_green, $08
+	.byte $00, $19, pal_green, $10
+	.byte $00, $1B, pal_green, $18
+	.byte $08, $1D, pal_green, $20
+	.byte $10, $35, pal_green, $00
+	.byte $10, $37, pal_green, $08
+	.byte $10, $39, pal_green, $10
+	.byte $10, $3B, pal_green, $18
+	.byte $10, $57, pal_gray,  $08
+	.byte $10, $59, pal_gray,  $10
+	.byte $10, $5B, pal_gray,  $18
+	.byte $10, $55, pal_gray,  $00
+	.byte $20, $75, pal_gray,  $00
+	.byte $20, $77, pal_gray,  $08
+	.byte $20, $79, pal_gray,  $10
+	.byte $20, $7B, pal_gray,  $18
+	.byte $20, $E1, $80,       $00
+	.byte $20, $E3, $80,       $0A
+	.byte $20, $E5, $80,       $12
 
 ; ** SUBROUTINE: dlg_set_speaker
 ; desc: Sets the current speaker's portrait bank.
@@ -127,6 +159,16 @@ dlg_set_expression:
 ; ** SUBROUTINE: dlg_draw_portrait
 ; desc: Draws the active portrait.
 .proc dlg_draw_portrait
+	lda dlg_speaker
+	cmp #SPK_momex
+	bne @notMomEx
+	
+	lda dlg_portraitid
+	cmp #MOM_exph
+	bne @notMomEx
+	jmp drawEx
+	
+@notMomEx:
 	lda dlg_port_pal
 	jsr gm_allocate_palette
 	ldx dlg_facing
@@ -599,6 +641,50 @@ transformYBasedOnExpression:
 	iny
 	iny
 	iny
+	rts
+
+drawEx:
+	ldy #0
+	ldx oam_wrhead
+@loop:
+	; Y coord
+	lda portrait_ex, y
+	clc
+	adc #$0C
+	sta oam_buf, x
+	inx
+	iny
+	
+	; Tile Number
+	lda portrait_ex, y
+	sta oam_buf, x
+	inx
+	iny
+	
+	; Attributes
+	lda portrait_ex, y
+	bmi :+
+	stx oam_wrhead
+	sty temp11
+	jsr gm_allocate_palette
+	ldy temp11
+	ldx oam_wrhead
+:	and #$7F
+	sta oam_buf, x
+	inx
+	iny
+	
+	; X Coordinate
+	lda portrait_ex, y
+	clc
+	adc dlg_portraitx
+	sta oam_buf, x
+	inx
+	iny
+	stx oam_wrhead
+	
+	cpy #80
+	bne @loop
 	rts
 
 .endproc

@@ -133,7 +133,6 @@
 .incbin  "chr/b_lvl2h.chr" ; contains the dream block (dither stage 3)
 
 .segment "CHR_UN102"
-.segment "CHR_UN103"
 
 ; ** Complete Screens
 .segment "CHR_LV1CA"
@@ -170,6 +169,8 @@
 .segment "CHR_DCNTR"
 .incbin  "chr/d_count.chr"
 
+.segment "CHR_DMOME"
+.incbin  "chr/d_mome.chr"
 .segment "CHR_DBADE"
 .incbin  "chr/d_bade.chr"
 .segment "CHR_DMADE"

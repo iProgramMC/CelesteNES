@@ -95,25 +95,25 @@ MEMORY
 	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38; # Level 2 (dream block in different states)
 	CHR_BG006: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3C; # Level 2 (dream block in different states)
 	CHR_UN102: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; #      <<<<< UNUSED (2 banks)
-	CHR_UN103: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$40; #      <<<<< UNUSED (4 banks)
 	
 	## Complete Screens ##
-	CHR_LV1CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44; # Level 1 Complete A
-	CHR_LV1CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$48; # Level 1 Complete B
-	CHR_LV2CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C; # Level 2 Complete A
-	CHR_LV2CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$50; # Level 2 Complete B
-	CHR_SL1CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$54; # Level 1 Complete Sprites
-	CHR_SL2CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$56; # Level 2 Complete Sprites
+	CHR_LV1CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40; # Level 1 Complete A
+	CHR_LV1CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44; # Level 1 Complete B
+	CHR_LV2CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$48; # Level 2 Complete A
+	CHR_LV2CB: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C; # Level 2 Complete B
+	CHR_SL1CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$50; # Level 1 Complete Sprites
+	CHR_SL2CO: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$52; # Level 2 Complete Sprites
 	
 	## User Interface ##
-	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$58; # Overworld sprites
-	CHR_PAUSE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C; # Pause graphics
-	CHR_PCARD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60; # Postcard text bank
-	CHR_OPTNS: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$64; # Options text bank
+	CHR_SPOWD: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$54; # Overworld sprites
+	CHR_PAUSE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$58; # Pause graphics
+	CHR_PCARD: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$5C; # Postcard text bank
+	CHR_OPTNS: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60; # Options text bank
 	
 	## Dialog Pattern Tables ##
 	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68; # Dialog text font (unused)
 	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$6C; # Binary counting pattern for text rendering
+	CHR_DMOME: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$64; # Mom/Ex dialog portraits (No, not Momeline)
 	CHR_DBADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$70; # Badeline dialog portraits
 	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$74; # Madeline dialog portraits
 	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$78; # Theo dialog portraits (unused for now)
@@ -184,7 +184,6 @@ SEGMENTS
 	CHR_BG005: load = CHR_BG005, type = ro;
 	CHR_BG006: load = CHR_BG006, type = ro;
 	CHR_UN102: load = CHR_UN102, type = ro;
-	CHR_UN103: load = CHR_UN103, type = ro;
 	CHR_LV1CA: load = CHR_LV1CA, type = ro;
 	CHR_LV1CB: load = CHR_LV1CB, type = ro;
 	CHR_LV2CA: load = CHR_LV2CA, type = ro;
@@ -197,6 +196,7 @@ SEGMENTS
 	CHR_OPTNS: load = CHR_OPTNS, type = ro;
 	CHR_DMAIN: load = CHR_DMAIN, type = ro;
 	CHR_DCNTR: load = CHR_DCNTR, type = ro;
+	CHR_DMOME: load = CHR_DMOME, type = ro;
 	CHR_DBADE: load = CHR_DBADE, type = ro;
 	CHR_DMADE: load = CHR_DMADE, type = ro;
 	CHR_DTHEO: load = CHR_DTHEO, type = ro;
