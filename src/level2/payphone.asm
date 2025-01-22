@@ -748,27 +748,4 @@ pole:
 	.byte pph_exit
 .endproc
 
-.proc level2_payphone_monstere7
-	;     Y,  TN, X
-	.byte chrb_papho6
-	
-	.byte pph_palette, pal_red
-	.byte $08,$0A,<(-16+$10)
-	.byte $08,$0C,<(-16+$18)
-	.byte $08,$0E,<(-16+$20)
-	.byte $08,$10,<(-16+$28)
-	
-	.byte $18,$2A,<(-16+$10)
-	.byte $18,$2C,<(-16+$18)
-	.byte $18,$2E,<(-16+$20)
-	.byte $18,$30,<(-16+$28)
-	.byte $18,$32,<(-16+$30)
-	
-	.byte $28,$38,<(-16+$18)
-	.byte $28,$3A,<(-16+$20)
-	.byte $28,$3C,<(-16+$28)
-	
-	.byte pph_exit
-.endproc
-
 ; continued in payphone2.asm

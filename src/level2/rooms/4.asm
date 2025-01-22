@@ -501,7 +501,7 @@ level2_end_chase_p:
 	.byte $00,$FE,$FF
 level2_end_chase_e:
 	.byte $FE
-	.byte $10,$68,$10
+	.byte $10,$78,$10
 	.byte $FF
 level2_end_chase_t:
 	.byte $D6,$22,$33,$A6,$EE,$97,$32,$86

@@ -5,70 +5,67 @@
 ;   temp3 - Y Screen Position
 ;   temp4 - X High Position
 
-.define level2_payphone_table_1 \
-	level2_payphone_idle,       \
-	level2_payphone_mad1,       \
-	level2_payphone_mad2,       \
-	level2_payphone_mad3,       \
-	level2_payphone_mad4,       \
-	level2_payphone_mad5,       \
-	level2_payphone_mad6,       \
-	level2_payphone_mad7,       \
-	level2_payphone_mad8,       \
-	level2_payphone_mad9,       \
-	$0000
+level2_payphone_table:
+	.word level2_payphone_idle       ; idle
+	.word level2_payphone_mad1       ; pickUp
+	.word level2_payphone_mad2       ; pickUp
+	.word level2_payphone_mad3       ; pickUp
+	.word level2_payphone_mad4       ; pickUp
+	.word level2_payphone_mad5       ; pickUp
+	.word level2_payphone_mad6       ; pickUp
+	.word level2_payphone_mad7       ; pickUp
+	.word level2_payphone_mad8       ; pickUp
+	.word level2_payphone_mad9       ; pickUp, talkPhone
+	.word level2_payphone_madjump1   ; jumpBack
+	.word level2_payphone_madjump2   ; jumpBack
+	.word level2_payphone_madjump3   ; jumpBack
+	.word level2_payphone_madjump4   ; jumpBack, scare
+	.word level2_payphone_xform1     ; transform
+	.word level2_payphone_xform2     ; transform
+	.word level2_payphone_xform3     ; transform
+	.word level2_payphone_xform4     ; transform
+	.word level2_payphone_xform5     ; transform
+	.word level2_payphone_xform6     ; transform
+	.word level2_payphone_xform7     ; transform
+	.word level2_payphone_xform8     ; transform
+	.word level2_payphone_xform9     ; transform
+	.word level2_payphone_xform10    ; transform
+	.word level2_payphone_xform11    ; transform
+	.word level2_payphone_xform12    ; transform
+	.word level2_payphone_xform13    ; transform
+	.word level2_payphone_monsterI   ; transform
+	.word level2_payphone_monster1   ; transform
+	.word level2_payphone_monster2   ; transform
+	.word level2_payphone_monstere1  ; eat
+	.word level2_payphone_monstere2  ; eat
+	.word level2_payphone_monstere3  ; eat
+	.word level2_payphone_monstere4  ; eat
+	.word level2_payphone_monstere5  ; eat
+	.word level2_payphone_monstere6  ; eat
+	.word level2_payphone_monstere7  ; eat
+	.word level2_payphone_monsterd1  ; eat
+	.word level2_payphone_monsterd2  ; eat
+	.word level2_payphone_monsterd3  ; eat
+	.word level2_payphone_monsterd4  ; eat
+	.word level2_payphone_monsterd5  ; eat
+	.word level2_payphone_monsterd6  ; eat
+	.word level2_payphone_monsterd7  ; eat
+	.word level2_payphone_monsterd8  ; eat
+	.word level2_payphone_monsterd9  ; eat
+	.word level2_payphone_monsterd10 ; eat
+	.word level2_payphone_monsterd11 ; eat
+	.word level2_payphone_monsterd10 ; eat
+	.word level2_payphone_monsterd12 ; eat
+	.word level2_payphone_monsterd2  ; monsterIdle
+	.word $0000
 
-.define level2_payphone_table_2 \
-	level2_payphone_madjump1,   \
-	level2_payphone_madjump2,   \
-	level2_payphone_madjump3,   \
-	level2_payphone_madjump4,   \
-	level2_payphone_xform1,     \
-	level2_payphone_xform2,     \
-	level2_payphone_xform3,     \
-	level2_payphone_xform4,     \
-	level2_payphone_xform5,     \
-	level2_payphone_xform6,     \
-	level2_payphone_xform7,     \
-	level2_payphone_xform8,     \
-	level2_payphone_xform9,     \
-	level2_payphone_xform10,    \
-	level2_payphone_xform11,    \
-	level2_payphone_xform12,    \
-	level2_payphone_xform13,    \
-	level2_payphone_monsterI,   \
-	level2_payphone_monster1,   \
-	level2_payphone_monster2,   \
-	level2_payphone_monstere1,  \
-	level2_payphone_monstere2,  \
-	level2_payphone_monstere3,  \
-	level2_payphone_monstere4,  \
-	level2_payphone_monstere5,  \
-	level2_payphone_monstere6,  \
-	level2_payphone_monstere7,  \
-	level2_payphone_monsterd1,  \
-	level2_payphone_monsterd2,  \
-	level2_payphone_monsterd3,  \
-	level2_payphone_monsterd4,  \
-	level2_payphone_monsterd5,  \
-	level2_payphone_monsterd6,  \
-	level2_payphone_monsterd7,  \
-	level2_payphone_monsterd8,  \
-	level2_payphone_monsterd9,  \
-	level2_payphone_monsterd10, \
-	level2_payphone_monsterd11, \
-	level2_payphone_monsterd10, \
-	level2_payphone_monsterd12, \
-	$0000
+level2_payphone_table_lo:	.lobytes level2_payphone_table
+level2_payphone_table_hi:	.hibytes level2_payphone_table
+level2_payphone_max_timer = 52
 
-level2_payphone_table_1_lo:	.lobytes level2_payphone_table_1
-level2_payphone_table_1_hi:	.hibytes level2_payphone_table_1
-level2_payphone_max_1_timer = 10
-
-level2_payphone_table_2_lo:	.lobytes level2_payphone_table_2
-level2_payphone_table_2_hi:	.hibytes level2_payphone_table_2
-level2_payphone_max_2_timer = 40
-
+; idle, pickUp, talkPhone, jumpBack, scare, transform, eat
+level2_payphone_anims_start:	.byte $00, $01, $09, $0A, $0D, $0E, $1E, $32
+level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01
 
 ; ######### ANIMATION CODE #########
 
@@ -83,27 +80,45 @@ level2_payphone_max_2_timer = 40
 	jsr mmc3_set_bank
 	
 	ldx temp1
-	lda sprspace+sp_l2ph_timer, x
+	lda sprspace+sp_flags, x
+	ora #ef_timerspec2
+	sta sprspace+sp_flags, x
 	
-	; increment the timer
-	pha
-	clc
-	adc #1
-	;cmp #level2_payphone_max_1_timer
-	cmp #level2_payphone_max_2_timer
-	bne :+
+	; load the current animation state
+	ldy sprspace+sp_l2ph_state, x
+	
+	; Celeste's anim frame delay is 0.080 which is close to 5 frames. (4.8, to be exact)
+	; We'll just advance the timer every 5 frames, meaning our anim will play slightly
+	; slower.
+	inc sprspace+sp_l2ph_sbtmr, x
+	lda sprspace+sp_l2ph_sbtmr, x
+	cmp #5
+	bcc @noIncrementMainTimer
 	lda #0
-:	sta sprspace+sp_l2ph_timer, x
-	pla
+	sta sprspace+sp_l2ph_sbtmr, x
+	inc sprspace+sp_l2ph_timer, x
 	
-	;lsr
-	;lsr
+	; check if the timer exceeds the length of this animation
+	lda sprspace+sp_l2ph_timer, x
+	cmp level2_payphone_anims_length, y
+	bcc @noExceed
+	
+	lda level2_payphone_anims_length, y
+	sec
+	sbc #1
+	sta sprspace+sp_l2ph_timer, x
+
+@noExceed:
+@noIncrementMainTimer:
+	lda sprspace+sp_l2ph_timer, x
+	clc
+	adc level2_payphone_anims_start, y
+	asl
 	tax
-	;lda level2_payphone_table_1_lo, x
-	lda level2_payphone_table_2_lo, x
+	lda level2_payphone_table, x
 	sta setdataaddr
-	;lda level2_payphone_table_1_hi, x
-	lda level2_payphone_table_2_hi, x
+	inx
+	lda level2_payphone_table, x
 	sta setdataaddr+1
 	
 	; draw
@@ -155,6 +170,8 @@ level2_payphone_max_2_timer = 40
 	clc
 	adc temp2
 	sta oam_buf, x
+	bcs @detour
+@detoured:
 	inx
 	iny
 	stx oam_wrhead
@@ -232,6 +249,20 @@ level2_payphone_max_2_timer = 40
 	iny
 	
 	sta @currentPalette
+	jmp @loop
+
+@detour:
+	; carry set! is the current X coordinate offset negative ?
+	lda (setdataaddr), y
+	bmi @detoured
+	
+	; no, positive. this means that it was not supposed to overflow
+	dex
+	dex
+	dex
+	lda #$FF
+	sta oam_buf, x
+	iny
 	jmp @loop
 
 @playerInsn:

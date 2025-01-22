@@ -45,7 +45,7 @@ mmc3bk_prg1 = 7   ; prg1 controls $A000-$BFFF
 ; This allows easy indexing via the X/Y registers as you can simply do:
 ;   lda sprspace + sp_kind, x
 
-sp_max      = $0C   ; maximum of 12 sprites.
+sp_max      = $08   ; maximum of 12 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
 sp_flags    = (sp_max * 1)   ; flags
@@ -137,7 +137,9 @@ sp_l1zmf_spikyUP = $01 ; entity is spiky above
 sp_l1cf_state = sp_entspec1
 sp_l1cf_timer = sp_entspec2
 
-sp_l2ph_timer = sp_entspec1
+sp_l2ph_state = sp_entspec1
+sp_l2ph_timer = sp_entspec2
+sp_l2ph_sbtmr = sp_entspec3 ; sub timer
 
 sp_l2mi_state = sp_entspec1
 sp_l2mi_reflx = sp_entspec2
@@ -176,8 +178,9 @@ ef_collidable = $01
 ef_oddroom    = $02
 ef_limbo      = $04 ; entity was scrolled away vertically, and will show up whenever the screen is scrolled
 ef_collided   = $08 ; entity was collided last frame
-
-ef_faceleft   = $80 ; used by dialog face_entity. An entity need not respect the value of this
+ef_timerspec2 = $40 ; used by the "trigger" dialog cmd.  This lets the trigger cmd know that a timer resides at
+                    ; sp_entspec2 and it should be reset to 0 every time the trigger is called.
+ef_faceleft   = $80 ; used by the "face_entity" dialog cmd. An entity need not respect the value of this
                     ; flag, but face_entity won't work right if there's no support for it.
 ;
 ; room flags

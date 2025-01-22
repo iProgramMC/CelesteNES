@@ -944,7 +944,14 @@ dlg_cmd_trigger:
 	; this field was decided on by convention(TM).
 	sta sprspace+sp_entspec1, x
 	
+	lda sprspace+sp_flags, x
+	and #ef_timerspec2
+	beq @return
+	
+	; this field was also decided by convention(TM).
 	lda #0
+	sta sprspace+sp_entspec2, x
+@return:
 	rts
 
 ; Lock Input
