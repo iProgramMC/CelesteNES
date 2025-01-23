@@ -71,3 +71,72 @@ level2_s_mirror:
 	.byte $3E,$65,$75,$6D,$7D
 	.byte $3F,$66,$76,$6E,$7E
 	.byte $00,$67,$77,$6F,$7F
+
+.proc level2_revealdb_row
+	lda roombeglo2
+	tax
+	sta temp11
+	clc
+	adc #36          ; the other end
+	and #$1F         ; get its X in nametable coordinates
+	sta wrcountHR2   ; that'll be how many bytes we need to write
+	
+	lda #36
+	sec
+	sbc wrcountHR2
+	sta wrcountHR1
+	
+	; calculate the ppu addresses we need to write to
+	jsr h_calcppuaddr
+	
+	lda clearpalo
+	sta ppuaddrHR1
+	and #%11100000
+	sta ppuaddrHR2
+	
+	lda clearpahi
+	sta ppuaddrHR1+1
+	eor #$04
+	sta ppuaddrHR2+1
+	
+	ldy #0
+	sty wrcountHR3
+	sty wrcountHP1
+	sty wrcountHP2
+	
+	lda temp11
+	and #$1F
+	tax
+@writeLoop:
+	lda (setdataaddr), y
+	cpx #32
+	bcs @writeOtherHalf
+	sta temprow1, y
+	inx
+	iny
+	cpy #36
+	bne @writeLoop
+	beq @endWriteLoop
+
+@writeOtherHalf:
+	sta temprow2-32, x
+	inx
+	iny
+	cpy #36
+	bne @writeLoop
+	
+@endWriteLoop:
+	lda nmictrl
+	ora #nc_flushrow
+	sta nmictrl
+	
+	ldx temp1
+	rts
+.endproc
+
+.proc level2_revealdb_row2
+	lda temp9
+	ldx temp10
+	ldy temp11
+	jmp level2_revealdb_row
+.endproc

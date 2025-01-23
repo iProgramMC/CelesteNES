@@ -347,6 +347,7 @@ pole:
 	.byte $20,$0A,$10
 	.byte $00,$3C,$10
 	.byte $10,$3E,$10
+stuff:
 	.byte $30,$2A,$10
 	.byte $30,$0C,$18
 	.byte pph_exit
@@ -367,9 +368,8 @@ pole:
 	.byte $20,$0A,$10
 	.byte $00,$3C,$0E
 	.byte $10,$3E,$0F
-	.byte $30,$2A,$10
-	.byte $30,$0C,$18
-	.byte pph_exit
+	.byte pph_jump
+	.word level2_payphone_xform7::stuff
 .endproc
 
 .proc level2_payphone_xform9 ; transform 9
@@ -387,9 +387,8 @@ pole:
 	.byte $20,$0A,$10
 	.byte $00,$3C,$12
 	.byte $10,$3E,$11
-	.byte $30,$2A,$10
-	.byte $30,$0C,$18
-	.byte pph_exit
+	.byte pph_jump
+	.word level2_payphone_xform7::stuff
 .endproc
 
 .proc level2_payphone_xform10 ; transform 10
@@ -473,252 +472,6 @@ pole:
 	.byte $28,$2A,$08
 	.byte $28,$2C,$10
 	.byte $28,$2E,$18
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_xform12
-	;     Y,  TN, X
-	.byte chrb_papho2
-	.byte pph_plrbrace
-	
-	.byte pph_palette, pal_fwhite
-	.byte $01,$10,$01
-	.byte $01,$12,$09
-	
-	.byte $F9,$02,$06
-	.byte $F9,$04,$0E
-	.byte $09,$20,$FE
-	.byte $09,$22,$06
-	.byte $09,$24,$0E
-	.byte $09,$26,$16
-	
-	.byte $11,$30,$FF
-	.byte $11,$32,$07
-	
-	.byte $19,$08,$FF
-	.byte $19,$0A,$07
-	.byte $19,$0C,$0F
-	.byte $19,$0E,$17
-	
-	.byte $21,$14,$00
-	.byte $21,$16,$08
-	.byte $31,$18,$00
-	.byte $31,$1A,$08
-	
-	.byte $28,$28,$00
-	.byte $28,$2A,$08
-	.byte $28,$2C,$10
-	.byte $28,$2E,$18
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_xform13
-	;     Y,  TN, X
-	.byte chrb_papho2
-	.byte pph_plrbrace
-	
-	.byte pph_palette, pal_fwhite
-	.byte $02,$10,$00
-	.byte $02,$12,$08
-	
-	.byte $F9,$02,$00
-	.byte $F9,$04,$08
-	.byte $09,$20,$10
-	.byte $09,$22,$08
-	.byte $09,$24,$10
-	.byte $09,$26,$18
-	
-	.byte $11,$30,$00
-	.byte $11,$32,$08
-	
-	.byte $19,$08,$00
-	.byte $19,$0A,$08
-	.byte $19,$0C,$10
-	.byte $19,$0E,$18
-	
-	.byte $20,$14,$00
-	.byte $20,$16,$08
-	.byte $30,$18,$00
-	.byte $30,$1A,$08
-	
-	.byte $28,$28,$00
-	.byte $28,$2A,$08
-	.byte $28,$2C,$10
-	.byte $28,$2E,$18
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monsterI
-	;     Y,  TN, X
-	.byte chrb_papho3
-	.byte pph_plrbrace
-	
-	.byte pph_palette, pal_fwhite
-	.byte $08,$00,$00
-	.byte $08,$02,$08
-	.byte $08,$04,$10
-	.byte $08,$06,$18
-	.byte $18,$20,$00
-	.byte $18,$22,$08
-	.byte $18,$24,$10
-	.byte $18,$26,$18
-	.byte $28,$08,$00
-	.byte $28,$0A,$08
-	.byte $28,$0C,$10
-	.byte $28,$0E,$18
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monster1
-	;     Y,  TN, X
-	.byte chrb_papho3
-	.byte pph_plrbrace
-	
-	.byte pph_palette, pal_red
-	.byte $08,$00,$00
-	.byte $08,$02,$08
-	.byte $08,$04,$10
-	.byte $08,$06,$18
-	.byte $18,$20,$00
-	.byte $18,$22,$08
-	.byte $18,$24,$10
-	.byte $18,$26,$18
-	.byte $28,$08,$00
-	.byte $28,$0A,$08
-	.byte $28,$0C,$10
-	.byte $28,$0E,$18
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monster2
-	;     Y,  TN, X
-	.byte chrb_papho3
-	.byte pph_plrbrace
-	
-	.byte pph_palette, pal_red
-	.byte $08,$00,$00
-	.byte $08,$02,$08
-	.byte $08,$04,$10
-	.byte $08,$06,$18
-	.byte $23,$28,$01
-	.byte $23,$2A,$09
-	.byte $23,$2C,$11
-	.byte $23,$2E,$19
-	.byte $18,$20,$00
-	.byte $18,$22,$08
-	.byte $18,$24,$10
-	.byte $18,$26,$18
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monstere1
-	;     Y,  TN, X
-	.byte chrb_papho3
-	.byte pph_plrbrace
-	
-	.byte pph_palette, pal_red
-	.byte <(-11+$04),$18,<(9+$00)
-	.byte <(-11+$04),$1A,<(9+$08)
-	.byte <(-11+$04),$1C,<(9+$10)
-	.byte <(-11+$04),$1E,<(9+$18)
-	.byte <(-11+$24),$28,<(9+$00)
-	.byte <(-11+$24),$2A,<(9+$08)
-	.byte <(-11+$24),$2C,<(9+$10)
-	.byte <(-11+$24),$2E,<(9+$18)
-	.byte <(-11+$14),$38,<(9+$00)
-	.byte <(-11+$14),$3A,<(9+$08)
-	.byte <(-11+$14),$3C,<(9+$10)
-	.byte <(-11+$14),$3E,<(9+$18)
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monstere2
-	;     Y,  TN, X
-	.byte chrb_papho3
-	.byte pph_plrbrace
-	
-	.byte pph_palette, pal_red
-	.byte <(+7+$04),$00,<(-3+$00)
-	.byte <(+7+$04),$02,<(-3+$08)
-	.byte <(+7+$04),$04,<(-3+$10)
-	.byte <(+7+$04),$06,<(-3+$18)
-	.byte <(+7+$14),$20,<(-3+$00)
-	.byte <(+7+$14),$22,<(-3+$08)
-	.byte <(+7+$14),$24,<(-3+$10)
-	.byte <(+7+$14),$26,<(-3+$18)
-	.byte <(+7+$24),$0A,<(-3+$08)
-	.byte <(+7+$24),$0C,<(-3+$10)
-	.byte <(+7+$24),$0E,<(-3+$18)
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monstere3
-	;     Y,  TN, X
-	.byte chrb_papho4
-	
-	.byte pph_palette, pal_red
-	.byte $28,$2C,<(-24+$00)
-	.byte $28,$2E,<(-24+$08)
-	.byte $28,$30,<(-24+$10)
-	.byte $28,$32,<(-24+$18)
-	.byte $28,$28,<(-24+$20)
-	.byte $28,$2A,<(-24+$28)
-	.byte $28,$38,<(-24+$30)
-	.byte $28,$3A,<(-24+$38)
-	
-	.byte $18,$10,<(-24+$10)
-	.byte $18,$12,<(-24+$18)
-	.byte $18,$14,<(-24+$20)
-	.byte $18,$16,<(-24+$28)
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monstere4
-	;     Y,  TN, X
-	.byte chrb_papho5
-	
-	.byte pph_palette, pal_red
-	.byte $28,$20,<(-24+$00)
-	.byte $28,$22,<(-24+$08)
-	.byte $28,$24,<(-24+$10)
-	.byte $28,$26,<(-24+$18)
-	.byte $28,$28,<(-24+$20)
-	.byte $28,$2A,<(-24+$28)
-	.byte $28,$2C,<(-24+$30)
-	
-	.byte $18,$04,<(-24+$10)
-	.byte $18,$06,<(-24+$18)
-	.byte $18,$08,<(-24+$20)
-	
-	.byte pph_exit
-.endproc
-
-.proc level2_payphone_monstere5
-	;     Y,  TN, X
-	.byte chrb_papho5
-	
-	.byte pph_palette, pal_red
-	.byte $28,$2E,<(-24+$08)
-	.byte $28,$30,<(-24+$10)
-	.byte $28,$32,<(-24+$18)
-	.byte $28,$34,<(-24+$20)
-	.byte $28,$36,<(-24+$28)
-	.byte $28,$38,<(-24+$30)
-	
-	.byte $18,$10,<(-24+$10)
-	.byte $18,$12,<(-24+$18)
-	.byte $18,$14,<(-24+$20)
-	.byte $18,$16,<(-24+$28)
-	.byte $18,$18,<(-24+$30)
 	
 	.byte pph_exit
 .endproc

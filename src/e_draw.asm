@@ -52,6 +52,34 @@ gm_draw_common:
 	bcs @temp4negd
 	bcc @temp4negd
 
+; ** SUBROUTINE: gm_draw_common2
+; desc: draws a common 2X sprite.  Ensures that there is no wraparound.
+.proc gm_draw_common2
+	
+	lda temp4
+	bmi @temp4Negative
+	bne @temp4PositiveNonZero
+	
+	; temp4 is zero, so can draw
+@doDraw:
+	jmp gm_draw_common
+	
+@temp4PositiveNonZero:
+@temp4NegativeTemp2Negative:
+	; if temp4 > 0, then clearly off screen
+	rts
+
+@temp4Negative:
+	; it could still be on screen if temp2 >= $F8 (so, the RHS would end up back
+	; in screen bounds)
+	lda temp2
+	cmp #$F8
+	bcc @temp4NegativeTemp2Negative
+	bcs @doDraw
+
+.endproc
+
+
 ; ** SUBROUTINE: gm_unload_ents_room
 ; desc: Unloads all entities with a specific room number.
 ; arguments: A - the room number to unload entities from.

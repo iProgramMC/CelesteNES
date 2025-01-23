@@ -19,9 +19,9 @@ pl_load_text:
 	sta p_textlen
 	
 	; start clearing
-	lda #ps_clear
-	ora prolctrl
-	sta prolctrl
+	lda nmictrl
+	ora #nc_prolclr
+	sta nmictrl
 	
 	lda #0
 	sta p_textoffs

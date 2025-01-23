@@ -494,7 +494,6 @@ os_leftmov  = $08   ; level selector moving left
 os_rightmov = $10   ; level selector moving right
 ps_1stfr    = $01   ; first frame of prologue screen
 ps_candoit  = $02   ; show the "You can do this." text
-ps_clear    = $04   ; clear 32 bytes of pl_ppuaddr
 ps_dofade   = $08   ; reupload palette to faded version
 pls_ldtext  = $00   ; prologue: load text state
 pls_wrtext  = $01   ; prologue: write text state
