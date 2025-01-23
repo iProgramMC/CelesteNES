@@ -10,6 +10,10 @@ sgm_draw_player:
 	rts
 
 @dontReturn:
+	lda amodeforce
+	cmp #$FF
+	beq @return
+	
 	lda respawntmr
 	bne @return
 	
@@ -297,6 +301,10 @@ sgm_anim_player:
 	
 	sta animmode
 	jmp sgm_anim_mode
+	
+:	cmp #$FF
+	bne :+
+	rts
 	
 :	lda #0
 	sta spryoff

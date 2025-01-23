@@ -63,7 +63,7 @@ level2_payphone_table_lo:	.lobytes level2_payphone_table
 level2_payphone_table_hi:	.hibytes level2_payphone_table
 level2_payphone_max_timer = 52
 
-; idle, pickUp, talkPhone, jumpBack, scare, transform, eat
+; idle, pickUp, talkPhone, jumpBack, scare, transform, eat, monsterIdle
 level2_payphone_anims_start:	.byte $00, $01, $09, $0A, $0D, $0E, $1E, $32
 level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01
 
@@ -81,11 +81,56 @@ level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01
 	
 	ldx temp1
 	lda sprspace+sp_flags, x
-	ora #ef_timerspec2
+	ora #ef_clearspc23
 	sta sprspace+sp_flags, x
 	
 	; load the current animation state
 	ldy sprspace+sp_l2ph_state, x
+	
+	; if it is negative, then it's waiting to initiate the cutscene.
+	bpl @cutsceneMode
+	
+	lda player_x
+	cmp #$B0
+	bcc @returnNCM
+	
+	; initiate the cutscene.
+	lda temp2
+	pha
+	lda temp3
+	pha
+	lda temp4
+	pha
+	
+	ldx #<ch2_dream_phonecall
+	ldy #>ch2_dream_phonecall
+	lda temp1
+	pha
+	jsr dlg_begin_cutscene_g
+	pla
+	sta temp1
+	tax
+	
+	pla
+	sta temp4
+	pla
+	sta temp3
+	pla
+	sta temp2
+	
+	lda #0
+	sta sprspace+sp_l2ph_state, x
+	
+@returnNCM:
+	lda #<level2_payphone_idle
+	sta setdataaddr
+	lda #>level2_payphone_idle
+	sta setdataaddr+1
+	
+	jmp @drawPhone
+	
+@cutsceneMode:
+	ldx temp1
 	
 	; Celeste's anim frame delay is 0.080 which is close to 5 frames. (4.8, to be exact)
 	; We'll just advance the timer every 5 frames, meaning our anim will play slightly
@@ -122,6 +167,7 @@ level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01
 	sta setdataaddr+1
 	
 	; draw
+@drawPhone:
 	ldy #0
 	lda (setdataaddr), y
 	iny

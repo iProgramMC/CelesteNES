@@ -33,6 +33,8 @@ DOP_zerovel = $17  ; Set velocity to zero
 DOP_callrt  = $18  ; Call subroutine
 DOP_music   = $19  ; Play music track
 DOP_finish  = $1A  ; Finish level
+DOP_hideplr = $1B  ; Hide player
+DOP_showplr = $1C  ; Show player
 
 DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
@@ -231,4 +233,14 @@ name:
 ; Finish level
 .macro finish_level
 	.byte DOP_finish
+.endmacro
+
+; Hide player
+.macro hide_player
+	.byte DOP_hideplr
+.endmacro
+
+; Show player
+.macro show_player
+	.byte DOP_showplr
 .endmacro

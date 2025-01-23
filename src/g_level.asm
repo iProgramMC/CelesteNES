@@ -1651,6 +1651,14 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notSwitchGate:
+	cmp #e_l2payphon
+	bne @notPayPhone
+	
+	lda #$80
+	sta sprspace+sp_l2ph_state, x
+	rts
+	
+@notPayPhone:
 	; todo: more cases ...
 	rts
 

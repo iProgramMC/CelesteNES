@@ -529,7 +529,7 @@ level2_end_chase:
 	.byte 40, 0
 	.byte 255, 255, 86, 255
 	.byte 0, 0, 0, 0
-	.byte 40
+	.byte 8
 	.byte 255
 	.word level2_end_chase_t
 	.word level2_end_chase_p

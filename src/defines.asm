@@ -180,8 +180,8 @@ ef_collidable = $01
 ef_oddroom    = $02
 ef_limbo      = $04 ; entity was scrolled away vertically, and will show up whenever the screen is scrolled
 ef_collided   = $08 ; entity was collided last frame
-ef_timerspec2 = $40 ; used by the "trigger" dialog cmd.  This lets the trigger cmd know that a timer resides at
-                    ; sp_entspec2 and it should be reset to 0 every time the trigger is called.
+ef_clearspc23 = $40 ; used by the "trigger" dialog cmd.  This lets the trigger cmd know to clear sp_entspec2
+                    ; and sp_entspec3 to zero when hitting the command.
 ef_faceleft   = $80 ; used by the "face_entity" dialog cmd. An entity need not respect the value of this
                     ; flag, but face_entity won't work right if there's no support for it.
 ;

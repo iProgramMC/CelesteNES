@@ -695,6 +695,8 @@ dlg_cmd_table:
 	.word dlg_cmd_callrt
 	.word dlg_cmd_playmusic
 	.word dlg_cmd_endlevel
+	.word dlg_cmd_hideplr
+	.word dlg_cmd_showplr
 
 dlg_cmd_begin:
 	jsr dlg_cmd_left
@@ -945,12 +947,13 @@ dlg_cmd_trigger:
 	sta sprspace+sp_entspec1, x
 	
 	lda sprspace+sp_flags, x
-	and #ef_timerspec2
+	and #ef_clearspc23
 	beq @return
 	
 	; this field was also decided by convention(TM).
 	lda #0
 	sta sprspace+sp_entspec2, x
+	sta sprspace+sp_entspec3, x
 @return:
 	rts
 
@@ -1155,6 +1158,19 @@ dlg_cmd_endlevel:
 	
 	lda #2
 	sta exitmaptimer
+	rts
+
+; Hide Player
+dlg_cmd_hideplr:
+	lda #$FF
+	sta amodeforce
+	lda #0
+	rts
+
+; Show Player
+dlg_cmd_showplr:
+	lda #0
+	sta amodeforce
 	rts
 
 ; ** SUBROUTINE: dlg_recheck_next_frame

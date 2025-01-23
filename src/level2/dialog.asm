@@ -213,8 +213,106 @@ ch2_badeline_start:
 	line @dO, "Let's go home... together."
 
 ch2_dream_phonecall:
+	begin
+	lock_input
+	wait_ground
+	walk_player $CD, $A0
+	zerovel
 	
+	hide_player
+	trigger     1  ; pick up
+	wait        240
 	
+	left
+	speaker     SPK_madeline
+	expression  MAD_distract
+	dialog2     @d0
+	
+	right
+	speaker     SPK_momex
+	expression  MOM_exph
+	dialog      @d1
+	dialog2     @d2
+	
+	left
+	speaker     SPK_madeline
+	expression  MAD_distract
+	dialog      @d3
+	expression  MAD_sad
+	dialog2     @d4
+	
+	right
+	speaker     SPK_momex
+	expression  MOM_exph
+	dialog2     @d5
+	
+	left
+	speaker     SPK_madeline
+	expression  MAD_distract
+	dialog      @d6
+	dialog      @d7
+	expression  MAD_sad
+	dialog2     @d8
+	
+	right
+	speaker     SPK_momex
+	expression  MOM_exph
+	dialog      @d9
+	dialog2     @dA
+	
+	left
+	speaker     SPK_madeline
+	expression  MAD_angry
+	dialog      @dB
+	dialog2     @dC
+	
+	right
+	speaker     SPK_momex
+	expression  MOM_exph
+	dialog      @dD
+	dialog      @dE
+	dialog2     @dF
+	
+	left
+	speaker     SPK_madeline
+	expression  MAD_sad
+	dialog      @dG
+	expression  MAD_upset
+	dialog      @dH
+	dialog2     @dI
+	
+	right
+	speaker     SPK_momex
+	expression  MOM_exph
+	dialog      @dJ
+	dialog      @dK
+	dialog2     @dL
+	
+	left
+	speaker     SPK_madeline
+	expression  MAD_angry
+	dialog2     @dM
+	
+	; Badeline appears
+	
+	right
+	speaker     SPK_badeline
+	expression  BAD_scoff
+	dialog      @dN
+	expression  BAD_upset
+	dialog2     @dO
+	
+	trigger     3  ; jumpBack
+	wait        16+20
+	
+	trigger     5  ; transform
+	wait        64+64
+	
+	trigger     6  ; eat
+	wait        80+20
+	
+	unlock_input
+	end;finish_level
 	
 	line @d0, "Hello?"
 	line @d1, "Madeline?"
@@ -225,19 +323,19 @@ ch2_dream_phonecall:
 	line @d6, "It doesn't matter. I'm in trouble."
 	line @d7, "I'm being chased by... someone."
 	line @d8, "I don't really understand what's going\non, but I know I'm in danger. I\ncan feel it."
-	line @d9, "Madeline, you only call me when you're\npanicking in the middle of the\nnight."
+	line @d9, "Madeline, you only call me when you're\npanicking in the middle of the night."
 	line @dA, "You don't have to make up some\nridiculous story just to get my\nattention."
 	line @dB, "I'm not making it up!"
 	line @dC, "You always do this!"
 	line @dD, "Shhh it's alright, calm down."
 	line @dE, "I'm sorry sweetheart."
 	line @dF, "Talk to me."
-	line @dG, "I'm climbing Celeste Mountain.\nI found this old mirror, and it shattered,\nbut part of me escaped, and..."
+	line @dG, "I'm climbing Celeste Mountain. I found\nthis old mirror, and it shattered,\nbut part of me escaped, and..."
 	line @dH, "..."
 	line @dI, "I'm dreaming, aren't I?"
 	line @dJ, "Madeline. Of course you're dreaming."
 	line @dK, "I haven't spoken to you in months."
 	line @dL, "Why would I start now?"
-	line @dM, "Ugh! Why am I even climbing this stupid Mountain?"
+	line @dM, "Ugh! Why am I even climbing this\nstupid Mountain?"
 	line @dN, "I'm wondering the same thing."
 	line @dO, "It's time to give up and go home."
