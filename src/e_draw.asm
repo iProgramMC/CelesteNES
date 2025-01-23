@@ -112,6 +112,10 @@ gm_unload_os_ents:
 :	lda sprspace+sp_kind, x
 	beq :+
 	
+	; If it is a bridge, then don't subject it to such unload. It will unload itself soon.
+	cmp #e_l0bridge
+	beq :+
+	
 	lda sprspace+sp_x, x
 	clc
 	adc #$10

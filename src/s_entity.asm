@@ -1956,6 +1956,10 @@ xt_check_ent_onscreen:
 	bne @returnOne
 	
 @notStrawBerry:
+	lda sprspace+sp_kind, x
+	cmp #e_l0bridge
+	beq @returnOne
+	
 	lda #0
 	rts
 	

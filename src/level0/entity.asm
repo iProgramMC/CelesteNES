@@ -689,9 +689,12 @@ drawDashingHint:
 currentIndex := temp11
 entityX := temp4
 entityY := temp9
-positArray := dlg_bitmap + $000
-accelArray := dlg_bitmap + $080
+entityXHi := plattemp1
+accelArray := dlg_bitmap + $000
+positArray := dlg_bitmap + $080
 
+	lda temp4
+	sta entityXHi
 	lda temp2
 	sta entityX
 	lda temp3
@@ -730,14 +733,14 @@ accelArray := dlg_bitmap + $080
 	bcc @noFallInit   ; player X <<< bman X
 	bne @forceFall    ; player X >>> bman X
 	
-;	cpx #0
-;	bne :+
-;	
-;	; if this is the first bridge, wait for later
-;	lda dbenable
-;	cmp #1
-;	beq @noFallInit
-;	
+	cpx #0
+	bne :+
+	
+	; if this is the first bridge, wait for later
+	lda dbenable
+	cmp #1
+	beq @noFallInit
+	
 :	lda temp5
 	cmp sprspace+sp_x, x
 	bcc @noFallInit
@@ -748,6 +751,7 @@ accelArray := dlg_bitmap + $080
 	sta sprspace+sp_l0bm_state, x
 	
 	lda dbenable
+	sta sprspace+sp_l0bm_acidx, x
 	cmp #1
 	bne :+
 	jsr aud_play_music_by_index
@@ -767,11 +771,12 @@ accelArray := dlg_bitmap + $080
 	tay
 	
 :	lda #0
-	sta accelArray, y
 	sta positArray, y
+	sta accelArray, y
 	iny
 	tya
-	and #%11111
+	; is it a multiple of 32
+	and #%00011111
 	bne :-
 	
 	lda gamectrl2
@@ -790,7 +795,15 @@ accelArray := dlg_bitmap + $080
 @state_Falling:
 	; Falling state. If the timer is zero, determine which block to fall, and
 	; make it fall.
-	ldy sprspace+sp_l0bm_acoll, x
+	
+	lda sprspace+sp_l0bm_blidx, x
+	cmp #13
+	bcc :+
+
+	jsr drawSprites
+	jmp clearTypeAndReturnA
+
+:	ldy sprspace+sp_l0bm_acoll, x
 	bne @forceNow
 	
 	; if player somehow outruns the default rhythm, just set the timer to zero.
@@ -850,11 +863,7 @@ accelArray := dlg_bitmap + $080
 	inc sprspace+sp_l0bm_timer, x
 	bne drawSprites
 	
-:	lda sprspace+sp_l0bm_blidx, x
-	cmp #13
-	bcs @clearTypeAndReturn
-	
-	; falling!
+:	; falling!
 	lda sprspace+sp_x_pg, x
 	lsr                      ; shift bit 1 in the carry
 	lda sprspace+sp_x, x
@@ -912,17 +921,8 @@ accelArray := dlg_bitmap + $080
 	adc sprspace+sp_l0bm_blidx, x
 	sta sprspace+sp_l0bm_blidx, x
 	
-	cmp #13   ; the maximum tile index
-	bcc drawSprites
-	
-	lda #255
-	sta sprspace+sp_l0bm_timer, x
-	bne drawSprites
-	
-	; ok. so despawn the Entity later
-@clearTypeAndReturn:
-	lda #0
-	sta sprspace+sp_kind, x
+	jmp drawSprites
+
 @returnEarly:
 	rts
 
@@ -942,17 +942,19 @@ drawSprites:
 	
 	sta currentIndex
 	
+	lda currentIndex
 	asl
 	asl
 	asl
-	; add it to the X coordinate of the left
 	clc
 	adc entityX
-	; if carry set, then just return
-	bcs @return
-	
 	; that's the X coordinate
 	sta x_crd_temp
+	
+	lda entityXHi
+	adc #0
+	; if not on screen, skip this column
+	bne @skipColumn
 	
 	lda sprspace+sp_l0bm_index, x
 	clc
@@ -960,7 +962,7 @@ drawSprites:
 	and #$7F
 	tay
 	
-	lda accelArray, y
+	lda positArray, y
 	clc
 	adc entityY
 	bcc :+
@@ -968,32 +970,45 @@ drawSprites:
 :	sta y_crd_temp
 	
 	; add acceleration to it
-	lda positArray, y
+	lda accelArray, y
+	lsr
 	lsr
 	lsr
 	clc
-	adc accelArray, y
+	adc positArray, y
 	bcs @carry
-	sta accelArray, y
+	sta positArray, y
+	
+	cmp #$40
+	bcs @carry
 	
 	;lda framectr
 	;and #1
 	;beq @back
 	
-	lda positArray, y
+	lda accelArray, y
 	clc
 	adc #1
 	bcs @carry
-	sta positArray, y
+	sta accelArray, y
 	
 @back:
+	ldx temp1
 	ldy currentIndex
+	lda sprspace+sp_l0bm_acidx, x
+	cmp #5
+	bne @normalSprite
+	lda sprites2, y
+	bne @justDraw
+@normalSprite:
 	lda sprites, y
+@justDraw:
 	eor #1
 	tay
 	lda temp10
 	jsr oam_putsprite
 	
+@skipColumn:
 	inc currentIndex
 	lda currentIndex
 	bne @loop
@@ -1003,27 +1018,37 @@ drawSprites:
 
 @carry:
 	lda #$40
-	sta accelArray, y
-	lda #0
 	sta positArray, y
+	lda #0
+	sta accelArray, y
 	beq @back
 
-;@drawSprite_Bne:
-;	bne @drawSprite
-
-;@drawSprite:
-;	sta temp5
-;	sta temp8
-;	lda #$F4
-;	sta temp6
-;	lda #$F6
-;	sta temp7
-;	jmp gm_draw_common
+clearTypeAndReturnA:
+	ldx temp1
+	ldy sprspace+sp_l0bm_index, x
+	
+@clearCheckLoop:
+	lda positArray, y
+	cmp #$3C
+	bcc :+
+	iny
+	tya
+	; is y%32==13
+	and #%00011111
+	cmp #13
+	bcc @clearCheckLoop
+	
+	; looks like we can
+	lda #0
+	sta sprspace+sp_kind, x
+:	rts
 
 block_widths:
 	.byte 2,0,1,1,1,1,1,1,1,1,2,0,1
 sprites:
 	.byte $10,$12,$24,$26,$28,$2A,$3C,$7E,$BE,$24,$D0,$E0,$F0
+sprites2:
+	.byte $10,$12,$5C,$5C,$5C,$5C,$3C,$7E,$BE,$24,$D0,$E0,$F0
 
 .endproc
 

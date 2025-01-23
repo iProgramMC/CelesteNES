@@ -106,11 +106,13 @@ sp_l0ic_state = sp_entspec1  ; 0 - hanging, 1 - falling, 2 - fallen
 sp_l0ic_timer = sp_entspec2
 sp_l0ic_vel_y = sp_vel_y
 sp_l0ic_vsu_y = sp_vel_y_lo
+
 sp_l0bm_state = sp_entspec1  ; 0 - waiting, 1 - falling
 sp_l0bm_blidx = sp_entspec2  ; index of block to trigger to fall
 sp_l0bm_timer = sp_entspec3
 sp_l0bm_acoll = sp_entspec4  ; auto-collapse
 sp_l0bm_index = sp_entspec5  ; odd/even
+sp_l0bm_acidx = sp_wid       ; actual index
 
 sp_l0gr_state = sp_entspec1  ; sp_entspec1 because that's what the trigger command does
 sp_l0gr_flags = sp_entspec2
