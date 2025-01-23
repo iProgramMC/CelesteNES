@@ -438,7 +438,7 @@ playSoundEffect:
 	rts
 
 spriteIndicesCaw:			.byte $74, $78, $78, $70
-spriteIndicesFleeInitial:	.byte $7C, $7C, $7C, $64, $64, $64
+spriteIndicesFleeInitial:	.byte $6C, $6C, $6C, $6C, $64, $64
 spriteIndicesFleeNormal:	.byte $6C, $68, $7C, $64
 .endproc
 
@@ -447,9 +447,9 @@ spriteIndicesFleeNormal:	.byte $6C, $68, $7C, $64
 .proc level0_bird_dash
 boxSize = tmpRoomTran + 5
 	; default sprites
-	lda #$78
+	lda #$72
 	sta temp6
-	lda #$7A
+	lda #$70
 	sta temp7
 	
 	lda sprspace+sp_l0bd_state, x
@@ -509,6 +509,7 @@ boxSize = tmpRoomTran + 5
 	
 	pla
 	sta temp1
+	rts
 	
 normalFaceRight:
 	lda #pal_bird
@@ -532,33 +533,186 @@ checkMoreStates:
 	cmp #2
 	beq flyDownState
 	cmp #3
-	beq bawkState
+	beq eatState_
 	cmp #4
-	beq flyAwayState
+	beq bawkState_
+	cmp #5
+	beq flyAwayState_
 
 slowDownState:
 	; slowed down, wait for further instructions from the cutscene
-	jmp normalFaceRight
+	;jmp normalFaceRight
+	rts
+
+flyAwayState_:
+	jmp flyAwayState
+
+eatState_:
+	jmp eatState
+
+bawkState_:
+	jmp bawkState
 
 flyDownState:
-	; flying down TODO
+	lda sprspace+sp_l0bd_timer, x
+	bne @dontSetPosition
+	
+	lda camera_x
+	sta sprspace+sp_x, x
+	lda camera_x_pg
+	sta sprspace+sp_x_pg, x
+	inc sprspace+sp_x_pg, x
+	lda #$2B
+	sta sprspace+sp_y, x
+	
+@dontSetPosition:
+	inc sprspace+sp_l0bd_timer, x
+	
+	lda temp2
+	pha
+	lda temp3
+	pha
+	lda temp4
+	pha
+	
+	lda #0
+	sec
+	sbc sprspace+sp_y_lo, x
+	sta temp11
+	
+	lda #$A2
+	sbc sprspace+sp_y, x
+	
+	lsr
+	ror temp11
+	lsr
+	ror temp11
+	lsr
+	ror temp11
+	lsr
+	ror temp11
+	
+	cmp #2
+	bcc :+
+	lda #2
+	
+:	sta temp10
+	lda temp11
+	clc
+	adc sprspace+sp_y_lo, x
+	sta sprspace+sp_y_lo, x
+	lda sprspace+sp_y, x
+	adc temp10
+	sta sprspace+sp_y, x
+	
+	; now, approach the X
+	; the dest X is $B0, so $50 px to walk over like 64 frames
+	; $1 pixels, $40 subpixels
+	lda sprspace+sp_l0bd_timer, x
+	cmp #16
+	bcc :+
+	
+	lda sprspace+sp_x_lo, x
+	sec
+	sbc #$40
+	sta sprspace+sp_x_lo, x
+	lda sprspace+sp_x, x
+	sbc #$01
+	sta sprspace+sp_x, x
+	
+:	pla
+	sta temp4
+	pla
+	sta temp3
+	pla
+	sta temp2
+	cmp #16
+	bcc :+
+	
+	lda sprspace+sp_l0bd_timer, x
+	cmp #45
+	bcc @landAnim
+	
+	lsr
+	lsr
+	lsr
+	and #3
+	tay
+	lda @flyAnimFrames, y
+	sta temp7
+	clc
+	adc #2
+	sta temp6
+	
+@draw:
+	lda sprspace+sp_l0bd_timer, x
+	cmp #1
+	beq :+
+	jmp normalFaceLeft
+:	rts
+
+@landAnim:
+	lda #$6C
+	sta temp7
+	lda #$6E
+	sta temp6
+	bne @draw
+
+@flyAnimFrames:	.byte $6C, $68, $7C, $64
+
+eatState:
+	lda #chrb_splv0b
+	sta spr1_bknum
+	lda sprspace+sp_l0bd_timer, x
+	inc sprspace+sp_l0bd_timer, x
+	cmp #32
+	bcc :+
+	lda #32
+:	lsr
+	lsr
+	lsr
+	tay
+	lda @eatFrames, y
+	sta temp7
+	clc
+	adc #2
+	sta temp6
 	jmp normalFaceLeft
 
+@eatFrames:	.byte $70, $5C, $70, $5C, $70
+	
 bawkState:
 	lda sprspace+sp_l0bd_timer, x
-	tay
 	bne bawkWaiting
-	
-	inc sprspace+sp_l0bd_timer, x
 	
 	lda #0
 	sta dashcount
 	sta plh_forcepal
 	
 	jsr gm_bird_caw_sfx
-	jmp normalFaceLeft
+	ldx temp1
 
 bawkWaiting:
+	inc sprspace+sp_l0bd_timer, x
+	lda sprspace+sp_l0bd_timer, x
+	cmp #32
+	bcc :+
+	lda #32
+:	sta sprspace+sp_l0bd_timer, x
+	
+	jsr drawDashingHint
+	
+	lda sprspace+sp_l0bd_timer, x
+	lsr
+	lsr
+	lsr
+	tay
+	lda @bawkFrames, y
+	sta temp7
+	clc
+	adc #2
+	sta temp6
+	
 	lda #chrb_splv0b
 	sta spr1_bknum
 	
@@ -570,11 +724,9 @@ bawkWaiting:
 	sta game_cont_force
 	sta game_cont_force+1
 	
-	jsr drawDashingHint
-	
 	; waiting for the player to dash and then land
 	lda dashcount
-	beq normalFaceLeft       ; dash count is still zero, means player didn't yet dash!
+	beq @notDashed           ; dash count is still zero, means player didn't yet dash!
 	
 	lda gamectrl3
 	and #<~g3_nogradra
@@ -585,7 +737,11 @@ bawkWaiting:
 	sta game_cont_force
 	lda #cont_lsh
 	sta game_cont_force+1
-	jmp normalFaceRight
+	
+@notDashed:
+	jmp normalFaceLeft
+
+@bawkFrames:	.byte $70, $74, $78, $78, $70
 
 flyAwayState:
 	lda boxSize
@@ -598,14 +754,73 @@ flyAwayState:
 	jsr drawDashingHint
 	; since it incremented the size, decrement it again
 	dec boxSize
+	jmp @boxSizeIsZero
 	
-@boxSizeIsZero:
-	; flying away TODO
-	jmp normalFaceRight
-
 @boxSizeIsZeroAndResetBank:
 	lda #chrb_splvl0
+	sta spr1_bknum
+
+@boxSizeIsZero:
+	ldx temp1
+	
+	; add to the velocity
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc #$10
+	sta sprspace+sp_vel_y_lo, x
+	bcc :+
+	inc sprspace+sp_vel_y, x
+	
+:	lda sprspace+sp_l0bd_timer, x
+	inc sprspace+sp_l0bd_timer, x
+	cmp #64
+	bcs @done
+	cmp #32
+	bcs @flyFast
+	
+	; fly slow
+	inc sprspace+sp_x, x
+	bne :+
+	inc sprspace+sp_x_pg, x
+:	dec sprspace+sp_y, x
+	
+	jmp @drawAnim
+	
+@flyFast:
+	lda sprspace+sp_y_lo, x
+	sec
+	sbc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_y_lo, x
+	
+	lda sprspace+sp_y, x
+	sbc sprspace+sp_vel_y, x
+	sta sprspace+sp_y, x
+	
+	inc sprspace+sp_x, x
+	bne @drawAnim
+	inc sprspace+sp_x_pg, x
+
+@drawAnim:
+	lda sprspace+sp_l0bd_timer, x
+	lsr
+	lsr
+	lsr
+	and #3
+	tay
+	lda @flyAnimFrames, y
+	sta temp6
+	clc
+	adc #2
+	sta temp7
 	jmp normalFaceRight
+
+@done:
+	ldx temp1
+	lda #0
+	sta sprspace+sp_kind, x
+	rts
+
+@flyAnimFrames:	.byte $6C, $68, $7C, $64
 
 drawDashingHint:
 	lda #pal_bubble
@@ -661,8 +876,10 @@ drawDashingHint:
 	lda temp7
 	sta y_crd_temp
 	
-	.if I < 3
+	.if I < 1
 		ldy #$6A + I * 2
+	.elseif I < 3
+		ldy #$7C + (I - 1) * 2
 	.else
 		ldy #$54 + (I - 3) * 2
 	.endif

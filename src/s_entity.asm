@@ -1959,6 +1959,8 @@ xt_check_ent_onscreen:
 	lda sprspace+sp_kind, x
 	cmp #e_l0bridge
 	beq @returnOne
+	cmp #e_l0birdda
+	beq @returnOne
 	
 	lda #0
 	rts

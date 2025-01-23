@@ -113,14 +113,21 @@ ch0_dash_tutorial:
 	trigger 2   ; fly down
 	zerovel
 	
-	wait 50
-	trigger 3   ; bawk!!
+	wait    80
+	trigger 3   ; knock knock
+	
+	wait    64
+	trigger 4   ; bawk!!
 	
 	wait_ground
 	walk_player 188,160
-	trigger 4   ; fly away
+	trigger 5   ; fly away
 	
 	; start panting
 	call_rt gm_set_panting
+	lock_input
+	wait    80
 	
+	
+	finish_level
 	end

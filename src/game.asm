@@ -210,6 +210,17 @@ gm_game_update:
 	; NOTE: this is redundant in case that g2_exitlvl isn't set
 	jsr save_file_flush_berries
 	
+	lda levelnumber
+	bne @returnToOverworld
+	
+	; return to the prologue with a special message.
+	lda #gm_prologue
+	sta gamemode
+	lda #ps_candoit
+	sta gamestate
+	bne @returnDontExit
+	
+@returnToOverworld:
 	lda #gm_overwld
 	sta gamemode
 	lda #0
@@ -1314,3 +1325,48 @@ gm_load_hair_palette:
 	rts
 .endproc
 
+
+; ** SUBROUTINE: calc_approach
+; desc: Approaches an 8-bit value towards another 8-bit value.
+;
+; parameters:
+;     X - The index into the zero page of the value to update
+;     Y - The value to add
+;     A - The approached value
+;
+; note:
+;     clobbers temp1, temp2, A, X
+.if 0
+calc_approach:
+@end = temp1
+@add = temp2
+	sta @end
+	sty @add
+	
+	lda 0, x
+	cmp @end
+	bcs @startBiggerThanEnd
+	
+	; start < end
+	; clc
+	adc @add
+	bcc :+
+	lda @end   ; it overflew! so, just end
+:	cmp @end
+	bcc :+
+	lda @end   ; start now >= end, load end
+:	sta 0, x
+	rts
+	
+@startBiggerThanEnd:
+	; start >= end
+	; sec
+	sbc @add
+	bcs :+
+	lda @end   ; it underflew! so, just end
+:	cmp @end
+	bcs :+
+	lda @end   ; start now < end, load end
+:	sta 0, x
+	rts
+.endif

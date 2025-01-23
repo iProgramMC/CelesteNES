@@ -59,7 +59,14 @@ gamemode_prologue_init_FAR:
 	sta camera_y_hi
 	jsr vblank_wait
 	
-	ldy #<init_palette
+	lda prolctrl
+	and #ps_candoit
+	beq :+
+	
+	lda #3
+	sta p_textnum
+	
+:	ldy #<init_palette
 	sty paladdr
 	ldy #>init_palette
 	sty paladdr+1
@@ -92,7 +99,7 @@ gamemode_prologue_update_FAR:
 	eor #$FF
 	and p1_cont
 	and #cont_start
-	bne @gameswitch  ; allow skipping by pressing START
+	bne @gameswitch_ ; allow skipping by pressing START
 	
 	lda pl_state
 	cmp #pls_wrtext
@@ -103,8 +110,15 @@ gamemode_prologue_update_FAR:
 	beq @fade
 
 	; default state: load text
+	ldx #3
+	lda prolctrl
+	and #ps_candoit
+	beq :+
+	ldx #4
+:	stx temp11
+	
 	ldx p_textnum
-	cpx #3
+	cpx temp11
 	beq @gameswitch
 	
 	jsr pl_load_text
@@ -129,6 +143,9 @@ gamemode_prologue_update_FAR:
 	sta pl_state
 	sta p_texttimer
 	beq @updateReturn
+
+@gameswitch_:
+	jmp @gameswitch
 
 @wait:
 	dec p_texttimer
@@ -186,5 +203,22 @@ gamemode_prologue_update_FAR:
 	rts
 
 @gameswitch:
+	lda prolctrl
+	and #ps_candoit
+	bne @exitToOverworld
+	
 	ldx #0              ; select level zero
 	jmp tl_gameswitch
+
+@exitToOverworld:
+	jmp tl_owldswitch
+
+p_text0:	.byte "      This is it, Made{ne.      "
+p_text1:	.byte "          Just breathe.         "
+p_text2:	.byte "     Why are you so nervous?    "
+p_text3:	.byte "        You can do this.        "
+p_texttable:
+	.word p_text0
+	.word p_text1
+	.word p_text2
+	.word p_text3
