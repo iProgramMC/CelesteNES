@@ -1321,10 +1321,14 @@ h_genertiles_inc_arwrhead:
 	; already specified, just use that to calculate the camera limit.
 	lda roomsize
 	bne roomWidthNotZero
+	
+	lda #rf_new
+	bit roomflags
+	beq :+
 	lda roomwidth
 	bne roomWidthNotZero
 	
-	lda camera_x
+:	lda camera_x
 	; is a "clc" needed? sometimes it adds 41, but does that even matter
 	adc #40                ; the scroll seam is always 4 tiles (32px) ahead, but add 64 just in case
 	lda camera_x_pg        ; the only reason we add though is to figure out the high byte

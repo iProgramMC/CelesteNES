@@ -41,6 +41,7 @@ portraits_badeline:
 	.word portrait_10
 	.word portrait_20
 	.word portrait_01
+	.word portrait_X2
 
 portraits_granny:
 	.word portrait_00
@@ -77,6 +78,10 @@ portrait_X1:
 	.byte $AA,$AC,$AE,$B0,$B2
 	.byte $CA,$CC,$CE,$D0,$D2
 	.byte $EA,$EC,$EE,$F0,$F2
+portrait_X2:
+	.byte $76,$78,$7A,$7C,$7E
+	.byte $96,$98,$9A,$9C,$9E
+	.byte $B6,$B8,$BA,$BC,$BE
 	
 portrait_ex:
 	; NOTE: non standard format
@@ -439,6 +444,10 @@ badelineExtra:
 	jsr badelineRedEyes	
 
 	lda dlg_portrait+11
+	cmp #$B8
+	beq @goToNormalSpeak
+	cmp #$A2
+	beq @goToNormalSpeak
 	cmp #$42
 	beq @goToNormalSpeak
 	cmp #$4C
@@ -446,7 +455,7 @@ badelineExtra:
 	rts
 
 @goToNormalSpeak:
-	jmp madeline_normalSpeak
+	jmp badeline_normalSpeak
 
 badelineRedEyes:
 	jsr homeX2
@@ -476,6 +485,16 @@ badelineRedEyes:
 	clc
 	adc #4
 	sta y_crd_temp
+:	cpy #BAD_upset
+	bne :+
+	lda y_crd_temp
+	clc
+	adc #8
+	sta y_crd_temp
+	lda x_crd_temp
+	clc
+	adc #4
+	sta x_crd_temp
 :	lda temp10
 	tay
 	sty temp10
@@ -516,8 +535,94 @@ badelineRedEyes:
 	rts
 
 ; note: anatomically left - it's actually on the right!
-@leftEyeOffsets:	.byte 12, 10, 8,  8
-@eyeSpriteNumbers:	.byte $C0,$C6,$E0,$CC
+@leftEyeOffsets:	.byte 12, 10, 8,  8,  8
+@eyeSpriteNumbers:	.byte $C0,$C6,$E0,$CC,$E6
+
+badeline_normalSpeak:
+	; normal, so select mouth frame
+	lda dlg_speaktimer
+	cmp #$FF
+	beq @setNormal
+	
+	cmp #32
+	bcc :+
+	lda #0
+	sta dlg_speaktimer
+:	lsr
+	lsr
+	lsr
+	tay
+	jsr badTransformYBasedOnExpression
+	lda @mouthFrames, y
+	sta dlg_portrait+12
+	clc
+	adc #2
+	sta dlg_portrait+13
+	rts
+
+@setNormal:
+	lda dlg_portrait+10
+	cmp #$4A
+	beq @setSadNormal
+	cmp #$A0
+	beq @setAngryNormal
+	cmp #$B6
+	beq @setUpsetNormal
+	lda #$44
+	sta dlg_portrait+12
+	lda #$46
+	sta dlg_portrait+13
+	rts
+@setSadNormal:
+	lda #$4E
+	sta dlg_portrait+12
+	lda #$50
+	sta dlg_portrait+13
+	rts
+@setAngryNormal:
+	lda #$A4
+	sta dlg_portrait+12
+	lda #$A6
+	sta dlg_portrait+13
+	rts
+@setUpsetNormal:
+	lda #$BA
+	sta dlg_portrait+12
+	lda #$BC
+	sta dlg_portrait+13
+	rts
+
+@mouthFrames:
+	.byte $44, $6A, $72, $6E
+	.byte $4E, $8A, $92, $8E
+	.byte $BA, $AA, $B2, $AE
+	.byte $A4, $D4, $DC, $D8
+
+badTransformYBasedOnExpression:
+	lda dlg_portrait+10
+	cmp #$4A
+	beq @sad
+	cmp #$B6
+	beq @upset
+	cmp #$A0
+	beq @angry
+	rts
+@angry:
+	iny
+	iny
+	iny
+	iny
+@upset:
+	iny
+	iny
+	iny
+	iny
+@sad:
+	iny
+	iny
+	iny
+	iny
+	rts
 
 madelineExtra:
 	jsr madelineWhiteEyes

@@ -130,8 +130,7 @@ ch2_badeline_start:
 	dialog      @dA ; yeah, yeah, forget it
 	dialog      @dB ; it's relieving to get out of your head finally
 	
-	;expression  BAD_upset TODO
-	expression  BAD_angry
+	expression  BAD_upset
 	dialog      @dC ; but i'm worried about us
 	
 	expression  BAD_normal
@@ -158,9 +157,8 @@ ch2_badeline_start:
 	
 	left
 	speaker     SPK_badeline
-	;expression  BAD_upset TODO
-	expression  BAD_angry
-	dialog      @dH ; i know you suck at it, but be reasonable for once
+	expression  BAD_upset
+	dialog      @dH ; i know it's not your strong suit, but be reasonable for once
 	dialog      @dI ; you have no clue what you're jumping into
 	dialog2     @dJ ; you can't tackle this
 	
@@ -168,12 +166,11 @@ ch2_badeline_start:
 	speaker     SPK_madeline
 	expression  MAD_upset
 	dialog      @dK ; it's why i need to do this
-	dialog2     @dL ; are you the weak or the lazy part
+	dialog2     @dL ; are you the weak or the lazy part?
 	
 	left
 	speaker     SPK_badeline
-	;expression  BAD_upset TODO
-	expression  BAD_angry
+	expression  BAD_upset
 	dialog      @dM ; i'm the pragmatic part
 	
 	expression  BAD_scoff

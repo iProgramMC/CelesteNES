@@ -242,7 +242,7 @@ postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
 	lda #def_ppu_msk
 	sta ppu_mask
 
-	lda #120
+	lda #90
 	sta ow_timer
 
 @loop:
