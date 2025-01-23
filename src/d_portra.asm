@@ -283,11 +283,12 @@ homeX2:
 
 grannyExtra:
 	lda dlg_portrait+10
-	cmp #$4A
-	beq @laughing
 	cmp #$40
 	beq @normal
-	rts
+	cmp #$4A
+	bne :+
+	jmp @laughing
+:	rts
 
 @normal:
 	lda #$1C+16
@@ -330,47 +331,48 @@ grannyExtra:
 	sty temp11
 	
 	; Add the mouth offset
-	lda dlg_portraitx
-	clc
-	adc @mouthOffsets, y
-	;because why would it overflow right
-	adc #8
-	sta x_crd_temp
+	jsr @calculateInitialMouthOffset
 	
 	; Draw the first sprite
 	lda @mouthSprites, y
 	tay
-	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	lda dlg_facing
+	beq :+
+	lda #obj_fliphz
+:	ora #1           ; TODO: hardcoded to the first palette, the hair palette
+	pha
 	jsr oam_putsprite
 	
 	; Check if it was that 1 sprite version
 	ldx temp11
 	cpx #3
-	beq @return
+	beq @returnPull
 	
 	; No, so this is a 3x sprite
-	jsr incrementX
+	jsr incrementX2
 	lda @mouthSprites, x
 	clc
 	adc #2
 	tay
-	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	pla
+	sta temp11
 	jsr oam_putsprite
 	
 	; No, so this is a 3x sprite
-	jsr incrementX
+	jsr incrementX2
 	lda @mouthSprites, x
 	clc
 	adc #4
 	tay
-	lda #1           ; TODO: hardcoded to the first palette, the hair palette
-	jsr oam_putsprite
-	
-@return:
-	rts
+	lda temp11       ; TODO: hardcoded to the first palette, the hair palette
+	jmp oam_putsprite
 
 @setNormal_:
 	beq @setNormal
+
+@returnPull:
+	pla
+	rts
 
 @laughing:
 	; draw Granny's tongue in red. I was careful not to overstep the 8sp/sl limit
@@ -380,11 +382,11 @@ grannyExtra:
 	sta x_crd_temp
 	lda #$1A+16
 	sta y_crd_temp
-	lda #1           ; TODO: hardcoded to the first palette, the hair palette
+	lda #1            ; TODO: hardcoded to the first palette, the hair palette
 	ldy #$F6
 	jsr oam_putsprite
 	
-	jsr incrementX
+	jsr incrementX2
 	lda #1
 	ldy #$F8
 	jsr oam_putsprite
@@ -411,6 +413,28 @@ grannyExtra:
 @mouthOffsets:
 	.byte 2, 3, 4, 20
 
+@calculateInitialMouthOffset:
+	lda dlg_facing
+	beq @facingRight
+	
+	lda dlg_portraitx
+	clc
+	adc #24
+	sec
+	sbc @mouthOffsets, y
+	sta x_crd_temp
+	rts
+	
+@facingRight:
+	lda dlg_portraitx
+	clc
+	adc @mouthOffsets, y
+	;because why would it overflow right
+	adc #8
+	sta x_crd_temp
+	rts
+	
+@done:
 badelineExtra:
 	jsr badelineRedEyes	
 
