@@ -1169,8 +1169,18 @@ tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
 	sta deathwipe2
 	stx deathwipe
 	
-	;lda #0
-	;sta miscsplit
+	lda #$04
+	sta plr_spr_l
+	lda #$06
+	sta plr_spr_r
+	lda #$32
+	sta plh_spr_l
+	lda #$30
+	sta plh_spr_r
+	lda #0
+	sta sprxoff
+	sta spryoff
+	sta spryoffbase
 	
 	jsr gm_respawn_leave_doframe2
 	
@@ -1216,6 +1226,7 @@ doneWipe:
 	bne loop
 	
 	lda #0
+	sta spr0_bknum
 	sta miscsplit
 	sta deathwipe
 	sta deathwipe2
