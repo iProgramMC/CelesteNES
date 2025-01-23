@@ -1143,10 +1143,7 @@ dlg_cmd_playmusic:
 	; store the argument in temp11 because we want the music bank to be loaded
 	sta temp11
 	
-	ldx #<aud_play_music_by_index_hack
-	ldy #>aud_play_music_by_index_hack
-	lda musicbank
-	jsr far_call2
+	jsr aud_play_music_by_index
 	lda #0
 	rts
 

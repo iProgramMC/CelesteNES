@@ -125,8 +125,21 @@ level0_granny:
 	bit gamectrl3
 	bne @return
 	
+	lda player_y
+	cmp #$73
+	bcs @return
+	
+	lda #pl_ground
+	bit playerctrl
+	beq @return
+	
+	lda dbenable
+	bne @return
+	
 	lda #1
 	sta sprspace+sp_l0gr_cutsc, x
+	
+	inc dbenable
 	
 	lda temp1
 	pha
@@ -676,6 +689,8 @@ drawDashingHint:
 currentIndex := temp11
 entityX := temp4
 entityY := temp9
+positArray := dlg_bitmap + $000
+accelArray := dlg_bitmap + $080
 
 	lda temp2
 	sta entityX
@@ -715,7 +730,15 @@ entityY := temp9
 	bcc @noFallInit   ; player X <<< bman X
 	bne @forceFall    ; player X >>> bman X
 	
-	lda temp5
+;	cpx #0
+;	bne :+
+;	
+;	; if this is the first bridge, wait for later
+;	lda dbenable
+;	cmp #1
+;	beq @noFallInit
+;	
+:	lda temp5
 	cmp sprspace+sp_x, x
 	bcc @noFallInit
 
@@ -725,22 +748,30 @@ entityY := temp9
 	sta sprspace+sp_l0bm_state, x
 	
 	lda dbenable
-	eor #1
-	sta dbenable
-	beq :+
-	lda #32
-:	sta sprspace+sp_l0bm_index, x
+	cmp #1
+	bne :+
+	jsr aud_play_music_by_index
 	
-	; clear player trace
-	ldy sprspace+sp_l0bm_index, x
+	; NOTE: This will overwrite pltraces AND part of dlgram!
+	ldx temp1
+:	inc dbenable
+	lda dbenable
+	and #3
+	asl
+	asl
+	asl
+	asl
+	asl
+	sta sprspace+sp_l0bm_index, x
 	
-	lda #0
-:	sta plr_trace_x, y
-	sta plr_trace_y, y
+	tay
+	
+:	lda #0
+	sta accelArray, y
+	sta positArray, y
 	iny
-	cpy #32
-	beq @exit
-	cpy #64
+	tya
+	and #%11111
 	bne :-
 	
 	lda gamectrl2
@@ -926,10 +957,10 @@ drawSprites:
 	lda sprspace+sp_l0bm_index, x
 	clc
 	adc currentIndex
-	and #$3F
+	and #$7F
 	tay
 	
-	lda plr_trace_x, y
+	lda accelArray, y
 	clc
 	adc entityY
 	bcc :+
@@ -937,23 +968,23 @@ drawSprites:
 :	sta y_crd_temp
 	
 	; add acceleration to it
-	lda plr_trace_y, y
+	lda positArray, y
 	lsr
 	lsr
 	clc
-	adc plr_trace_x, y
+	adc accelArray, y
 	bcs @carry
-	sta plr_trace_x, y
+	sta accelArray, y
 	
 	;lda framectr
 	;and #1
 	;beq @back
 	
-	lda plr_trace_y, y
+	lda positArray, y
 	clc
 	adc #1
 	bcs @carry
-	sta plr_trace_y, y
+	sta positArray, y
 	
 @back:
 	ldy currentIndex
@@ -972,9 +1003,9 @@ drawSprites:
 
 @carry:
 	lda #$40
-	sta plr_trace_x, y
+	sta accelArray, y
 	lda #0
-	sta plr_trace_y, y
+	sta positArray, y
 	beq @back
 
 ;@drawSprite_Bne:

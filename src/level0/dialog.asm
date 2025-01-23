@@ -77,7 +77,7 @@ ch0_granny:
 	line @d3, "By the way, you should call someone\nabout your driveway. The ridge\ncollapsed and I nearly died."
 	line @d4, "If my \"driveway\" almost did you in,\nthe Mountain might be a bit much\nfor you."
 	line @d5, "..."
-	line @d6, "Well, if an old bat like *you* can\nsurvive out here, I think I'll be fine."
+	line @d6, "Well, if an old bat like you can\nsurvive out here, I think I'll be fine."
 	line @d7, "Suit yourself."
 	line @d8, "But you should know,\nCeleste Mountain is a strange place."
 	line @d9, "You might see things."

@@ -127,7 +127,20 @@ gm_game_init:
 	lda #16
 	jsr fade_in_smaller_palette
 	
-:	jmp gm_game_update
+:	; check if we should restart the music
+	lda levelnumber
+	bne @notPrologue
+	
+	lda dbenable
+	beq @notPrologue
+	
+	lda #0
+	jsr aud_play_music_by_index
+	lda #1
+	sta dbenable
+	
+@notPrologue:
+	jmp gm_game_update
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:

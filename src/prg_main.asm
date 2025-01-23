@@ -182,8 +182,8 @@ reset:
 	stx apu_dmc_cfg  ; disable APU DMC IRQs
 	
 	; clear $01 - $FF ($00 must remain different from 0 until the reset sequence finishes)
-	lda #0
-	ldx #1
+	txa
+	inx
 :	sta $000, x
 	inx
 	bne :-
@@ -210,7 +210,7 @@ reset:
 	sty paladdr
 	ldy #>init_palette
 	sty paladdr+1
-	jsr load_palette ; move palette to palette RAM
+	;jsr load_palette ; move palette to palette RAM
 	
 	;ldy #def_ppu_msk ; show background & sprites
 	;sty ppu_mask     ; set the ppu mask

@@ -68,11 +68,11 @@ aud_init:
 	ldy #0
 	jmp famistudio_init
 
-; ** SUBROUTINE: aud_play_music_by_index
-; desc: Plays a selected track by index.
+; ** SUBROUTINE: aud_play_music_by_index_near
+; desc: Plays a selected track by index.  Assumes music is loaded in the $A000 bank.
 aud_play_music_by_index_hack:
 	lda temp11
-aud_play_music_by_index:
+aud_play_music_by_index_near:
 	jmp famistudio_music_play
 
 ; ** SUBROUTINE: aud_load_sfx
@@ -89,5 +89,14 @@ aud_reset:
 	ldy #>music_data_blank
 	lda #1
 	jmp famistudio_init
+
+; ** SUBROUTINE: aud_play_music_by_index
+; desc: Plays a track by index.  Uses a far jump to select the music bank first.
+aud_play_music_by_index:
+	sta temp11
+	ldx #<aud_play_music_by_index_hack
+	ldy #>aud_play_music_by_index_hack
+	lda musicbank
+	jmp far_call2
 
 .include "blank.asm"
