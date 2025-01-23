@@ -3,5 +3,5 @@
 .include "testmusic.asm"
 
 level0_music:
-	.word music_data_prologue ; song list
-	.byte $00                 ; default song
+	.word music_data_ch0 ; song list
+	.byte $00            ; default song
