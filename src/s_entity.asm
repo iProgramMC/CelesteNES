@@ -10,6 +10,29 @@
 ;   temp3 - Y Screen Position
 ;   temp4 - X High Position
 
+
+.proc xt_determine_crumble_palette
+	; TODO: Hardcoded exception
+	lda levelnumber
+	cmp #2
+	bne @notR10U
+	
+	lda roomptrhi
+	cmp #>level2_r10_
+	bne @notR10U
+	
+	lda roomptrlo
+	cmp #<level2_r10_
+	bne @notR10U
+	
+	lda #pal_tower
+	rts
+
+@notR10U:
+	lda #pal_gray
+	rts
+.endproc
+
 ; ** ENTITY: Particle
 .proc xt_draw_particle
 	lda temp2
@@ -94,8 +117,11 @@
 
 ; ** ENTITY: Refill Placeholder
 .proc xt_draw_refillhold
+	jsr xt_determine_crumble_palette
+	cmp #pal_gray
+	bne :+
 	lda #pal_green
-	jsr gm_allocate_palette
+:	jsr gm_allocate_palette
 	sta temp5
 	ora #$40
 	sta temp8
@@ -104,6 +130,7 @@
 	sta temp7
 	jsr gm_draw_common
 	;jmp xt_update_refillhold
+
 .endproc
 
 .proc xt_update_refillhold
@@ -121,8 +148,11 @@
 
 ; ** ENTITY: Refill
 .proc xt_draw_refill
+	jsr xt_determine_crumble_palette
+	cmp #pal_gray
+	bne :+
 	lda #pal_green
-	jsr gm_allocate_palette
+:	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	lda #$FC
@@ -426,7 +456,7 @@ okay:
 	bcs @justReturn
 	
 @smallerThanF8:
-	lda #pal_gray
+	jsr xt_determine_crumble_palette
 	jsr gm_allocate_palette
 	sta temp5
 	
@@ -1409,8 +1439,15 @@ drawSprite:
 	sta x_crd_temp
 	lda temp3
 	sta y_crd_temp
+	
 	ldy #$E0
-	lda temp5
+	; use a different graphic if this touch switch was touched
+	ldx temp1
+	lda sprspace+sp_tswi_state, x
+	cmp #2
+	bcc :+
+	ldy #$E2
+:	lda temp5
 	jsr oam_putsprite
 	
 	; and draw the container
@@ -1429,7 +1466,9 @@ state_Init:
 	inc tswitches
 	bne drawSprite
 
-palettes:	.byte pal_blue, pal_blue, pal_gray, pal_pink
+palettes:
+	;.byte pal_blue,  pal_blue,  pal_gray,  pal_pink   ; normal palettes
+	.byte pal_tower, pal_tower, pal_tower, pal_chaser ; palettes used while Badeline is active
 .endproc
 
 ; ** ENTITY: xt_draw_switch_gate
@@ -1528,7 +1567,7 @@ drawSprite:
 	
 	; TODO: A lot of code copied from xt_draw_falling_block. When running out of space,
 	; try to deduplicate some of this.
-	lda #pal_blue
+	lda #pal_tower
 	jsr gm_allocate_palette
 	sta @attrib
 	

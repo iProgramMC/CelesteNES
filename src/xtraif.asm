@@ -133,7 +133,17 @@
 .proc sgm_anim_and_draw_player
 	jsr sgm_anim_player
 	jsr sgm_anim_banks
+	jsr sgm_check_chaser
 	jmp sgm_draw_player
+.endproc
+
+.proc sgm_check_chaser
+	; If there is a chaser active, allocate her palette.  She takes priority over other entities.
+	lda advtracesw
+	beq :+
+	lda #pal_chaser
+	jsr gm_allocate_palette
+:	rts
 .endproc
 
 ; generate palette data for vertical transition

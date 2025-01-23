@@ -27,6 +27,7 @@ gm_allocate_palette:
 	bne @mayAllocate
 	
 	; may not allocate because there was not enough space!
+	; assert(0)
 	lda #1
 	rts
 	
