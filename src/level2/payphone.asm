@@ -157,6 +157,41 @@ pole:
 	.word level2_payphone_idle::main2
 .endproc
 
+.proc level2_payphone_badeline
+	;     Y,  TN, X
+	.byte chrb_papho0
+	
+	.byte pph_palette, pal_chaser
+	.byte $10,$0E,$E4
+	.byte $0F,$12,$EC
+	.byte $10,$F0,$EC
+	
+rest:
+	.byte pph_palette, $80
+	.byte $28,$3C,$FD
+	.byte $28,$3E,$05
+	.byte pph_palette, pal_red
+	.byte $28,$F2,$FC
+	.byte $28,$F0,$04
+	.byte pph_palette, pal_gray
+	.byte $20,$2C,$08
+	.byte pph_jump
+	.word level2_payphone_idle::main2
+.endproc
+
+.proc level2_payphone_badeline2
+	;     Y,  TN, X
+	.byte chrb_papho0
+	
+	.byte pph_palette, pal_chaser
+	.byte $11,$0E,$E4
+	.byte $10,$12,$EC
+	.byte $11,$F0,$EC
+	
+	.byte pph_jump
+	.word level2_payphone_badeline::rest
+.endproc
+
 .proc level2_payphone_madjump1 ; brace
 	;     Y,  TN, X
 	.byte chrb_papho1

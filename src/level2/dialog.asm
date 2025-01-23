@@ -294,6 +294,7 @@ ch2_dream_phonecall:
 	dialog2     @dM
 	
 	; Badeline appears
+	trigger     8
 	
 	right
 	speaker     SPK_badeline

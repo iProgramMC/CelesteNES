@@ -57,15 +57,23 @@ level2_payphone_table:
 	.word level2_payphone_monsterd10 ; eat
 	.word level2_payphone_monsterd12 ; eat
 	.word level2_payphone_monsterd2  ; monsterIdle
+	.word level2_payphone_badeline   ; badelineAppears
+	.word level2_payphone_badeline   ; badelineAppears
+	.word level2_payphone_badeline   ; badelineAppears
+	.word level2_payphone_badeline   ; badelineAppears
+	.word level2_payphone_badeline2  ; badelineAppears
+	.word level2_payphone_badeline2  ; badelineAppears
+	.word level2_payphone_badeline2  ; badelineAppears
+	.word level2_payphone_badeline2  ; badelineAppears
 	.word $0000
 
 level2_payphone_table_lo:	.lobytes level2_payphone_table
 level2_payphone_table_hi:	.hibytes level2_payphone_table
 level2_payphone_max_timer = 52
 
-; idle, pickUp, talkPhone, jumpBack, scare, transform, eat, monsterIdle
-level2_payphone_anims_start:	.byte $00, $01, $09, $0A, $0D, $0E, $1E, $32
-level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01
+; idle, pickUp, talkPhone, jumpBack, scare, transform, eat, monsterIdle, badelineAppears
+level2_payphone_anims_start:	.byte $00, $01, $09, $0A, $0D, $0E, $1E, $32, $33
+level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01, $08
 
 ; ######### ANIMATION CODE #########
 
@@ -148,9 +156,18 @@ level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01
 	cmp level2_payphone_anims_length, y
 	bcc @noExceed
 	
+	cpy #8
+	bne @noLoop
+	
+	lda #0
+	beq @storeToTimer
+	
+@noLoop:
 	lda level2_payphone_anims_length, y
 	sec
 	sbc #1
+
+@storeToTimer:
 	sta sprspace+sp_l2ph_timer, x
 
 @noExceed:
