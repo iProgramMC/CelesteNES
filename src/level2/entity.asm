@@ -1295,8 +1295,8 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 .endproc
 
 .proc level2_dark_chaser
-	ldx #<level2_dark_chaser_bank4
-	ldy #>level2_dark_chaser_bank4
-	lda #prgb_lvl2e
+	ldx #<level2_dark_chaser_otherbank
+	ldy #>level2_dark_chaser_otherbank
+	lda #prgb_paus
 	jmp far_call2
 .endproc
