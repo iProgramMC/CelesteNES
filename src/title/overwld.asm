@@ -495,35 +495,44 @@ berriesNotAllZero:
 	ldy #0
 	
 	lda ow_deathsE
-	beq skip10K
-	clc
-	adc #$20
-	sta ppu_data
-
-skip10K:
+	bne @skipTo10Ks
 	lda ow_deathsO
-	beq skip1K
-	clc
-	adc #$20
-	sta ppu_data
-	iny
-
-skip1K:
+	bne @skipTo1Ks
 	lda ow_deathsH
-	beq skip100
+	bne @skipTo100s
+	lda ow_deathsT
+	bne @skipTo10s
+	beq @skipTo1s
+	
+@skipTo10Ks:
+	lda ow_deathsE
 	clc
 	adc #$20
 	sta ppu_data
 	iny
 
-skip100:
-	lda ow_deathsT
-	beq :+
+@skipTo1Ks:
+	lda ow_deathsO
 	clc
 	adc #$20
-:	sta ppu_data
+	sta ppu_data
 	iny
-	
+
+@skipTo100s:
+	lda ow_deathsH
+	clc
+	adc #$20
+	sta ppu_data
+	iny
+
+@skipTo10s:
+	lda ow_deathsT
+	clc
+	adc #$20
+	sta ppu_data
+	iny
+
+@skipTo1s:
 	lda ow_deathsU
 	clc
 	adc #$20
