@@ -718,7 +718,60 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	sta temp6
 	lda #$FA
 	sta temp7
-	jmp gm_draw_common
+	jsr gm_draw_common
+	
+	lda sprspace+sp_strawb_flags, x
+	and #(esb_winged|esb_picked|esb_shrink)
+	cmp #esb_winged
+	beq @hasWings
+	rts
+
+@hasWings:
+	; draw the wings
+	lda temp2
+	sec
+	sbc #12
+	sta temp2
+	bcs :+
+	dec temp4
+:	lda temp4
+	bne @dontDrawLeftWing
+	
+	lda #pal_gray
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	lda #$D8
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	jsr gm_draw_common
+	
+@dontDrawLeftWing:
+	lda temp2
+	clc
+	adc #24
+	sta temp2
+	bcc :+
+	inc temp4
+:	lda temp4
+	bne @dontDrawRightWing
+	
+	lda #pal_gray
+	jsr gm_allocate_palette
+	ora #obj_fliphz
+	sta temp5
+	sta temp8
+	lda #$D8
+	sta temp7
+	clc
+	adc #2
+	sta temp6
+	jsr gm_draw_common
+	
+@dontDrawRightWing:
+	rts
 
 @shrinking:
 	; shrinking
@@ -749,8 +802,12 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	bne @shrinkingMode_
 	
 	lda sprspace+sp_strawb_flags, x
+	and #esb_flying
+	bne @flyingMode
+	
+	lda sprspace+sp_strawb_flags, x
 	and #esb_picked
-	beq @floatingMode
+	beq @floatingMode_
 	
 	; trailing behind player mode
 	lda sprspace+sp_strawb_colid, x
@@ -812,16 +869,74 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 @shrinkingMode_:
 	bne @shrinkingMode
 
+@floatingMode_:
+	beq @floatingMode
+
+@flyingMode:
+	lda sprspace+sp_strawb_timer, x
+	bne @decrementTimerAndReturn_
+	
+	; flying mode
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc #$20
+	sta sprspace+sp_vel_y_lo, x
+	bcc :+
+	inc sprspace+sp_vel_y, x
+:	lda sprspace+sp_y_lo, x
+	sec
+	sbc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_y_lo, x
+	lda sprspace+sp_y, x
+	sbc sprspace+sp_vel_y, x
+	sta sprspace+sp_y, x
+	bcs @floatingMode
+	
+	; carry clear, must despawn
+	lda #0
+	sta sprspace+sp_kind, x
+	rts
+
 @floatingMode:
-	jsr gm_ent_oscillate
+	jsr oscillateBerry
 	; floating mode
+	
+	; can't collect berries during a transition!
+	lda #g3_transitA
+	bit gamectrl3
+	bne @return
+	
 	jsr gm_check_player_bb
-	bne :+
+	bne @hasCollision
+	
+	; did the player just dash?
+	ldx temp1
+	lda dashtime
+	beq @return2
+	
+	lda sprspace+sp_strawb_flags, x
+	and #(esb_winged|esb_flying)
+	cmp #esb_winged
+	bne @return2
+	
+	; set flying mode
+	lda sprspace+sp_strawb_flags, x
+	ora #esb_flying
+	sta sprspace+sp_strawb_flags, x
+	lda #16
+	sta sprspace+sp_strawb_timer, x
+	
+	; play sound effect TODO
+	
+@return2:
+	lda #0
 	rts
 	
-:	; collided, set to picked up mode
+@hasCollision:
+	; collided, set to picked up mode
 	lda sprspace+sp_strawb_flags, x
 	ora #esb_picked
+	and #<~esb_flying
 	sta sprspace+sp_strawb_flags, x
 	
 	inc plrstrawbs
@@ -830,7 +945,10 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	asl
 	asl
 	sta sprspace+sp_strawb_colid, x
-	bne @return
+	jmp @return
+
+@decrementTimerAndReturn_:
+	bne @decrementTimerAndReturn
 
 @shrinkingMode:
 	; TODO
@@ -861,6 +979,82 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	
 	lda #1
 	rts
+
+@decrementTimerAndReturn:
+	lda framectr
+	and #3
+	tay
+	
+	lda sprspace+sp_x, x
+	clc
+	adc offset2, y
+	sta sprspace+sp_x, x
+	lda sprspace+sp_x_pg, x
+	adc offset3, y
+	sta sprspace+sp_x_pg, x
+	
+	dec sprspace+sp_strawb_timer, x
+	jmp @floatingMode
+
+oscillateBerry:
+	lda sprspace+sp_strawb_flags, x
+	and #(esb_winged|esb_picked|esb_shrink)
+	cmp #esb_winged
+	bne @normalOscillate
+	
+	; winged oscillation
+	lda framectr
+	lsr
+	bcs @continue
+	lsr
+	and #7
+	tay
+	
+	lda offset1, y
+	bmi @addNegative
+	
+	; add positive
+	clc
+	adc sprspace+sp_y, x
+	sta sprspace+sp_y, x
+	bcs @overflow
+@return:
+	rts
+
+@addNegative:
+	clc
+	adc sprspace+sp_y, x
+	sta sprspace+sp_y, x
+	bcc @overflow
+	rts
+
+@overflow:
+	lda #g3_transitA
+	bit gamectrl3
+	bne @continue           ; in transition, so can't be in limbo
+	
+	lda #rf_new
+	bit roomflags
+	beq @continue           ; can't go in limbo in a normal room
+	
+	lda sprspace+sp_flags,x
+	eor #ef_limbo
+	sta sprspace+sp_flags,x
+
+@continue:
+	rts
+
+@normalOscillate:
+	jmp gm_ent_oscillate
+
+; note: these values must add up to 0
+offset1:
+	.byte <+1, <+1 ; frame 1
+	.byte <+1, <+0 ; frame 2
+	.byte <-2, <-1 ; frame 3
+	.byte <+0, <+0 ; frame 4
+offset2:	.byte $FF, $01, $01, $FF
+offset3:	.byte $FF, $00, $00, $FF
 .endproc
 
 ; ** ENTITY: Falling Block

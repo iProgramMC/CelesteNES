@@ -244,6 +244,8 @@ erf_regen   = $01
 esb_picked  = $01
 esb_shrink  = $02 ; shrinking for the collection animation
 esb_ppicked = $04 ; previously picked
+esb_winged  = $08 ; has wings
+esb_flying  = $10 ; is flying away
 
 ; Sprite Indices
 plr_idle1_l = $04

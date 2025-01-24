@@ -1552,6 +1552,16 @@ gm_init_entity:
 	jsr gm_read_ent
 	sta sprspace+sp_strawb_ident, y
 	
+	lda sprspace+sp_kind, y
+	cmp #e_strawbw
+	bne @tyxReturn
+	
+	lda #e_strawb
+	sta sprspace+sp_kind, y
+	lda sprspace+sp_strawb_flags, y
+	ora #esb_winged
+	sta sprspace+sp_strawb_flags, y
+	
 @tyxReturn:
 	tya
 	tax
