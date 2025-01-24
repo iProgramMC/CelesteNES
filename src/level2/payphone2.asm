@@ -29,6 +29,7 @@
 	.byte $31,$18,$00
 	.byte $31,$1A,$08
 	
+stuff:
 	.byte $28,$28,$00
 	.byte $28,$2A,$08
 	.byte $28,$2C,$10
@@ -66,12 +67,8 @@
 	.byte $30,$18,$00
 	.byte $30,$1A,$08
 	
-	.byte $28,$28,$00
-	.byte $28,$2A,$08
-	.byte $28,$2C,$10
-	.byte $28,$2E,$18
-	
-	.byte pph_exit
+	.byte pph_jump
+	.word level2_payphone_xform12::stuff
 .endproc
 
 .proc level2_payphone_monsterI
@@ -88,6 +85,7 @@
 	.byte $18,$22,$08
 	.byte $18,$24,$10
 	.byte $18,$26,$18
+stuff:
 	.byte $28,$08,$00
 	.byte $28,$0A,$08
 	.byte $28,$0C,$10
@@ -110,12 +108,9 @@
 	.byte $18,$22,$08
 	.byte $18,$24,$10
 	.byte $18,$26,$18
-	.byte $28,$08,$00
-	.byte $28,$0A,$08
-	.byte $28,$0C,$10
-	.byte $28,$0E,$18
 	
-	.byte pph_exit
+	.byte pph_jump
+	.word level2_payphone_monsterI::stuff
 .endproc
 
 .proc level2_payphone_monster2
