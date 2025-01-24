@@ -327,7 +327,7 @@ level2_r4_t:
 	.byte $FF
 level2_r4:
 	.byte 44, 0
-	.byte 45, 255, 255, 255
+	.byte 46, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.byte 255
@@ -429,7 +429,7 @@ level2_d2b_t:
 	.byte $B9,$DD,$E2,$E1,$CC,$FF
 level2_d2b:
 	.byte 40, 0
-	.byte 255, 255, 47, 48
+	.byte 255, 255, 48, 49
 	.byte 0, 0, 0, 248
 	.byte 5
 	.byte 255
@@ -537,7 +537,7 @@ level2_d5_t:
 	.byte $C7,$FF
 level2_d5:
 	.byte 40, 0
-	.byte 255, 255, 49, 255
+	.byte 255, 255, 50, 255
 	.byte 0, 0, 6, 0
 	.byte 6
 	.byte 255
@@ -635,11 +635,11 @@ level2_d8_t:
 	.byte $E2,$85,$FF
 level2_d8:
 	.byte 40, 0
-	.byte 255, 255, 50, 52
+	.byte 255, 255, 51, 53
 	.byte 0, 0, 0, 14
 	.byte 5
 	.byte 0, 0, 0, 112
-	.byte 0, 0, 0, 51
+	.byte 0, 0, 0, 52
 	.byte 0, 0, 0, 248
 	.word level2_d8_t
 	.word level2_d8_p
@@ -729,7 +729,7 @@ level2_r5_t:
 	.byte $5A,$57,$56,$58,$D0,$DE,$FF
 level2_r5:
 	.byte 44, 0
-	.byte 53, 255, 255, 255
+	.byte 54, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.byte 255
@@ -808,7 +808,7 @@ level2_r6_t:
 	.byte $58,$8E,$D0,$FF
 level2_r6:
 	.byte 44, 0
-	.byte 61, 255, 255, 255
+	.byte 62, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.byte 255
@@ -908,7 +908,7 @@ level2_r9_t:
 	.byte $8F,$FF
 level2_r9:
 	.byte 60, 0
-	.byte 65, 255, 255, 64
+	.byte 66, 255, 255, 65
 	.byte 248, 0, 0, 6
 	.byte 38
 	.byte 255
@@ -996,11 +996,11 @@ level2_r12b_t:
 	.byte $33,$86,$97,$2C,$86,$FF
 level2_r12b:
 	.byte 48, 0
-	.byte 255, 79, 77, 78
+	.byte 255, 80, 78, 79
 	.byte 0, 12, 0, 0
 	.byte 32
 	.byte 254, 0, 0, 0
-	.byte 80, 0, 0, 0
+	.byte 81, 0, 0, 0
 	.byte 4, 0, 0, 0
 	.word level2_r12b_t
 	.word level2_r12b_p
@@ -1092,7 +1092,7 @@ level2_r12_t:
 	.byte $30,$86,$FF
 level2_r12:
 	.byte 60, 0
-	.byte 255, 255, 81, 82
+	.byte 255, 255, 82, 83
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
@@ -1180,11 +1180,11 @@ level2_r12d_t:
 	.byte $59,$EE,$59,$58,$AC,$EE,$FF
 level2_r12d:
 	.byte 48, 0
-	.byte 84, 255, 255, 255
+	.byte 85, 255, 255, 255
 	.byte 36, 0, 0, 0
 	.byte 32
 	.byte 254, 0, 0, 0
-	.byte 83, 0, 0, 0
+	.byte 84, 0, 0, 0
 	.byte 244, 0, 0, 0
 	.word level2_r12d_t
 	.word level2_r12d_p

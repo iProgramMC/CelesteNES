@@ -233,6 +233,8 @@ e_l1memor   = $17 ; LEVEL 1: memorial
 e_l2memor   = $18 ; LEVEL 2: memorial
 e_tswitch   = $19 ; Touch Switch
 e_swgate    = $1A ; Switch Gate
+e_casstape  = $1B ; Cassette Tape
+e_cassmgr   = $1C ; Cassette Block Manager
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance
@@ -617,6 +619,8 @@ ct_deadlyDN = $04   ; the tile is DOWN spike shaped
 ct_deadlyLT = $05   ; the tile is LEFT spike shaped
 ct_deadlyRT = $06   ; the tile is RIGHT spike shaped
 ct_dream    = $07   ; dream block
+ct_cass1    = $08   ; cassette 1
+ct_cass2    = $09   ; cassette 2
 ;ow_maxlvl   = $07   ; maximum level number
 ow_maxlvl   = $02   ; maximum level number
 jtheight    = 3     ; height of jump through blocks

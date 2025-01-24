@@ -55,6 +55,7 @@
 	.byte $DA,$DB,$DC,$DD ; Campfire
 	.byte $C8,$C9,$CA,$CB ; Spikes (Blue)
 	.byte $9F,$CC,$CD,$CE,$CF,$DF ; Snow
+	; $99
 
 ;metatile_info:
 .align $100

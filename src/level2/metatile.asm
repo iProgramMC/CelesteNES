@@ -78,7 +78,9 @@
 	.byte $6E             ; Info Kiosk Compressed
 	.byte $6E             ; Mirror Compressed
 	.byte $00             ; Barrier
-	; $E7
+	; $F3 (like 12 blocks more  UL UR DL DR U D - horz only)
+	.byte $A1,$84,$A0,$A4,$82,$A2 ; Cassette Blocks 1 (UL UR DL DR U D)
+	.byte $88,$8C,$A8,$AC,$8A,$AA ; Cassette Blocks 2 (UL UR DL DR U D)
 
 ;metatile_info:
 .align $100
@@ -113,5 +115,7 @@
 	.res   3, ct_jumpthru        ; Purp Jump Through
 	.res   4, ct_none            ; No BG Effects + Compressed Structures
 	.byte ct_full                ; Barrier
+	.res   6, ct_cass1           ; Cassette Blocks 1
+	.res   6, ct_cass2           ; Cassette Blocks 2
 
 .align $100

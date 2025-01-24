@@ -2,7 +2,7 @@ level2:
 	.word level2_music	; music table
 	.word level2_banks	; list of banks for each room
 	.byte $02	; environment type
-	.byte $57	; warp count
+	.byte $59	; warp count
 	.word level2_w_init
 	.word level2_w_start_to_0
 	.word level2_w_start_to_s0
@@ -46,6 +46,7 @@ level2:
 	.word level2_w_d0b_to_d0a
 	.word level2_w_d0b_to_d6
 	.word level2_w_d0b_to_d7
+	.word level2_w_d0b_to_d9
 	.word level2_w_d2_to_d0a
 	.word level2_w_d2_to_d2b
 	.word level2_w_r4_to_r5
@@ -90,6 +91,7 @@ level2:
 	.word level2_w_r12d_to_r12
 	.word level2_w_r12c_to_r12b
 	.word level2_w_end_chase_to_r12
+	.word level2_w_d9_to_d0b
 level2_banks:
 	.byte prgb_lvl2e	; level2_w_init
 	.byte prgb_lvl2a	; level2_w_start_to_0
@@ -134,6 +136,7 @@ level2_banks:
 	.byte prgb_lvl2d	; level2_w_d0b_to_d0a
 	.byte prgb_lvl2d	; level2_w_d0b_to_d6
 	.byte prgb_lvl2d	; level2_w_d0b_to_d7
+	.byte prgb_lvl2e	; level2_w_d0b_to_d9
 	.byte prgb_lvl2d	; level2_w_d2_to_d0a
 	.byte prgb_lvl2c	; level2_w_d2_to_d2b
 	.byte prgb_lvl2c	; level2_w_r4_to_r5
@@ -178,3 +181,4 @@ level2_banks:
 	.byte prgb_lvl2c	; level2_w_r12d_to_r12
 	.byte prgb_lvl2c	; level2_w_r12c_to_r12b
 	.byte prgb_lvl2c	; level2_w_end_chase_to_r12
+	.byte prgb_lvl2d	; level2_w_d9_to_d0b
