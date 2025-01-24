@@ -173,6 +173,10 @@ sp_sgat_timer = sp_entspec2 ; switch gate timer
 sp_sgat_trajx = sp_entspec3 ; trajectory X
 sp_sgat_trajy = sp_entspec4 ; trajectory Y
 
+sp_cbmg_state = sp_entspec1 ; state (0 - blinking, 1 - all blocks inactive)
+sp_cbmg_ospbk = sp_entspec2 ; old sprites bank
+sp_cbmg_cycle = sp_entspec3 ; current cycle
+
 sp_l1me_index = sp_entspec1
 
 ; entity flags
@@ -389,6 +393,10 @@ chrb_dbade  = $70   ; graphics bank for dialog with Badeline
 chrb_dmade  = $74   ; graphics bank for dialog with Madeline
 chrb_dtheo  = $78   ; graphics bank for dialog with Theo
 chrb_dgran  = $7C   ; graphics bank for dialog with Granny
+
+; CASSETTE BLOCK banks
+chrb_cass1  = $3E
+chrb_cass2  = $6A
 
 ; PRG ROM BANKS
 ; Swappable level data ($A000), Fixed level data ($C000)

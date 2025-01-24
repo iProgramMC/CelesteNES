@@ -94,7 +94,7 @@ MEMORY
 	CHR_BG004: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$34; # Level 2 (dream block in different states)
 	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38; # Level 2 (dream block in different states)
 	CHR_BG006: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3C; # Level 2 (dream block in different states)
-	CHR_UN102: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; #      <<<<< UNUSED (2 banks)
+	CHR_CASS1: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; # Cassette Blocks (1)
 	
 	## Complete Screens ##
 	CHR_LV1CA: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40; # Level 1 Complete A
@@ -111,7 +111,8 @@ MEMORY
 	CHR_OPTNS: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60; # Options text bank
 	
 	## Dialog Pattern Tables ##
-	CHR_DMAIN: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68; # Dialog text font (unused)
+	CHR_DMAIN: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$68; # Dialog text font (used for Prologue and Memorial)
+	CHR_CASS2: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$6A; # Cassette Blocks (2)
 	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$6C; # Binary counting pattern for text rendering
 	CHR_DMOME: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$64; # Mom/Ex dialog portraits (No, not Momeline)
 	CHR_DBADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$70; # Badeline dialog portraits
@@ -183,7 +184,6 @@ SEGMENTS
 	CHR_BG004: load = CHR_BG004, type = ro;
 	CHR_BG005: load = CHR_BG005, type = ro;
 	CHR_BG006: load = CHR_BG006, type = ro;
-	CHR_UN102: load = CHR_UN102, type = ro;
 	CHR_LV1CA: load = CHR_LV1CA, type = ro;
 	CHR_LV1CB: load = CHR_LV1CB, type = ro;
 	CHR_LV2CA: load = CHR_LV2CA, type = ro;
@@ -194,6 +194,8 @@ SEGMENTS
 	CHR_PAUSE: load = CHR_PAUSE, type = ro;
 	CHR_PCARD: load = CHR_PCARD, type = ro;
 	CHR_OPTNS: load = CHR_OPTNS, type = ro;
+	CHR_CASS1: load = CHR_CASS1, type = ro;
+	CHR_CASS2: load = CHR_CASS2, type = ro;
 	CHR_DMAIN: load = CHR_DMAIN, type = ro;
 	CHR_DCNTR: load = CHR_DCNTR, type = ro;
 	CHR_DMOME: load = CHR_DMOME, type = ro;

@@ -1986,6 +1986,19 @@ spriteNumbersAbove:	.byte $B0,$B4,$B2
 spriteNumbersBelow:	.byte $BC,$96,$BE
 .endproc
 
+; ** ENTITY: Cassette Tape
+.proc xt_draw_cassette_tape
+	
+	rts
+.endproc
+
+; ** ENTITY: Cassette Block Manager
+.proc xt_cass_block_manager
+	
+	rts
+.endproc
+
+
 ; *********************************************************
 
 ; ** SUBROUTINE: xt_draw_ent_call
@@ -2111,7 +2124,9 @@ level2_memorial_kludge:
 	level1_memorial,        \
 	level2_memorial_kludge, \
 	xt_draw_touch_switch,   \
-	xt_draw_switch_gate
+	xt_draw_switch_gate,    \
+	xt_draw_cassette_tape,  \
+	xt_cass_block_manager
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table
