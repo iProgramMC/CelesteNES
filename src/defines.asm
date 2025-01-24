@@ -473,7 +473,7 @@ cont_right  = $01
 cont_a2     = $80  ; SNES controller A
 cont_b2     = $40  ; SNES controller X
 cont_lsh    = $20  ; SNES left shoulder
-cont_rsh    = $20  ; SNES right shoulder
+cont_rsh    = $10  ; SNES right shoulder
 
 ; Control Schemes
 cns_console = $01  ; Official console control scheme. Press UP while sliding on a wall to climb
