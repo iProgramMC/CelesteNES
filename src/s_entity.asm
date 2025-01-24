@@ -856,6 +856,13 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	cmp #9
 	bcc @return
 	
+	; check safety of the player here TODO
+	; just check if they're standing on an entity for now.
+	lda entground
+	bpl @return
+	
+	; here, we wait until this berry is the first, since there may be
+	; multiple and we don't want to collect them all at once
 	lda sprspace+sp_strawb_colid, x
 	cmp #9
 	bcs @return
