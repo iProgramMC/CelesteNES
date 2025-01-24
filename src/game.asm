@@ -334,6 +334,8 @@ gm_game_clear_wx:
 	stx advtracesw
 	stx starsbgctl
 	stx exitmaptimer
+	stx dlg_cutsptr
+	stx dlg_cutsptr+1
 	stx gamectrl      ; clear game related fields to zero
 	
 	txa
@@ -738,6 +740,8 @@ boostPositive:
 ; desc: Pauses the game.
 .proc gm_pause
 	lda dialogsplit
+	bne return
+	lda dlg_cutsptr+1
 	bne return
 	lda playerctrl
 	and #pl_dead
