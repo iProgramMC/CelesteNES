@@ -203,6 +203,127 @@ level2_s2:
 	.word level2_s2_t
 	.word level2_s2_p
 	.word level2_s2_e
+level2_d9_p:
+	.byte $FD,$FF,$FD,$FF,$FD,$FF,$FC,$FD
+	.byte $FF,$CF,$00,$00,$FD,$FF,$0F,$F0
+	.byte $0F,$00,$F3,$00,$00,$00,$0F,$F0
+	.byte $CF,$4C,$F8,$CC,$0C,$00,$0F,$30
+	.byte $33,$3F,$3C,$33,$03,$00,$0F,$00
+	.byte $08,$3F,$03,$00,$00,$00,$0F,$00
+	.byte $0E,$0F,$00,$0F,$00,$00,$0F,$00
+	.byte $03,$0F,$00,$03,$00,$00,$FD,$FF
+	.byte $15,$FD,$FF,$2F,$22,$0A,$00,$00
+	.byte $FD,$FF,$99,$FD,$FF,$0F,$00,$02
+	.byte $00,$00,$FD,$FF,$CE,$FD,$FF,$CF
+	.byte $CC,$0C,$00,$00,$2F,$22,$EE,$00
+	.byte $00,$0F,$00,$00,$0F,$00,$FD,$FF
+	.byte $00,$00,$03,$00,$00,$CF,$00,$33
+	.byte $00,$88,$00,$00,$00,$30,$33,$33
+	.byte $33,$33,$33,$03,$FF
+level2_d9_e:
+	.byte $FF
+level2_d9_t:
+	.byte $DE,$A2,$DC,$E4,$DD,$DC,$E2,$E1
+	.byte $A2,$E3,$E3,$DF,$DE,$E0,$83,$E7
+	.byte $E2,$DD,$DF,$DE,$DF,$E2,$DE,$89
+	.byte $E4,$C3,$C2,$C4,$C3,$A2,$C4,$E1
+	.byte $C5,$A4,$C2,$E3,$C8,$DC,$C6,$A2
+	.byte $C4,$A2,$C5,$E4,$C3,$C4,$C3,$C8
+	.byte $88,$CB,$E3,$BA,$C6,$B7,$C7,$E2
+	.byte $B8,$E0,$87,$8B,$E2,$B9,$BB,$C8
+	.byte $E2,$B3,$C8,$87,$C0,$A4,$BF,$E1
+	.byte $B5,$85,$E1,$BA,$89,$E3,$00,$B9
+	.byte $E2,$86,$A2,$DD,$E4,$DC,$E3,$DE
+	.byte $BC,$86,$E1,$BC,$8A,$E1,$DD,$86
+	.byte $C4,$E2,$DD,$BD,$85,$E2,$B8,$BD
+	.byte $8A,$DF,$86,$84,$E1,$DC,$87,$E1
+	.byte $BC,$89,$E2,$B8,$E0,$86,$84,$E2
+	.byte $E3,$BC,$85,$E1,$B9,$8A,$E2,$BA
+	.byte $DF,$86,$85,$E1,$BB,$85,$E3,$BA
+	.byte $C7,$B4,$88,$E2,$B8,$E3,$86,$84
+	.byte $E2,$DC,$BD,$85,$F1,$B8,$E1,$C7
+	.byte $BF,$BE,$BF,$B4,$A9,$8B,$8C,$AC
+	.byte $B9,$E2,$E3,$DD,$DE,$E3,$A2,$DC
+	.byte $84,$E2,$C6,$B7,$86,$E2,$E2,$C6
+	.byte $A2,$C5,$EB,$C8,$BB,$9C,$84,$78
+	.byte $A4,$B8,$E3,$C6,$C4,$C3,$A3,$C4
+	.byte $84,$E1,$BD,$C6,$EE,$B2,$C2,$B6
+	.byte $00,$00,$B9,$BD,$9D,$85,$79,$A5
+	.byte $B3,$C4,$B7,$C5,$84,$E1,$BB,$86
+	.byte $C5,$E6,$B8,$BC,$9E,$86,$7A,$A6
+	.byte $C8,$84,$E1,$BC,$8B,$E6,$B9,$BB
+	.byte $9F,$87,$7B,$A7,$88,$84,$E1,$BD
+	.byte $8B,$E6,$B8,$BB,$98,$84,$78,$A0
+	.byte $88,$84,$E1,$BC,$8B,$E6,$BA,$BB
+	.byte $AB,$93,$94,$AE,$88,$8C,$E2,$F9
+	.byte $FB,$82,$E2,$B9,$BB,$CC,$84,$E1
+	.byte $BB,$87,$E2,$FD,$FE,$82,$E2,$BA
+	.byte $BC,$8C,$84,$E1,$BD,$8B,$E2,$B8
+	.byte $BD,$8C,$84,$E1,$BB,$87,$E2,$FA
+	.byte $FC,$82,$E2,$B9,$BC,$86,$E2,$F3
+	.byte $F5,$84,$84,$E1,$BC,$87,$E2,$F3
+	.byte $F5,$82,$E2,$B8,$BB,$86,$E2,$F7
+	.byte $F8,$84,$84,$E1,$BD,$87,$E2,$F7
+	.byte $F8,$82,$E1,$B9,$8D,$90,$E2,$BA
+	.byte $BD,$86,$E2,$F4,$F6,$84,$84,$E1
+	.byte $BB,$87,$E2,$F4,$F6,$8A,$C6,$8C
+	.byte $C4,$E2,$B9,$BC,$8C,$84,$E2,$C7
+	.byte $B5,$8B,$E1,$BD,$8C,$84,$E2,$DF
+	.byte $BD,$8A,$EA,$B8,$BB,$F9,$FB,$F9
+	.byte $FB,$F9,$FB,$F9,$FB,$84,$84,$F6
+	.byte $00,$C7,$B5,$A8,$88,$89,$8A,$8B
+	.byte $AD,$B1,$BE,$BF,$C9,$BB,$FA,$FC
+	.byte $FA,$FC,$FA,$FC,$FD,$FE,$84,$85
+	.byte $ED,$E3,$BD,$9E,$7A,$7E,$82,$86
+	.byte $A6,$B9,$DD,$DE,$DD,$BD,$C6,$86
+	.byte $85,$ED,$E2,$BC,$9F,$7B,$7F,$83
+	.byte $87,$A7,$B8,$E3,$00,$E1,$BB,$8C
+	.byte $85,$EC,$DD,$BB,$98,$78,$7C,$80
+	.byte $84,$A0,$B9,$DC,$00,$E0,$8D,$85
+	.byte $EC,$E2,$BD,$99,$79,$7D,$81,$85
+	.byte $A1,$B8,$DF,$00,$DD,$87,$E2,$FA
+	.byte $FC,$84,$85,$E9,$E1,$BB,$9A,$7A
+	.byte $7E,$82,$86,$A2,$B9,$82,$E2,$E0
+	.byte $BD,$86,$C6,$85,$ED,$DD,$BB,$9B
+	.byte $7B,$7F,$83,$87,$A3,$B9,$E3,$00
+	.byte $E3,$BB,$8C,$9E,$85,$EC,$E0,$BD
+	.byte $9C,$78,$7C,$80,$84,$A4,$BA,$E2
+	.byte $00,$E0,$8D,$85,$F5,$DF,$BC,$9D
+	.byte $79,$7D,$81,$85,$A5,$BA,$DC,$E2
+	.byte $E1,$BB,$F3,$F5,$F3,$F5,$F3,$F5
+	.byte $F3,$F5,$84,$85,$F5,$E0,$BC,$AB
+	.byte $90,$91,$92,$93,$AE,$B3,$C2,$C5
+	.byte $C3,$B7,$F4,$F6,$F4,$F6,$F4,$F6
+	.byte $F7,$F8,$84,$85,$EA,$E3,$BB,$F9
+	.byte $FB,$F9,$FB,$F9,$FB,$F9,$FB,$C9
+	.byte $86,$85,$EA,$C6,$B7,$FA,$FC,$FA
+	.byte $FC,$FA,$FC,$FA,$FC,$8F,$84,$E2
+	.byte $E3,$BB,$C7,$E2,$F3,$F5,$8F,$84
+	.byte $E2,$DC,$BD,$87,$E2,$F7,$F8,$8F
+	.byte $84,$E2,$E0,$BC,$98,$84,$E1,$DC
+	.byte $93,$E2,$F4,$F6,$84,$84,$E2,$E0
+	.byte $BB,$92,$C6,$84,$E2,$E2,$BC,$98
+	.byte $84,$E1,$DC,$99,$85,$E1,$BD,$87
+	.byte $E2,$F4,$F6,$8F,$84,$E4,$00,$C7
+	.byte $C0,$B5,$85,$C8,$E2,$F9,$FB,$87
+	.byte $85,$E3,$00,$E3,$BC,$8D,$E2,$FA
+	.byte $FC,$87,$86,$F2,$00,$C7,$C0,$BF
+	.byte $BE,$C1,$C0,$BF,$BF,$C0,$C1,$C0
+	.byte $C0,$BF,$C1,$BE,$C0,$BE,$A2,$C1
+	.byte $A3,$BE,$BF,$87,$00,$A2,$DC,$E3
+	.byte $E1,$E3,$E2,$A2,$DD,$E3,$E2,$E0
+	.byte $E2,$A3,$DE,$E9,$E2,$DD,$E3,$DD
+	.byte $E2,$E3,$E1,$E0,$DD,$88,$D6,$9E
+	.byte $FF
+level2_d9:
+	.byte 56, 0
+	.byte 54, 255, 255, 255
+	.byte 240, 0, 0, 0
+	.byte 0
+	.byte 255
+	.word level2_d9_t
+	.word level2_d9_p
+	.word level2_d9_e
 level2_d3b_p:
 	.byte $00,$00,$0F,$FD,$FF,$C0,$CC,$00
 	.byte $00,$00,$00,$0F,$33,$33,$F3,$0F
@@ -238,7 +359,7 @@ level2_d3b_t:
 	.byte $9E,$9E,$FF
 level2_d3b:
 	.byte 32, 0
-	.byte 255, 255, 60, 61
+	.byte 255, 255, 61, 62
 	.byte 0, 0, 242, 234
 	.byte 1
 	.byte 255
@@ -300,7 +421,7 @@ level2_r2__t:
 	.byte $4A,$83,$FF
 level2_r2_:
 	.byte 32, 0
-	.byte 255, 72, 255, 255
+	.byte 255, 73, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
@@ -361,7 +482,7 @@ level2_r12bp_t:
 	.byte $2F,$85,$FF
 level2_r12bp:
 	.byte 32, 0
-	.byte 255, 255, 76, 77
+	.byte 255, 255, 77, 78
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
@@ -481,7 +602,7 @@ level2_r12c_t:
 	.byte $FE,$FE,$FE,$FE,$FF
 level2_r12c:
 	.byte 40, 15
-	.byte 255, 86, 255, 255
+	.byte 255, 87, 255, 255
 	.byte 0, 252, 0, 0
 	.byte 32
 	.byte 255
@@ -526,131 +647,10 @@ level2_end_chase_t:
 	.byte $86,$FF
 level2_end_chase:
 	.byte 40, 0
-	.byte 255, 255, 87, 255
+	.byte 255, 255, 88, 255
 	.byte 0, 0, 0, 0
 	.byte 8
 	.byte 255
 	.word level2_end_chase_t
 	.word level2_end_chase_p
 	.word level2_end_chase_e
-level2_d9_p:
-	.byte $FD,$FF,$FD,$FF,$FD,$FF,$FC,$FD
-	.byte $FF,$CF,$00,$00,$FD,$FF,$0F,$F0
-	.byte $0F,$00,$F3,$00,$00,$00,$0F,$F0
-	.byte $CF,$4C,$F8,$CC,$0C,$00,$0F,$30
-	.byte $33,$3F,$3C,$33,$03,$00,$0F,$00
-	.byte $08,$3F,$03,$00,$00,$00,$0F,$00
-	.byte $0E,$0F,$00,$0F,$00,$00,$0F,$00
-	.byte $03,$0F,$00,$03,$00,$00,$FD,$FF
-	.byte $15,$FD,$FF,$2F,$22,$0A,$00,$00
-	.byte $FD,$FF,$99,$FD,$FF,$0F,$00,$02
-	.byte $00,$00,$FD,$FF,$CE,$FD,$FF,$CF
-	.byte $CC,$0C,$00,$00,$2F,$22,$EE,$00
-	.byte $00,$0F,$00,$00,$0F,$00,$FD,$FF
-	.byte $00,$00,$03,$00,$00,$CF,$00,$33
-	.byte $00,$88,$00,$00,$00,$30,$33,$33
-	.byte $33,$33,$33,$03,$FF
-level2_d9_e:
-	.byte $FF
-level2_d9_t:
-	.byte $DE,$A2,$DC,$E4,$DD,$DC,$E2,$E1
-	.byte $A2,$E3,$E3,$DF,$DE,$E0,$83,$E7
-	.byte $E2,$DD,$DF,$DE,$DF,$E2,$DE,$89
-	.byte $E4,$C3,$C2,$C4,$C3,$A2,$C4,$E1
-	.byte $C5,$A4,$C2,$E3,$C8,$DC,$C6,$A2
-	.byte $C4,$A2,$C5,$E4,$C3,$C4,$C3,$C8
-	.byte $88,$CB,$E3,$BA,$C6,$B7,$C7,$E2
-	.byte $B8,$E0,$87,$8B,$E2,$B9,$BB,$C8
-	.byte $E2,$B3,$C8,$87,$C0,$A4,$BF,$E1
-	.byte $B5,$85,$E1,$BA,$89,$E3,$00,$B9
-	.byte $E2,$86,$A2,$DD,$E4,$DC,$E3,$DE
-	.byte $BC,$86,$E1,$BC,$8A,$E1,$DD,$86
-	.byte $C4,$E2,$DD,$BD,$85,$E2,$B8,$BD
-	.byte $8A,$DF,$86,$84,$E1,$DC,$87,$E1
-	.byte $BC,$89,$E2,$B8,$E0,$86,$84,$E2
-	.byte $E3,$BC,$85,$E1,$B9,$8A,$E2,$BA
-	.byte $DF,$86,$85,$E1,$BB,$85,$E3,$BA
-	.byte $C7,$B4,$88,$E2,$B8,$E3,$86,$84
-	.byte $E2,$DC,$BD,$85,$F1,$B8,$E1,$C7
-	.byte $BF,$BE,$BF,$B4,$A9,$8B,$8C,$AC
-	.byte $B9,$E2,$E3,$DD,$DE,$E3,$A2,$DC
-	.byte $84,$E2,$C6,$B7,$86,$E2,$E2,$C6
-	.byte $A2,$C5,$EB,$C8,$BB,$9C,$84,$78
-	.byte $A4,$B8,$E3,$C6,$C4,$C3,$A3,$C4
-	.byte $84,$E1,$BD,$C6,$EE,$B2,$C2,$B6
-	.byte $00,$00,$B9,$BD,$9D,$85,$79,$A5
-	.byte $B3,$C4,$B7,$C5,$84,$E1,$BB,$86
-	.byte $C5,$E6,$B8,$BC,$9E,$86,$7A,$A6
-	.byte $C8,$84,$E1,$BC,$8B,$E6,$B9,$BB
-	.byte $9F,$87,$7B,$A7,$88,$84,$E1,$BD
-	.byte $8B,$E6,$B8,$BB,$98,$84,$78,$A0
-	.byte $88,$84,$E1,$BC,$8B,$E6,$BA,$BB
-	.byte $AB,$93,$94,$AE,$88,$8C,$E2,$F9
-	.byte $FB,$82,$E2,$B9,$BB,$CC,$84,$E1
-	.byte $BB,$87,$E2,$FD,$FE,$82,$E2,$BA
-	.byte $BC,$8C,$84,$E1,$BD,$8B,$E2,$B8
-	.byte $BD,$8C,$84,$E1,$BB,$87,$E2,$FA
-	.byte $FC,$82,$E2,$B9,$BC,$86,$E2,$F3
-	.byte $F5,$84,$84,$E1,$BC,$87,$E2,$F3
-	.byte $F5,$82,$E2,$B8,$BB,$86,$E2,$F7
-	.byte $F8,$84,$84,$E1,$BD,$87,$E2,$F7
-	.byte $F8,$82,$E1,$B9,$8D,$90,$E2,$BA
-	.byte $BD,$86,$E2,$F4,$F6,$84,$84,$E1
-	.byte $BB,$87,$E2,$F4,$F6,$8A,$C6,$8C
-	.byte $C4,$E2,$B9,$BC,$8C,$84,$E2,$C7
-	.byte $B5,$8B,$E1,$BD,$8C,$84,$E2,$DF
-	.byte $BD,$8A,$EA,$B8,$BB,$F9,$FB,$F9
-	.byte $FB,$F9,$FB,$F9,$FB,$84,$84,$F6
-	.byte $00,$C7,$B5,$A8,$88,$89,$8A,$8B
-	.byte $AD,$B1,$BE,$BF,$C9,$BB,$FA,$FC
-	.byte $FA,$FC,$FA,$FC,$FD,$FE,$84,$85
-	.byte $ED,$E3,$BD,$9E,$7A,$7E,$82,$86
-	.byte $A6,$B9,$DD,$DE,$DD,$BD,$C6,$86
-	.byte $85,$ED,$E2,$BC,$9F,$7B,$7F,$83
-	.byte $87,$A7,$B8,$E3,$00,$E1,$BB,$8C
-	.byte $85,$EC,$DD,$BB,$98,$78,$7C,$80
-	.byte $84,$A0,$B9,$DC,$00,$E0,$8D,$85
-	.byte $EC,$E2,$BD,$99,$79,$7D,$81,$85
-	.byte $A1,$B8,$DF,$00,$DD,$87,$E2,$FA
-	.byte $FC,$84,$85,$E9,$E1,$BB,$9A,$7A
-	.byte $7E,$82,$86,$A2,$B9,$82,$E2,$E0
-	.byte $BD,$86,$C6,$85,$ED,$DD,$BB,$9B
-	.byte $7B,$7F,$83,$87,$A3,$B9,$E3,$00
-	.byte $E3,$BB,$8C,$9E,$85,$EC,$E0,$BD
-	.byte $9C,$78,$7C,$80,$84,$A4,$BA,$E2
-	.byte $00,$E0,$8D,$85,$F5,$DF,$BC,$9D
-	.byte $79,$7D,$81,$85,$A5,$BA,$DC,$E2
-	.byte $E1,$BB,$F3,$F5,$F3,$F5,$F3,$F5
-	.byte $F3,$F5,$84,$85,$F5,$E0,$BC,$AB
-	.byte $90,$91,$92,$93,$AE,$B3,$C2,$C5
-	.byte $C3,$B7,$F4,$F6,$F4,$F6,$F4,$F6
-	.byte $F7,$F8,$84,$85,$EA,$E3,$BB,$F9
-	.byte $FB,$F9,$FB,$F9,$FB,$F9,$FB,$C9
-	.byte $86,$85,$EA,$C6,$B7,$FA,$FC,$FA
-	.byte $FC,$FA,$FC,$FA,$FC,$8F,$84,$E2
-	.byte $E3,$BB,$C7,$E2,$F3,$F5,$8F,$84
-	.byte $E2,$DC,$BD,$87,$E2,$F7,$F8,$8F
-	.byte $84,$E2,$E0,$BC,$98,$84,$E1,$DC
-	.byte $93,$E2,$F4,$F6,$84,$84,$E2,$E0
-	.byte $BB,$92,$C6,$84,$E2,$E2,$BC,$98
-	.byte $84,$E1,$DC,$99,$85,$E1,$BD,$87
-	.byte $E2,$F4,$F6,$8F,$84,$E4,$00,$C7
-	.byte $C0,$B5,$85,$C8,$E2,$F9,$FB,$87
-	.byte $85,$E3,$00,$E3,$BC,$8D,$E2,$FA
-	.byte $FC,$87,$86,$F2,$00,$C7,$C0,$BF
-	.byte $BE,$C1,$C0,$BF,$BF,$C0,$C1,$C0
-	.byte $C0,$BF,$C1,$BE,$C0,$BE,$A2,$C1
-	.byte $A3,$BE,$BF,$87,$00,$A2,$DC,$E3
-	.byte $E1,$E3,$E2,$A2,$DD,$E3,$E2,$E0
-	.byte $E2,$A3,$DE,$E9,$E2,$DD,$E3,$DD
-	.byte $E2,$E3,$E1,$E0,$DD,$88,$D6,$9E
-	.byte $FF
-level2_d9:
-	.byte 56, 0
-	.byte 88, 255, 255, 255
-	.byte 240, 0, 0, 0
-	.byte 0
-	.byte 255
-	.word level2_d9_t
-	.word level2_d9_p
-	.word level2_d9_e

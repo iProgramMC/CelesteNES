@@ -244,6 +244,8 @@ roomloffs   : .res 1 ; used for stub rooms.  The amount of tiles the room is shi
 startpx     : .res 1 ; starting player X position
 startpy     : .res 1 ; starting player Y position
 
+warpflags   : .res 1 ; extracted from roomloffs on load
+
 usedrunreduce : .res 1
 
 camera_y_hi : .res 1

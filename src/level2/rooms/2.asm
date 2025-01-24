@@ -2,6 +2,7 @@ level2_s0_p:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $FE,$FE,$FE,$FE,$FE,$FE,$FE,$FF
 level2_s0_e:
+	.byte $D0,$70,$7F
 	.byte $FF
 level2_s0_t:
 	.byte $DE,$9E,$9E,$9E,$9E,$9E,$9E,$9E
@@ -11,10 +12,10 @@ level2_s0_t:
 	.byte $52,$53,$53,$53,$52,$52,$52,$53
 	.byte $52,$52,$52,$53,$53,$53,$A4,$52
 	.byte $A4,$53,$52,$53,$53,$53,$52,$52
-	.byte $EE,$EE,$5C,$5B,$57,$EE,$56,$EE
-	.byte $5B,$59,$58,$59,$57,$58,$57,$A3
-	.byte $EE,$E9,$5A,$5C,$5D,$5A,$57,$EE
-	.byte $56,$58,$5C,$A4,$EE,$FF
+	.byte $E4,$EE,$5C,$5B,$57,$A6,$EE,$59
+	.byte $57,$58,$57,$A3,$EE,$E9,$5A,$5C
+	.byte $5D,$5A,$57,$EE,$56,$58,$5C,$A4
+	.byte $EE,$FF
 level2_s0:
 	.byte 32, 128
 	.byte 8, 7, 255, 255
@@ -111,7 +112,7 @@ level2_d0_t:
 	.byte $E2,$E0,$DE,$BB,$85,$E2,$B9,$DC
 	.byte $85,$E5,$00,$00,$E2,$DC,$E2,$FF
 level2_d0:
-	.byte 40, 192
+	.byte 40, 128
 	.byte 20, 22, 21, 23
 	.byte 0, 0, 0, 0
 	.byte 0
@@ -729,7 +730,7 @@ level2_r5_t:
 	.byte $5A,$57,$56,$58,$D0,$DE,$FF
 level2_r5:
 	.byte 44, 0
-	.byte 54, 255, 255, 255
+	.byte 55, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.byte 255
@@ -808,7 +809,7 @@ level2_r6_t:
 	.byte $58,$8E,$D0,$FF
 level2_r6:
 	.byte 44, 0
-	.byte 62, 255, 255, 255
+	.byte 63, 255, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 0
 	.byte 255
@@ -908,7 +909,7 @@ level2_r9_t:
 	.byte $8F,$FF
 level2_r9:
 	.byte 60, 0
-	.byte 66, 255, 255, 65
+	.byte 67, 255, 255, 66
 	.byte 248, 0, 0, 6
 	.byte 38
 	.byte 255
@@ -996,11 +997,11 @@ level2_r12b_t:
 	.byte $33,$86,$97,$2C,$86,$FF
 level2_r12b:
 	.byte 48, 0
-	.byte 255, 80, 78, 79
+	.byte 255, 81, 79, 80
 	.byte 0, 12, 0, 0
 	.byte 32
 	.byte 254, 0, 0, 0
-	.byte 81, 0, 0, 0
+	.byte 82, 0, 0, 0
 	.byte 4, 0, 0, 0
 	.word level2_r12b_t
 	.word level2_r12b_p
@@ -1092,7 +1093,7 @@ level2_r12_t:
 	.byte $30,$86,$FF
 level2_r12:
 	.byte 60, 0
-	.byte 255, 255, 82, 83
+	.byte 255, 255, 83, 84
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
@@ -1180,11 +1181,11 @@ level2_r12d_t:
 	.byte $59,$EE,$59,$58,$AC,$EE,$FF
 level2_r12d:
 	.byte 48, 0
-	.byte 85, 255, 255, 255
+	.byte 86, 255, 255, 255
 	.byte 36, 0, 0, 0
 	.byte 32
 	.byte 254, 0, 0, 0
-	.byte 84, 0, 0, 0
+	.byte 85, 0, 0, 0
 	.byte 244, 0, 0, 0
 	.word level2_r12d_t
 	.word level2_r12d_p

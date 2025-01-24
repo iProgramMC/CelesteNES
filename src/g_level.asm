@@ -562,8 +562,8 @@ h_fls_wrloop:
 	sty wrcountHP1
 	sty wrcountHP2
 	
-	lda #rf_nicevert
-	bit roomflags
+	lda #wf_nicevert
+	bit warpflags
 	beq :+
 	jmp h_gener_row_u_nice
 	
@@ -1757,6 +1757,11 @@ gm_fetch_room:
 	; and load roomptrlo as well
 	ldy #0
 	lda (temp1), y
+	sta roomloffs
+	and #%11100000 ; max offset of 32
+	sta warpflags
+	lda roomloffs
+	and #%00011111
 	sta roomloffs
 	iny
 	lda (temp1), y

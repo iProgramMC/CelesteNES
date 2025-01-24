@@ -514,8 +514,8 @@ actuallyWarp:
 	sta ntrowhead2
 	
 	; if this room has a "nice" transition (both rooms are located at the same X offset with the same width)
-	lda #rf_nicevert
-	bit roomflags
+	lda #wf_nicevert
+	bit warpflags
 	beq @normalTransition
 	
 	lda camera_x
@@ -791,8 +791,8 @@ dontdeccamy:
 	bit gamectrl
 	bne dontdomore
 	
-	lda #rf_nicevert
-	bit roomflags
+	lda #wf_nicevert
+	bit warpflags
 	bne dontdraw4morecols
 	
 	; camera wasn't stopped so draw 4 more cols
