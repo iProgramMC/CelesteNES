@@ -2,33 +2,120 @@
 
 ; This just gets more insane. Now, title code inside of PRG_PAUS? Gimme a break.
 
-.proc s_update_title_aux
-	lda tl_cschctrl
-	bne :+
-	
-	inc tl_cschctrl
-	jsr s_update_control_scheme
-	
-:	lda p1_cont
-	and #cont_select
-	beq doNotSwitch
+
+; This looks bad, but trust me
+.proc s_check_select_a
+	lda p1_cont
+	and #(cont_select | cont_a)
+	beq @return
 	
 	lda p1_conto
-	and #cont_select
-	bne doNotSwitch
+	and #(cont_select | cont_a)
+	bne @returnZero
+	
+	lda #1
+	rts
+	
+@returnZero:
+	lda #0
+@return:
+	rts
+.endproc
+
+.proc s_check_select_a_b
+	lda p1_cont
+	and #(cont_select | cont_a | cont_b)
+	beq @return
+	
+	lda p1_conto
+	and #(cont_select | cont_a | cont_b)
+	bne @returnZero
+	
+	lda #1
+	rts
+	
+@returnZero:
+	lda #0
+@return:
+	rts
+.endproc
+
+.proc s_check_b
+	lda p1_cont
+	and #cont_b
+	beq @return
+	
+	lda p1_conto
+	and #cont_b
+	bne @returnZero
+	
+	lda #1
+	rts
+	
+@returnZero:
+	lda #0
+@return:
+	rts
+.endproc
+
+.proc s_update_title_aux
+	lda tl_cschctrl
+	bne isControlSchemeStuffOpen
+	
+	; well, it's closed
+	jsr s_check_select_a_b
+	beq @dontOpen
+	jmp s_open_control_scheme
+	
+@dontOpen:
+	rts
+	
+isControlSchemeStuffOpen:
+	; well, it's open
+	jsr s_check_b
+	beq @dontExit
+	jmp s_close_control_scheme
+	
+@dontExit:
+	jsr s_check_select_a
+	beq @dontSwitch
 	
 	inc ctrlscheme
 	lda ctrlscheme
 	cmp #(cns_max+1)
-	bne doneSwitch
+	bne @doneSwitch
 	
 	lda #cns_min
 	sta ctrlscheme
 	
-doneSwitch:
+@doneSwitch:
 	jsr s_update_control_scheme
 	
-doNotSwitch:
+@dontSwitch:
+	rts
+.endproc
+
+.proc s_open_control_scheme
+	inc tl_cschctrl
+	jmp s_update_control_scheme
+.endproc
+
+.proc s_close_control_scheme
+	dec tl_cschctrl
+	
+	lda #$20
+	sta vmcaddr+1
+	lda #$A0
+	sta vmcaddr
+	lda #$01
+	sta vmcsrc
+	sta vmcsrc+1
+	lda #$20
+	sta vmccount
+	
+	lda nmictrl2
+	ora #nc2_vmemcpy
+	sta nmictrl2
 	rts
 .endproc
 
@@ -58,6 +145,10 @@ doNotSwitch:
 	sta vmcaddr+1
 	lda #$A0
 	sta vmcaddr
+	lda #<temprow1
+	sta vmcsrc
+	lda #>temprow1
+	sta vmcsrc+1
 	lda #$20
 	sta vmccount
 	
