@@ -10,7 +10,7 @@ level2_music:
 	.word music_data_ch2 ; song list
 	.byte $00            ; default song
 
-.define  prgb_lvl2f prgb_lvl1b
+.define  prgb_lvl2f prgb_dial
 .include "roomlist.asm"
 .undef   prgb_lvl2f
 

@@ -70,7 +70,7 @@ ch2_badeline_start:
 	begin
 	lock_input
 	
-	; play_music here
+	play_music  3   ; Badeline Loop
 	
 	wait        5
 	speaker     SPK_badeline
@@ -180,7 +180,7 @@ ch2_badeline_start:
 	expression  BAD_normal
 	dialogE     @dO ; it's time to go home, together.
 	
-	; play_music here
+	play_music  4   ; Chase
 	
 	trigger     10
 	unlock_input
@@ -214,6 +214,7 @@ ch2_badeline_start:
 
 ch2_dream_phonecall:
 	begin
+	play_music  5  ; Phone Loop
 	lock_input
 	wait_ground
 	walk_player $CD, $A0
@@ -303,6 +304,8 @@ ch2_dream_phonecall:
 	expression  BAD_upset
 	dialog2     @dO
 	
+	play_music  6  ; Phone End
+	
 	trigger     3  ; jumpBack
 	wait        16+20
 	
@@ -312,8 +315,7 @@ ch2_dream_phonecall:
 	trigger     6  ; eat
 	wait        80+20
 	
-	unlock_input
-	end;finish_level
+	finish_level
 	
 	line @d0, "Hello?"
 	line @d1, "Madeline?"

@@ -1743,7 +1743,7 @@ palettes:
 	
 	dec sprspace+sp_sgat_timer, x
 	
-	cmp #32
+	cmp #33
 	bcc @subtractSlide
 	jsr slideAddVelocity
 	jsr slideMove
