@@ -2223,6 +2223,180 @@ bitSet:				.byte $00, $01, $02, $04, $08, $10, $20, $40, $80
 @banks:	.byte chrb_cass2, chrb_cass1
 .endproc
 
+; ** ENTITY: Heart Gem
+.proc xt_draw_heart_gem
+	lda #chrb_sheart
+	sta spr1_bknum
+	
+	lda #g3_transitA
+	bit gamectrl3
+	bne @noCollision
+	
+	ldy temp1
+	lda #0
+	sta temp7
+	sta temp8
+	lda #16
+	sta temp9
+	sta temp10
+	jsr gm_check_collision_ent
+	beq @noCollision
+	
+	; [temp8, temp7, temp6]
+	
+	lda #0
+	sta temp6
+	
+	; playerX + cameraX - spriteX
+	lda player_x
+	clc
+	adc camera_x
+	sta temp7
+	
+	lda camera_x_pg
+	adc #0
+	sta temp8
+	
+	lda temp7
+	sec
+	sbc sprspace+sp_x, y
+	sta temp7
+	lda temp8
+	sec
+	sbc sprspace+sp_x_pg, y
+	sta temp8
+	
+	; -1/2 the speed
+	jsr calculateOneQuarter
+	
+	lda temp6
+	sta player_vs_x
+	lda temp7
+	sta player_vl_x
+	
+	lda #0
+	sec
+	sbc temp11
+	sta sprspace+sp_hart_bncex, y
+	
+	; playerY - spriteY
+	lda player_y
+	sec
+	sbc sprspace+sp_y, y
+	sta temp7
+	lda #0
+	sta temp6
+	
+	jsr calculateOneQuarter
+	
+	lda temp6
+	sta player_vs_y
+	lda temp7
+	sta player_vl_y
+	
+	lda #0
+	sec
+	sbc temp11
+	sta sprspace+sp_hart_bncey, y
+	
+	lda #0
+	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	
+@noCollision:
+	ldx temp1
+	lda sprspace+sp_hart_timer, x
+	inc sprspace+sp_hart_timer, x
+	lsr
+	lsr
+	cmp #14
+	bcc :+
+	lda #0
+	sta sprspace+sp_hart_timer, x
+:	tay
+	lda leftFrame, y
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	
+	lda #pal_blue
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	ldy #0
+	lda sprspace+sp_hart_bncex, x
+	bpl :+
+	dey
+:	sty temp11
+	
+	lda temp2
+	clc
+	adc sprspace+sp_hart_bncex, x
+	sta temp2
+	
+	lda temp4
+	adc temp11
+	sta temp4
+	
+	lda temp3
+	clc
+	adc sprspace+sp_hart_bncey, x
+	sta temp3
+	
+	lda sprspace+sp_hart_timer, x
+	and #3
+	bne @dontLowerBounce
+	
+	lda sprspace+sp_hart_bncex, x
+	jsr getSign
+	sty temp11
+	sec
+	sbc temp11
+	sta sprspace+sp_hart_bncex, x
+	
+	lda sprspace+sp_hart_bncey, x
+	jsr getSign
+	sty temp11
+	sec
+	sbc temp11
+	sta sprspace+sp_hart_bncey, x
+	
+@dontLowerBounce:
+	
+	jmp gm_draw_common2
+
+leftFrame:	.byte $40, $40, $40, $44, $48, $4C, $50, $54, $58, $5C, $60, $64, $68, $40
+
+calculateOneQuarter:
+	lda temp7
+	cmp #$80
+	ror
+	ror temp6
+	sta temp7
+	sta temp11
+	cmp #$80
+	ror temp7
+	ror temp6
+	rts
+
+getSign:
+	ldy #0
+	cmp #0
+	bmi @returnM1
+	bne @returnP1
+	rts
+@returnM1:
+	dey
+	rts
+@returnP1:
+	iny
+	rts
+.endproc
 
 ; *********************************************************
 
@@ -2351,7 +2525,8 @@ level2_memorial_kludge:
 	xt_draw_touch_switch,   \
 	xt_draw_switch_gate,    \
 	xt_draw_cassette_tape,  \
-	xt_cass_block_manager
+	xt_cass_block_manager,  \
+	xt_draw_heart_gem
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table

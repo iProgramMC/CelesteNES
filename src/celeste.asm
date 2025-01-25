@@ -64,6 +64,9 @@
 .segment "CHR_SPANI"
 .incbin  "chr/sp_anim.chr"
 
+.segment "CHR_SPHRT"
+.incbin  "chr/sp_heart.chr"
+
 ; ** Level Specific Sprite Banks
 .segment "CHR_SLVL0"
 .incbin  "chr/sp_level0.chr"

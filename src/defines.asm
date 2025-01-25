@@ -183,6 +183,10 @@ sp_cass_state = sp_entspec1 ; state (0 - spin, 1 - collected)
 sp_cass_timer = sp_entspec2
 sp_cass_stimr = sp_entspec3
 
+sp_hart_timer = sp_entspec1
+sp_hart_bncex = sp_wid
+sp_hart_bncey = sp_hei
+
 sp_l1me_index = sp_entspec1
 
 ; entity flags
@@ -246,6 +250,7 @@ e_tswitch   = $19 ; Touch Switch
 e_swgate    = $1A ; Switch Gate
 e_casstape  = $1B ; Cassette Tape
 e_cassmgr   = $1C ; Cassette Block Manager
+e_heartgem  = $1D ; Heart Gem
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance
@@ -341,6 +346,8 @@ chrb_anisp1 = $05   ;
 chrb_anisp2 = $06   ;
 chrb_anisp3 = $07   ;
 
+chrb_sheart = $7B   ; Crystal Heart sprites
+
 chrb_splvl0 = $08   ; sprites for level 0
 chrb_splv0b = $09   ; sprites for level 0
 chrb_splvl1 = $0A   ; sprites for level 1
@@ -361,7 +368,6 @@ chrb_papho9 = $1B   ; splv2k
 chrb_splv2l = $18   ; sprites for level 2
 chrb_splv2m = $19   ; sprites for level 2
 chrb_splv2n = $1A   ; sprites for level 2
-; $1B free
 
 ; BACKGROUND BANKS
 chrb_bgttl  = $1C   ; graphics bank for title screen
@@ -376,8 +382,6 @@ chrb_lvl2e  = $36
 chrb_lvl2f  = $38
 chrb_lvl2g  = $3A
 chrb_lvl2h  = $3C
-; $3E-$3F free
-; $40-$43 free
 
 ; COMPLETE SCREEN BANKS
 chrb_lvl1ca = $40   ; graphics bank for Ch.1 complete screen
