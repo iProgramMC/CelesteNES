@@ -310,6 +310,7 @@ dredeatmr   : .res 1 ; dream death counter
 dreinvtmr   : .res 1 ; dream dash invincibility timer
 rununimport : .res 1 ; set this to 0 to allow running of unimportant stuff such as background effects
 tswitches   : .res 1 ; amount of touch switches that have not been touched (platforms activate when this hits 0)
+cassrhythm  : .res 1 ; used to control the solidity of cassette blocks
 
 zero_on_respawn_zp_end:
 

@@ -79,6 +79,21 @@ gm_draw_common:
 
 .endproc
 
+; ** SUBROUTINE: gm_unload_cassette_manager
+; desc: Unloads a cassette block manager entity.
+; parameters:
+;    X - The entity to unload.
+.proc gm_unload_cassette_manager
+	lda #0
+	sta cassrhythm
+	lda sprspace+sp_cbmg_ospbk, x
+	sta spr1_bknum
+	lda sprspace+sp_cbmg_obg0b, x
+	sta bg0_bknum
+	lda sprspace+sp_cbmg_obg1b, x
+	sta bg1_bknum
+	rts
+.endproc
 
 ; ** SUBROUTINE: gm_unload_ents_room
 ; desc: Unloads all entities with a specific room number.
@@ -106,7 +121,11 @@ gm_unload_ents_room:
 	beq @isStrawBerry
 	
 @isStrawBerryRemoveAnyway:
-	lda #0
+	lda sprspace+sp_kind, x
+	cmp #e_cassmgr
+	bne :+
+	jsr gm_unload_cassette_manager
+:	lda #0
 	sta sprspace+sp_kind, x
 	
 @skipThisObject:
@@ -142,6 +161,9 @@ gm_unload_os_ents:
 	
 	; If it is a bridge, then don't subject it to such unload. It will unload itself soon.
 	cmp #e_l0bridge
+	beq :+
+	; Cassette block managers shall only be unloaded by room transitions.
+	cmp #e_cassmgr
 	beq :+
 	
 	lda sprspace+sp_x, x

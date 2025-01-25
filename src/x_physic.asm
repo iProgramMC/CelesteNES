@@ -976,6 +976,18 @@ xt_colljumptable:
 	.word xt_collidespikesLEFT
 	.word xt_collidespikesRIGHT
 	.word xt_collidedream
+	.word xt_collidecass1
+	.word xt_collidecass2
+
+xt_collidecass1:
+	lda cassrhythm
+	and #1
+	rts
+xt_collidecass2:
+	lda cassrhythm
+	and #1
+	eor #1
+	rts
 
 xt_collidefull:
 	lda #1

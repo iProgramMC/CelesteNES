@@ -221,6 +221,8 @@ level2_d9_p:
 	.byte $00,$88,$00,$00,$00,$30,$33,$33
 	.byte $33,$33,$33,$03,$FF
 level2_d9_e:
+	.byte $30,$80,$1B
+	.byte $B0,$08,$1C
 	.byte $FF
 level2_d9_t:
 	.byte $DE,$A2,$DC,$E4,$DD,$DC,$E2,$E1

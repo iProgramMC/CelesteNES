@@ -1252,6 +1252,8 @@ doneWipe:
 	rts
 
 @level2:
+	lda cassrhythm
+	bmi @return
 	lda miscsplit
 	bne @return
 	

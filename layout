@@ -111,10 +111,10 @@ MEMORY
 	CHR_OPTNS: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$60; # Options text bank
 	
 	## Dialog Pattern Tables ##
-	CHR_DMAIN: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$68; # Dialog text font (used for Prologue and Memorial)
-	CHR_CASS2: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$6A; # Cassette Blocks (2)
-	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$6C; # Binary counting pattern for text rendering
-	CHR_DMOME: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$64; # Mom/Ex dialog portraits (No, not Momeline)
+	CHR_DMAIN: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$64; # Dialog text font (used for Prologue and Memorial)
+	CHR_CASS2: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$66; # Cassette Blocks (2)
+	CHR_DCNTR: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$68; # Binary counting pattern for text rendering
+	CHR_DMOME: start=$0000, size=$1000, fill=yes, fillval=$FF, bank=$6C; # Mom/Ex dialog portraits (No, not Momeline)
 	CHR_DBADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$70; # Badeline dialog portraits
 	CHR_DMADE: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$74; # Madeline dialog portraits
 	CHR_DTHEO: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$78; # Theo dialog portraits (unused for now)

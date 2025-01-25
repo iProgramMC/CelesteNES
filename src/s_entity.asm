@@ -1994,8 +1994,58 @@ spriteNumbersBelow:	.byte $BC,$96,$BE
 
 ; ** ENTITY: Cassette Block Manager
 .proc xt_cass_block_manager
+	; TODO: Play own music.
+	ldx temp1
+	lda sprspace+sp_cbmg_state, x
+	beq @init
+	cmp #1
+	beq @blink
+	cmp #2
+	beq @inactive
 	
+@init:
+	lda spr1_bknum
+	sta sprspace+sp_cbmg_ospbk, x
+	lda bg0_bknum
+	sta sprspace+sp_cbmg_obg0b, x
+	lda bg1_bknum
+	sta sprspace+sp_cbmg_obg1b, x
+	inc sprspace+sp_cbmg_state, x
+
+	lda cassrhythm
+	ora #$80
+	sta cassrhythm
+	
+@blink:
+	ldy #0
+	lda levelnumber
+	cmp #2
+	bne :+
+	iny
+:	lda cassrhythm
+	and #1
+	tax
+	lda @banks, x
+	sta bg0_bknum, y
+	ldx temp1
+	
+	inc sprspace+sp_cbmg_timer, x
+	lda sprspace+sp_cbmg_timer, x
+	cmp #90 ; RHYTHM
+	bcc @inactive
+	
+	lda #0
+	sta sprspace+sp_cbmg_timer, x
+	inc cassrhythm
+	
+	lda cassrhythm
+	ora #$80
+	sta cassrhythm
+	
+@inactive:
 	rts
+
+@banks:	.byte chrb_cass2, chrb_cass1
 .endproc
 
 
@@ -2176,6 +2226,8 @@ xt_check_ent_onscreen:
 	cmp #e_l0bridge
 	beq @returnOne
 	cmp #e_l0birdda
+	beq @returnOne
+	cmp #e_cassmgr
 	beq @returnOne
 	
 	lda #0

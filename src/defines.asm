@@ -173,9 +173,11 @@ sp_sgat_timer = sp_entspec2 ; switch gate timer
 sp_sgat_trajx = sp_entspec3 ; trajectory X
 sp_sgat_trajy = sp_entspec4 ; trajectory Y
 
-sp_cbmg_state = sp_entspec1 ; state (0 - blinking, 1 - all blocks inactive)
+sp_cbmg_state = sp_entspec1 ; state (0 - init, 1 - blinking, 2 - all blocks inactive)
 sp_cbmg_ospbk = sp_entspec2 ; old sprites bank
-sp_cbmg_cycle = sp_entspec3 ; current cycle
+sp_cbmg_timer = sp_entspec3 ; current timer
+sp_cbmg_obg0b = sp_wid      ; old background 0 bank
+sp_cbmg_obg1b = sp_hei      ; old background 1 bank
 
 sp_l1me_index = sp_entspec1
 
@@ -403,7 +405,7 @@ chrb_dgran  = $7C   ; graphics bank for dialog with Granny
 
 ; CASSETTE BLOCK banks
 chrb_cass1  = $3E
-chrb_cass2  = $6A
+chrb_cass2  = $66
 
 ; PRG ROM BANKS
 ; Swappable level data ($A000), Fixed level data ($C000)

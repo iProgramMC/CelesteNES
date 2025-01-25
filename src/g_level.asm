@@ -1876,6 +1876,9 @@ gm_fetch_room:
 ; ** SUBROUTINE: gm_update_bg_bank
 ; desc: Updates the first background bank when transitioning between rooms.
 .proc gm_update_bg_bank
+	lda cassrhythm
+	bmi @return
+	
 	lda roomflags2
 	and #%00011000
 	beq :+
