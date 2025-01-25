@@ -53,7 +53,7 @@ level_palettes:
 level_berry_counts:
 	.byte 0
 	.byte 20
-	.byte 18
+	.byte 17 ; 18 -- the "Awake" section doesn't exist yet.
 	.byte 25
 	.byte 29
 	.byte 31

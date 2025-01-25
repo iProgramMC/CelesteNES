@@ -10,8 +10,11 @@ level2_music:
 	.word music_data_ch2 ; song list
 	.byte $00            ; default song
 
-.include "rooms/1.asm"
+.define  prgb_lvl2f prgb_lvl1b
 .include "roomlist.asm"
+.undef   prgb_lvl2f
+
+.include "rooms/1.asm"
 .include "warplist.asm"
 .include "palette.asm"
 .include "structs.asm"

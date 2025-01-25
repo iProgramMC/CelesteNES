@@ -42,6 +42,7 @@
 .include "level2/bank_2.asm"
 .include "level2/bank_3.asm"
 .include "level2/bank_4.asm"
+.include "level2/bank_5.asm" ; NOTE: Actually the same as PRG_DIAL for now!
 
 .include "prg_xtra.asm"
 .include "prg_game.asm"
