@@ -23,13 +23,13 @@ TBA
 
 - iProgramInCpp - Lead developer
 
-- [zeta0134](https://github.com/zeta0134) - "First Steps" rendition
-
 - [livvy94](https://youtube.com/@livvy94) - "Resurrections" rendition
 
-- Buttersoap - Sound effects, and first "First Steps" rendition
+- [zeta0134](https://github.com/zeta0134) - "First Steps" rendition
 
 - [Persune](https://gumball2415.github.io) - Chapter Complete rendition
+
+- Buttersoap - Sound effects, and first "First Steps" rendition
 
 - The members of the [NESdev discord server](https://discord.gg/VFnWZV8GWk) for miscellaneous help
 
