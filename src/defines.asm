@@ -491,6 +491,9 @@ cns_console = $01  ; Official console control scheme. Press UP while sliding on 
 cns_emulat  = $02  ; Emulator control scheme. Hold SELECT to climb
 cns_snes    = $03  ; SNES control scheme. Hold the L shoulder to climb
 
+cns_min     = cns_console
+cns_max     = cns_snes
+
 ; Constants
 def_mmc3_bn = %01000000 ; default mmc3 bank config.
                         ; two 2K banks at $0000-$0FFF, four 1K banks at $1000-$1FFF

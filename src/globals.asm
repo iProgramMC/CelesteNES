@@ -116,6 +116,7 @@ pot_merged  : .res 10
 
 ; title
 tl_gametime := pot_merged + 0
+tl_cschctrl := pot_merged + 1
 ; overworld
 ow_lvlopen  := pot_merged + 0 ; is the level drawer open
 ow_berries1 := pot_merged + 1

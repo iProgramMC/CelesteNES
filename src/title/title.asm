@@ -88,6 +88,7 @@ gamemode_title_init_FAR:
 	sta camera_y
 	sta camera_x_pg
 	sta camera_y_hi
+	sta tl_cschctrl
 	sta ppu_mask     ; disable rendering
 	
 	jsr vblank_wait  ; wait for vblank
@@ -117,6 +118,11 @@ gamemode_title_init_FAR:
 gamemode_title_update_FAR:
 	jsr tl_update_snow
 	jsr tl_render_snow
+	
+	ldx #<s_update_title_aux
+	ldy #>s_update_title_aux
+	lda #prgb_paus
+	jsr far_call2
 	
 	lda #cont_start
 	bit p1_cont

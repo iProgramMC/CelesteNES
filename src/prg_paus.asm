@@ -288,6 +288,7 @@ pause_copy_max = pause_data_end - pause_data
 .include "s_entity.asm"
 .include "s_pldraw.asm"
 .include "s_bgfx.asm"
+.include "s_title.asm"
 
 ; It sounds even more absurd to include a LEVEL SPECIFIC piece of code here, but I don't want to change to 256K PRG.
 ; TODO: Move this back to level2 specific banks after the first demo.
