@@ -37,7 +37,7 @@ TBA
 
 - The members of the [NESdev discord server](https://discord.gg/VFnWZV8GWk) for miscellaneous help
 
-- [TFDSoft](https://twitter.com/TFDSoft) for support
+- [TFDSoft](https://twitter.com/TFDSoft) for support, and also the nightly build workflow
 
 - [Extremely OK Games](https://exok.com) for creating the wonderful game of [Celeste](https://www.celestegame.com)
 
