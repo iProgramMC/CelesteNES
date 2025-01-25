@@ -23,15 +23,28 @@ TBA
 
 - iProgramInCpp - Lead developer
 
-- Zeta0134 - "First Steps" cover
+- [zeta0134](https://github.com/zeta0134) - "First Steps" rendition
 
-- Livvy94 - "Resurrections" cover
+- [livvy94](https://youtube.com/@livvy94) - "Resurrections" rendition
 
-- Buttersoap - Sound effects, initial "First Steps" cover
+- Buttersoap - Sound effects, and first "First Steps" rendition
+
+- [Persune](https://gumball2415.github.io) - Chapter Complete rendition
 
 - The members of the [NESdev discord server](https://discord.gg/VFnWZV8GWk) for miscellaneous help
 
 - [TFDSoft](https://twitter.com/TFDSoft) for support
+
+- [Extremely OK Games](https://exok.com) for creating the wonderful game of [Celeste](https://www.celestegame.com)
+
+- And you, for playing!
+
+## Building
+
+To build you will need the `cc65` toolchain installed (`ca65` and `ld65` are used), as well as a posix-compliant
+`make` implementation.
+
+Run the `make` command to build the ROM for the game.
 
 ## Code Quality Warning
 
@@ -52,13 +65,12 @@ accuracy and speed.
 
 ## License
 
-This project is neither created nor endorsed by the Celeste team.
+This project has been neither created nor endorsed by the Celeste team.
 
 The *Celeste* IP is owned by [Maddy Makes Games, Inc.](https://maddymakesgames.com).
 
-The *graphics* (all \*.chr files, except d_font.chr) and *music* (`src/level0/testmusic.asm`,
-`src/level1/testmusic.asm`, and `src/level2/testmusic.asm`) are under a **strictly**
-**non-commercial license**, meaning you **may not** use these assets for **any**
-commercial purpose.
+The *graphics* (all \*.chr files, except d_font.chr) and *music* (`src/level0/music`,
+`src/level1/music`, and `src/level2/music`) are under a **strictly non-commercial license**,
+meaning you **may not** use these assets for **any** commercial purpose.
 
 The game code (`src/`) is licensed under [the MIT license](src/license.txt)

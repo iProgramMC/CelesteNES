@@ -4,8 +4,7 @@
 .include "metatile.asm"
 
 music_data_ch1_dmc:
-;.incbin "level1.dmc"
-.incbin "firststepszeta.dmc"
+.incbin "music/level1.dmc"
 
 level1_music:
 	.word music_data_ch1 ; song list
