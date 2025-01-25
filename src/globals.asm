@@ -498,7 +498,7 @@ save_file_0:
 	sf_times:     .res 3*8   ; times for each chapter (in frames. Up to 77 hours / 16.7 million frames)
 	sf_totaltime: .res 4     ; total time spent in-game (up to 2 years / 4 billion frames)
 	sf_deaths:    .res 2*8   ; total deaths (max. 65K)
-	sf_cassettes: .res 1     ; cassettes (B-sides) unlocked (note: probably won't actually have B-sides !)
+	sf_cassettes: .res 1     ; cassettes (B-sides) unlocked (note: probably won't actually have B-sides!)
 	sf_hearts:    .res 1     ; crystal hearts obtained
 	sf_unused:    .res 2
 

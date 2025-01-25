@@ -179,6 +179,10 @@ sp_cbmg_timer = sp_entspec3 ; current timer
 sp_cbmg_obg0b = sp_wid      ; old background 0 bank
 sp_cbmg_obg1b = sp_hei      ; old background 1 bank
 
+sp_cass_state = sp_entspec1 ; state (0 - spin, 1 - collected)
+sp_cass_timer = sp_entspec2
+sp_cass_stimr = sp_entspec3
+
 sp_l1me_index = sp_entspec1
 
 ; entity flags

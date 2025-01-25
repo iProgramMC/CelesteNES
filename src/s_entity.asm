@@ -1988,8 +1988,183 @@ spriteNumbersBelow:	.byte $BC,$96,$BE
 
 ; ** ENTITY: Cassette Tape
 .proc xt_draw_cassette_tape
+	ldx temp1
+	lda sprspace+sp_cass_state, x
+	beq @idleState
 	
+	; update twice
+	inc sprspace+sp_cass_stimr, x
+	lda sprspace+sp_cass_stimr, x
+	cmp #30
+	bcc @noEject
+	
+	inc sprspace+sp_cass_timer, x
+	inc sprspace+sp_cass_timer, x
+	inc sprspace+sp_cass_timer, x
+	lda sprspace+sp_vel_y_lo, x
+	clc
+	adc #$20
+	sta sprspace+sp_vel_y_lo, x
+	bcc :+
+	inc sprspace+sp_vel_y, x
+:	lda sprspace+sp_y_lo, x
+	sec
+	sbc sprspace+sp_vel_y_lo, x
+	sta sprspace+sp_y_lo, x
+	lda sprspace+sp_y, x
+	sbc sprspace+sp_vel_y, x
+	bcs @noDeSpawn
+	
+	lda #0
+	sta sprspace+sp_kind, x
 	rts
+	
+@noDeSpawn:
+	sta sprspace+sp_y, x
+	
+@noEject:
+	inc sprspace+sp_cass_timer, x
+	inc sprspace+sp_cass_timer, x
+	inc sprspace+sp_cass_timer, x
+	jmp @drawCassette
+	
+@idleState:
+	ldy temp1
+	lda #0
+	sta temp7
+	sta temp8
+	lda #16
+	sta temp9
+	sta temp10
+	jsr gm_check_collision_ent
+	beq @noCollision
+	
+	; TODO: don't modify the save directly.
+	ldy levelnumber
+	lda bitSet, y
+	ora sf_cassettes
+	sta sf_cassettes
+	
+	lda temp3
+	pha
+	lda temp2
+	pha
+	lda temp1
+	pha
+	
+	jsr save_file_calc_checksum
+	jsr gm_strawb_sfx
+	
+	pla
+	sta temp1
+	tax
+	pla
+	sta temp2
+	pla
+	sta temp3
+	
+	inc sprspace+sp_cass_state, x
+
+@noCollision:
+@drawCassette:
+	ldx temp1
+	lda sprspace+sp_cass_timer, x
+	inc sprspace+sp_cass_timer, x
+	
+	lsr
+	lsr
+	lsr
+	cmp #9
+	bcc :+
+	lda #0
+	sta sprspace+sp_cass_timer, x
+:	sta temp11
+	; widths: 3, 3, 2, 2, 2, 3, 3, 3, 3
+	
+	lda #pal_gray
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	lda temp11
+	cmp #4
+	bcc @noFlip
+	cmp #6
+	bcs @noFlip
+	
+	lda temp5
+	ora #obj_fliphz
+	sta temp5
+	sta temp8
+	
+@noFlip:
+	lda temp11
+	cmp #2
+	bcc @wide
+	cmp #5
+	bcs @wide
+	
+	; 2 tiles short
+	ldy temp11
+	lda tapeShortFrames1, y
+	sta temp6
+	lda tapeShortFrames2, y
+	sta temp7
+	jmp gm_draw_common
+	
+@wide:
+	lda temp2
+	sec
+	sbc #4
+	sta temp2
+	bcs :+
+	dec temp4
+:	lda temp4
+	bne @noLeftSide
+	
+	lda temp2
+	sta x_crd_temp
+	lda temp3
+	sta y_crd_temp
+	
+	ldy temp11
+	lda tapeLongFrames1, y
+	tay
+	lda temp5
+	jsr oam_putsprite
+	
+@noLeftSide:
+	lda temp2
+	clc
+	adc #8
+	sta temp2
+	bcc :+
+	inc temp4
+:	lda temp4
+	beq @yesRightSide
+	
+	lda temp2
+	cmp #$F8
+	bcc @noRightSide
+	
+@yesRightSide:
+	ldy temp11
+	lda tapeLongFrames2, y
+	sta temp6
+	lda tapeLongFrames3, y
+	sta temp7
+	jmp gm_draw_common
+
+@noRightSide:
+	rts
+
+tapeShortFrames1:	.byte $00, $00, $5C, $7C, $5E, $00, $00, $00, $00
+tapeShortFrames2:	.byte $00, $00, $5E, $7E, $5C, $00, $00, $00, $00
+tapeLongFrames1:	.byte $50, $56, $00, $00, $00, $5A, $50, $70, $76
+tapeLongFrames2:	.byte $52, $58, $00, $00, $00, $58, $52, $72, $78
+tapeLongFrames3:	.byte $54, $5A, $00, $00, $00, $56, $54, $74, $7A
+bitSet:				.byte $00, $00, $01, $02, $04, $08, $10, $20, $40, $80
+
 .endproc
 
 ; ** ENTITY: Cassette Block Manager
@@ -2027,6 +2202,7 @@ spriteNumbersBelow:	.byte $BC,$96,$BE
 	tax
 	lda @banks, x
 	sta bg0_bknum, y
+	sta spr1_bknum
 	ldx temp1
 	
 	inc sprspace+sp_cbmg_timer, x

@@ -46,6 +46,7 @@
 
 ; ** SUBROUTINE: save_file_calc_checksum
 ; desc: Calculates the check sum for a save file.
+; clobbers: temp1, temp2, temp3
 .proc save_file_calc_checksum
 	lda #0
 	sta temp1
