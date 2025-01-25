@@ -183,7 +183,8 @@ sp_cass_state = sp_entspec1 ; state (0 - spin, 1 - collected)
 sp_cass_timer = sp_entspec2
 sp_cass_stimr = sp_entspec3
 
-sp_hart_timer = sp_entspec1
+sp_hart_state = sp_entspec1
+sp_hart_timer = sp_entspec2
 sp_hart_bncex = sp_wid
 sp_hart_bncey = sp_hei
 

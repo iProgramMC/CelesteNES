@@ -442,7 +442,16 @@ gm_dontjump:
 	bit gamectrl2
 	bne gm_dontdash
 	
+	lda levelnumber
+	bne @mayDash
+	
+	lda p1_cont ; not game_cont, that may be influenced by game_cont_force
+	and #(cont_left | cont_right | cont_up | cont_down)
+	cmp #(cont_right | cont_up)
+	bne gm_dontdash
+	
 	; dash!!
+@mayDash:
 	jsr gm_add_lift_boost
 	inc dashcount
 	ldx #defdashtime

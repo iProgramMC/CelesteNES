@@ -2044,23 +2044,7 @@ spriteNumbersBelow:	.byte $BC,$96,$BE
 	ora sf_cassettes
 	sta sf_cassettes
 	
-	lda temp3
-	pha
-	lda temp2
-	pha
-	lda temp1
-	pha
-	
-	jsr save_file_calc_checksum
-	jsr gm_strawb_sfx
-	
-	pla
-	sta temp1
-	tax
-	pla
-	sta temp2
-	pla
-	sta temp3
+	jsr commitSaveFile
 	
 	inc sprspace+sp_cass_state, x
 
@@ -2164,6 +2148,25 @@ tapeLongFrames2:	.byte $52, $58, $00, $00, $00, $58, $52, $72, $78
 tapeLongFrames3:	.byte $54, $5A, $00, $00, $00, $56, $54, $74, $7A
 bitSet:				.byte $00, $01, $02, $04, $08, $10, $20, $40, $80
 
+commitSaveFile:
+	lda temp3
+	pha
+	lda temp2
+	pha
+	lda temp1
+	pha
+	
+	jsr save_file_calc_checksum
+	jsr gm_strawb_sfx
+	
+	pla
+	sta temp1
+	tax
+	pla
+	sta temp2
+	pla
+	sta temp3
+	rts
 .endproc
 
 ; ** ENTITY: Cassette Block Manager
@@ -2228,11 +2231,43 @@ bitSet:				.byte $00, $01, $02, $04, $08, $10, $20, $40, $80
 	lda #chrb_sheart
 	sta spr1_bknum
 	
+	ldx temp1
+	lda sprspace+sp_hart_state, x
+	beq @idleState
+	
+	; collecting state.
+	inc sprspace+sp_hart_timer, x
+	lda sprspace+sp_hart_timer, x
+	cmp #20
+	bcs @despawn
+	
+	and #%11111100
+	clc
+	adc #$6C
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	
+	lda #pal_blue
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	jmp gm_draw_common
+
+@despawn:
+	lda #0
+	sta sprspace+sp_kind, x
+	rts
+
+@idleState:
 	lda #g3_transitA
 	bit gamectrl3
-	bne @noCollision
+	beq :+
+	jmp @noCollision
 	
-	ldy temp1
+:	ldy temp1
 	lda #0
 	sta temp7
 	sta temp8
@@ -2242,6 +2277,24 @@ bitSet:				.byte $00, $01, $02, $04, $08, $10, $20, $40, $80
 	jsr gm_check_collision_ent
 	beq @noCollision
 	
+	; are we dashing?
+	lda dashtime
+	beq @notDashing
+	
+	; TODO: Particles and stuff.
+	ldy levelnumber
+	lda xt_draw_cassette_tape::bitSet, y
+	ora sf_hearts
+	sta sf_hearts
+	
+	jsr xt_draw_cassette_tape::commitSaveFile
+	
+	lda #0
+	sta sprspace+sp_hart_timer, x
+	inc sprspace+sp_hart_state, x
+	rts
+	
+@notDashing:
 	; [temp8, temp7, temp6]
 	
 	lda #0
@@ -2299,12 +2352,7 @@ bitSet:				.byte $00, $01, $02, $04, $08, $10, $20, $40, $80
 	sbc temp11
 	sta sprspace+sp_hart_bncey, y
 	
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr resetStaminaAndDash
 	
 @noCollision:
 	ldx temp1
@@ -2367,10 +2415,16 @@ bitSet:				.byte $00, $01, $02, $04, $08, $10, $20, $40, $80
 	sta sprspace+sp_hart_bncey, x
 	
 @dontLowerBounce:
-	
 	jmp gm_draw_common2
 
-leftFrame:	.byte $40, $40, $40, $44, $48, $4C, $50, $54, $58, $5C, $60, $64, $68, $40
+resetStaminaAndDash:
+	lda #0
+	sta dashcount
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	rts
 
 calculateOneQuarter:
 	lda temp7
@@ -2396,6 +2450,8 @@ getSign:
 @returnP1:
 	iny
 	rts
+
+leftFrame:	.byte $40, $40, $40, $44, $48, $4C, $50, $54, $58, $5C, $60, $64, $68, $40
 .endproc
 
 ; *********************************************************
