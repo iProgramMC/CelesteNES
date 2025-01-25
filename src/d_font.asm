@@ -7,11 +7,9 @@ dlg_font_data:
 	; this array is 1KB in size.
 	;
 	; the first character index, $00, maps to ASCII $20
-	;.incbin "d_font.chr"
-	.incbin "d_fontv2.chr"
+	.incbin "d_font.chr"
 
-;.include "d_fontw.asm"
-.include "d_fontw2.asm"
+.include "d_fontw.asm"
 
 ; ** SUBROUTINE: dlg_fetch_strip
 ; desc: Fetches an 8-bit character strip.

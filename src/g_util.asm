@@ -215,4 +215,111 @@ death_irq_table_4:	.byte 1,1,1,1,1,1,2,3,4,5, 6, 7, 8, 9,10,11,12,13,14,15,16,17
 	rts
 .endproc
 
-.include "math.asm"
+; ** SUBROUTINE: calc_approach
+; desc: Approaches an 8-bit value towards another 8-bit value.
+;
+; parameters:
+;     X - The index into the zero page of the value to update
+;     Y - The value to add
+;     A - The approached value
+;
+; note:
+;     clobbers temp1, temp2, A, X
+.if 0
+calc_approach:
+@end = temp1
+@add = temp2
+	sta @end
+	sty @add
+	
+	lda 0, x
+	cmp @end
+	bcs @startBiggerThanEnd
+	
+	; start < end
+	; clc
+	adc @add
+	bcc :+
+	lda @end   ; it overflew! so, just end
+:	cmp @end
+	bcc :+
+	lda @end   ; start now >= end, load end
+:	sta 0, x
+	rts
+	
+@startBiggerThanEnd:
+	; start >= end
+	; sec
+	sbc @add
+	bcs :+
+	lda @end   ; it underflew! so, just end
+:	cmp @end
+	bcs :+
+	lda @end   ; start now < end, load end
+:	sta 0, x
+	rts
+.endif
+
+; ** SUBROUTINE: invert_oam_order
+; desc: Inverts the order of sprites in OAM.
+; arguments:
+;     X - Old OAM Head
+;     Y - New OAM Head
+; clobbers: temp11
+; note: X&3 == Y&3 == 0!!
+.proc invert_oam_order
+	; if list is empty
+	sty temp11
+	cpx temp11
+	beq @break
+	
+	; if list is 1 byte in size
+	; also gets the last item in the list of items to shuffle
+	dey
+	dey
+	dey
+	dey
+	
+	sty temp11
+	cpx temp11
+	beq @break
+@loop:
+
+.repeat 4, i
+	lda oam_buf+i, x
+	sta temp11
+	
+	lda oam_buf+i, y
+	sta oam_buf+i, x
+	
+	lda temp11
+	sta oam_buf+i, y
+.endrepeat
+	
+	; increment X four times, if it matches Y then break
+	inx
+	inx
+	inx
+	inx
+	sty temp11
+	cpx temp11
+	beq @break
+	
+	; decrement Y four times and see if it matches X
+	dey
+	dey
+	dey
+	dey
+	sty temp11
+	cpx temp11
+	bne @loop
+
+@break:
+	rts
+.endproc
+
+; These belong in PRG_TTLE, but I don't have enough space for them! :(
+logo_pressstart:	.byte $70,$71,$72,$73,$74,$75,$76,$77,$78
+logo_iprogram:		.byte $60,$61,$62,$63,$64,$65,$66,$67,$68,$69,$6A,$6B,$6C,$6D,$6E
+logo_exok:			.byte $60,$61,$79,$7A,$00,$7B,$7C,$7D,$7E
+logo_version:		.byte $20,$21,$22,$23,$24,$25,$26
