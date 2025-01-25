@@ -3,7 +3,28 @@
 ; This bank handles the game pause functionality.
 .segment "PRG_PAUS"
 
-.define MAX_PAUSE_OPTION 6
+.define EXTENDED_PAUSE 0
+
+.if EXTENDED_PAUSE
+
+MAX_PAUSE_OPTION = 6
+
+OPT_RESUME   = 0
+OPT_RETRY    = 1
+OPT_SAVEQUIT = 2
+OPT_OPTIONS  = 3
+OPT_RESTART  = 4
+OPT_EXIT     = 5
+
+.else
+
+MAX_PAUSE_OPTION = 3
+
+OPT_RESUME    = 0
+OPT_RETRY     = 1
+OPT_EXIT      = 2
+
+.endif
 
 .proc pause_update
 	; Note: For speed, we will **not** use oam_putsprite.  Instead,
@@ -134,16 +155,21 @@ maybePressedA:
 	bne return
 	
 	ldx pauseoption
+	;cpx #OPT_RESUME
 	beq pressedResume
-	cpx #1
+	cpx #OPT_RETRY
 	beq pressedRetry
-	cpx #2
+	
+.if EXTENDED_PAUSE
+	cpx #OPT_SAVEQUIT
 	beq pressedSaveAndQuit
-	cpx #3
+	cpx #OPT_OPTIONS
 	beq pressedOptions
-	cpx #4
+	cpx #OPT_RESTART
 	beq pressedRestartChapter
-	cpx #5
+.endif
+
+	cpx #OPT_EXIT
 	beq pressedReturnToMap
 	rts
 
@@ -156,12 +182,14 @@ pressedRetry:
 	jsr gm_unpause
 	jmp gm_killplayer
 
+.if EXTENDED_PAUSE
 pressedSaveAndQuit:
 	jmp gm_whoosh_sfx
 pressedOptions:
 	jmp gm_spring_sfx
 pressedRestartChapter:
 	jmp gm_bird_caw_sfx
+.endif
 	
 pressedReturnToMap:
 	lda #2
@@ -176,10 +204,12 @@ pressedReturnToMap:
 pause_option_offsets:
 	.byte 2+24  ; RESUME
 	.byte 2+44  ; RETRY
-	.byte 2+60  ; SAVE AND QUIT
-	.byte 2+92  ; OPTIONS
-	.byte 2+108 ; RESTART CHAPTER
-	.byte 2+140 ; RETURN TO MAP
+.if EXTENDED_PAUSE
+	.byte 2+92  ; SAVE AND QUIT
+	.byte 2+124 ; OPTIONS
+	.byte 2+140 ; RESTART CHAPTER
+.endif
+	.byte 2+60  ; RETURN TO MAP
 
 ; amount of sprites to modify
 pause_option_lengths:
@@ -213,7 +243,18 @@ pause_data:
 	.byte  96, $1D, $02, $80
 	.byte  96, $1F, $02, $88
 	
-	; save and quit button - 60
+	; return to map - 60
+	.byte 176, $61, $02, $60
+	.byte 176, $63, $02, $68
+	.byte 176, $65, $02, $70
+	.byte 176, $67, $02, $78
+	.byte 176, $69, $02, $80
+	.byte 176, $6B, $02, $88
+	.byte 176, $6D, $02, $90
+	.byte 176, $6F, $02, $98
+	
+.if EXTENDED_PAUSE
+	; save and quit button - 92
 	.byte 112, $2B, $02, $60
 	.byte 112, $2D, $02, $68
 	.byte 112, $2F, $02, $70
@@ -223,13 +264,13 @@ pause_data:
 	.byte 112, $37, $02, $90
 	.byte 112, $39, $02, $98
 	
-	; options button - 92
+	; options button - 124
 	.byte 128, $51, $02, $70
 	.byte 128, $53, $02, $78
 	.byte 128, $55, $02, $80
 	.byte 128, $57, $02, $88
 	
-	; restart chapter - 108
+	; restart chapter - 140
 	.byte 160, $41, $02, $60
 	.byte 160, $43, $02, $68
 	.byte 160, $45, $02, $70
@@ -238,16 +279,7 @@ pause_data:
 	.byte 160, $4B, $02, $88
 	.byte 160, $4D, $02, $90
 	.byte 160, $4F, $02, $98
-	
-	; return to map - 140
-	.byte 176, $61, $02, $60
-	.byte 176, $63, $02, $68
-	.byte 176, $65, $02, $70
-	.byte 176, $67, $02, $78
-	.byte 176, $69, $02, $80
-	.byte 176, $6B, $02, $88
-	.byte 176, $6D, $02, $90
-	.byte 176, $6F, $02, $98
+.endif
 pause_data_end:
 
 pause_copy_max = pause_data_end - pause_data

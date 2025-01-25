@@ -310,7 +310,7 @@ gm_ent_move_y:
 	; r1->right - 1 < r2->left
 	lda player_x
 	clc
-	adc #(plr_x_right - 1)
+	adc #plr_x_right
 	cmp temp7
 	bcc failure
 	
