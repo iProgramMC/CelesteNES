@@ -1144,7 +1144,7 @@ ow_select_banks:
 	jsr oam_putsprite
 	
 @dontDrawBerries:
-	ldy levelnumber
+	ldy ow_sellvl
 	lda bitSet, y
 	and sf_hearts
 	beq @dontDrawHeart
@@ -1168,7 +1168,7 @@ ow_select_banks:
 	bcs @dontDrawCassette
 	sta y_crd_temp
 	
-	ldy levelnumber
+	ldy ow_sellvl
 	lda bitSet, y
 	and sf_cassettes
 	beq @dontDrawCassette
