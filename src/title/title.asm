@@ -51,6 +51,27 @@ print_logo:
 	ldy #>logo_exok
 	lda #9
 	jsr ppu_wrstring
+	
+	; write the "DEMO V1.XX" text.
+	lda #$20
+	sta ppu_addr
+	lda #$62
+	sta ppu_addr
+	lda #$20
+	sta ppu_data
+	lda #$21
+	sta ppu_data
+	lda #$22
+	sta ppu_data
+	lda #$23
+	sta ppu_data
+	lda #$24
+	sta ppu_data
+	lda #$25
+	sta ppu_data
+	lda #$26
+	sta ppu_data
+	
 	rts
 	
 tl_owldswitch:
