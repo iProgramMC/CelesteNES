@@ -15,6 +15,10 @@ Development will happen in the `development` branch, and all pull requests will 
 into it. The `demo-1` branch will contain the source code for the demo as released on
 January 25th, 2025.
 
+## Discord Server
+
+If you would like to chat about this game, you can do so in our Discord server: https://discord.gg/JWSUpfCubz
+
 ## Development Builds
 
 TBA
