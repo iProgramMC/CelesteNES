@@ -10,6 +10,7 @@
 	.include "title/mountain.asm"
 	.include "title/letter.asm"
 	.include "title/levelend.asm"
+	.include "title/chcomp.asm"
 
 title_palette:
 	.incbin "title/title.pal"

@@ -3,6 +3,61 @@
 ; This module implements the Chapter Complete screen at the end of each stage.
 .include "endgfx.asm"
 
+; ** SUBROUTINE: level_end_rain_init
+; desc: Initializes the particles for the raining part of the cutscene.
+.proc level_end_rain_init
+	ldx #0
+@loop:
+	jsr rand
+	sta plr_trace_x, x
+	jsr rand
+	sta plr_trace_y, x
+	inx
+	cpx #64
+	bne @loop
+	rts
+.endproc
+
+; ** SUBROUTINE: level_end_rain
+; desc: Plays the raining part of the cutscene.
+.proc level_end_rain
+	ldx #0
+@loop:
+	lda plr_trace_x, x
+	sta x_crd_temp
+	lda plr_trace_y, x
+	sta y_crd_temp
+	txa
+	and #1
+	lsr
+	lda levelnumber
+	rol
+	tay
+	lda level_end_rain_par, y
+	sta temp11
+	ldy levelnumber
+	lda level_end_rain_pal, y
+	ldy temp11
+	jsr oam_putsprite
+	txa
+	and #1
+	tay
+	lda speeds, y
+	clc
+	adc plr_trace_y, x
+	sta plr_trace_y, x
+	
+	bcc :+
+	jsr rand
+	sta plr_trace_x, x
+:	inx
+	cpx #64
+	bne @loop
+	rts
+
+speeds:	.byte 12, 20
+.endproc
+
 ; ** SUBROUTINE: level_end
 ; desc: Play the level end cutscene.
 ; parameters:
@@ -18,6 +73,14 @@
 	; prepare the graphics and init the fade
 	jsr soft_nmi_off
 	
+	ldx #<music_data_chapter_complete
+	ldy #>music_data_chapter_complete
+	lda #1 ; NTSC
+	jsr famistudio_init
+	
+	lda #0
+	jsr famistudio_music_play
+
 	lda #0
 	sta scroll_x
 	sta scroll_y
@@ -48,6 +111,12 @@
 	lda level_end_gfx_lo, y
 	jsr nexxt_rle_decompress
 	
+	; clear the other nametable to black, we'll need it that way.
+	lda #$24
+	jsr clear_nt
+	
+	jsr level_end_rain_init
+	
 	; TODO do we even need this?
 	lda #$23
 	sta ppu_addr
@@ -66,6 +135,47 @@
 	iny
 	cpy #64
 	bne :-
+	
+	; Firstly, do 4-5 seconds of raining
+	lda #180
+	sta ow_timer
+	
+	; load the sprite bank now
+	ldx levelnumber
+	
+	ldy level_end_bank_spr, x
+	sty spr0_bknum
+	iny
+	sty spr1_bknum
+	
+	; switch to the other bank
+	lda scroll_flags
+	ora #pctl_highx
+	sta scroll_flags
+	lda #1
+	sta camera_x_pg
+	
+	lda #>level_end_rain
+	sta fadeupdrt+1
+	lda #<level_end_rain
+	sta fadeupdrt
+	jsr fade_in
+	
+@loopRainInitial:
+	jsr level_end_rain
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jsr soft_nmi_off
+	
+	dec ow_timer
+	bne @loopRainInitial
+	
+	; Fade out, then fade back in to the actual complete screen.
+	jsr fade_out
+	
+	lda #0
+	sta camera_x_pg
+	sta scroll_flags
 	
 	jsr com_clear_oam
 	
@@ -140,6 +250,8 @@
 	lda #<level_end_fade_update
 	sta fadeupdrt
 	jsr fade_out
+	
+	jsr aud_reset
 	
 	lda #<irq_idle
 	sta irqaddr

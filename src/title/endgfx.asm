@@ -115,6 +115,12 @@ level_end_ch2_attr:
 	.byte sy-1, stn+1, sat, sx
 .endmacro
 
+level_end_rain_pal:	.byte $00, $00, $02
+level_end_rain_par:
+	.byte $00, $00
+	.byte $52, $54
+	.byte $7C, $7E
+
 level_end_ch1_oam:
 	; Tree Snow Shading
 	sprite 0,   80, $00, $00

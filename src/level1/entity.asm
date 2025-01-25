@@ -841,3 +841,7 @@ tableTimer:	.byte 0, 10
 	
 	jmp h_request_transfer
 .endproc
+
+memorial_text_line_1:	.byte "  @@ CELESTE MOUNTAIN @@  "
+memorial_text_line_2:	.byte "  THIS MEMORIAL TO THOSE  "
+memorial_text_line_3:	.byte "WHO PERISHED  ON THE CLIMB"

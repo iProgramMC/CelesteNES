@@ -215,9 +215,15 @@ main_loop:
 .include "nmi.asm"
 .include "m_fade.asm"
 
-memorial_text_line_1:	.byte "  @@ CELESTE MOUNTAIN @@  "
-memorial_text_line_2:	.byte "  THIS MEMORIAL TO THOSE  "
-memorial_text_line_3:	.byte "WHO PERISHED  ON THE CLIMB"
+p_text0:	.byte "      This is it, Made{ne.      "
+p_text1:	.byte "          Just breathe.         "
+p_text2:	.byte "     Why are you so nervous?    "
+p_text3:	.byte "        You can do this.        "
+p_texttable:
+	.word p_text0
+	.word p_text1
+	.word p_text2
+	.word p_text3
 
 .segment "PRG_VECS"
 	.word nmi_

@@ -212,13 +212,3 @@ gamemode_prologue_update_FAR:
 
 @exitToOverworld:
 	jmp tl_owldswitch
-
-p_text0:	.byte "      This is it, Made{ne.      "
-p_text1:	.byte "          Just breathe.         "
-p_text2:	.byte "     Why are you so nervous?    "
-p_text3:	.byte "        You can do this.        "
-p_texttable:
-	.word p_text0
-	.word p_text1
-	.word p_text2
-	.word p_text3

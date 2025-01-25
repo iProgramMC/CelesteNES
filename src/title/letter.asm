@@ -78,8 +78,6 @@ postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
 ; parameters:
 ;     levelnumber - The destination level number
 .proc postcard
-	;jmp level_end
-	
 	ldy levelnumber
 	lda postcard_lo, y
 	bne @continue

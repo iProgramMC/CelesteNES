@@ -246,8 +246,6 @@ startpy     : .res 1 ; starting player Y position
 
 warpflags   : .res 1 ; extracted from roomloffs on load
 
-
-
 camera_y_hi : .res 1
 fadeupdrt   : .res 2
 
