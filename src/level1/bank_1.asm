@@ -15,6 +15,7 @@ level1_music:
 .include "warplist.asm"
 .include "palette.asm"
 .include "dialog.asm"
+.include "rooms/1.asm"
 .include "entity.asm"
 
 fall_ch1_a:
