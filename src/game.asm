@@ -212,12 +212,8 @@ gm_game_update:
 	
 	jsr gm_level_end
 	
-@justReturnToOverworld:
-	; NOTE: this is redundant in case that g2_exitlvl isn't set
-	jsr save_file_flush_berries
-	
 	lda levelnumber
-	bne @returnToOverworld
+	bne @justReturnToOverworld
 	
 	; return to the prologue with a special message.
 	lda #gm_prologue
@@ -225,6 +221,10 @@ gm_game_update:
 	lda #ps_candoit
 	sta gamestate
 	bne @returnDontExit
+	
+@justReturnToOverworld:
+	; NOTE: this is redundant in case that g2_exitlvl isn't set
+	jsr save_file_flush_berries
 	
 @returnToOverworld:
 	lda #gm_overwld

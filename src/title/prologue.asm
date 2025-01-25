@@ -98,7 +98,7 @@ gamemode_prologue_update_FAR:
 	lda p1_conto
 	eor #$FF
 	and p1_cont
-	and #cont_start
+	and #(cont_start|cont_a)
 	bne @gameswitch_ ; allow skipping by pressing START
 	
 	lda pl_state
