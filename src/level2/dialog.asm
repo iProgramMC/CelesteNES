@@ -213,6 +213,7 @@ ch2_badeline_start:
 	line @dO, "Let's go home... together."
 
 ch2_dream_phonecall:
+	finish_level
 	begin
 	play_music  5  ; Phone Loop
 	lock_input

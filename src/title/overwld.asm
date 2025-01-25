@@ -807,50 +807,13 @@ ow_draw_player:
 ; desc: Draws a mountain to the screen.
 ow_draw_mtn:
 	lda #$21
-	sta temp1
-	lda #$23
-	sta temp2
+	sta ppu_addr
+	lda #$20
+	sta ppu_addr
 	
 	lda #<MTN_data
-	sta temp3
-	lda #>MTN_data
-	sta temp4
-	
-	lda #0
-	sta temp5
-	
-:	lda temp1
-	sta ppu_addr
-	lda temp2
-	sta ppu_addr
-	ldx temp3
-	ldy temp4
-	lda #26
-	jsr ppu_wrstring
-	
-	clc
-	lda temp3
-	adc #26
-	sta temp3
-	lda temp4
-	adc #0
-	sta temp4
-	
-	clc
-	lda temp2
-	adc #$20
-	sta temp2
-	lda temp1
-	adc #0
-	sta temp1
-	
-	clc
-	lda temp5
-	adc #1
-	sta temp5
-	
-	cmp #20
-	bne :-
+	ldx #>MTN_data
+	jsr nexxt_rle_decompress
 	
 	; finally write palette data
 	lda #$23

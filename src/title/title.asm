@@ -9,24 +9,17 @@ print_logo:
 	sta ppu_addr
 	lda #$00
 	sta ppu_addr
-	ldx #<(tscr_canvas + $0000)
-	ldy #>(tscr_canvas + $0000)
-	lda #0
-	jsr ppu_wrstring
+	lda #<tscr_canvas
+	ldx #>tscr_canvas
+	jsr nexxt_rle_decompress
 	
-	ldx #<(tscr_canvas + $0100)
-	ldy #>(tscr_canvas + $0100)
-	lda #0
-	jsr ppu_wrstring
-	
-	ldx #<(tscr_canvas + $0200)
-	ldy #>(tscr_canvas + $0200)
-	lda #0
-	jsr ppu_wrstring
-	
-	ldx #<(tscr_canvas + $0300)
-	ldy #>(tscr_canvas + $0300)
-	lda #0
+	lda #$23
+	sta ppu_addr
+	lda #$C0
+	sta ppu_addr
+	ldx #<tscr_attrs
+	ldy #>tscr_attrs
+	lda #64
 	jsr ppu_wrstring
 	
 	; write the "PRESS START" text

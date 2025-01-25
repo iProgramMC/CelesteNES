@@ -3,6 +3,9 @@
 ; ** SUBROUTINE: nexxt_rle_decompress
 ; desc: Decompresses the NEXXT RLE format.
 ; assumes: rendering is disabled
+; parameters:
+;    X - high byte of data
+;    A - low  byte of data
 .proc nexxt_rle_decompress
 _RLE_LOW  = temp1
 _RLE_HIGH = temp2

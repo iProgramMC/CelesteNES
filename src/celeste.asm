@@ -100,8 +100,6 @@
 .segment "CHR_SLV2N"
 .incbin  "chr/sp_level2n.chr"
 
-.segment "CHR_UN101" ; UNUSED
-
 ; ** Level Tilesets
 .segment "CHR_BGTTL"
 .incbin  "chr/b_title.chr"
@@ -143,16 +141,15 @@
 .incbin  "chr/b_ch1ca.chr"
 .segment "CHR_LV1CB"
 .incbin  "chr/b_ch1cb.chr"
-
 .segment "CHR_LV2CA"
-;.incbin  "chr/b_ch2ca.chr"
+.incbin  "chr/b_ch2ca.chr"
 .segment "CHR_LV2CB"
-;.incbin  "chr/b_ch2cb.chr"
+.incbin  "chr/b_ch2cb.chr"
 
 .segment "CHR_SL1CO"
 .incbin  "chr/sp_ch1c.chr"
 .segment "CHR_SL2CO"
-;.incbin  "chr/sp_ch1c.chr"
+.incbin  "chr/sp_ch2c.chr"
 
 ; ** User Interface
 .segment "CHR_SPOWD"
