@@ -2427,6 +2427,8 @@ gm_dash_update_:
 ; ** SUBROUTINE: xt_physics
 ; desc: Runs one frame of player physics.
 .proc xt_physics
+	jsr gm_death_hacks
+	
 	lda #pl_dead
 	bit playerctrl
 	bne return
@@ -3431,4 +3433,56 @@ advancedTraceDisabled:
 
 @return:
 	rts
+.endproc
+
+; ** SUBROUTINE: gm_death_hacks
+; desc: Checks the player for conditions that may kill her.  This is marked a hack
+;       because other things are supposed to handle such deaths.
+.proc gm_death_hacks
+	; Are we already dead?
+	lda #pl_dead
+	bit playerctrl
+	bne @return
+	
+	; Check if placed inside a fully solid block
+	jsr gm_getmidx
+	tax
+	jsr gm_getmidy
+	tay
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
+	cmp #ct_full
+	beq @kill
+	
+	; If we are on the ground, check if we are standing inside spikes.
+	lda #pl_ground
+	bit playerctrl
+	beq @notOnGround
+	
+	jsr gm_getleftx
+	tax
+	jsr gm_getbottomy_w
+	tay
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
+	cmp #ct_deadlyUP
+	beq @kill
+	
+	jsr gm_getrightx
+	tax
+	jsr gm_getbottomy_w
+	tay
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
+	cmp #ct_deadlyUP
+	beq @kill
+	
+@notOnGround:
+@return:
+	rts
+@kill:
+	jmp gm_killplayer
 .endproc

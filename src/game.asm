@@ -83,7 +83,8 @@ gm_game_init:
 	
 	; if we just respawned, call just clear_wx, and skip the rest of the code
 	jsr gm_game_clear_wx
-	jmp @clearDone
+	; note: gm_game_clear_wx ends with com_clear_oam which returns with ZF set
+	beq @clearDone
 	
 @clearAll:
 	jsr gm_game_clear_all_wx
@@ -94,11 +95,6 @@ gm_game_init:
 	jsr clear_nt
 	
 @clearDone:
-	lda #0
-	sta ntwrhead
-	sta arwrhead
-	sta camera_x
-	
 	lda rm_paloffs
 	asl
 	asl
@@ -149,6 +145,7 @@ gm_game_init:
 	sta dbenable
 	
 @notPrologue:
+	jsr gm_copyplayerpostodeath
 	jmp gm_game_update
 
 ; ** GAMEMODE: gamemode_game
@@ -312,6 +309,9 @@ gm_game_clear_wx:
 	stx exitmaptimer
 	stx dlg_cutsptr
 	stx dlg_cutsptr+1
+	stx ntwrhead
+	stx arwrhead
+	stx camera_x
 	stx gamectrl      ; clear game related fields to zero
 	
 	txa

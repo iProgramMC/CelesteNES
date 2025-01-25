@@ -66,8 +66,6 @@ return:
 	sta temp1
 	cmp #128
 	ror
-	;cmp #128
-	;ror
 	clc
 	adc temp1
 	sta temp1
@@ -82,8 +80,6 @@ return:
 	sta temp2
 	cmp #128
 	ror
-	;cmp #128
-	;ror
 	clc
 	adc temp2
 	sta temp2
@@ -160,7 +156,6 @@ return:
 .proc gm_dead_shake
 	lda #%00001111
 	sta quakeflags
-	lda #10
 	sta quaketimer
 	rts
 .endproc
@@ -215,7 +210,7 @@ deadLoop:
 	jsr gm_dead_sub3
 	ldy temp3
 	
-	lda player_x
+	lda player_dx
 	clc
 	adc temp1
 	sta x_crd_temp
@@ -233,7 +228,7 @@ deadLoop:
 	sta x_crd_temp
 	bcs doneLoop
 	
-	lda player_y
+	lda player_dy
 	clc
 	adc temp2
 	sta y_crd_temp

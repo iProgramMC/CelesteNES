@@ -165,10 +165,10 @@ gm_shifttraceYN_nocheck := gm_shifttraceYN::nocheck
 
 ; ** SUBROUTINE: gm_killplayer
 ; desc:     Initiates the player death sequence.
-gm_killplayer:
+.proc gm_killplayer
 	lda #pl_dead
 	bit playerctrl
-	bne @return
+	bne return
 	
 	ora playerctrl
 	sta playerctrl
@@ -178,12 +178,21 @@ gm_killplayer:
 	inc deaths+1
 	
 :	jsr gm_death_sfx
-	lda #pl_dead
+	
 	lda #0
 	sta deathtimer
+	
+copy:
+	lda player_x
+	sta player_dx
+	lda player_y
+	sta player_dy
 
-@return:
+return:
 	rts
+.endproc
+
+gm_copyplayerpostodeath = gm_killplayer::copy
 
 ; ** SUBROUTINE: gm_physics
 ; desc: Runs one frame of player physics.

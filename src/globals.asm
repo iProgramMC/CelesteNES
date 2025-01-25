@@ -460,6 +460,9 @@ ow_deathsH  : .res 1 ; deaths hundreds digit
 ow_deathsO  : .res 1 ; deaths thousands digit
 ow_deathsE  : .res 1 ; deaths tens-of-thousands digit
 
+player_dx   : .res 1 ; player death X
+player_dy   : .res 1 ; player death Y
+
 .segment "LASTRAM"
 
 ; 41 bytes free
