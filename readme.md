@@ -77,4 +77,4 @@ The *graphics* (all \*.chr files, except d_font.chr) and *music* (`src/level0/mu
 `src/level1/music`, and `src/level2/music`) are under a **strictly non-commercial license**,
 meaning you **may not** use these assets for **any** commercial purpose.
 
-The game code (`src/`) is licensed under [the MIT license](src/license.txt)
+The game code (`src/`) is licensed under [the MIT license](license.txt)
