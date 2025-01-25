@@ -593,7 +593,7 @@ beginClimb:	.byte $90,$39,$39,$39,$39,$39,$39,$39,$39
 amountData:
 	.byte $00,$00,$00,$00
 	.byte $81,$22,$20,$00 ; / 20
-	.byte $81,$21,$28,$00 ; / 18
+	.byte $81,$21,$27,$00 ; / 18
 .endproc
 
 ; ** SUBROUTINE: ow_handle_input

@@ -95,103 +95,13 @@ gm_draw_common:
 	rts
 .endproc
 
-; ** SUBROUTINE: gm_unload_ents_room
-; desc: Unloads all entities with a specific room number.
-; arguments: A - the room number to unload entities from.
-; note: Can only be used to unload entities from the previous room.
-; note: Also marks for collection ALL strawberries.
-gm_unload_ents_room:
-	and #1
-	asl     ; set the ef_oddroom flag, depending on the parity of the room number.
-	sta temp1
-	
-	ldx #0
-@loop:
-	lda sprspace+sp_kind, x
-	beq @skipThisObject
-	
-	lda sprspace+sp_flags, x
-	and #ef_oddroom
-	cmp temp1
-	bne @skipThisObject
-	
-	; check if entity is a strawberry. we do not unload strawberries
-	lda #e_strawb
-	cmp sprspace+sp_kind, x
-	beq @isStrawBerry
-	
-@isStrawBerryRemoveAnyway:
-	lda sprspace+sp_kind, x
-	cmp #e_cassmgr
-	bne :+
-	jsr gm_unload_cassette_manager
-:	lda #0
-	sta sprspace+sp_kind, x
-	
-@skipThisObject:
-	inx
-	cpx #sp_max
-	bne @loop
-	rts
-	
-@isStrawBerry:
-	; check if the berry was collected
-	lda sprspace+sp_strawb_flags, x
-	and #esb_picked
-	beq @isStrawBerryRemoveAnyway
-	
-	; forcefully pick it up
-	jsr gm_pick_up_berry_entity
-	jmp @skipThisObject
-
 ; ** SUBROUTINE: gm_unload_os_ents
 ; desc: Unloads entities that went off the left side of the screen.
 gm_unload_os_ents:
-	lda #g3_transitA
-	bit gamectrl3
-	bne @forceUnLoad  ; as long as a room transition is going on, unload any off-screen entities.
-	
-	lda roomsize
-	bne @earlyReturn  ; if the level may scroll back left, don't unload any off-screen entities.
-	
-@forceUnLoad:
-	ldx #0
-:	lda sprspace+sp_kind, x
-	beq :+
-	
-	; If it is a bridge, then don't subject it to such unload. It will unload itself soon.
-	cmp #e_l0bridge
-	beq :+
-	; Cassette block managers shall only be unloaded by room transitions.
-	cmp #e_cassmgr
-	beq :+
-	
-	lda sprspace+sp_x, x
-	clc
-	adc #$10
-	sta temp2
-	lda sprspace+sp_x_pg, x
-	adc #0
-	sta temp3
-	
-	sec
-	lda temp2
-	sbc camera_x
-	;sta temp2
-	lda temp3
-	sbc camera_x_pg
-	
-	; result < 0: sprite went off the right side.
-	bpl :+
-	
-	lda #0
-	sta sprspace+sp_kind, x
-:	inx
-	cpx #sp_max
-	bne :--
-
-@earlyReturn:
-	rts
+	ldx #<sgm_unload_os_ents
+	ldy #>sgm_unload_os_ents
+	lda #prgb_paus
+	jmp far_call2
 
 ; ** SUBROUTINE: gm_draw_entities
 ; desc: Draws visible entities to the screen.

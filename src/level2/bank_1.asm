@@ -140,4 +140,3 @@ fall_ch2_b_chr:
 	.byte $A2,$AD,$00,$00,$00,$BC,$B3
 	.byte $A2,$AB,$BD,$BC,$BD,$BC,$B1
 	.byte $A6,$BA,$BA,$AA,$BA,$AA,$B6
-

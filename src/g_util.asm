@@ -323,3 +323,7 @@ logo_pressstart:	.byte $70,$71,$72,$73,$74,$75,$76,$77,$78
 logo_iprogram:		.byte $60,$61,$62,$63,$64,$65,$66,$67,$68,$69,$6A,$6B,$6C,$6D,$6E
 logo_exok:			.byte $60,$61,$79,$7A,$00,$7B,$7C,$7D,$7E
 logo_version:		.byte $20,$21,$22,$23,$24,$25,$26
+
+memorial_text_line_1:	.byte "  @@ CELESTE MOUNTAIN @@  "
+memorial_text_line_2:	.byte "  THIS MEMORIAL TO THOSE  "
+memorial_text_line_3:	.byte "WHO PERISHED  ON THE CLIMB"
