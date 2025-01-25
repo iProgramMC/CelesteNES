@@ -905,13 +905,12 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	rts
 
 @floatingMode:
-	jsr oscillateBerry
-	; floating mode
-	
 	; can't collect berries during a transition!
 	lda #g3_transitA
 	bit gamectrl3
 	bne @return
+	
+	jsr oscillateBerry
 	
 	jsr gm_check_player_bb
 	bne @hasCollision
@@ -2163,7 +2162,7 @@ tapeShortFrames2:	.byte $00, $00, $5E, $7E, $5C, $00, $00, $00, $00
 tapeLongFrames1:	.byte $50, $56, $00, $00, $00, $5A, $50, $70, $76
 tapeLongFrames2:	.byte $52, $58, $00, $00, $00, $58, $52, $72, $78
 tapeLongFrames3:	.byte $54, $5A, $00, $00, $00, $56, $54, $74, $7A
-bitSet:				.byte $00, $00, $01, $02, $04, $08, $10, $20, $40, $80
+bitSet:				.byte $00, $01, $02, $04, $08, $10, $20, $40, $80
 
 .endproc
 

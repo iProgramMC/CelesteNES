@@ -1245,6 +1245,8 @@ doneWipe:
 ; desc: Checks the loaded background banks for levels.
 .proc gm_check_level_banks
 	lda levelnumber
+	cmp #1
+	beq @level1
 	cmp #2
 	beq @level2
 	
@@ -1268,6 +1270,46 @@ doneWipe:
 :	stx bg1_bknum
 	sty spr2_bknum
 	rts
+
+@level1:
+	; check if we are in the "r11z" room.
+	lda #>level1_r11z
+	cmp roomptrhi
+	bne @nope
+	lda #<level1_r11z
+	cmp roomptrlo
+	bne @nope
+	
+	; we are.
+	; load the tape
+	lda #chrb_cass1
+	sta spr1_bknum
+	
+	sei
+	lda #<irq_cass_elevator
+	sta irqaddr
+	lda #>irq_cass_elevator
+	sta irqaddr+1
+	cli
+	
+	lda #64
+	sta miscsplit
+	
+@nope:
+	rts
+.endproc
+
+.proc irq_cass_elevator
+	sta mmc3_irqdi
+	pha
+	lda #def_mmc3_bn | mmc3bk_spr1
+	sta mmc3_bsel
+	lda #chrb_splvl1
+	sta mmc3_bdat
+	lda mmc3_shadow
+	sta mmc3_bsel
+	pla
+	rti
 .endproc
 
 ; ** SUBROUTINE: gm_load_hair_palette
@@ -1387,86 +1429,3 @@ calc_approach:
 :	sta 0, x
 	rts
 .endif
-
-; This belongs in level2/bank_1.asm, but I'm trying to cram in this dialog and we need to make room.
-level2_db_opening_rows_lo:
-	.byte <level2_db_opening_row_6
-	.byte <level2_db_opening_row_5
-	.byte <level2_db_opening_row_4
-	.byte <level2_db_opening_row_3
-	.byte <level2_db_opening_row_2
-	.byte <level2_db_opening_row_1
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-level2_db_opening_rows_hi:
-	.byte >level2_db_opening_row_6
-	.byte >level2_db_opening_row_5
-	.byte >level2_db_opening_row_4
-	.byte >level2_db_opening_row_3
-	.byte >level2_db_opening_row_2
-	.byte >level2_db_opening_row_1
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-level2_db_closing_rows_lo:
-	.byte <level2_db_closing_row_1
-	.byte <level2_db_closing_row_2
-	.byte <level2_db_closing_row_3
-	.byte <level2_db_closing_row_4
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-	.byte <level2_db_opening_empty
-level2_db_closing_rows_hi:
-	.byte >level2_db_closing_row_1
-	.byte >level2_db_closing_row_2
-	.byte >level2_db_closing_row_3
-	.byte >level2_db_closing_row_4
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-	.byte >level2_db_opening_empty
-
-fall_ch2_a:
-	.byte 24, 16      ; width, height
-	.byte 1           ; tile to set
-	.byte chrb_splvl2 ; sprite bank, or $00 for none
-	.byte pal_stone   ; palette
-	.byte 176         ; max Y
-	.word fall_ch2_a_chr ; CHR data offset
-	; sprite data
-	.byte $60,$62,$64
-
-fall_ch2_a_chr:
-	.byte $36,$50
-	.byte $43,$53
-	.byte $44,$39
-	
-fall_ch2_b:
-	.byte 40, 56      ; width, height
-	.byte 2           ; tile to set
-	.byte 0           ; sprite bank, or $00 for none
-	.byte pal_tower   ; palette
-	.byte 176         ; max Y
-	.word fall_ch2_b_chr ; CHR data offset
-	; sprite data
-	.byte $03,$0B,$0B,$1F
-	.byte $05,$0D,$0D,$3D
-	.byte $07,$01,$01,$3F
-	.byte $05,$1B,$1B,$3D
-	.byte $09,$1D,$1D,$2B
-
-fall_ch2_b_chr:
-	.byte $A5,$A9,$B9,$A9,$B9,$A9,$B5
-	.byte $A2,$AB,$BC,$BD,$BC,$BD,$B1
-	.byte $A2,$AD,$00,$00,$00,$BC,$B3
-	.byte $A2,$AB,$BD,$BC,$BD,$BC,$B1
-	.byte $A6,$BA,$BA,$AA,$BA,$AA,$B6
-

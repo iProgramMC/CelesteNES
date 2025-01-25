@@ -56,6 +56,8 @@
 	.byte $C8,$C9,$CA,$CB ; Spikes (Blue)
 	.byte $9F,$CC,$CD,$CE,$CF,$DF ; Snow
 	; $99
+	.byte $21,$04,$20,$24,$02,$22,$01,$05 ; Cassette Blocks 1 (UL UR DL DR U D L R)
+	.byte $08,$0C,$28,$2C,$0A,$2A,$09,$0D ; Cassette Blocks 2 (UL UR DL DR U D L R)
 
 ;metatile_info:
 .align $100
@@ -79,5 +81,7 @@
 	.byte ct_deadlyDN            ; Spikes
 	.byte ct_deadlyLT            ; Spikes
 	.res   6, ct_full            ; Dirt
+	.res   8, ct_cass1           ; Cassette Blocks 1
+	.res   8, ct_cass2           ; Cassette Blocks 1
 
 .align $100
