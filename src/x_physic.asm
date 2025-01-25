@@ -613,16 +613,12 @@ gm_walljump:
 	and #<~g4_nosjump
 	sta gamectrl4
 	
-	lda game_cont
-	and #(cont_right|cont_left)
-	bne :+
-	
 	lda #0
 	sta player_vl_x
 	sta player_vs_x
 	
 	; note: cjwalldir is the direction you must hold for a wall jump stamina refund!
-:	lda playerctrl
+	lda playerctrl
 	and #pl_left    ; pl_left is equal to 1
 	sta cjwalldir
 	eor #1
@@ -2952,13 +2948,6 @@ noForcedRelease:
 	and #<~g4_nodeath
 	sta gamectrl4
 	
-	; check if we are higher than needed
-	jsr checkClimbHopTile
-	bne noNeedToLower
-	
-	inc player_y
-	
-noNeedToLower:
 	lda game_cont
 	and #(cont_up | cont_down)
 	pha
@@ -3064,37 +3053,6 @@ dontDecrementHighByte:
 table: .byte 0, pl_wallleft
 table2lo: .byte $00,$55,$40,$00
 table2hi: .byte $00,$01,$FF,$00
-
-; returns zero flag CLEAR if should lower
-checkClimbHopTile:
-	jsr gm_getfacex_wj
-	tax
-	jsr gm_getbottomy_cc
-	tay
-	jsr h_get_tile
-	tax
-	ldy metatile_info, x
-	lda @collidableTable, y
-	; this tile is collidable
-	bne @return
-	
-	; , so might want to lower, but also check
-	; if we're hanging against the top of a tile.
-	jsr gm_getfacex_wj
-	tax
-	jsr gm_gettopy
-	tay
-	jsr h_get_tile
-	tax
-	
-	ldy metatile_info, x
-	lda @collidableTable, x
-	rts
-
-@return:
-	rts
-
-@collidableTable:	.byte 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0 ; full, dream, cass1, cass2 are set
 
 checkClimbHopSafety:
 	ldy entground
@@ -3477,12 +3435,6 @@ advancedTraceDisabled:
 	rts
 .endproc
 
-h_get_colltype:
-	jsr h_get_tile
-	tay
-	lda metatile_info, y
-	rts
-
 ; ** SUBROUTINE: gm_death_hacks
 ; desc: Checks the player for conditions that may kill her.  This is marked a hack
 ;       because other things are supposed to handle such deaths.
@@ -3497,7 +3449,9 @@ h_get_colltype:
 	tax
 	jsr gm_getmidy
 	tay
-	jsr h_get_colltype
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
 	cmp #ct_full
 	beq @kill
 	
@@ -3510,7 +3464,9 @@ h_get_colltype:
 	tax
 	jsr gm_getbottomy_w
 	tay
-	jsr h_get_colltype
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
 	cmp #ct_deadlyUP
 	beq @kill
 	
@@ -3518,49 +3474,13 @@ h_get_colltype:
 	tax
 	jsr gm_getbottomy_w
 	tay
-	jsr h_get_colltype
+	jsr h_get_tile
+	tax
+	lda metatile_info, x
 	cmp #ct_deadlyUP
 	beq @kill
 	
 @notOnGround:
-	; If we are climbing, check if we are standing inside spikes.
-	lda #pl_climbing
-	bit playerctrl
-	beq @notClimbing
-	
-	jsr gm_getleftx
-	tax
-	jsr gm_gettopy
-	tay
-	jsr h_get_colltype
-	cmp #ct_deadlyRT
-	beq @kill
-	
-	jsr gm_getleftx
-	tax
-	jsr gm_getbottomy_cc
-	tay
-	jsr h_get_colltype
-	cmp #ct_deadlyRT
-	beq @kill
-	
-	jsr gm_getrightx
-	tax
-	jsr gm_gettopy
-	tay
-	jsr h_get_colltype
-	cmp #ct_deadlyLT
-	beq @kill
-	
-	jsr gm_getrightx
-	tax
-	jsr gm_getbottomy_cc
-	tay
-	jsr h_get_colltype
-	cmp #ct_deadlyLT
-	beq @kill
-	
-@notClimbing:
 @return:
 	rts
 @kill:
