@@ -163,10 +163,7 @@ reset:
 	sty paladdr
 	ldy #>init_palette
 	sty paladdr+1
-	;jsr load_palette ; move palette to palette RAM
 	
-	;ldy #def_ppu_msk ; show background & sprites
-	;sty ppu_mask     ; set the ppu mask
 	ldy #(pctl_sprsz | pctl_sppat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable
 	sty ctl_flags
 	sty ppu_ctrl
@@ -214,16 +211,6 @@ main_loop:
 .include "audio/audio.asm"
 .include "nmi.asm"
 .include "m_fade.asm"
-
-p_text0:	.byte "      This is it, Made{ne.      "
-p_text1:	.byte "          Just breathe.         "
-p_text2:	.byte "     Why are you so nervous?    "
-p_text3:	.byte "        You can do this.        "
-p_texttable:
-	.word p_text0
-	.word p_text1
-	.word p_text2
-	.word p_text3
 
 .segment "PRG_VECS"
 	.word nmi_
