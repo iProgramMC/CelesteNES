@@ -1114,11 +1114,11 @@ ow_select_banks:
 	sta y_crd_temp
 	
 	lda ow_sellvl
-	beq @dontDraw
+	beq @dontDrawBerries
 	
 	lda ow_berries1
 	ora ow_berries2
-	beq @dontDraw
+	beq @dontDrawBerries
 	
 	lda #100
 	sta x_crd_temp
@@ -1143,8 +1143,53 @@ ow_select_banks:
 	lda #1
 	jsr oam_putsprite
 	
+@dontDrawBerries:
+	ldy levelnumber
+	lda bitSet, y
+	and sf_hearts
+	beq @dontDrawHeart
+	
+	lda #72
+	sta x_crd_temp
+	lda #2
+	ldy #$94
+	jsr oam_putsprite
+	
+	lda #80
+	sta x_crd_temp
+	lda #2
+	ldy #$96
+	jsr oam_putsprite
+
+@dontDrawHeart:
+	lda y_crd_temp
+	clc
+	adc #24
+	bcs @dontDrawCassette
+	sta y_crd_temp
+	
+	ldy levelnumber
+	lda bitSet, y
+	and sf_cassettes
+	beq @dontDrawCassette
+	
+	lda #72
+	sta x_crd_temp
+	lda #1
+	ldy #$98
+	jsr oam_putsprite
+	
+	lda #80
+	sta x_crd_temp
+	lda #1
+	ldy #$9A
+	jsr oam_putsprite
+	
+@dontDrawCassette:
 @dontDraw:
 	rts
+
+bitSet:	.byte $00,$01,$02,$04,$08,$10,$20,$40,$80
 .endproc
 
 .proc ow_put_sprite

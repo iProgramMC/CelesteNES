@@ -57,20 +57,10 @@ print_logo:
 	sta ppu_addr
 	lda #$62
 	sta ppu_addr
-	lda #$20
-	sta ppu_data
-	lda #$21
-	sta ppu_data
-	lda #$22
-	sta ppu_data
-	lda #$23
-	sta ppu_data
-	lda #$24
-	sta ppu_data
-	lda #$25
-	sta ppu_data
-	lda #$26
-	sta ppu_data
+	ldx #<logo_version
+	ldy #>logo_version
+	lda #7
+	jsr ppu_wrstring
 	
 	rts
 	
