@@ -130,7 +130,7 @@ Spawn,level2_r8,344,184
 level2_r9,704,-1968
 Props,level2_r9,12,0
 Spawn,level2_r9,0,24
-Spawn,level2_r9,40,0
+Spawn,level2_r9,36,0
 Spawn,level2_r9,464,176
 PaletteOverride,level2_r9,22,10,0,23,10,0,24,10,0,22,11,0,23,11,0,24,11,0,22,12,0,23,12,0,24,12,0,22,13,0,23,13,0,24,13,0,22,14,0,23,14,0,24,14,0
 level2_r9z,1184,-1920

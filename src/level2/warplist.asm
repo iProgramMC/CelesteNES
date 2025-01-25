@@ -280,7 +280,7 @@ level2_w_r9z_to_r10:
 	.word level2_r10
 level2_w_r9b_to_r9:
 	.byte 0			; room left offset
-	.byte 40, 0	; player spawn X/Y
+	.byte 36, 0	; player spawn X/Y
 	.word level2_r9
 level2_w_r10_to_r10_:
 	.byte 8			; room left offset
