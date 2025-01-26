@@ -120,12 +120,16 @@ kludge:
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
 	sta temp2                ; temp2 - bottom Y
+	jsr gm_getmidy
+	sta temp12               ; temp12 - middle Y
 	jsr gm_appx_checkleft
 	
 	jsr gm_gettopy
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
 	sta temp2                ; temp2 - bottom Y
+	jsr gm_getmidy
+	sta temp12               ; temp12 - middle Y
 	jmp gm_appx_checkright
 .endproc
 

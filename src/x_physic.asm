@@ -1625,6 +1625,8 @@ applyXSub:
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
 	sta temp2                ; temp2 - bottom Y
+	jsr gm_getmidy
+	sta temp12
 	
 	lda player_vl_x
 	bmi @dontLeaveRoomR
@@ -1699,6 +1701,12 @@ checkRightLoop:
 	ldx y_crd_temp           ;  I will not bother
 	lda #gc_right
 	jsr xt_collide
+	bne collidedRight
+	
+	ldy temp12
+	ldx y_crd_temp
+	lda #gc_right
+	jsr xt_collide
 	beq checkRDoneReturn
 
 collidedRight:
@@ -1760,7 +1768,14 @@ checkLeftLoop:
 	lda #gc_left
 	jsr xt_collide
 	bne collidedLeft         ; if collided, move a pixel to the right & try again
+	
 	ldy temp2
+	ldx y_crd_temp
+	lda #gc_left
+	jsr xt_collide
+	bne collidedLeft
+	
+	ldy temp12
 	ldx y_crd_temp
 	lda #gc_left
 	jsr xt_collide
@@ -2638,6 +2653,8 @@ haveStamina:
 	sta temp1                ; temp1 - top Y
 	jsr gm_getbottomy_w
 	sta temp2                ; temp2 - bottom Y
+	jsr gm_getmidy
+	sta temp12               ; temp12 - middle Y
 	
 	; don't reduce the velocity if pl_climbing was set already
 	txa

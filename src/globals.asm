@@ -28,6 +28,7 @@ temp8       : .res 1
 temp9       : .res 1
 temp10      : .res 1
 temp11      : .res 1
+temp12      : .res 1
 
 ; temporaries specific to the IRQ (touching them WILL result in a
 ; race condition if the IRQ is active!)
@@ -203,7 +204,6 @@ clearsizey  : .res 1 ; enqueued name table clear, size Y
 setdataaddr : .res 2 ; enqueued name table set, data source.
 roomnumber  : .res 1 ; incremented every time a room transition happens
 climbbutton : .res 1 ; the state of the CLIMB button. Any non zero value works.
-stamina     : .res 2 ; stamina amount (16-bit integer)
 deathangle  : .res 1 ; death particles angle
 
 prevplrctrl : .res 1 ; last player control flags
@@ -463,6 +463,8 @@ ow_deathsE  : .res 1 ; deaths tens-of-thousands digit
 
 player_dx   : .res 1 ; player death X
 player_dy   : .res 1 ; player death Y
+
+stamina     : .res 2 ; stamina amount (16-bit integer)
 
 .segment "LASTRAM"
 
