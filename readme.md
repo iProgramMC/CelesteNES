@@ -50,6 +50,13 @@ To build you will need the `cc65` toolchain installed (`ca65` and `ld65` are use
 
 Run the `make` command to build the ROM for the game.
 
+### Warning
+
+Certain package managers (Ubuntu, for example) will feature outdated builds of ca65 (`ca65 V2.18 - Ubuntu 2.19-1`
+for example)  Unfortunately, it doesn't support all the features that this code base uses.
+
+You will need to get a more up to date version. Compiling from source will work.
+
 ## Code Quality Warning
 
 Because this is my first project written in 6502 assembly, code quality will vary. If you spot
