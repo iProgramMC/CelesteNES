@@ -1,5 +1,25 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+; Note A:
+;
+; Write to a *mirror* of PPUMASK.  Certain PPU revisions have an erratum
+; wherein the CPU starts a write, but only later does it put the actual
+; value on the data bus, leaving the PPU reading open bus for a bit. The
+; PPU takes the open bus value (which happens to be $20 unless we correct
+; course), and uses it for a few PPU clocks until the CPU places the value
+; it means to write to the PPU, and the PPU then uses the correct value.
+;
+; Since it thinks we wrote $20 for a bit, that means rendering is disabled
+; for a few PPU clocks, which means weird stuff might happen with the
+; internal registers of the PPU.
+;
+; Instead, write to a mirror of the PPUMASK register, to prime the open
+; bus with the value we "intend" on writing. (actually, sometimes it's
+; not the correct value, but it's better than having "rendering disabled"
+; be seen by the PPU)
+death_wipe_off = %00010000 ; only sprites
+death_wipe_on  = def_ppu_msk
+
 .align $100
 .proc irq_death_wipe
 	pha
@@ -11,7 +31,7 @@
 	;
 	; Store the value we loaded from deathwipe.  This is the PPU mask for
 	; the first half.
-	sta ppu_mask       ; 4 cycles
+	sta ppu_mask | (death_wipe_off << 8)       ; 4 cycles - Note A
 	
 	stx irqtmp9        ; 3 cycles
 	sty irqtmp10       ; 3 cycles
@@ -21,7 +41,7 @@
 	
 .repeat 4, rep
 	.if rep <> 0
-		sta ppu_mask       ; 4 cycles
+		sta ppu_mask | (death_wipe_on << 8)      ; 4 cycles
 	.endif
 	; load the first counter, and decrement
 	ldy a:irqtmp+rep*2+0 ; 4 cycles
@@ -30,7 +50,7 @@
 	; ^^this construction lasts (Y-1) * 5 + 7 cycles
 	
 	; entering the second half
-	stx ppu_mask       ; 4 cycles
+	stx ppu_mask | (death_wipe_off << 8)        ; 4 cycles - Note A
 	
 	ldy a:irqtmp+rep*2+1 ; 4 cycles
 :	dey                ; 2 cycles
@@ -219,7 +239,7 @@ irq_dialog_split:
 	
 	; reprogram the MMC3 to give us a new interrupt in 12 scanlines
 	ldy irqcounter
-	lda irqdelays, y
+	lda dialog_irq_delays, y
 	sta mmc3_irqla
 	sta mmc3_irqrl
 	sta mmc3_irqen
@@ -321,6 +341,8 @@ irq_dialog_split:
 	pha   ;          3 cycles
 	pla   ;          4 cycles
 	rts   ;          6 cycles
+
+dialog_irq_delays:	.byte 2, 2, 5
 
 irq_dialog_split_2:
 	pha

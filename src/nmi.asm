@@ -20,6 +20,9 @@
 	jsr nmi_check_flags
 	jsr nmi_check_gamemodes
 	
+	; I'd just inline this but I have no space!
+	jsr reset_ppuaddr
+	
 	jsr nmi_scrollsplit
 	jsr oam_dma_and_read_cont
 	jsr nmi_anims_update

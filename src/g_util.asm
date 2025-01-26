@@ -327,3 +327,18 @@ logo_version:		.byte $20,$21,$22,$23,$24,$25,$26
 memorial_text_line_1:	.byte "  @@ CELESTE MOUNTAIN @@  "
 memorial_text_line_2:	.byte "  THIS MEMORIAL TO THOSE  "
 memorial_text_line_3:	.byte "WHO PERISHED  ON THE CLIMB"
+
+; I know this belongs in PRG_MAIN, but I just don't have space!
+; ** SUBROUTINE: reset_ppuaddr
+; desc: Resets the PPUADDR register after a palette write.
+.proc reset_ppuaddr
+	; Change address to $3F00
+	lda #$3F
+	sta ppu_addr
+	lda #$00
+	sta ppu_addr
+	; Then to $0000 - this should fix 
+	sta ppu_addr
+	sta ppu_addr
+	rts
+.endproc

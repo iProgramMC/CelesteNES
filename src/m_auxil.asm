@@ -111,7 +111,7 @@ load_palette:
 	iny
 	cpy #$20
 	bne @loop
-	rts
+	jmp reset_ppuaddr
 
 ; ** SUBROUTINE: soft_nmi_on
 ; desc: Enable racey NMIs in software.
@@ -165,5 +165,3 @@ mmc3_initialize:
 	lda #%10000000   ; enable PRG RAM, disable write protection
 	sta mmc3_pram
 	rts
-
-irqdelays:	.byte 2, 2, 5
