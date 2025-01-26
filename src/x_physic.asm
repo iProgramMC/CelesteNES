@@ -2429,11 +2429,17 @@ gm_dash_after:
 	sta playerctrl      ; so that, if right is pressed, then we can flip it back
 gm_dash_noflip:
 	lda jumpcoyote
-	beq gm_dash_nosj
+	beq @noSuperJump
 	lda jumpbuff
-	beq gm_dash_nosj    ; if there is jump buffer and coyote time, then perform a super jump
+	beq @noSuperJump    ; if there is jump buffer and coyote time, then perform a super jump
+	lda dashdir
+	and #(cont_left|cont_right)<<2
+	beq @normalJumpOnly ; if there is a jump buffer and the player wasn't dashing left or right
 	jsr gm_superjump
-gm_dash_nosj:
+	jmp gm_dash_update_done
+@normalJumpOnly:
+	jsr gm_normaljump
+@noSuperJump:
 	jmp gm_dash_update_done
 
 gm_dash_update_:
