@@ -68,7 +68,7 @@ death_wipe_on  = def_ppu_msk
 	
 dontRescheduleInterrupt:
 	lda #def_ppu_msk
-	sta ppu_mask
+	sta ppu_mask | (death_wipe_on << 8)
 	ldx irqtmp9
 	ldy irqtmp10
 	pla
