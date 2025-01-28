@@ -49,6 +49,7 @@
 .include "prg_main.asm"
 .include "prg_ttle.asm"
 .include "prg_dial.asm"
+.include "prg_ents.asm"
 .include "prg_paus.asm"
 
 ; ** Global Sprite Banks

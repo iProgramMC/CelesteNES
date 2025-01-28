@@ -98,9 +98,9 @@ MEMORY
 	PRG_UNA45: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$36;
 	PRG_UNA46: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$37;
 	PRG_UNA47: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$38;
-	PRG_UNA48: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$39;
 	
 	# Game Engine, Core, etc.
+	PRG_ENTS: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$39;
 	PRG_PAUS: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$3A;
 	PRG_XTRA: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$3B;
 	PRG_DIAL: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$3C;
@@ -234,6 +234,7 @@ SEGMENTS
 	PRG_LVL2D: load = PRG_LVL2D, type = ro, align=$100;
 	PRG_LVL2E: load = PRG_LVL2E, type = ro, align=$100;
 	PRG_LVL2F: load = PRG_LVL2F, type = ro, align=$100;
+	PRG_ENTS:  load = PRG_ENTS,  type = ro, align=$100;
 	PRG_PAUS:  load = PRG_PAUS,  type = ro, align=$100;
 	PRG_XTRA:  load = PRG_XTRA,  type = ro, align=$100;
 	PRG_DIAL:  load = PRG_DIAL,  type = ro, align=$100;
@@ -289,7 +290,6 @@ SEGMENTS
 	PRG_UNA45: load = PRG_UNA45, type = ro, align=$100;
 	PRG_UNA46: load = PRG_UNA46, type = ro, align=$100;
 	PRG_UNA47: load = PRG_UNA47, type = ro, align=$100;
-	PRG_UNA48: load = PRG_UNA48, type = ro, align=$100;
 	
 	CHR_SPMAD: load = CHR_SPMAD, type = ro;
 	CHR_DPLDI: load = CHR_DPLDI, type = ro;

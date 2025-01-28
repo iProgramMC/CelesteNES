@@ -100,7 +100,7 @@ gm_draw_common:
 gm_unload_os_ents:
 	ldx #<sgm_unload_os_ents
 	ldy #>sgm_unload_os_ents
-	lda #prgb_paus
+	lda #prgb_ents
 	jmp far_call2
 
 ; ** SUBROUTINE: gm_draw_entities
@@ -108,6 +108,6 @@ gm_unload_os_ents:
 gm_draw_entities:
 	ldx #<xt_draw_entities
 	ldy #>xt_draw_entities
-	lda #prgb_paus
+	lda #prgb_ents
 	jmp far_call2
 

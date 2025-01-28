@@ -121,7 +121,7 @@ gamemode_title_update_FAR:
 	
 	ldx #<s_update_title_aux
 	ldy #>s_update_title_aux
-	lda #prgb_paus
+	lda #prgb_ents
 	jsr far_call2
 	
 	lda #cont_start

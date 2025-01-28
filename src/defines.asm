@@ -429,6 +429,7 @@ prgb_lvl2c  = $07
 prgb_lvl2d  = $08
 prgb_lvl2e  = $09
 prgb_lvl2f  = $0A
+prgb_ents   = $39   ; extra game code, entity related
 prgb_paus   = $3A   ; pause section
 prgb_xtra   = $3B   ; extra game code
 prgb_dial   = $3C

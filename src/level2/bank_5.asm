@@ -25,3 +25,5 @@ level2_s_info_kiosk:
 	.byte $00,$00,$35,$28,$46,$56,$4D,$5E,$2A
 	.byte $00,$24,$36,$38,$47,$57,$4E,$29,$2B ;done
 	.byte $00,$25,$00,$00,$48,$58,$59,$59,$4F
+
+.include "level2/chaser.asm"
