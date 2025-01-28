@@ -1336,6 +1336,8 @@ h_genertiles_inc_arwrhead:
 	lsr
 	sta camlimithi
 	
+	; TODO: Refactor this.  It's buggy
+	
 	lda arwrhead
 	eor #%00100000
 	asl

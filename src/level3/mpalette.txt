@@ -3,4 +3,11 @@
 ; note : this file is NOT included for the game! only for my level editor.
 metatile_palette:
 	.byte     $0 ; Air
-	.res  27, $2 ; Snow
+	.res  33, $2 ; Snow
+	.res  52, $2 ; Stone
+	.res  10, $2 ; Stone Pillar
+	.res   2, $2 ; Sky
+	.res  12, $0 ; Roof
+	.res   3, $1 ; Jump Through
+	.res   4, $0 ; Spikes
+	.res   4, $1 ; Spikes Alt
