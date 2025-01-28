@@ -1,7 +1,6 @@
 ; Copyright (C) 2025 iProgramInCpp
 
-; TODO: Split this off of PRG_DIAL because this is a mess!
-.segment "PRG_DIAL"
+.segment "PRG_LVL2F"
 
 .include "rooms/5.asm"
 ; level2_start is located here, so also add the memorial

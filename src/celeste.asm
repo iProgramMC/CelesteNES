@@ -185,7 +185,6 @@
 .incbin  "chr/d_gran.chr"
 
 ; ** Unallocated Segments
-.segment "PRG_UNA01"
 .segment "PRG_UNA02"
 .segment "PRG_UNA03"
 .segment "PRG_UNA04"
