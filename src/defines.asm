@@ -385,32 +385,32 @@ chrb_lvl2g  = $3A
 chrb_lvl2h  = $3C
 
 ; COMPLETE SCREEN BANKS
-chrb_lvl1ca = $40   ; graphics bank for Ch.1 complete screen
-chrb_lvl1cb = $44
-chrb_lvl2ca = $48   ; graphics bank for Ch.2 complete screen
-chrb_lvl2cb = $4C
-chrb_spl1co = $50
-chrb_spl2co = $52
+chrb_lvl1ca = $C0   ; graphics bank for Ch.1 complete screen
+chrb_lvl1cb = $C4
+chrb_lvl2ca = $C8   ; graphics bank for Ch.2 complete screen
+chrb_lvl2cb = $CC
+chrb_spl1co = $D0
+chrb_spl2co = $D2
 
 ; OVERWORLD SPRITE BANKS
-chrb_owsp00 = $54   ; sprite banks for Overworld
-chrb_owsp01 = $55
-chrb_owsp02 = $56
-chrb_owsp03 = $57
+chrb_owsp00 = $D4   ; sprite banks for Overworld
+chrb_owsp01 = $D5
+chrb_owsp02 = $D6
+chrb_owsp03 = $D7
 
 ; EXTRA SPRITE BANKS
-chrb_pause  = $58
-chrb_pcard  = $5C
-chrb_optns  = $60
+chrb_pause  = $D8
+chrb_pcard  = $DC
+chrb_optns  = $E0
 
 ; DIALOG DATA BANKS
-chrb_dmain  = $64   ; dialogue font (unused)
-chrb_dcntr  = $68   ; dialogue binary counting pattern
-chrb_dmome  = $6C   ; graphics bank for dialog with Mom and Ex
-chrb_dbade  = $70   ; graphics bank for dialog with Badeline
-chrb_dmade  = $74   ; graphics bank for dialog with Madeline
-chrb_dtheo  = $78   ; graphics bank for dialog with Theo
-chrb_dgran  = $7C   ; graphics bank for dialog with Granny
+chrb_dmain  = $E4   ; dialogue font (unused)
+chrb_dcntr  = $E8   ; dialogue binary counting pattern
+chrb_dmome  = $EC   ; graphics bank for dialog with Mom and Ex
+chrb_dbade  = $F0   ; graphics bank for dialog with Badeline
+chrb_dmade  = $F4   ; graphics bank for dialog with Madeline
+chrb_dtheo  = $F8   ; graphics bank for dialog with Theo
+chrb_dgran  = $FC   ; graphics bank for dialog with Granny
 
 ; CASSETTE BLOCK banks
 chrb_cass1  = $3E
@@ -428,12 +428,12 @@ prgb_lvl2b  = $06
 prgb_lvl2c  = $07
 prgb_lvl2d  = $08
 prgb_lvl2e  = $09
-prgb_paus   = $0A   ; pause section
-prgb_xtra   = $0B   ; extra game code
-prgb_dial   = $0C
-prgb_ttle   = $0D
-prgb_game   = $0E   ; bank containing game engine code.  This is fixed at $8000
-prgb_main   = $0F   ; bank containing main code.  This is fixed at $E000
+prgb_paus   = $3A   ; pause section
+prgb_xtra   = $3B   ; extra game code
+prgb_dial   = $3C
+prgb_ttle   = $3D
+prgb_game   = $3E   ; bank containing game engine code.  This is fixed at $8000
+prgb_main   = $3F   ; bank containing main code.  This is fixed at $E000
 
 ; NMI Control
 nc_turnon   = $01   ; turn on screen (set ppumask to default)
