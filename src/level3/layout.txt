@@ -1,0 +1,3 @@
+level3_s0,0,0
+Props,level3_s0,0,0
+Spawn,level3_s0,16,144

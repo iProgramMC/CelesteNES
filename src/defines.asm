@@ -383,6 +383,7 @@ chrb_lvl2e  = $36
 chrb_lvl2f  = $38
 chrb_lvl2g  = $3A
 chrb_lvl2h  = $3C
+chrb_lvl3   = $40
 
 ; COMPLETE SCREEN BANKS
 chrb_lvl1ca = $C0   ; graphics bank for Ch.1 complete screen
@@ -429,6 +430,8 @@ prgb_lvl2c  = $07
 prgb_lvl2d  = $08
 prgb_lvl2e  = $09
 prgb_lvl2f  = $0A
+prgb_lvl3a  = $0B
+prgb_lvl3b  = $0C
 prgb_ents   = $39   ; extra game code, entity related
 prgb_paus   = $3A   ; pause section
 prgb_xtra   = $3B   ; extra game code
@@ -643,7 +646,7 @@ ct_dream    = $07   ; dream block
 ct_cass1    = $08   ; cassette 1
 ct_cass2    = $09   ; cassette 2
 ;ow_maxlvl   = $07   ; maximum level number
-ow_maxlvl   = $02   ; maximum level number
+ow_maxlvl   = $03   ; maximum level number
 jtheight    = 3     ; height of jump through blocks
 swjgrace    = 5     ; grace time for a super wall jump TODO
 climbupvel  = $FF40

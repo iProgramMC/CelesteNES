@@ -1,0 +1,6 @@
+; Copyright (C) 2025 iProgramInCpp
+
+; note : this file is NOT included for the game! only for my level editor.
+metatile_palette:
+	.byte     $0 ; Air
+	.res  27, $2 ; Snow

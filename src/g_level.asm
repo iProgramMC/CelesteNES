@@ -2082,17 +2082,12 @@ gm_set_level:
 	
 	; load the "environment type" field. This specifies the default bank
 	lda (lvlptrlo), y
-	asl
-	asl
-	clc
-	adc #chrb_lvl0           ; The first level's BG bank is #chrb_lvl0.
+	tay
+	lda level_bg_banks_1, y
 	sta bg0_bknum
 	sta lvlbasebank
-	
-	tay
-	iny
-	iny
-	sty bg1_bknum
+	lda level_bg_banks_2, y
+	sta bg1_bknum
 	
 	ldy #0
 	jsr gm_set_room

@@ -42,7 +42,9 @@
 .include "level2/bank_2.asm"
 .include "level2/bank_3.asm"
 .include "level2/bank_4.asm"
-.include "level2/bank_5.asm" ; NOTE: Actually the same as PRG_DIAL for now!
+.include "level2/bank_5.asm"
+.include "level3/bank_0.asm"
+.include "level3/bank_1.asm"
 
 .include "prg_xtra.asm"
 .include "prg_game.asm"
@@ -137,6 +139,9 @@
 .segment "CHR_BG006"
 .incbin  "chr/b_lvl2h.chr" ; contains the dream block (dither stage 3)
 
+.segment "CHR_BG007"
+.incbin  "chr/b_lvl3h2.chr"
+
 .segment "CHR_CASS1"
 .incbin  "chr/b_cass1.chr"
 .segment "CHR_CASS2"
@@ -188,8 +193,6 @@
 .incbin  "chr/d_gran.chr"
 
 ; ** Unallocated Segments
-.segment "PRG_UNA02"
-.segment "PRG_UNA03"
 .segment "PRG_UNA04"
 .segment "PRG_UNA05"
 .segment "PRG_UNA06"
@@ -235,7 +238,7 @@
 .segment "PRG_UNA46"
 .segment "PRG_UNA47"
 .segment "PRG_UNA48"
-.segment "CHR_UNA01"
+.segment "CHR_UA01L"
 .segment "CHR_UNA02"
 .segment "CHR_UNA03"
 .segment "CHR_UNA04"

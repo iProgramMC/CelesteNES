@@ -50,10 +50,10 @@ MEMORY
 	PRG_LVL2D: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$08;
 	PRG_LVL2E: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$09;
 	PRG_LVL2F: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0A;
+	PRG_LVL3A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0B;
+	PRG_LVL3B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0C;
 	
 	# Unallocated Banks
-	PRG_UNA02: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0B;
-	PRG_UNA03: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0C;
 	PRG_UNA04: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0D;
 	PRG_UNA05: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0E;
 	PRG_UNA06: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0F;
@@ -144,8 +144,10 @@ MEMORY
 	CHR_BG005: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$38; # Level 2 (dream block in different states)
 	CHR_BG006: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3C; # Level 2 (dream block in different states)
 	CHR_CASS1: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; # Cassette Blocks (1)
+	CHR_BG007: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$40; # Level 3 (2 banks)
 	
-	CHR_UNA01: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40; # Unused (4 banks)
+	# Unallocated Banks
+	CHR_UA01L: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$42; # Unused (2 banks)
 	CHR_UNA02: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44; # Unused (4 banks)
 	CHR_UNA03: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$48; # Unused (4 banks)
 	CHR_UNA04: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C; # Unused (4 banks)
@@ -234,6 +236,8 @@ SEGMENTS
 	PRG_LVL2D: load = PRG_LVL2D, type = ro, align=$100;
 	PRG_LVL2E: load = PRG_LVL2E, type = ro, align=$100;
 	PRG_LVL2F: load = PRG_LVL2F, type = ro, align=$100;
+	PRG_LVL3A: load = PRG_LVL3A, type = ro, align=$100;
+	PRG_LVL3B: load = PRG_LVL3B, type = ro, align=$100;
 	PRG_ENTS:  load = PRG_ENTS,  type = ro, align=$100;
 	PRG_PAUS:  load = PRG_PAUS,  type = ro, align=$100;
 	PRG_XTRA:  load = PRG_XTRA,  type = ro, align=$100;
@@ -244,8 +248,6 @@ SEGMENTS
 	PRG_VECS:  load = PRG_VECS,  type = ro;
 	
 	# Unallocated
-	PRG_UNA02: load = PRG_UNA02, type = ro, align=$100;
-	PRG_UNA03: load = PRG_UNA03, type = ro, align=$100;
 	PRG_UNA04: load = PRG_UNA04, type = ro, align=$100;
 	PRG_UNA05: load = PRG_UNA05, type = ro, align=$100;
 	PRG_UNA06: load = PRG_UNA06, type = ro, align=$100;
@@ -317,6 +319,7 @@ SEGMENTS
 	CHR_BG004: load = CHR_BG004, type = ro;
 	CHR_BG005: load = CHR_BG005, type = ro;
 	CHR_BG006: load = CHR_BG006, type = ro;
+	CHR_BG007: load = CHR_BG007, type = ro;
 	CHR_LV1CA: load = CHR_LV1CA, type = ro;
 	CHR_LV1CB: load = CHR_LV1CB, type = ro;
 	CHR_LV2CA: load = CHR_LV2CA, type = ro;
@@ -339,7 +342,7 @@ SEGMENTS
 	CHR_DGRAN: load = CHR_DGRAN, type = ro;
 	
 	# Unallocated
-	CHR_UNA01: load = CHR_UNA01, type = ro;
+	CHR_UA01L: load = CHR_UA01L, type = ro;
 	CHR_UNA02: load = CHR_UNA02, type = ro;
 	CHR_UNA03: load = CHR_UNA03, type = ro;
 	CHR_UNA04: load = CHR_UNA04, type = ro;

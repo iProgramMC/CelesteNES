@@ -1,6 +1,6 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2024-2025 iProgramInCpp
 
-; Metatile Data for "Forsaken City" (Level 1)
+; Metatile Data for "Old Site" (Level 2)
 
 ; Metatiles
 ;

@@ -33,7 +33,7 @@ level1:
 	spr1_path:       chr/sp_level1.chr
 	spr2_path:       chr/sp_gener.chr
 	spr3_path:       chr/sp_anim.chr
-	bg_path:         chr/b_lvl1.chr
+	bg_path:         chr/b_lvl1_designer.chr
 	roomdata_path:   level1/rooms/$.asm
 	BANK_prgb_lvl1a: 0
 	BANK_prgb_lvl1b: 1
@@ -60,3 +60,20 @@ level2:
 	BANK_prgb_lvl2d: 3
 	BANK_prgb_lvl2e: 4
 	BANK_prgb_lvl2f: 5
+
+level3:
+	palette_path:    level3/palette.asm
+	roomlist_path:   level3/roomlist.asm
+	warplist_path:   level3/warplist.asm
+	metatile_path:   level3/metatile.asm
+	metapale_path:   level3/mpalette.txt
+	tilegroups_path: level3/tgroups.txt
+	layout_path:     level3/layout.txt
+	spr0_path:       chr/sp_player.chr
+	spr1_path:       chr/sp_level3.chr
+	spr2_path:       chr/sp_gener.chr
+	spr3_path:       chr/sp_anim.chr
+	bg_path:         chr/b_lvl3_designer.chr
+	roomdata_path:   level3/rooms/$.asm
+	BANK_prgb_lvl3a: 0
+	BANK_prgb_lvl3b: 1
