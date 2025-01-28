@@ -33,7 +33,7 @@ TBA
 
 - [Persune](https://gumball2415.github.io) - Chapter Complete rendition
 
-- Buttersoap - Sound effects, and first "First Steps" rendition
+- [Buttersoap](https://www.youtube.com/@iputsoapondabutter) - Sound effects, and first "First Steps" rendition
 
 - The members of the [NESdev discord server](https://discord.gg/VFnWZV8GWk) for miscellaneous help
 
