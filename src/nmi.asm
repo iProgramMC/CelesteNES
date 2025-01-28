@@ -434,7 +434,7 @@ nmi_anims_normal:
 	lda #<irq_memorial_split
 	sta irqaddr
 	
-	ldy #chrb_lvl1
+	ldy #chrb_dmain
 	;lda #mmc3bk_bg0
 	;jmp mmc3_set_bank_nmi
 	bne @skipldybg0
