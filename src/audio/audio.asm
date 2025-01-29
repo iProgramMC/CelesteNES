@@ -1,4 +1,4 @@
-; Copyright (C) 2024 iProgramInCpp
+; Copyright (C) 2025 iProgramInCpp
 
 ; Define an external config for FamiStudio
 FAMISTUDIO_CFG_EXTERNAL = 1
