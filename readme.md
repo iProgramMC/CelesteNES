@@ -72,8 +72,11 @@ If you know how to write 6502 assembly and also happen to be a keen-eyed player 
 things, **please let me know** with a pull request.
 
 It is important to also acknowledge the NES' limitations. I think I've struck a good balance between
-accuracy and speed.
+accuracy and speed
 
+## Contributing
+ *TBA*
+ 
 ## License
 
 This project has been neither created nor endorsed by the Celeste team.
