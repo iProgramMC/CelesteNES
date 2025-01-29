@@ -65,7 +65,7 @@ anything unusual, let me know and I will fix it right up!
 ## Physics
 
 I have tried my best to make the physics as accurate to the original game as I could, even referencing
-the officially released [https://github.com/NoelFB/Celeste/blob/master/Source/Player/Player.cs](Player class code)
+the officially released [Player class code](https://github.com/NoelFB/Celeste/blob/master/Source/Player/Player.cs)
 from Celeste. However, some features may not be accurately implemented.
 
 If you know how to write 6502 assembly and also happen to be a keen-eyed player who can notice such
