@@ -53,8 +53,8 @@ fall_ch1_c:
 	.byte $46,$52,$52,$6E ; col 2
 
 fall_ch1_c_chr:
-	.byte $C8,$80,$90,$90,$82,$90,$82,$92
-	.byte $C8,$81,$83,$83,$91,$83,$91,$93
+	.byte $C8,$60,$70,$70,$62,$70,$62,$72
+	.byte $C8,$61,$63,$63,$71,$63,$71,$73
 
 ; Would be in level1_r8z, but falling blocks are buggy in new format levels and I'm lazy
 ;fall_ch1_d:
@@ -82,9 +82,9 @@ fall_ch1_d:
 	.byte $46,$52,$6E
 
 fall_ch1_d_chr:
-	.byte $80,$90,$90,$82,$92
-	.byte $8B,$84,$84,$9B,$95
-	.byte $81,$83,$83,$91,$93
+	.byte $60,$70,$70,$62,$72
+	.byte $6B,$64,$64,$7B,$75
+	.byte $61,$63,$63,$71,$73
 
 fall_ch1_e:
 	.byte 16, 24      ; width, height
@@ -98,8 +98,8 @@ fall_ch1_e:
 	.byte $46,$6E
 
 fall_ch1_e_chr:
-	.byte $80,$90,$92
-	.byte $81,$83,$93
+	.byte $60,$70,$72
+	.byte $61,$63,$73
 
 fall_ch1_f:
 	.byte 24, 32+128  ; width, height
@@ -114,6 +114,6 @@ fall_ch1_f:
 	.byte $46,$66
 
 fall_ch1_f_chr:
-	.byte $C8,$80,$90,$82,$92
-	.byte $C8,$8B,$84,$9B,$95
-	.byte $C8,$81,$83,$91,$93
+	.byte $C8,$60,$70,$62,$72
+	.byte $C8,$6B,$64,$7B,$75
+	.byte $C8,$61,$63,$71,$73

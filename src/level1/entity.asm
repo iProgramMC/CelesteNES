@@ -703,12 +703,15 @@ tableTimer:	.byte 0, 10
 @notInTransition:
 	ldx temp1
 	
+	lda sprspace+sp_l1me_index, x
+	beq :+
+	
 	lda nmictrl2
 	ora #nc2_memorsw
 	sta nmictrl2
 	
 	; calculate the write head necessary
-	lda sprspace+sp_x_pg, x
+:	lda sprspace+sp_x_pg, x
 	lsr
 	lda sprspace+sp_x, x
 	ror
@@ -732,6 +735,10 @@ tableTimer:	.byte 0, 10
 	ldy temp1
 	jsr gm_check_collision_ent
 	beq @removeText
+	
+	lda nmictrl2
+	ora #nc2_memorsw
+	sta nmictrl2
 	
 	; draw text
 	; check which row we need to draw

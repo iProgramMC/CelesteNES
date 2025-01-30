@@ -347,7 +347,7 @@ chrb_anisp1 = $05   ;
 chrb_anisp2 = $06   ;
 chrb_anisp3 = $07   ;
 
-chrb_sheart = $7B   ; Crystal Heart sprites
+chrb_sheart = $FB   ; Crystal Heart sprites
 
 chrb_splvl0 = $08   ; sprites for level 0
 chrb_splv0b = $09   ; sprites for level 0
@@ -415,7 +415,7 @@ chrb_dgran  = $FC   ; graphics bank for dialog with Granny
 
 ; CASSETTE BLOCK banks
 chrb_cass1  = $3E
-chrb_cass2  = $66
+chrb_cass2  = $E6
 
 ; PRG ROM BANKS
 ; Swappable level data ($A000), Fixed level data ($C000)
