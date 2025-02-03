@@ -60,9 +60,7 @@ print_logo:
 	ldx #<logo_version
 	ldy #>logo_version
 	lda #7
-	jsr ppu_wrstring
-	
-	rts
+	jmp ppu_wrstring
 	
 tl_owldswitch:
 	lda #0
@@ -75,7 +73,7 @@ tl_owldswitch:
 	sta owldctrl
 	
 	jsr vblank_wait
-	lda #0
+	;lda #0
 	sta ppu_mask        ; disable rendering
 	rts
 
@@ -90,6 +88,7 @@ gamemode_title_init_FAR:
 	sta camera_y_hi
 	sta tl_cschctrl
 	sta ppu_mask     ; disable rendering
+	sta fadeupdrt+1
 	
 	jsr vblank_wait  ; wait for vblank
 	
@@ -111,8 +110,6 @@ gamemode_title_init_FAR:
 	
 	jsr tl_select_banks
 	
-	lda #0
-	sta fadeupdrt+1
 	jsr fade_in
 
 gamemode_title_update_FAR:

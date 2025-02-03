@@ -79,9 +79,6 @@ speeds:	.byte 12, 20
 	jsr famistudio_init
 	
 	lda #0
-	jsr famistudio_music_play
-
-	lda #0
 	sta scroll_x
 	sta scroll_y
 	sta scroll_flags
@@ -89,6 +86,7 @@ speeds:	.byte 12, 20
 	sta camera_y
 	sta camera_x_pg
 	sta camera_y_hi
+	jsr famistudio_music_play
 	
 	; disable rendering
 	jsr vblank_wait
@@ -163,9 +161,7 @@ speeds:	.byte 12, 20
 	
 @loopRainInitial:
 	jsr level_end_rain
-	jsr soft_nmi_on
-	jsr nmi_wait
-	jsr soft_nmi_off
+	jsr @nmiWait
 	
 	dec ow_timer
 	bne @loopRainInitial
@@ -224,9 +220,7 @@ speeds:	.byte 12, 20
 
 @wait:
 	jsr level_end_fade_update
-	jsr soft_nmi_on
-	jsr nmi_wait
-	jsr soft_nmi_off
+	jsr @nmiWait
 	
 	; check if the timer expired
 	lda ow_timer
@@ -261,6 +255,11 @@ speeds:	.byte 12, 20
 	sta miscsplit
 @return:
 	rts
+
+@nmiWait:
+	jsr soft_nmi_on
+	jsr nmi_wait
+	jmp soft_nmi_on
 .endproc
 
 level_end_gfx_lo:	.byte 0,<level_end_ch1,<level_end_ch2

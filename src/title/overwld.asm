@@ -1014,15 +1014,16 @@ ow_draw_c7_summit:
 	lda #1
 	jmp ow_put_sprite
 
+; TODO: Uncomment these once we move level end out of title bank
 ow_waypoints_x:
 	.byte 84    ; prologue
 	.byte 122   ; chapter 1
 	.byte 82    ; chapter 2
 	.byte 158   ; chapter 3
 	.byte 138   ; chapter 4
-	.byte 88    ; chapter 5
-	.byte 49    ; chapter 6
-	.byte 109   ; chapter 7
+	;.byte 88    ; chapter 5
+	;.byte 49    ; chapter 6
+	;.byte 109   ; chapter 7
 
 ow_waypoints_y:
 	.byte 164-4+yoff   ; prologue
@@ -1030,17 +1031,17 @@ ow_waypoints_y:
 	.byte 122-4+yoff   ; chapter 2
 	.byte  96-4+yoff   ; chapter 3
 	.byte  76-4+yoff   ; chapter 4
-	.byte  67-4+yoff   ; chapter 5
-	.byte 137-4+yoff   ; chapter 6
-	.byte  36-4+yoff   ; chapter 7
+	;.byte  67-4+yoff   ; chapter 5
+	;.byte 137-4+yoff   ; chapter 6
+	;.byte  36-4+yoff   ; chapter 7
 
 ; note: each space is 16 bytes wide, but only 14 are used
 ow_level_names:
 	.byte $00,$00,$00,$00,$6f,$3d,$7e,$7f,$2a,$8f,$00,$00,$00,$00,$FF,$FF
 	.byte $00,$00,$00,$3e,$3f,$48,$49,$4a,$4b,$4c,$4d,$00,$00,$00,$FF,$FF
 	.byte $00,$00,$00,$00,$4e,$4f,$5b,$5c,$5d,$8e,$00,$00,$00,$00,$FF,$FF
+	.byte $00,$00,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$aa,$ab,$00,$00,$FF,$FF
 	; TODO the rest
-	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
 	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
 	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
 	;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF
