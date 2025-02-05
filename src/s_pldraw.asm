@@ -271,13 +271,13 @@ gm_loaded:
 gm_nooddrhythm:
 	lda animmode
 	cmp #am_climb
-	bne gm_notclimbing
+	bne gm_notclimbing2
 	lda animtimer
 	lsr
 	lsr
 	eor #1
 	sta sprxoff
-gm_notclimbing:
+gm_notclimbing2:
 	rts
 gm_walkCheck:
 	lda animtimer

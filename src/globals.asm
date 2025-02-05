@@ -254,6 +254,7 @@ fadeupdrt   : .res 2
 zero_on_respawn_zp_begin:
 
 gamectrl4   : .res 1 ; fourth game control flags
+gamectrl5   : .res 1 ; fifth game control flags
 playerctrl  : .res 1
 
 player_sp_x : .res 1 ; subpixel memory X
@@ -468,7 +469,10 @@ stamina     : .res 2 ; stamina amount (16-bit integer)
 
 .segment "LASTRAM"
 
-; 41 bytes free
+retain_vl_x : .res 1 ; retained velocity X
+retain_vs_x : .res 1
+retain_timer: .res 1 ; wall speed retention timer
+wallhboxybot: .res 1 ; wall hit box Y bottom
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

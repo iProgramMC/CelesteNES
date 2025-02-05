@@ -1,8 +1,10 @@
 ; Copyright (C) 2024 iProgramInCpp
 
+; note: gm_xaxisfixup is indexed [0-3], but gm_targetsLO has a 0 byte we can use instead.
+; gm_targetsLO and gm_targetsHI should never be indexed [0-3], they're made for [0-2]
+gm_xaxisfixup:	.byte $00, $01, $02
 gm_targetsLO:	.byte $00, maxwalkLO, maxwalkNLO
 gm_targetsHI:	.byte $00, maxwalkHI, maxwalkNHI
-gm_xaxisfixup:	.byte $00, $01, $02, $00
 
 ; ** SUBROUTINE: gm_gettarget
 ; desc: Gets the index of the target velocity, based on buttons held on the controller.
@@ -123,18 +125,20 @@ gm_updatexvel:
 	; while holding down, don't move towards the wall
 	bne @zeroAndReturn
 	
+	; set player_v_x to $00FF
 	ldx #0
-	stx player_vs_x
-	inx
 	stx player_vl_x
+	dex
+	stx player_vs_x
 	
 	lda #pl_left
 	bit playerctrl
 	beq :+
 	
-	dex
-	dex
+	; set it to $FF01
 	stx player_vl_x
+	ldx #1
+	stx player_vs_x
 	
 :	rts
 
@@ -456,11 +460,7 @@ gm_dontjump:
 	inc dashcount
 	ldx #defdashtime
 	stx dashtime
-	lda #0
-	sta player_vl_x
-	sta player_vs_x
-	sta player_vl_y
-	sta player_vs_y
+	jsr gm_clear_vel
 	lda playerctrl
 	and #<~(pl_climbing|pl_nearwall|pl_pushing|pl_wallleft)
 	sta playerctrl
@@ -567,12 +567,12 @@ gm_walljump:
 	; check if player is climbing right now
 	lda playerctrl
 	and #pl_climbing
-	beq @notClimbing
+	beq gm_notclimbing
 	
 	; climbing, check if the held direction is different from the facing direction
 	lda game_cont
 	and #(cont_left|cont_right)
-	beq @climbJump    ; not holding any buttons, so standard jump
+	beq gm_climbjump  ; not holding any buttons, so standard jump
 	
 	and #cont_left    ; cont_left == $02
 	lsr
@@ -581,14 +581,14 @@ gm_walljump:
 	lda playerctrl
 	and #pl_left      ; pl_left == $01
 	eor temp1
-	bne @notClimbing  ; if they match (player was holding left while facing left), then climb jump
+	bne gm_notclimbing; if they match (player was holding left while facing left), then climb jump
 	
 	; climb jump, but charge the correct stamina if they have it
-@climbJump:
+gm_climbjump:
 	lda stamina+1
 	bne @ahead
 	lda stamina
-	beq @notClimbing
+	beq gm_notclimbing
 	
 @ahead:
 	; charge the jump stamina
@@ -614,8 +614,9 @@ gm_walljump:
 	sta gamectrl4
 	
 	lda #0
-	sta player_vl_x
-	sta player_vs_x
+	;sta player_vl_x
+	;sta player_vs_x
+	sta dashtime
 	
 	; note: cjwalldir is the direction you must hold for a wall jump stamina refund!
 	lda playerctrl
@@ -628,7 +629,7 @@ gm_walljump:
 	
 	jmp gm_normaljmp2
 	
-@notClimbing:
+gm_notclimbing:
 	jsr gm_jump_sfx
 	
 	; the facing direction IS the one the player is currently pushing against.
@@ -798,6 +799,7 @@ gm_getrightx:
 	lda camera_x_pg
 	adc #0
 	ror               ; rotate it into carry
+	jmp gm_commondividexcrdtemp
 	lda x_crd_temp
 	ror               ; rotate it into the low position
 	lsr
@@ -817,6 +819,7 @@ gm_getleftxceil:
 	lda camera_x_pg
 	adc #0
 	ror               ; rotate it into carry
+gm_commondividexcrdtemp:
 	lda x_crd_temp
 	ror               ; rotate it into the low position
 	lsr
@@ -838,11 +841,7 @@ gm_getrightxceil:
 	lda camera_x_pg
 	adc #0
 	ror               ; rotate it into carry
-	lda x_crd_temp
-	ror               ; rotate it into the low position
-	lsr
-	lsr               ; finish dividing by the tile size
-	rts
+	jmp gm_commondividexcrdtemp
 
 ; ** SUBROUTINE: gm_getleftwjx
 ; desc: Gets the tile X position where the left of the wall jump check hitbox resides.
@@ -857,11 +856,7 @@ gm_getleftwjx:
 	lda camera_x_pg
 	adc #0
 	ror               ; rotate it into carry
-	lda x_crd_temp
-	ror               ; rotate it into the low position
-	lsr
-	lsr               ; finish dividing by the tile size
-	rts
+	jmp gm_commondividexcrdtemp
 
 ; ** SUBROUTINE: gm_getrightwjx
 ; desc: Gets the tile X position where the right of the wall jump check hitbox resides.
@@ -876,11 +871,7 @@ gm_getrightwjx:
 	lda camera_x_pg
 	adc #0
 	ror               ; rotate it into carry
-	lda x_crd_temp
-	ror               ; rotate it into the low position
-	lsr
-	lsr               ; finish dividing by the tile size
-	rts
+	jmp gm_commondividexcrdtemp
 
 ; ** SUBROUTINE: gm_getbottomy_cc
 ; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
@@ -1447,6 +1438,9 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	sta player_vl_y   ; also clear the velocity
 	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
 	sta jcountdown    ; also clear the jump timer
+	lda gamectrl5
+	ora #g5_collideY
+	sta gamectrl5
 	beq gm_applyy_checkdone
 
 @gm_applyy_checkdone_:
@@ -1505,19 +1499,20 @@ gm_checkfloor:
 	
 	lda #defjmpcoyot
 	sta jumpcoyote    ; assign coyote time because we're on the ground
-	lda #0
-	sta wjumpcoyote   ; can't perform a wall jump while on the ground
-	sta player_vl_y
-	sta player_vs_y
-	sta hopcdown
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	ldx #0
+	lda player_vl_y
+	bmi :+
+	stx player_vl_y
+	stx player_vs_y
+:	stx wjumpcoyote   ; can't perform a wall jump while on the ground
+	stx hopcdown
+	jsr gm_reset_dash_and_stamina
 	lda gamectrl2
 	and #<~g2_autojump
 	sta gamectrl2
+	lda gamectrl5
+	ora #g5_collideY
+	sta gamectrl5
 	
 @done:
 gm_applyy_checkdone:
@@ -1710,6 +1705,8 @@ checkRightLoop:
 	beq checkRDoneReturn
 
 collidedRight:
+	jsr gm_startretent
+	
 	lda hopcdown
 	bne :+
 	
@@ -1727,6 +1724,9 @@ collidedRight:
 	and #(pl_wallleft^$FF)   ; the wall wasn't found on the left.
 	sta playerctrl
 	
+	lda gamectrl5
+	ora #g5_collideX
+	sta gamectrl5
 	jsr gm_check_attach_wall
 	
 @dontModVel:
@@ -1782,6 +1782,8 @@ checkLeftLoop:
 	beq checkRDoneReturn
 
 collidedLeft:
+	jsr gm_startretent
+	
 	lda hopcdown
 	bne :+
 	
@@ -1795,6 +1797,9 @@ collidedLeft:
 :	lda playerctrl
 	ora #(pl_pushing | pl_wallleft) ; the wall was found on the left.
 	sta playerctrl
+	lda gamectrl5
+	ora #g5_collideX
+	sta gamectrl5
 	
 	jsr gm_check_attach_wall
 	
@@ -2147,36 +2152,24 @@ xt_collentceil:
 gm_collentleft:
 	lda #plr_x_left
 	sta temp5
-	lda #plr_y_top
-	sta temp6
-	lda #plr_y_bot_wall
-	sta temp7
-	jmp gm_collentside
+	bne :+
 
 gm_collentright:
 	lda #plr_x_right
 	sta temp5
-	lda #plr_y_top
-	sta temp6
-	lda #plr_y_bot_wall
-	sta temp7
-	jmp gm_collentside
+	bne :+
 
 gm_wjckentleft:
 	lda #plr_x_wj_left
 	sta temp5
-	lda #plr_y_top
-	sta temp6
-	lda #plr_y_bot_wall
-	sta temp7
-	jmp gm_collentside
+	bne :+
 
 gm_wjckentright:
 	lda #plr_x_wj_right
 	sta temp5
-	lda #plr_y_top
+:	lda #plr_y_top
 	sta temp6
-	lda #plr_y_bot_wall
+	lda wallhboxybot
 	sta temp7
 	;jmp gm_collentside
 
@@ -2317,11 +2310,7 @@ gm_dash_over:
 :	jmp gm_dash_update_done
 
 gm_dash_lock:
-	ldx #0
-	stx player_vl_x
-	stx player_vl_y
-	stx player_vs_x
-	stx player_vs_y
+	jsr gm_clear_vel
 	jmp gm_dash_update_done
 
 gm_defaultdir:
@@ -2356,7 +2345,7 @@ gm_superjump:
 	lda #jumpvelHI
 	sta player_vl_y
 	lda #jumpvelLO
-	sta player_vs_y         ; super jump speed is the same as normal jump speed
+	sta player_vs_y         ; super jump Y speed is the same as normal jump Y speed
 	lda #superjmphhi
 	sta player_vl_x
 	lda #superjmphlo
@@ -2408,12 +2397,12 @@ gm_dash_nodir:
 	sta player_vs_y
 	; we pushed the value of player_vl_x such that it can be quickly loaded and checked
 	pla
-	bpl gm_dash_update_done
+	bpl :+
 	; dashing left
 	lda playerctrl
 	ora #pl_left
 	sta playerctrl
-	jmp gm_dash_update_done
+:	jmp gm_dash_update_done
 gm_dash_after:
 	; this label is reached when the dash is "completed", i.e. it gives no more
 	; boost to the player and physics are enabled.
@@ -2428,26 +2417,60 @@ gm_dash_after:
 	eor playerctrl
 	sta playerctrl      ; so that, if right is pressed, then we can flip it back
 gm_dash_noflip:
+	lda jumpbuff
+	beq @noJumpAtAll    ; if there is jump buffer and coyote time, then perform a super jump
+	
 	lda jumpcoyote
 	beq @noSuperJump
-	lda jumpbuff
-	beq @noSuperJump    ; if there is jump buffer and coyote time, then perform a super jump
 	lda dashdir
 	and #(cont_left|cont_right)<<2
 	beq @normalJumpOnly ; if there is a jump buffer and the player wasn't dashing left or right
 	jsr gm_superjump
 	jmp gm_dash_update_done
+	
+@noSuperJump:
+	; maybe they should do a climb jump instead
+	
+	; NOTE: This logic is probably reusable
+	jsr gm_getfacex_wj
+	tax
+	stx temp1
+	jsr gm_gettopy
+	tay
+	jsr xt_collide
+	bne @doClimbJump
+	jsr gm_getbottomy_wjc
+	tay
+	ldx temp1
+	jsr xt_collide
+	beq @noJumpAtAll
+	
+@doClimbJump:
+	lda climbbutton
+	beq @noJumpAtAll
+	; well they're definitely dashing
+	jmp gm_climbjump
+
 @normalJumpOnly:
 	jsr gm_normaljump
-@noSuperJump:
+@noJumpAtAll:
 	jmp gm_dash_update_done
 
 gm_dash_update_:
-	bne gm_dash_update
+	jmp gm_dash_update
 
 ; ** SUBROUTINE: xt_physics
 ; desc: Runs one frame of player physics.
 .proc xt_physics
+	lda gamectrl5
+	and #<~(g5_collideX | g5_collideY)
+	sta gamectrl5
+	ldx #plr_y_bot_wall
+	lda dashtime
+	beq :+
+	ldx #plr_y_bot_wjc
+:	stx wallhboxybot
+	
 	jsr gm_death_hacks
 	
 	lda #pl_dead
@@ -2468,6 +2491,7 @@ dash_update_done:
 	jsr gm_sanevels
 	jsr gm_applyy
 	jsr gm_applyx
+	jsr gm_checkretent
 	jsr gm_checkoffgnd
 	jsr gm_checkwjump
 	jsr gm_climbcheck
@@ -3170,6 +3194,7 @@ velocityIsMinus:
 	sec
 	ror player_vl_y
 	ror player_vs_y
+return:
 	rts
 .endproc
 
@@ -3298,12 +3323,7 @@ resetDreamDash:
 	and #g4_dreamdsh
 	beq return          ; if the dream dash flag wasn't set
 	
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr gm_reset_dash_and_stamina
 	lda #5
 	sta jumpcoyote
 	sta dbouttimer
@@ -3508,4 +3528,77 @@ advancedTraceDisabled:
 	rts
 @kill:
 	jmp gm_killplayer
+.endproc
+
+; ** SUBROUTINE: gm_checkretent
+; desc: Checks the wall speed retention timer.
+.proc gm_checkretent
+	; check if the retention timer is zero
+	lda retain_timer
+	beq @return
+	
+	lda gamectrl5
+	and #g5_collideX
+	beq @noCollision
+	
+	; collided. the retain timer needs to be decremented
+	dec retain_timer
+	rts
+	
+@noCollision:
+	dec retain_timer
+	
+	; check if the speed's sign and the retain speed's sign match
+	lda retain_vl_x
+	eor player_vl_x
+	bmi @return
+	
+	; they do
+	lda retain_vl_x
+	sta player_vl_x
+	lda retain_vs_x
+	sta player_vs_x
+
+@clearTimer:
+	lda #0
+	sta retain_timer
+	
+@return:
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_startretent
+; desc: Starts the wall speed retention timer, if needed.
+.proc gm_startretent
+	lda retain_timer
+	bne @return
+	
+	; check if the vel is significant (ie. if >=$0100 or <=$FF00)
+	lda player_vl_x
+	beq @return
+	cmp #$FF
+	bne :+
+	lda player_vs_x
+	bne @return
+	
+:	lda #maxrettmr
+	sta retain_timer
+	lda player_vl_x
+	sta retain_vl_x
+	lda player_vs_x
+	sta retain_vs_x
+	
+@return:
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_clear_vel
+; Clears the velocity of the player.
+.proc gm_clear_vel
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	sta player_vl_y
+	sta player_vs_y
+	rts
 .endproc

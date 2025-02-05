@@ -220,12 +220,7 @@
 @setKind:
 	sta sprspace+sp_kind, x
 	
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jmp gm_reset_dash_and_stamina
 	
 @return:
 	rts
@@ -2352,7 +2347,7 @@ commitSaveFile:
 	sbc temp11
 	sta sprspace+sp_hart_bncey, y
 	
-	jsr resetStaminaAndDash
+	jsr gm_reset_dash_and_stamina
 	
 @noCollision:
 	ldx temp1
@@ -2414,17 +2409,11 @@ commitSaveFile:
 	sbc temp11
 	sta sprspace+sp_hart_bncey, x
 	
+	lda #0
+	sta dashtime
+	
 @dontLowerBounce:
 	jmp gm_draw_common2
-
-resetStaminaAndDash:
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
-	rts
 
 calculateOneQuarter:
 	lda temp7

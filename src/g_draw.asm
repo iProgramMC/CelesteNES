@@ -57,12 +57,7 @@ return:
 .proc gm_dead_sub2
 	; divide each component by 8
 	lda temp1
-	cmp #128
-	ror
-	cmp #128
-	ror
-	cmp #128
-	ror
+	jsr rotate3x
 	sta temp1
 	cmp #128
 	ror
@@ -71,18 +66,22 @@ return:
 	sta temp1
 	
 	lda temp2
-	cmp #128
-	ror
-	cmp #128
-	ror
-	cmp #128
-	ror
+	jsr rotate3x
 	sta temp2
 	cmp #128
 	ror
 	clc
 	adc temp2
 	sta temp2
+	rts
+
+rotate3x:
+	cmp #128
+	ror
+	cmp #128
+	ror
+	cmp #128
+	ror
 	rts
 .endproc
 
@@ -256,6 +255,7 @@ deadLoop:
 	bcc :+
 	lda #24
 :	lsr
+	lsr
 	tay
 	lda tableT, y
 	tay
@@ -284,7 +284,8 @@ dontRespawn:
 return2:
 	rts
 
-tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
+;tableT:	.byte $10,$10,$06,$06,$00,$00,$00,$00,$06,$06,$08,$08,$12,$12
+tableT:	.byte $10,$06,$00,$00,$06,$08,$12
 .endproc
 
 ; ** SUBROUTINE: gm_check_level_banks

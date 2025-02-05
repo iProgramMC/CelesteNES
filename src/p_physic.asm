@@ -248,7 +248,7 @@ xt_kludge_zeroflag:
 gm_getbottomy_w:
 	clc
 	lda player_y
-	adc #plr_y_bot_wall
+	adc wallhboxybot
 	bcs gm_gety_wraparound
 	cmp #240
 	bcs gm_gety_wraparound
@@ -376,6 +376,7 @@ xt_collentfloor_kludge:
 	sta dashcount
 	sta jumpcoyote
 	sta wjumpcoyote
+	sta dashtime
 	
 	lda #14
 	sta jcountdown
@@ -392,10 +393,7 @@ xt_collentfloor_kludge:
 	sta player_vl_x
 	sta player_vs_x
 	
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr gm_reset_stamina
 	
 	lda #<springspd
 	sta player_vs_y
@@ -445,3 +443,17 @@ xt_collentfloor_kludge:
 	sta player_vs_x
 	beq @doneModdingX
 .endproc
+
+; ** SUBROUTINE: gm_reset_dash_and_stamina
+; desc: Resets the dash count and stamina.
+gm_reset_dash_and_stamina:
+	lda #0
+	sta dashcount
+; ** SUBROUTINE: gm_reset_stamina
+; desc: Resets stamina.
+gm_reset_stamina:
+	lda #<staminamax
+	sta stamina
+	lda #>staminamax
+	sta stamina+1
+	rts

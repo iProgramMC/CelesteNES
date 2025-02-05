@@ -313,6 +313,7 @@ gm_game_clear_wx:
 	stx arwrhead
 	stx camera_x
 	stx gamectrl      ; clear game related fields to zero
+	stx retain_timer
 	
 	txa
 	ldy #<zero_on_respawn_zp_begin
@@ -344,10 +345,7 @@ gm_game_clear_wx:
 	cpy #9
 	bne :-
 	
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr gm_reset_stamina
 	
 	lda #g2_flashed
 	ldx levelnumber

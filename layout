@@ -17,8 +17,8 @@ MEMORY
 	DLGRAM:   start=$0480, size=$0080, type=rw, file="";
 	MORERAM:  start=$0500, size=$005C, type=rw, file="";
 	DRAWTEMP: start=$055C, size=$01A4, type=rw, file="";
-	FMSRAM:   start=$0700, size=$00DB, type=rw, file="";
-	LASTRAM:  start=$07DB, size=$0025, type=rw, file="";
+	LASTRAM:  start=$0700, size=$0025, type=rw, file="";
+	FMSRAM:   start=$0725, size=$00DB, type=rw, file="";
 	
 	AREASPC:  start=$6000, size=$0800, type=rw, file="";
 	DLGTEMP:  start=$6800, size=$0400, type=rw, file="";

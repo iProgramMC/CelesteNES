@@ -245,28 +245,8 @@ returnEarly:
 	lda #1
 	rts                      ; no warp was assigned there so return
 actuallyTransition:
-	lda #0
-	sta camera_y_min
-	sta camera_y_max
-	
-	jsr gm_calculate_lvlyoff
-	
 	lda #g3_transitR
-	ora gamectrl3
-	sta gamectrl3
-	
-	lda nmictrl
-	and #<~(nc_flushrow|nc_flushpal|nc_flushcol|nc_flshpalv)
-	sta nmictrl
-	
-	jsr xt_set_room
-	
-	inc roomnumber
-	
-	; disable player climbing
-	lda playerctrl
-	and #<~(pl_climbing|pl_nearwall|pl_wallleft)
-	sta playerctrl
+	jsr gm_common_side_warp_logic
 	
 	lda trarwrhead
 	sta arwrhead
@@ -370,13 +350,7 @@ transGenerateBack:
 	dey
 	bne transLoopMain
 	
-	; reset some things on room transition
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr gm_reset_dash_and_stamina
 	
 	lda lvlyoff
 	asl
@@ -661,12 +635,7 @@ actuallyWarp:
 	sta quaketimer
 	
 	; set the player's velocity to jump into the stage.
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr gm_reset_dash_and_stamina
 	
 	lda #jumpvelHI
 	sta player_vl_y
@@ -1247,12 +1216,7 @@ actuallyWarp:
 	sta tr_scrnpos
 	sta quaketimer
 	
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr gm_reset_dash_and_stamina
 	
 	; clear the camera stop bits
 	lda gamectrl
@@ -1559,30 +1523,8 @@ returnEarly:
 	lda #1
 	rts                      ; no warp was assigned there so return
 actuallyTransition:
-	lda #0
-	sta camera_y_min
-	sta camera_y_max
-	
 	lda #g3_transitL
-	ora gamectrl3
-	sta gamectrl3
-	
-	lda nmictrl
-	and #<~(nc_flushrow|nc_flushpal|nc_flushcol|nc_flshpalv)
-	sta nmictrl
-	
-	jsr gm_calculate_lvlyoff
-	jsr xt_set_room
-	
-	inc roomnumber
-	
-	; disable player climbing
-	lda playerctrl
-	and #<~(pl_climbing|pl_nearwall|pl_wallleft)
-	sta playerctrl
-	
-	lda #3
-	sta dreinvtmr
+	jsr gm_common_side_warp_logic
 	
 	; set the beginning of the room to the proper place
 	lda roombeglo2
@@ -1808,12 +1750,7 @@ transLoopDone:
 	sta arwrhead
 	sta trarwrhead
 	
-	lda #0
-	sta dashcount
-	lda #<staminamax
-	sta stamina
-	lda #>staminamax
-	sta stamina+1
+	jsr gm_reset_dash_and_stamina
 	
 	lda lvlyoff
 	asl
@@ -1879,5 +1816,36 @@ generatePalettesLoop:
 .proc xt_disable_adv_trace
 	lda #0
 	sta advtracesw
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_common_side_warp_logic
+; desc: Handles some common things that both the Left and Right warps do.
+; parameters:
+;     A Register - The transition flag to OR into gamectrl3.
+.proc gm_common_side_warp_logic
+	ora gamectrl3
+	sta gamectrl3
+	
+	lda #0
+	sta camera_y_min
+	sta camera_y_max
+	
+	lda nmictrl
+	and #<~(nc_flushrow|nc_flushpal|nc_flushcol|nc_flshpalv)
+	sta nmictrl
+	
+	jsr gm_calculate_lvlyoff
+	jsr xt_set_room
+	
+	inc roomnumber
+	
+	; disable player climbing
+	lda playerctrl
+	and #<~(pl_climbing|pl_nearwall|pl_wallleft)
+	sta playerctrl
+	
+	lda #3
+	sta dreinvtmr
 	rts
 .endproc
