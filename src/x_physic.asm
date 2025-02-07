@@ -892,9 +892,9 @@ gm_getbottomy_cc:
 	lda #$1D
 :	rts
 
-; ** SUBROUTINE: gm_getbottomy_wjc
-; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
-gm_getbottomy_wjc:
+; ** SUBROUTINE: gm_getbottomy_short
+; desc:     Gets the tile Y position at the bottom but slightly higher than the normal hitbox. Unused?
+gm_getbottomy_short:
 	lda player_y
 	clc
 	adc #plr_y_bot_wjc

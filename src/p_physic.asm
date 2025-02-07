@@ -239,13 +239,16 @@ xt_kludge_zeroflag:
 	rts
 
 ; ** SUBROUTINE: gm_getbottomy_w
+; ** SUBROUTINE: gm_getbottomy_wjc
 ; desc:     Gets the tile Y position where the bottom edge of the player's hitbox resides,
 ;           when checking for collision with walls.
 ; returns:  A - the Y coordinate
 ; note:     this is NOT ALWAYS the same as the result of gm_gettopy!! though perhaps
 ;           some optimizations are possible..
 ; note:     to allow for a bit of leeway, I took off one pixel from the wall check.
+; note:     gm_getbottomy_wjc is also defined to be this function.  We'll see what *actually* requires shorter hitboxes.
 gm_getbottomy_w:
+gm_getbottomy_wjc:
 	clc
 	lda player_y
 	adc wallhboxybot
