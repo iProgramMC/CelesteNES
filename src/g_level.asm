@@ -1039,6 +1039,19 @@ h_gener_col_r:
 	jsr level2_struct_detour
 	jmp @detoured
 
+;; ** SUBROUTINE: h_background_pass
+;; desc: In level 3, add a background to certain zero tiles.
+;.proc h_background_pass
+;	lda levelnumber
+;	cmp #3
+;	bne return
+;	
+;	; Check 
+;	
+;return:
+;	rts
+;.endproc
+
 ; ** SUBROUTINE: h_calc_ntattrdata_addr
 ; desc: Calculates the ntattrdata address into temp1 for a column.
 ; arguments:

@@ -553,3 +553,5 @@ stars_state : .res 16
 
 tl_snow_y   := stars_x
 tl_snow_x   := stars_y
+
+bgcurroffs  := stars_x ; current column relative to the screen, for background rendering in Ch3

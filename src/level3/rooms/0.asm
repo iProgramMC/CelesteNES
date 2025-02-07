@@ -46,7 +46,7 @@ level3_s0:
 	.byte 40, 0
 	.byte 255, 255, 255, 1
 	.byte 0, 0, 0, 0
-	.byte 0
+	.byte 32
 	.byte 255
 	.word level3_s0_t
 	.word level3_s0_p
@@ -111,7 +111,7 @@ level3_s1:
 	.byte 52, 0
 	.byte 3, 255, 2, 4
 	.byte 0, 0, 0, 0
-	.byte 0
+	.byte 32
 	.byte 255
 	.word level3_s1_t
 	.word level3_s1_p
@@ -143,7 +143,7 @@ level3_s1u:
 	.byte 52, 0
 	.byte 255, 5, 255, 6
 	.byte 0, 0, 0, 0
-	.byte 0
+	.byte 32
 	.byte 255
 	.word level3_s1u_t
 	.word level3_s1u_p
@@ -238,7 +238,7 @@ level3_s2:
 	.byte 60, 0
 	.byte 8, 255, 7, 255
 	.byte 0, 0, 0, 0
-	.byte 0
+	.byte 32
 	.byte 255
 	.word level3_s2_t
 	.word level3_s2_p
@@ -303,7 +303,7 @@ level3_s2u:
 	.byte 60, 0
 	.byte 255, 10, 9, 255
 	.byte 0, 0, 0, 0
-	.byte 0
+	.byte 32
 	.byte 255
 	.word level3_s2u_t
 	.word level3_s2u_p
