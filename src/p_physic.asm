@@ -3602,3 +3602,48 @@ advancedTraceDisabled:
 	sta player_vs_y
 	rts
 .endproc
+
+; Note: The LR row must match the L row because gm_defaultdir requires it.
+; This corresponds to DashDir*240 in the original Celeste.
+dash_table:
+	.byte $00, $00, $00, $00 ; ----
+	.byte $04, $00, $00, $00 ; ---R
+	.byte $FC, $00, $00, $00 ; --L-
+	.byte $FC, $00, $00, $00 ; --LR
+
+	.byte $00, $00, $04, $00 ; -D--
+	.byte $02, $D4, $02, $D4 ; -D-R
+	.byte $FD, $2C, $02, $D4 ; -DL-
+	.byte $FD, $2C, $02, $D4 ; -DLR
+
+	.byte $00, $00, $FC, $00 ; U---
+	.byte $02, $D4, $FD, $2C ; U--R
+	.byte $FD, $2C, $FD, $2C ; U-L-
+	.byte $FD, $2C, $FD, $2C ; U-LR
+
+	.byte $00, $00, $00, $00 ; UD--
+	.byte $04, $00, $00, $00 ; UD-R
+	.byte $FC, $00, $00, $00 ; UDL-
+	.byte $FC, $00, $00, $00 ; UDLR
+
+; This corresponds to DashDir*160 in the original Celeste (160/240 == 2/3)
+dash_table_two_thirds:
+	.byte $00, $00, $00, $00 ; ----
+	.byte $02, $AA, $00, $00 ; ---R
+	.byte $FD, $56, $00, $00 ; --L-
+	.byte $FD, $56, $00, $00 ; --LR
+
+	.byte $00, $00, $02, $AA ; -D--
+	.byte $01, $E2, $01, $E2 ; -D-R
+	.byte $FE, $1E, $01, $E2 ; -DL-
+	.byte $FE, $1E, $01, $E2 ; -DLR
+
+	.byte $00, $00, $FD, $56 ; U---
+	.byte $01, $E2, $FE, $1E ; U--R
+	.byte $FE, $1E, $FE, $1E ; U-L-
+	.byte $FE, $1E, $FE, $1E ; U-LR
+
+	.byte $00, $00, $00, $00 ; UD--
+	.byte $02, $AA, $00, $00 ; UD-R
+	.byte $FD, $56, $00, $00 ; UDL-
+	.byte $FD, $56, $00, $00 ; UDLR

@@ -2347,6 +2347,9 @@ commitSaveFile:
 	sbc temp11
 	sta sprspace+sp_hart_bncey, y
 	
+	lda #0
+	sta dashtime
+	
 	jsr gm_reset_dash_and_stamina
 	
 @noCollision:
@@ -2408,9 +2411,6 @@ commitSaveFile:
 	sec
 	sbc temp11
 	sta sprspace+sp_hart_bncey, x
-	
-	lda #0
-	sta dashtime
 	
 @dontLowerBounce:
 	jmp gm_draw_common2

@@ -334,7 +334,7 @@ transLoopMain:
 	sta camera_x_pg
 	
 	lda #cspeed
-	jsr gm_shifttrace
+	jsr xt_shifttrace
 	
 	jsr shiftPlayerY
 	
@@ -743,7 +743,7 @@ writeloop:
 :	sta player_y
 	
 	lda #cspeed
-	jsr gm_shifttraceYP
+	jsr xt_shifttraceYP
 	
 	; and the camera up
 	lda camera_y
@@ -908,7 +908,7 @@ addtocameraX:
 	sta player_x
 	
 	lda camoff_M
-	jsr gm_shifttrace
+	jsr xt_shifttrace
 	
 	
 	lda camera_y_sub
@@ -941,7 +941,7 @@ add2ndtocameraX:
 	sta player_x
 	
 	lda camoff2_M
-	jsr gm_shifttrace
+	jsr xt_shifttrace
 	rts
 
 compute_camoff:
@@ -1325,7 +1325,7 @@ writeloop:
 :	sta player_y
 	
 	lda #cspeed
-	jsr gm_shifttraceYN
+	jsr xt_shifttraceYN
 	
 	; and the camera down
 	lda camera_y
@@ -1660,7 +1660,7 @@ transLoopMain:
 	sta camera_x_pg
 	
 	lda #cspeed
-	jsr gm_shiftrighttrace
+	jsr xt_shiftrighttrace
 	
 	jsr gm_leaveroomR_FAR::shiftPlayerY
 	
@@ -1859,6 +1859,35 @@ generatePalettesLoop:
 .proc ph_addtrace_ref_from_xt
 	ldx #<gm_addtrace
 	ldy #>gm_addtrace
+	lda #prgb_phys
+	jmp far_call2
+.endproc
+
+.proc xt_shifttrace
+	sta temp12
+	ldx #<ph_altshifttrace
+	ldy #>ph_altshifttrace
+	lda #prgb_phys
+	jmp far_call2
+.endproc
+.proc xt_shiftrighttrace
+	sta temp12
+	ldx #<ph_altshiftrighttrace
+	ldy #>ph_altshiftrighttrace
+	lda #prgb_phys
+	jmp far_call2
+.endproc
+.proc xt_shifttraceYN
+	sta temp12
+	ldx #<ph_altshifttraceYN
+	ldy #>ph_altshifttraceYN
+	lda #prgb_phys
+	jmp far_call2
+.endproc
+.proc xt_shifttraceYP
+	sta temp12
+	ldx #<ph_altshifttraceYP
+	ldy #>ph_altshifttraceYP
 	lda #prgb_phys
 	jmp far_call2
 .endproc

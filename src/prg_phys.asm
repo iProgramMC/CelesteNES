@@ -4,6 +4,7 @@
 .segment "PRG_PHYS"
 
 .include "p_physic.asm"
+.include "p_trace.asm"
 .include "p_scroll.asm"
 
 .proc ph_leaveroomU

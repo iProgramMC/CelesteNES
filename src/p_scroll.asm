@@ -102,7 +102,7 @@ ph_scroll_r_cond:
 	sbc temp1
 	sta player_x
 	lda temp1
-	jsr gm_shifttrace
+	jsr ph_shifttrace
 	lda temp1
 	clc
 	adc camera_rev
@@ -224,7 +224,7 @@ ph_scroll_l_cond:
 	sta player_x
 	
 	lda temp1
-	jsr gm_shiftrighttrace
+	jsr ph_shiftrighttrace
 	
 @scrollRet:
 	rts
@@ -321,7 +321,7 @@ ph_scroll_d_cond:
 	
 @dontCheckCamLimit:
 	lda temp1
-	jsr gm_shifttraceYN
+	jsr ph_shifttraceYN
 	
 	; add it to the camera Y sub coord
 	lda camera_y_sub
@@ -529,7 +529,7 @@ ph_scroll_u_cond:
 @notZero:
 @dontCheckCamLimit:
 	lda temp1
-	jsr gm_shifttraceYP
+	jsr ph_shifttraceYP
 	
 	; take it from the camera Y sub coord
 	lda camera_y_sub
