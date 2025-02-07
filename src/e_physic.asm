@@ -102,7 +102,7 @@ gm_ent_move_x:
 	sta farcalladdr
 	lda #>kludge
 	sta farcalladdr+1
-	ldy #prgb_xtra
+	ldy #prgb_phys
 	jsr far_call
 	
 	pla

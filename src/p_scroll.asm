@@ -1,7 +1,7 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-; ** SUBROUTINE: xt_scroll_r_cond
-xt_scroll_r_cond:
+; ** SUBROUTINE: ph_scroll_r_cond
+ph_scroll_r_cond:
 	lda #gs_camlock
 	bit gamectrl
 	bne @scrollRet2   ; if camera is locked
@@ -118,8 +118,8 @@ xt_scroll_r_cond:
 	sta camera_rev
 	jmp xt_gener_col_r
 
-; ** SUBROUTINE: xt_scroll_l_cond
-xt_scroll_l_cond:
+; ** SUBROUTINE: ph_scroll_l_cond
+ph_scroll_l_cond:
 	lda #gs_camlock
 	bit gamectrl
 	bne @scrollRet2   ; if camera is locked
@@ -236,8 +236,8 @@ xt_scroll_l_cond:
 	sta camera_x_pg
 	rts
 
-; ** SUBROUTINE: xt_scroll_d_cond
-xt_scroll_d_cond:
+; ** SUBROUTINE: ph_scroll_d_cond
+ph_scroll_d_cond:
 	lda #gs_camlock
 	bit gamectrl
 	beq @dontReturn
@@ -428,8 +428,8 @@ xt_shift_entities_and_player_up:
 	pla
 	jmp @dontSet
 
-; ** SUBROUTINE: xt_scroll_u_cond
-xt_scroll_u_cond:
+; ** SUBROUTINE: ph_scroll_u_cond
+ph_scroll_u_cond:
 	lda #gs_camlock
 	bit gamectrl
 	beq @scrollDontReturn

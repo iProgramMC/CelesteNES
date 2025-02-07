@@ -846,11 +846,11 @@ dontdomore:
 	bcc finalloopdone
 	
 finalloop:
+	jsr ph_addtrace_ref_from_xt
 	lda player_y
 	sec
 	sbc #4
 	sta player_y
-	jsr gm_addtrace
 	bcc messedupcase
 	cmp startpy
 	bcc finalloopdone
@@ -1848,4 +1848,17 @@ generatePalettesLoop:
 	lda #3
 	sta dreinvtmr
 	rts
+.endproc
+
+.proc gm_leaveroomL_FAR_
+	jsr gm_leaveroomL_FAR
+	sta temp12
+	rts
+.endproc
+
+.proc ph_addtrace_ref_from_xt
+	ldx #<gm_addtrace
+	ldy #>gm_addtrace
+	lda #prgb_phys
+	jmp far_call2
 .endproc

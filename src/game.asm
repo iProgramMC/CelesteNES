@@ -5,7 +5,7 @@
 .include "e_update.asm"
 .include "e_physic.asm"
 .include "e_spawn.asm"
-.include "p_physic.asm"
+.include "g_physic.asm"
 .include "g_palloc.asm"
 .include "g_wipe.asm"
 .include "g_sfx.asm"
