@@ -1,3 +1,0 @@
-Madeline Palette:	.byte $0F, $15, $11, $36
-Theo Palette:		.byte $0F, $36, $16, $05
-Granny Palette:		.byte $0F, $30, $27, $0A

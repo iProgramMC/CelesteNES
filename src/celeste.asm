@@ -117,9 +117,7 @@
 .incbin  "chr/b_lvl0.chr"
 
 .segment "CHR_BG001"
-; note: shared with level 3
-.incbin  "chr/b_lvl1h1.chr"
-.incbin  "chr/b_lvl1h2.chr"
+.incbin  "chr/b_lvl1.chr"
 
 .segment "CHR_BG002"
 .incbin  "chr/b_lvl2.chr"
@@ -140,7 +138,7 @@
 .incbin  "chr/b_lvl2h.chr" ; contains the dream block (dither stage 3)
 
 .segment "CHR_BG007"
-.incbin  "chr/b_lvl3h2.chr"
+.incbin  "chr/b_lvl3.chr"
 
 .segment "CHR_CASS1"
 .incbin  "chr/b_cass1.chr"

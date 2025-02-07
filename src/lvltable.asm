@@ -65,7 +65,7 @@ level_bg_banks_1:
 	.byte chrb_lvl0
 	.byte chrb_lvl1
 	.byte chrb_lvl2
-	.byte chrb_lvl1 ; level 3 shares the same tile set as level 1
+	.byte chrb_lvl3
 	;.byte chrb_lvl0
 	;.byte chrb_lvl0
 	;.byte chrb_lvl0
@@ -75,7 +75,7 @@ level_bg_banks_2:
 	.byte chrb_lvl0+2
 	.byte chrb_lvl1+2
 	.byte chrb_lvl2+2
-	.byte chrb_lvl3
+	.byte chrb_lvl3+2
 	;.byte chrb_lvl0+2
 	;.byte chrb_lvl0+2
 	;.byte chrb_lvl0+2
