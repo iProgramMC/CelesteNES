@@ -978,6 +978,7 @@ xt_colljumptable:
 	.word xt_collidedream
 	.word xt_collidecass1
 	.word xt_collidecass2
+	.word xt_collidedeadly
 
 xt_collidecass1:
 	lda cassrhythm
@@ -1127,6 +1128,15 @@ xt_collidespikesDOWN:
 @kill:
 	jmp gm_killplayer
 
+xt_collidedeadly:
+	lda gamectrl4
+	and #g4_nodeath
+	bne @returnNone
+	jmp gm_killplayer
+	
+@returnNone:
+	lda #0
+	rts
 ; the spikes point right
 xt_collidespikesRIGHT:
 	tax
@@ -3495,6 +3505,8 @@ advancedTraceDisabled:
 	jsr h_get_tile
 	tax
 	lda metatile_info, x
+	cmp #ct_deadlyXX
+	beq @kill
 	cmp #ct_full
 	beq @kill
 	

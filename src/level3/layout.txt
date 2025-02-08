@@ -6,6 +6,7 @@ level3_s1,320,0
 Props,level3_s1,0,0
 Spawn,level3_s1,0,144
 Spawn,level3_s1,400,144
+PaletteOverride,level3_s1,12,12,2,13,12,2,12,13,2,13,13,2
 NiceWarp,level3_s1,level3_s1u
 level3_s1u,320,-240
 Props,level3_s1u,0,0
@@ -15,13 +16,16 @@ level3_s2,736,0
 Props,level3_s2,0,0
 Spawn,level3_s2,0,144
 Spawn,level3_s2,464,56
+PaletteOverride,level3_s2,9,5,1
 NiceWarp,level3_s2,level3_s2u
 level3_s2u,736,-240
 Props,level3_s2u,1,8
 Spawn,level3_s2u,0,184
+PaletteOverride,level3_s2u,6,6,2,6,7,2,6,8,2,6,9,2,3,9,2,4,9,2,5,9,2
 NiceWarp,level3_s2u,level3_s2
 level3_s3,1216,-112
 Props,level3_s3,0,0
 Spawn,level3_s3,0,168
-PaletteOverride,level3_s3,7,11,2,8,11,2,9,11,2,10,11,2,11,11,2,12,11,2,13,11,2,16,10,2
-Filler,1120,-240,96,240
+PaletteOverride,level3_s3,7,11,2,8,11,2,9,11,2,10,11,2,11,11,2,12,11,2,13,11,2,16,10,2,17,10,2
+Filler,1200,-240,16,240
+Filler,1216,128,16,112

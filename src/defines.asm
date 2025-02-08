@@ -650,6 +650,7 @@ ct_deadlyRT = $06   ; the tile is RIGHT spike shaped
 ct_dream    = $07   ; dream block
 ct_cass1    = $08   ; cassette 1
 ct_cass2    = $09   ; cassette 2
+ct_deadlyXX = $0A   ; totally deadly from all sides
 ;ow_maxlvl   = $07   ; maximum level number
 ow_maxlvl   = $03   ; maximum level number
 jtheight    = 3     ; height of jump through blocks

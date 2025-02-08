@@ -47,6 +47,10 @@
 	.byte $C8,$C9,$CA,$CB ; Spikes
 	.byte $C8,$C9,$CA,$CB ; Spikes (Alt)
 	.byte $04,$05,$26,$3A,$3D,$3E,$3F,$4F,$5F,$2B,$3B ; Backgrounds
+	.byte $B0,$B1,$B2,$C0,$C1,$B3,$C3,$D3,$C2,$D0,$D1,$D2 ; Dust Bunnies
+	.byte $C4,$C5,$C6,$C7,$D4,$D5,$D6,$D7                 ; Dust Bunnies
+	.byte $E0,$E1,$E2,$E3,$E4,$E5,$F0,$F1,$F2,$F3,$F4,$F5 ; Dust Bunnies
+	.byte $2C,$3C,$0C,$1C ; Dust Bunnies
 
 ;metatile_info:
 .align $100
@@ -70,5 +74,6 @@
 	.byte ct_deadlyDN            ; Spikes
 	.byte ct_deadlyLT            ; Spikes
 	.res  11, ct_none            ; Backgrounds
+	.res  36, ct_deadlyXX        ; Dust Bunnies
 
 .align $100
