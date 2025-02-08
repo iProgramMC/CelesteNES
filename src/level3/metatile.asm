@@ -46,6 +46,7 @@
 	.byte $69,$6A,$79     ; Jump Through
 	.byte $C8,$C9,$CA,$CB ; Spikes
 	.byte $C8,$C9,$CA,$CB ; Spikes (Alt)
+	.byte $04,$05,$26,$3A,$3D,$3E,$3F,$4F,$5F,$2B,$3B ; Backgrounds
 
 ;metatile_info:
 .align $100
@@ -55,7 +56,10 @@
 	.res  10, ct_none            ; Stone Pillar
 	.res   2, ct_none            ; Sky
 	.res   4, ct_full            ; Roof
-	.res   8, ct_none            ; Roof
+	.res   2, ct_none            ; Roof
+	.res   2, ct_full            ; Roof
+	.res   2, ct_none            ; Roof
+	.res   2, ct_full            ; Roof
 	.res   3, ct_jumpthru        ; Jump Through
 	.byte ct_deadlyUP            ; Spikes
 	.byte ct_deadlyRT            ; Spikes
@@ -65,5 +69,6 @@
 	.byte ct_deadlyRT            ; Spikes
 	.byte ct_deadlyDN            ; Spikes
 	.byte ct_deadlyLT            ; Spikes
+	.res  11, ct_none            ; Backgrounds
 
 .align $100

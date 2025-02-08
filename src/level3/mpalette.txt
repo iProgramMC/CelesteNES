@@ -11,3 +11,4 @@ metatile_palette:
 	.res   3, $1 ; Jump Through
 	.res   4, $0 ; Spikes
 	.res   4, $1 ; Spikes Alt
+	.res  11, $0 ; Backgrounds
