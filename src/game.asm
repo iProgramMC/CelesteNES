@@ -314,7 +314,7 @@ gm_game_clear_wx:
 	stx camera_x
 	stx gamectrl      ; clear game related fields to zero
 	stx retain_timer
-	stx bgcurroffs
+	;stx bgcurroffs
 	
 	txa
 	ldy #<zero_on_respawn_zp_begin

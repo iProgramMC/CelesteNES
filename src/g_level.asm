@@ -1018,8 +1018,6 @@ h_gener_col_r:
 	jsr h_gener_ents_r
 	jsr h_gener_mts_r         ; generate a new column of meta-tiles and entities
 	
-	jsr h_background_pass_c
-	
 :	lda ntwrhead              ; check if we're writing the 3rd odd column
 	and #$03
 	cmp #$03
@@ -1040,54 +1038,6 @@ h_gener_col_r:
 @level2:
 	jsr level2_struct_detour
 	jmp @detoured
-
-; ** SUBROUTINE: h_background_pass_c
-; desc: In level 3, add a background to certain zero tiles.
-.proc h_background_pass_c
-	lda levelnumber
-	cmp #3
-	bne return
-	
-	; check if background effects are enabled for this room
-	lda roomflags2
-	and #r2_outside
-	beq return
-	
-	; there are 14 rows we need to fill. Start at row 16
-ch3YOffset = 16
-ch3RowCnt  = 14
-	
-	; check if the bg offset > 40
-	ldx bgcurroffs
-	cpx #40
-	bcc :+
-	ldx #0
-	stx bgcurroffs
-:	lda #<ch3_bg_data
-	clc
-	adc ch3_bg_off_lo, x
-	sta setdataaddr
-	
-	lda #>ch3_bg_data
-	adc ch3_bg_off_hi, x
-	sta setdataaddr+1
-	
-	ldy #0
-Loop:
-	lda tempcol+ch3YOffset, y
-	bne :+
-	
-	lda (setdataaddr), y
-	sta tempcol+ch3YOffset, y
-	
-:	iny
-	cpy #ch3RowCnt
-	bne Loop
-	
-	inc bgcurroffs
-return:
-	rts
-.endproc
 
 ; ** SUBROUTINE: h_calc_ntattrdata_addr
 ; desc: Calculates the ntattrdata address into temp1 for a column.

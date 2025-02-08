@@ -296,8 +296,6 @@ tableT:	.byte $10,$06,$00,$00,$06,$08,$12
 	beq level1
 	cmp #2
 	beq level2
-	cmp #3
-	beq level3_
 	
 return:
 	rts
@@ -319,9 +317,6 @@ level2:
 :	stx bg1_bknum
 	sty spr2_bknum
 	rts
-
-level3_:
-	beq level3
 
 level1:
 	; check if we are in the "r11z" room.
@@ -349,22 +344,6 @@ level1:
 	sta miscsplit
 	
 nope:
-	rts
-
-level3:
-	; check if we are in an "outside" room.
-	lda roomflags2
-	and #r2_outside
-	beq inside
-	
-	; outside
-	lda #chrb_lvl3bg
-	sta bg1_bknum
-	rts
-	
-inside:
-	lda #chrb_lvl3+2
-	sta bg1_bknum
 	rts
 .endproc
 
