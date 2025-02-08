@@ -384,6 +384,7 @@ chrb_lvl2f  = $38
 chrb_lvl2g  = $3A
 chrb_lvl2h  = $3C
 chrb_lvl3   = $40
+chrb_lvl3bg = $44
 
 ; COMPLETE SCREEN BANKS
 chrb_lvl1ca = $C0   ; graphics bank for Ch.1 complete screen

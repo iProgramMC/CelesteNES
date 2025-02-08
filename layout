@@ -145,9 +145,10 @@ MEMORY
 	CHR_BG006: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3C; # Level 2 (dream block in different states)
 	CHR_CASS1: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; # Cassette Blocks (1)
 	CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40; # Level 3 (4 banks)
+	CHR_CH3BG: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$44; # Unused (2 banks)
 	
 	# Unallocated Banks
-	CHR_UNA02: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$44; # Unused (4 banks)
+	CHR_UNA2H: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$46; # Unused (2 banks)
 	CHR_UNA03: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$48; # Unused (4 banks)
 	CHR_UNA04: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C; # Unused (4 banks)
 	CHR_UNA05: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$50; # Unused (4 banks)
@@ -319,6 +320,7 @@ SEGMENTS
 	CHR_BG005: load = CHR_BG005, type = ro;
 	CHR_BG006: load = CHR_BG006, type = ro;
 	CHR_BG007: load = CHR_BG007, type = ro;
+	CHR_CH3BG: load = CHR_CH3BG, type = ro;
 	CHR_LV1CA: load = CHR_LV1CA, type = ro;
 	CHR_LV1CB: load = CHR_LV1CB, type = ro;
 	CHR_LV2CA: load = CHR_LV2CA, type = ro;
@@ -341,7 +343,7 @@ SEGMENTS
 	CHR_DGRAN: load = CHR_DGRAN, type = ro;
 	
 	# Unallocated
-	CHR_UNA02: load = CHR_UNA02, type = ro;
+	CHR_UNA2H: load = CHR_UNA2H, type = ro;
 	CHR_UNA03: load = CHR_UNA03, type = ro;
 	CHR_UNA04: load = CHR_UNA04, type = ro;
 	CHR_UNA05: load = CHR_UNA05, type = ro;

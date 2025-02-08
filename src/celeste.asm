@@ -141,6 +141,9 @@
 .segment "CHR_BG007"
 .incbin  "chr/b_lvl3.chr"
 
+.segment "CHR_CH3BG"
+.incbin  "chr/b_lvl3bg.chr"
+
 .segment "CHR_CASS1"
 .incbin  "chr/b_cass1.chr"
 .segment "CHR_CASS2"
@@ -237,8 +240,7 @@
 .segment "PRG_UNA46"
 .segment "PRG_UNA47"
 .segment "PRG_UNA48"
-.segment "CHR_UA01L"
-.segment "CHR_UNA02"
+.segment "CHR_UNA2H"
 .segment "CHR_UNA03"
 .segment "CHR_UNA04"
 .segment "CHR_UNA05"

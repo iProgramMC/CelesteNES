@@ -293,18 +293,20 @@ tableT:	.byte $10,$06,$00,$00,$06,$08,$12
 .proc gm_check_level_banks
 	lda levelnumber
 	cmp #1
-	beq @level1
+	beq level1
 	cmp #2
-	beq @level2
+	beq level2
+	cmp #3
+	beq level3_
 	
-@return:
+return:
 	rts
 
-@level2:
+level2:
 	lda cassrhythm
-	bmi @return
+	bmi return
 	lda miscsplit
-	bne @return
+	bne return
 	
 	ldx #chrb_lvl2+2
 	ldy #chrb_splv2n
@@ -318,20 +320,24 @@ tableT:	.byte $10,$06,$00,$00,$06,$08,$12
 	sty spr2_bknum
 	rts
 
-@level1:
+level3_:
+	beq level3
+
+level1:
 	; check if we are in the "r11z" room.
 	lda #>level1_r11z
 	cmp roomptrhi
-	bne @nope
+	bne nope
 	lda #<level1_r11z
 	cmp roomptrlo
-	bne @nope
+	bne nope
 	
 	; we are.
 	; load the tape
 	lda #chrb_cass1
 	sta spr1_bknum
 	
+	; NOTE: This is an ugly hack.
 	sei
 	lda #<irq_cass_elevator
 	sta irqaddr
@@ -342,7 +348,23 @@ tableT:	.byte $10,$06,$00,$00,$06,$08,$12
 	lda #64
 	sta miscsplit
 	
-@nope:
+nope:
+	rts
+
+level3:
+	; check if we are in an "outside" room.
+	lda roomflags2
+	and #r2_outside
+	beq inside
+	
+	; outside
+	lda #chrb_lvl3bg
+	sta bg1_bknum
+	rts
+	
+inside:
+	lda #chrb_lvl3+2
+	sta bg1_bknum
 	rts
 .endproc
 
