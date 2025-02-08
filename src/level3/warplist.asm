@@ -34,11 +34,19 @@ level3_w_s2_to_s2u:
 	.byte 128			; room left offset
 	.byte 0, 184	; player spawn X/Y
 	.word level3_s2u
+level3_w_s2_to_s3:
+	.byte 0			; room left offset
+	.byte 0, 168	; player spawn X/Y
+	.word level3_s3
 level3_w_s2u_to_s1u:
 	.byte 20			; room left offset
 	.byte 240, 184	; player spawn X/Y
 	.word level3_s1u
 level3_w_s2u_to_s2:
-	.byte 128			; room left offset
-	.byte 0, 144	; player spawn X/Y
+	.byte 156			; room left offset
+	.byte 240, 56	; player spawn X/Y
+	.word level3_s2
+level3_w_s3_to_s2:
+	.byte 28			; room left offset
+	.byte 240, 56	; player spawn X/Y
 	.word level3_s2
