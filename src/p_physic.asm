@@ -1676,6 +1676,7 @@ applyXSub:
 	jmp ph_scroll_r_cond
 
 @callLeaveRoomR:
+	jsr ph_scroll_r_cond
 	jmp ph_leaveroomR
 
 ; routine: check right
