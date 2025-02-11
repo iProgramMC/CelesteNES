@@ -622,6 +622,7 @@ plrwidth    = $08   ; player hitbox width - 8 pixels wide
 plrheight   = $0B   ; player hitbox height - 10 pixels wide
 maxdashes   = 1     ; TODO: change to 2
 defdashtime = 14    ; time to perform a dash
+defdshatktm = 21    ; total "dash attacking" time (0.3s + 0.05s freeze)
 dashchrgtm  = 3     ; time to charge the dash (after this, the dash direction is checked)
 dashgrndtm  = 6     ; time to wait until the grounded check should be performed
 maxwalkad   = $40   ; maximum walk approach delta in subpixels
@@ -639,6 +640,7 @@ defjmpcoyot = $06   ; 6 frames of coyote time
 defwjmpcoyo = $03   ; 3 frames of wall coyote time
 jmphboost   = 170   ; boost applied to the player's jump when running
 wjgrace     = 2     ; walls are checked this many pixels away from the hitbox for a wall jump. Celeste uses 3 here
+wjdgrace    = 4     ; walls are checked this many pixels away from the hitbox for a wall jump while dashing
 maxrettmr   = 6     ; retain X speed for 5 frames of wall collision
 ct_none     = $00   ; no collision
 ct_full     = $01   ; the entire tile has collision
@@ -669,6 +671,8 @@ plrceiltolx = 3     ; player ceiling tolerance (X)
 ; TODO: these only kind of calculated
 climbhopX   = 456   ; 100/60*256
 climbhopY   = -512  ; 120/60*256
+swvjumpvel  = -682  ; (-160 / 60 * 256)
+swhjumpvel  = 725   ; (90+40*2)/60*256
 
 maxfallHI   = (maxfall >> 8)
 maxfallLO   = (maxfall & $FF)
@@ -678,15 +682,20 @@ maxwalkLO   = (maxwalk & $FF)
 maxwalkNHI  = (((-maxwalk) >> 8) & $FF)
 maxwalkNLO  = ((-maxwalk) & $FF)
 
-walljumpHI  = (walljump >> 8)
-walljumpLO  = (walljump & $FF)
-walljumpNHI = (((-walljump) >> 8) & $FF)
-walljumpNLO = ((-walljump) & $FF)
+walljumpHI  = >walljump
+walljumpLO  = <walljump
+walljumpNHI = >-walljump
+walljumpNLO = <-walljump
 
-jumpvelHI   = (((-jumpvel) >> 8) & $FF)
-jumpvelLO   = ((-jumpvel) & $FF)
-sjumpvelHI  = (((-(jumpvel / 2)) >> 8) & $FF)
-sjumpvelLO  = ((-(jumpvel / 2)) & $FF)
+swalljmpHI  = >swhjumpvel
+swalljmpLO  = <swhjumpvel
+swalljmpNHI = >-swhjumpvel
+swalljmpNLO = <-swhjumpvel
+
+jumpvelHI   = >-jumpvel
+jumpvelLO   = <-jumpvel
+sjumpvelHI  = >-(jumpvel/2)
+sjumpvelLO  = <-(jumpvel/2)
 
 ; player proportions
 plr_y_bot      = 16
@@ -702,6 +711,8 @@ plr_x_leftC    = (8 - plrwidth / 2 + plrceiltolx)
 plr_x_rightC   = (15 - plrwidth / 2 - plrceiltolx)
 plr_x_wj_left  = (plr_x_left  - wjgrace)
 plr_x_wj_right = (plr_x_right + wjgrace)
+plr_x_wjd_left = (plr_x_left  - wjdgrace)
+plr_x_wjd_right= (plr_x_right + wjdgrace)
 plr_x_mid      = 8
 
 FAMISTUDIO_CFG_C_BINDINGS = 0

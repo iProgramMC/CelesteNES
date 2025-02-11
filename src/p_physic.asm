@@ -460,6 +460,8 @@ gm_dontjump:
 	inc dashcount
 	ldx #defdashtime
 	stx dashtime
+	ldx #defdshatktm
+	stx dshatktime
 	jsr gm_clear_vel
 	lda playerctrl
 	and #<~(pl_climbing|pl_nearwall|pl_pushing|pl_wallleft)
@@ -617,6 +619,7 @@ gm_climbjump:
 	;sta player_vl_x
 	;sta player_vs_x
 	sta dashtime
+	sta dshatktime
 	
 	; note: cjwalldir is the direction you must hold for a wall jump stamina refund!
 	lda playerctrl
@@ -847,9 +850,12 @@ gm_getrightxceil:
 ; desc: Gets the tile X position where the left of the wall jump check hitbox resides.
 ; returns: A - the X coordinate.
 gm_getleftwjx:
+	lda dshatktime
+	bne @dashing
 	clc
 	lda player_x
 	adc #plr_x_wj_left ; determine leftmost hitbox position
+@restOfCode:
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -857,14 +863,22 @@ gm_getleftwjx:
 	adc #0
 	ror               ; rotate it into carry
 	jmp gm_commondividexcrdtemp
+@dashing:
+	clc
+	lda player_x
+	adc #plr_x_wjd_left ; determine leftmost hitbox position
+	jmp @restOfCode
 
 ; ** SUBROUTINE: gm_getrightwjx
 ; desc: Gets the tile X position where the right of the wall jump check hitbox resides.
 ; returns: A - the X coordinate.
 gm_getrightwjx:
+	lda dshatktime
+	bne @dashing
 	clc
 	lda player_x
 	adc #plr_x_wj_right ; determine right hitbox position
+@restOfCode:
 	clc
 	adc camera_x
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
@@ -872,6 +886,11 @@ gm_getrightwjx:
 	adc #0
 	ror               ; rotate it into carry
 	jmp gm_commondividexcrdtemp
+@dashing:
+	clc
+	lda player_x
+	adc #plr_x_wjd_right ; determine right hitbox position
+	jmp @restOfCode
 
 ; ** SUBROUTINE: gm_getbottomy_cc
 ; desc:     Gets the tile Y position in the middle of the player's hitbox, used for climb hop checks
@@ -1261,7 +1280,7 @@ xt_collidespikesLEFT:
 	bne isDreamDashing
 	
 	; not dream dashing, check if we can initiate a dream dash
-	lda dashtime
+	lda dshatktime
 	beq thisSolid
 	
 	; depending on direction, check if there is a dream block in the middle
@@ -1317,7 +1336,7 @@ checkDreamBlockInMiddle:
 	; floor
 	jsr gm_getmidx
 	tax
-	jsr gm_getbottomy_f
+	jsr gm_getbottomy_w
 	tay
 @check:
 	jsr h_get_tile
@@ -2428,16 +2447,82 @@ gm_dash_after:
 	eor playerctrl
 	sta playerctrl      ; so that, if right is pressed, then we can flip it back
 gm_dash_noflip:
-	lda jumpbuff
-	beq @noJumpAtAll    ; if there is jump buffer and coyote time, then perform a super jump
+	jmp gm_dash_update_done
+
+gm_dash_update_:
+	jmp gm_dash_update
+
+; ** SUBROUTINE: xt_physics
+; desc: Runs one frame of player physics.
+.proc xt_physics
+	lda gamectrl5
+	and #<~(g5_collideX | g5_collideY)
+	sta gamectrl5
+	ldx #plr_y_bot_wall
+	lda dshatktime
+	beq :+
+	ldx #plr_y_bot_wjc
+:	stx wallhboxybot
 	
+	jsr gm_death_hacks
+	
+	lda #pl_dead
+	bit playerctrl
+	bne return
+	lda respawntmr
+	bne return
+	lda #g4_nophysic
+	bit gamectrl4
+	bne return
+	
+	jsr gm_jumpgrace
+	lda dashtime
+	bne gm_dash_update_
+dash_update_done:
+	jsr gm_dashjumpcheck
+	lda dashtime
+	bne :+
+	jsr gm_gravity
+	jsr gm_controls
+:	jsr gm_sanevels
+	jsr gm_applyy
+	jsr gm_applyx
+	jsr gm_checkretent
+	jsr gm_checkoffgnd
+	jsr gm_checkwjump
+	jsr gm_climbcheck
+	jsr gm_addtrace
+	jsr gm_dreamcheck
+	jmp gm_timercheck
+return:
+	rts
+.endproc
+
+gm_dash_update_done := xt_physics::dash_update_done
+
+gm_dashjumpcheck:
+	lda jumpbuff
+	beq @noJumpAtAll    ; if there is no jump buffer, then exit
+	lda dshatktime
+	beq @noJumpAtAll
+	
+	; check for any jumps during the dash
+	lda wjumpcoyote
+	bne @maybeDoSuperWallJump
 	lda jumpcoyote
 	beq @noSuperJump
 	lda dashdir
 	and #(cont_left|cont_right)<<2
 	beq @normalJumpOnly ; if there is a jump buffer and the player wasn't dashing left or right
-	jsr gm_superjump
-	jmp gm_dash_update_done
+	jmp gm_superjump
+
+@maybeDoSuperWallJump:
+	; the player must only dash up to do that
+	lda dashdir
+	and #(cont_left|cont_right)<<2
+	bne @noJumpAtAll
+	
+	jmp gm_superwalljump
 	
 @noSuperJump:
 	; maybe they should do a climb jump instead
@@ -2463,57 +2548,59 @@ gm_dash_noflip:
 	jmp gm_climbjump
 
 @normalJumpOnly:
-	jsr gm_normaljump
+	jmp gm_normaljump
+
 @noJumpAtAll:
-	jmp gm_dash_update_done
-
-gm_dash_update_:
-	jmp gm_dash_update
-
-; ** SUBROUTINE: xt_physics
-; desc: Runs one frame of player physics.
-.proc xt_physics
-	lda gamectrl5
-	and #<~(g5_collideX | g5_collideY)
-	sta gamectrl5
-	ldx #plr_y_bot_wall
-	lda dashtime
-	beq :+
-	ldx #plr_y_bot_wjc
-:	stx wallhboxybot
-	
-	jsr gm_death_hacks
-	
-	lda #pl_dead
-	bit playerctrl
-	bne return
-	lda respawntmr
-	bne return
-	lda #g4_nophysic
-	bit gamectrl4
-	bne return
-	
-	jsr gm_jumpgrace
-	lda dashtime
-	bne gm_dash_update_
-	jsr gm_gravity
-	jsr gm_controls
-dash_update_done:
-	jsr gm_sanevels
-	jsr gm_applyy
-	jsr gm_applyx
-	jsr gm_checkretent
-	jsr gm_checkoffgnd
-	jsr gm_checkwjump
-	jsr gm_climbcheck
-	jsr gm_addtrace
-	jsr gm_dreamcheck
-	jmp gm_timercheck
-return:
 	rts
-.endproc
 
-gm_dash_update_done := xt_physics::dash_update_done
+gm_superwalljump:
+	; TODO: A lot of it is copied from gm_walljump/gm_notclimbing.
+	jsr gm_jump_sfx
+	
+	; the facing direction IS the one the player is currently pushing against.
+	; that means that the opposite direction is the one they should be flinged against
+	lda playerctrl
+	and #pl_wallleft
+	eor #pl_wallleft
+	lsr
+	lsr
+	lsr               ; move bit 3 (pl_wallleft) into bit 0 (pl_left)'s position
+	sta temp1
+	lda playerctrl
+	and #((pl_left|pl_climbing)^$FF)
+	ora temp1
+	sta playerctrl
+	
+	lda #pl_left
+	bit playerctrl
+	bne @walljumpboostL
+	lda #swalljmpLO
+	sta player_vs_x
+	lda #swalljmpHI
+	sta player_vl_x
+	bne @walljumpvert
+@walljumpboostL:
+	lda #swalljmpNLO
+	sta player_vs_x
+	lda #swalljmpNHI
+	sta player_vl_x
+@walljumpvert:
+	lda #>swvjumpvel
+	sta player_vl_y
+	lda #<swvjumpvel
+	sta player_vs_y
+	jsr gm_add_lift_boost
+	lda #jumpsustain
+	sta jcountdown
+	lda #0
+	sta jumpbuff      ; consume the buffered jump input
+	sta jumpcoyote    ; consume the existing coyote time
+	sta wjumpcoyote   ; or the wall coyote time
+	sta dashtime
+	sta dshatktime
+	
+	; super wall jumps don't force a direction
+	rts
 
 gm_superjumpepilogue:
 	jsr gm_add_lift_boost
@@ -2524,6 +2611,7 @@ gm_superjumpepilogue:
 	sta jcountdown
 	lda #0
 	sta dashtime            ; no longer dashing. do this to avoid our speed being taken away.
+	sta dshatktime
 	sta jumpcoyote
 	sta wjumpcoyote
 	rts
@@ -2550,6 +2638,10 @@ gm_timercheck:
 :	lda chasercdown
 	beq :+
 	dec chasercdown
+	
+:	lda dshatktime
+	beq :+
+	dec dshatktime
 	
 :	lda forcemovext
 	
@@ -3286,6 +3378,7 @@ return:
 	
 	lda #(defdashtime-dashchrgtm-2)
 	sta dashtime
+	sta dshatktime
 	
 	lda #1
 	sta plattemp2
@@ -3340,6 +3433,7 @@ resetDreamDash:
 	sta dbouttimer
 	lda #3
 	sta dashtime
+	sta dshatktime
 	
 	; check the dash direction, only horizontal directions may super dream jump
 	lda dashdir

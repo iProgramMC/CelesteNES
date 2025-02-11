@@ -216,6 +216,7 @@ xt_collentfloor_kludge:
 	sta jumpcoyote
 	sta wjumpcoyote
 	sta dashtime
+	sta dshatktime
 	
 	lda #14
 	sta jcountdown
@@ -266,6 +267,7 @@ xt_collentfloor_kludge:
 	
 	lda #0
 	sta dashtime
+	sta dshatktime
 	sta forcemovext
 	rts
 
