@@ -466,6 +466,9 @@ gm_dontjump:
 	lda playerctrl
 	and #<~(pl_climbing|pl_nearwall|pl_pushing|pl_wallleft)
 	sta playerctrl
+	lda playerctrl2
+	and #<~(p2_ducking)
+	sta playerctrl2
 gm_dontdash:
 	rts
 
@@ -562,6 +565,10 @@ gm_normaljump_bne:
 	sta playerctrl
 	
 gm_walljump:
+	lda playerctrl2
+	and #<~p2_ducking
+	sta playerctrl2
+	
 	lda #pl_ground
 	bit playerctrl
 	bne gm_normaljump_bne ; if player is grounded, ALWAYS perform a standard jump
@@ -2491,6 +2498,7 @@ dash_update_done:
 	jsr gm_checkoffgnd
 	jsr gm_checkwjump
 	jsr gm_climbcheck
+	jsr gm_duckcheck
 	jsr gm_addtrace
 	jsr gm_dreamcheck
 	jmp gm_timercheck
@@ -2598,6 +2606,9 @@ gm_superwalljump:
 	sta wjumpcoyote   ; or the wall coyote time
 	sta dashtime
 	sta dshatktime
+	lda playerctrl2
+	and #<~p2_ducking
+	sta playerctrl2
 	
 	; super wall jumps don't force a direction
 	rts
@@ -2607,6 +2618,9 @@ gm_superjumpepilogue:
 	lda gamectrl4
 	and #<~g4_nosjump
 	sta gamectrl4
+	lda playerctrl2
+	and #<~p2_ducking
+	sta playerctrl2
 	lda #jumpsustain
 	sta jcountdown
 	lda #0
@@ -2799,6 +2813,54 @@ noEffect:
 table:	.byte 3, 5  ; no left, left
 .endproc
 
+; ** SUBROUTINE: gm_duckcheck
+; desc: Checks if the player should be ducking right now.
+.proc gm_duckcheck
+	lda playerctrl2
+	and #p2_ducking
+	bne isDucking
+	
+	; If not ducking, check if she is on the ground, holding down, and moving down.
+	lda playerctrl
+	and #pl_ground
+	beq @return
+	
+	lda game_cont
+	and #cont_down
+	beq @return
+	
+	lda player_vl_y
+	bmi @return
+	
+	lda playerctrl2
+	ora #p2_ducking
+	sta playerctrl2
+@return:
+	rts
+	
+isDucking:
+	; if on ground, and not holding down
+	lda playerctrl
+	and #pl_ground
+	beq @return
+	
+	lda game_cont
+	and #cont_down
+	bne @return
+	
+	; TODO: check if can unduck here.
+	; always assumed to be true for now.
+	
+	; TODO: duck correct check?
+	
+	lda playerctrl2
+	and #<~p2_ducking
+	sta playerctrl2
+	
+@return:
+	rts
+.endproc
+
 ; ** SUBROUTINE: gm_climbcheck
 ; desc: If the climbing flag is set, checks if the player should release the climbed wall.
 ; This happens if one of the following conditions is met:
@@ -2827,9 +2889,9 @@ noLowStaminaFlash:
 	stx stamflashtm
 	
 	lda dashtime
-	bne return
+	bne :+
 	lda jcountdown
-	bne return
+:	bne return
 	lda hopcdown
 	bne return
 	
@@ -2866,6 +2928,9 @@ noLowStaminaFlash:
 	ora #pl_climbing
 	and #<~pl_ground
 	sta playerctrl
+	lda playerctrl2
+	and #<~p2_ducking
+	sta playerctrl2
 	
 	jsr gm_reduce_vel_climb
 	

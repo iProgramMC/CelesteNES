@@ -271,6 +271,8 @@ esb_winged  = $08 ; has wings
 esb_flying  = $10 ; is flying away
 
 ; Sprite Indices
+plr_duck_l  = $00   ; note: bank 1 must be used!
+plr_duck_r  = $02
 plr_idle1_l = $04
 plr_idle1_r = $06
 plr_jump_l  = $08
@@ -580,6 +582,7 @@ pl_noentchk = $10   ; disable entity checks
 pl_dead     = $20   ; player has died and will be taken back to the beginning soon
 pl_climbing = $40   ; player is climbing a wall
 pl_nearwall = $80   ; player is near a wall
+p2_ducking  = $01   ; player is ducking
 am_idle     = $00
 am_walk     = $01
 am_jump     = $02
@@ -590,6 +593,7 @@ am_dash     = $06
 am_flip     = $07
 am_climbidl = $08
 am_panting  = $09
+am_ducking  = $0A
 af_none     = $00   ; animation flags
 af_2frame   = $01   ; 2 frame animation. interpret player L and R as a pointer to a table
 af_4frame   = $02   ; 4 frame animation. interpret player L and R as a pointer to a table

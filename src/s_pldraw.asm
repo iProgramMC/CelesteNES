@@ -102,6 +102,10 @@ gm_anim_table:
 	.byte plr_flip_l,  plr_flip_r,  plr_haflp_l, plr_haflp_r, $00, $00, af_lock,   $00  ; FLIP
 	.byte plr_clim1_l, plr_clim1_r, plr_hasta_l, plr_hasta_r, $01, $00, af_lock,   $00  ; CLIMB IDLE
 	.byte plr_pant1_l, plr_pant1_r, plr_hasta_l, plr_hasta_r, $00, $02, af_none|af_oddryth, $00  ; PANTING
+	.byte plr_duck_l,  plr_duck_r,  plr_hasta_l, plr_hasta_r, $00, $04, af_lock,   $00  ; DUCKING
+
+; ^^TODO: Fix a bug where the old bank is applied for 1 frame with af_lockto1.  This causes the wrong bank
+; to be shown for 1 frame for some reason. I have no idea why.
 
 gm_anim_advwalkL:
 	sec
@@ -257,6 +261,10 @@ gm_regularload:
 gm_loaded:
 	sta plr_spr_l
 	stx plr_spr_r
+	
+	lda spryoffbase
+	sta spryoff
+	
 	lda #af_oddryth
 	bit animflags
 	beq gm_nooddrhythm
@@ -277,6 +285,7 @@ gm_nooddrhythm:
 	lsr
 	eor #1
 	sta sprxoff
+	rts
 gm_notclimbing2:
 	rts
 gm_walkCheck:
@@ -309,7 +318,12 @@ sgm_anim_player:
 :	lda #0
 	sta spryoff
 	
-	lda dashtime
+	lda playerctrl2
+	and #p2_ducking
+	beq :+
+	jmp gm_ducking
+	
+:	lda dashtime
 	cmp #0
 	bne gm_dashing
 	
@@ -384,6 +398,10 @@ gm_pushing:
 
 gm_sliding:
 	lda #am_climbidl
+	jmp sgm_anim_mode
+
+gm_ducking:
+	lda #am_ducking
 	jmp sgm_anim_mode
 
 gm_climbing:

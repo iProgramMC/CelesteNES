@@ -349,7 +349,7 @@ ph_scroll_d_cond:
 	lsr
 	clc
 	adc #30
-	sta revealedrow
+	sta plattemp3
 	
 	lda camera_y
 	clc
@@ -584,7 +584,7 @@ ph_scroll_u_cond:
 	ror
 	lsr
 	lsr
-	sta revealedrow
+	sta plattemp3
 	rts
 
 xt_shift_entities_and_player_down:

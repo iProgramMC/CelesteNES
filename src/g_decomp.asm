@@ -563,7 +563,7 @@ isInverted:
 	sta palrdheadhi
 	
 	ldx #0
-	lda revealedrow
+	lda plattemp3
 	cmp #30
 	bcc :+
 	sbc #30

@@ -105,7 +105,6 @@ player_x    : .res 1 ; offset by the camera's position!
 player_y    : .res 1
 camera_y_bs : .res 1 ; base camera Y
 camera_y_ho : .res 1 ; camera Y high OLD
-revealedrow : .res 1 ; row revealed by an up/down scroll
 vertoffshack: .res 1 ; offset when fetching tiles using coordinates.  This is a hack
 camera_y_min: .res 1
 camera_y_max: .res 1
@@ -162,7 +161,7 @@ camera_x_pg : .res 1
 entdelay    : .res 1 ; entity row delay (vertical scrolling)
 vmcsrc      : .res 2 ; Source of bytes to copy to
 player_yo   : .res 1 ; player Y old. used for spike collision
-player_xo   : .res 1 ; player Y old. used for horizontal spike collision
+player_xo   : .res 1 ; player X old. used for horizontal spike collision
 ptscount    : .res 1 ; last points count given
 ptstimer    : .res 1 ; time the ptscount is valid in frames
 palrdheadlo : .res 1 ; palette read head
@@ -256,6 +255,7 @@ zero_on_respawn_zp_begin:
 gamectrl4   : .res 1 ; fourth game control flags
 gamectrl5   : .res 1 ; fifth game control flags
 playerctrl  : .res 1
+playerctrl2 : .res 1
 
 player_sp_x : .res 1 ; subpixel memory X
 player_sp_y : .res 1 ; subpixel memory Y
