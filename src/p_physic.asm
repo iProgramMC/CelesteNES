@@ -1330,48 +1330,66 @@ dontCorrect:
 	lda #0
 	rts
 
+; this checks whether there is a dream block in the direction the player is dashing
 ; returns: ZF set - there is a dream block
 checkDreamBlockInMiddle:
-	; X contains the direction
-	cpx #gc_ceil
-	beq @ceil
-	cpx #gc_left
-	beq @left
-	cpx #gc_right
-	beq @right
+	; X contains the collision direction... but we will ignore that
+	; and instead check the dash directions ourselves
 	
-	; floor
-	jsr gm_getmidx
+	; determine X coordinate
+	lda dashdir
+	lsr
+	lsr
 	tax
-	jsr gm_getbottomy_w
+	lda @validCombinations, x
+	pha
+	and #(cont_up|cont_down)
+	
+	cmp #cont_up
+	beq @goesUp
+	cmp #cont_down
+	beq @goesDown
+	; middle
+	jsr gm_getmidy
+	jmp @doneY
+@goesUp:
+	jsr gm_gettopy
+	jmp @doneY
+@goesDown:
+	jsr gm_getbottomy_f
+@doneY:
 	tay
-@check:
+	
+	pla
+	and #(cont_left|cont_right)
+	cmp #cont_left
+	beq @goesLeft
+	cmp #cont_right
+	beq @goesRight
+	; middle
+	jsr gm_getmidx
+	jmp @doneX
+@goesLeft:
+	jsr gm_getleftwjx
+	jmp @doneX
+@goesRight:
+	jsr gm_getrightwjx
+@doneX:
+	tax
+	
+	; do the check now
 	jsr h_get_tile
 	tax
 	lda metatile_info, x
 	eor #ct_dream
 	rts
 
-@ceil:
-	jsr gm_getmidx
-	tax
-	jsr gm_gettopy
-	tay
-	jmp @check
-
-@left:
-	jsr gm_getleftx
-	tax
-	jsr gm_getmidy
-	tay
-	jmp @check
-
-@right:
-	jsr gm_getrightx
-	tax
-	jsr gm_getmidy
-	tay
-	jmp @check
+; left AND right must always be 0!  left precedes right.
+@validCombinations:
+	.byte $00, $01, $02, $02
+	.byte $04, $05, $06, $06
+	.byte $08, $09, $0A, $0A
+	.byte $0C, $0D, $0E, $0E
 .endproc
 
 ; ** SUBROUTINE: gm_applyy
@@ -3428,6 +3446,20 @@ return:
 ; ** SUBROUTINE: gm_dreamcheck
 ; desc: Checks if we should reset the dream dash state.
 .proc gm_dreamcheck
+	; is the velocity zero
+	lda player_vl_x
+	bne @notZero
+	lda player_vl_y
+	bne @notZero
+	lda player_vs_x
+	bne @notZero
+	lda player_vs_y
+	bne @notZero
+	
+	; it's not zero, therefore we are just charging up the dash
+	rts
+
+@notZero:
 	lda #g4_hasdrdsh
 	bit gamectrl4
 	beq resetDreamDash

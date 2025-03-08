@@ -34,8 +34,8 @@ far_call:
 ; clobbers: A
 vblank_wait:
 	lda #$00
-	bit ppu_status
-	bpl vblank_wait  ; check bit 7, equal to zero means not in vblank
+:	bit ppu_status
+	bpl :-  ; check bit 7, equal to zero means not in vblank
 	rts
 
 ; ** SUBROUTINE: nmi_wait

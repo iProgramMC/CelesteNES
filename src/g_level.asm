@@ -494,7 +494,7 @@ h_clear_2cols:
 
 @write30Xblank:
 	lda #0
-	ldy #0
+	tay
 :	sta ppu_data
 	iny
 	cpy #$1E
