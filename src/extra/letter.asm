@@ -2,7 +2,7 @@
 
 ; This module implements the Postcard at the beginning of each stage.
 .include "lettersfx.asm"
-.include "lettergfx.asm"
+;.include "lettergfx.asm"
 
 postcard_palette_black:
 	.byte $0f,$0f,$0f,$0f
@@ -73,13 +73,13 @@ postcard_setup_palette_request:
 
 postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
 
-; ** SUBROUTINE: postcard
+; ** SUBROUTINE: postcard_XTRA
 ; desc: Initializes, shows the postcard screen, then fades out.  The game fadein will be handled by the caller.
 ; parameters:
 ;     levelnumber - The destination level number
-.proc postcard
+.proc postcard_XTRA
 	ldy levelnumber
-	lda postcard_lo, y
+	lda postcard_hi, y
 	bne @continue
 @returnEarly:
 	rts
@@ -90,6 +90,10 @@ postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
 	lda postcard_bitset, y
 	and sf_completed
 	bne @returnEarly
+	
+	; set the music bank to this one
+	lda #prgb_xtra
+	sta musicbank
 	
 	; well, there is a postcard defined here, and we didn't yet finish the level, so do it
 	lda #$FF
@@ -111,31 +115,8 @@ postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
 	; since we might have interrupted rendering, wait for vblank to prevent tearing
 	jsr vblank_wait
 	
-	; start loading screen data
-	lda #$20
-	sta ppu_addr
-	lda #$00
-	sta ppu_addr
-	
-	;ldy levelnumber
-	lda postcard_hi, y
-	tax
-	lda postcard_lo, y
-	
-	jsr nexxt_rle_decompress
-	
-	; clear the attribute table bytes as it seems that the RLE data doesn't do that
-	lda #$23
-	sta ppu_addr
-	lda #$C0
-	sta ppu_addr
-	
-	ldy #64
-	lda #0
-:	sta ppu_data
-	dey
-	bne :-
-	sty ow_slidetmr
+	; load the post card graphics.
+	jsr load_postcard_graphics
 	
 	; also switch banks
 	ldx #chrb_pcard
@@ -349,8 +330,39 @@ postcard_bitset:	.byte $FF, $01, $02, $04, $08, $10, $20, $40, $80
 .endproc
 
 ; NOTE: The Prologue doesn't use a postcard.
-postcard_lo:		.byte 0, <postcard_ch1, <postcard_ch2
-postcard_hi:		.byte 0, >postcard_ch1, >postcard_ch2
+postcard_lo:	.byte 0, <postcard_ch1, <postcard_ch2
+postcard_hi:	.byte 0, >postcard_ch1, >postcard_ch2
 postcard_sfx_in:	.byte 0, 9, 11
 postcard_sfx_out:	.byte 0, 10, 12
 postcard_yp:		.byte 0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,2,3,4,4,5,6,7,8,9,10,12,13,15,16,18,20,22,24,26,29
+
+; ** SUBROUTINE: load_postcard_graphics
+; desc: Loads the postcard graphics for the current level number (in 'levelnumber').
+.proc load_postcard_graphics
+	; start loading screen data
+	lda #$20
+	sta ppu_addr
+	lda #$00
+	sta ppu_addr
+	
+	ldy levelnumber
+	lda postcard_hi, y
+	tax
+	lda postcard_lo, y
+	jsr nexxt_rle_decompress_XTRA
+	
+	; clear the attribute table bytes as it seems that the RLE data doesn't do that
+	lda #$23
+	sta ppu_addr
+	lda #$C0
+	sta ppu_addr
+	
+	ldy #64
+	lda #0
+:	sta ppu_data
+	dey
+	bne :-
+	sty ow_slidetmr
+	
+	rts
+.endproc

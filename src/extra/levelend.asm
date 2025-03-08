@@ -73,6 +73,9 @@ speeds:	.byte 12, 20
 	; prepare the graphics and init the fade
 	jsr soft_nmi_off
 	
+	lda #prgb_xtra
+	sta musicbank
+	
 	ldx #<music_data_chapter_complete
 	ldy #>music_data_chapter_complete
 	lda #1 ; NTSC
@@ -107,7 +110,7 @@ speeds:	.byte 12, 20
 	lda level_end_gfx_hi, y
 	tax
 	lda level_end_gfx_lo, y
-	jsr nexxt_rle_decompress
+	jsr nexxt_rle_decompress_XTRA
 	
 	; clear the other nametable to black, we'll need it that way.
 	lda #$24

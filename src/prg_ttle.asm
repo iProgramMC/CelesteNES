@@ -8,6 +8,4 @@
 	.include "title/prologue.asm"
 	.include "title/titlescr.asm"
 	.include "title/mountain.asm"
-	.include "title/letter.asm"
-	.include "title/levelend.asm"
-	.include "title/chcomp.asm"
+	.include "title/helper.asm"

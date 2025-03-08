@@ -116,8 +116,8 @@
 	; declare the level ended with the save file also
 	jsr save_file_level_end
 	
-	lda #mmc3bk_prg0
-	ldy #prgb_ttle
+	lda #mmc3bk_prg1
+	ldy #prgb_xtra
 	jsr mmc3_set_bank
 	
 	jmp level_end
