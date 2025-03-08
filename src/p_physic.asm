@@ -3747,6 +3747,8 @@ advancedTraceDisabled:
 	
 	; collided. the retain timer needs to be decremented
 	dec retain_timer
+
+@return:
 	rts
 	
 @noCollision:
@@ -3758,6 +3760,110 @@ advancedTraceDisabled:
 	bmi @return
 	
 	; they do
+	; check if there is any collision in that direction
+	; note: this is kinda slow but screw it
+	lda player_x
+	clc
+	adc #plr_x_wj_left
+	adc retain_vl_x
+	clc
+	adc camera_x
+	sta x_crd_temp    ; x_crd_temp = low bit of check position
+	lda camera_x_pg
+	adc #0
+	ror               ; rotate it into carry
+	lda x_crd_temp
+	ror               ; rotate it into the low position
+	lsr
+	lsr               ; finish dividing by the tile size
+	
+	; store the left X coordinate
+	sta temp1
+	
+	lda player_x
+	clc
+	adc #plr_x_wj_right
+	adc retain_vl_x
+	clc
+	adc camera_x
+	sta x_crd_temp
+	lda camera_x_pg
+	adc #0
+	ror
+	lda x_crd_temp
+	ror
+	lsr
+	lsr
+	; store the right X coordinate
+	sta temp2
+	
+	lda player_y
+	clc
+	adc #plr_y_top
+	lsr
+	lsr
+	lsr
+	; top Y coordinate
+	sta temp3
+	
+	lda player_y
+	clc
+	adc #plr_y_bot
+	lsr
+	lsr
+	lsr
+	; bottom Y coordinate
+	sta temp4
+	
+	lda player_y
+	clc
+	adc #plr_y_mid
+	lsr
+	lsr
+	lsr
+	; middle Y coordinate
+	sta temp5
+	
+	lda gamectrl4
+	pha
+	ora #g4_nodeath
+	sta gamectrl4
+	
+	; TODO: maybe you can remove some of these depending on the direction
+	; TODO: this seems kinda slow...
+	
+	ldx temp1
+	ldy temp3
+	jsr xt_collide
+	bne @hadcoll
+	
+	ldx temp1
+	ldy temp4
+	jsr xt_collide
+	bne @hadcoll
+	
+	ldx temp1
+	ldy temp5
+	jsr xt_collide
+	bne @hadcoll
+	
+	ldx temp2
+	ldy temp3
+	jsr xt_collide
+	bne @hadcoll
+	
+	ldx temp2
+	ldy temp4
+	jsr xt_collide
+	bne @hadcoll
+	
+	ldx temp2
+	ldy temp5
+	jsr xt_collide
+	bne @hadcoll
+	
+	pla
+	sta gamectrl4
 	lda retain_vl_x
 	sta player_vl_x
 	lda retain_vs_x
@@ -3766,8 +3872,11 @@ advancedTraceDisabled:
 @clearTimer:
 	lda #0
 	sta retain_timer
-	
-@return:
+	rts
+
+@hadcoll:
+	pla
+	sta gamectrl4
 	rts
 .endproc
 
