@@ -1581,6 +1581,35 @@ gm_applyy_checkdone:
 :	jsr ph_scroll_u_cond
 	jmp ph_scroll_d_cond
 
+.proc gm_applyxLL
+	lda dashtime
+	bne @earlyReturn
+	lda playerctrl
+	and #(pl_climbing | pl_dead)
+	bne @earlyReturn
+	
+	lda player_vl_x
+	pha
+	lda player_vs_x
+	pha
+	
+	clc
+	adc #$BB
+	sta player_vs_x
+	
+	bcc :+
+	inc player_vl_x
+:	jsr gm_applyx
+
+	pla
+	sta player_vs_x
+	pla
+	sta player_vl_x
+	rts
+	
+@earlyReturn:
+.endproc
+
 ; ** SUBROUTINE: gm_applyx
 ; desc:    Apply the velocity in the X direction. 
 .proc gm_applyx
@@ -2511,7 +2540,7 @@ dash_update_done:
 	jsr gm_controls
 :	jsr gm_sanevels
 	jsr gm_applyy
-	jsr gm_applyx
+	jsr gm_applyxLL
 	jsr gm_checkretent
 	jsr gm_checkoffgnd
 	jsr gm_checkwjump

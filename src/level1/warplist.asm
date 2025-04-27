@@ -1,15 +1,7 @@
 level1_w_init:
 	.byte 0			; room left offset
-	.byte 16, 160	; player spawn X/Y
+	.byte 40, 184	; player spawn X/Y
 	.word level1_r1
-level1_w_r1_to_r2:
-	.byte 0			; room left offset
-	.byte 40, 168	; player spawn X/Y
-	.word level1_r2
-level1_w_r2_to_r3:
-	.byte 0			; room left offset
-	.byte 40, 176	; player spawn X/Y
-	.word level1_r3
 level1_w_r3_to_r4:
 	.byte 0			; room left offset
 	.byte 32, 168	; player spawn X/Y

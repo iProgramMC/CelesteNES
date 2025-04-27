@@ -220,9 +220,48 @@ stars_successors:
 ; ** SUBROUTINE: s_update_bg_effects
 ; desc: Updates background effects in the game.
 .proc s_update_bg_effects
+	lda #pal_blue
+	jsr gm_allocate_palette
+	sta temp12
+	
+	; draw wind
+	lda #16
+	; that is how many sprites we want to draw
+@loop:
+	pha
+	
+	tay
+	lda stars_y, y
+	sta y_crd_temp
+	lda stars_x, y
+	sta x_crd_temp
+	
+	adc #8
+	sta stars_x, y
+	bcc @noCarry
+	
+	jsr rand
+	tax
+	pla
+	pha
+	tay
+	txa
+	sta stars_y, y
+	
+@noCarry:
+	ldy #$D2
+	lda temp12
+	jsr oam_putsprite
+	
+	pla
+	sec
+	sbc #1
+	bne @loop
+	
 	lda levelnumber
 	cmp #2
 	beq @level2
+@return:
 	rts
 	
 @level2:
