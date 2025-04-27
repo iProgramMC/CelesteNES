@@ -1,5 +1,14 @@
 # Celeste NES
 
+## This is different from the master branch.
+
+This is the "smotsgaming" branch - the first screen of Forsaken City has been
+replaced by the infamous SMotS-8 screen from "Final Goodbye", the last level
+of the [Celeste D-Sides pack](https://gamebanana.com/mods/150759) created by Monika523.
+I do not intend to claim ownership of the level design.
+
+## Okay, what's this?
+
 This is the source code to iProgramInCpp's attempt to recreate  *[Celeste](https://www.celestegame.com)*
 for the Nintendo Entertainment System / Family Computer.
 
