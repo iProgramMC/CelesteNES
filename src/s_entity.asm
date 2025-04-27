@@ -245,7 +245,49 @@
 @frames: .byte $C0, $C2, $C4, $CA, $C4, $CA, $C4, $C2, $C6, $C8
 .endproc
 
-.proc xt_update_spring
+; ** ENTITY: Spring LEFT
+.proc xt_draw_spring_left
+	jsr xt_update_spring_left
+	lda #pal_red
+	jsr gm_allocate_palette
+	sta temp5
+	;ora #obj_fliphz
+	sta temp8
+	ldy temp1
+	ldx sprspace+sp_spring_frame, y
+	lda @frames1, x
+	sta temp6
+	lda @frames2, x
+	sta temp7
+	dec temp3 ; correction because sprites are drawn with a 1 px down offset
+	jmp gm_draw_common
+
+@frames1: .byte $E4, $E8, $EC, $EE, $EC, $EE, $EC, $E8, $E6, $E4
+@frames2: .byte $F2, $EA, $E4, $F0, $E4, $F0, $E4, $EA, $F2, $F2
+.endproc
+
+; ** ENTITY: Spring LEFT
+.proc xt_draw_spring_right
+	jsr xt_update_spring_right
+	lda #pal_red
+	jsr gm_allocate_palette
+	ora #obj_fliphz
+	sta temp5
+	sta temp8
+	ldy temp1
+	ldx sprspace+sp_spring_frame, y
+	lda @frames2, x
+	sta temp6
+	lda @frames1, x
+	sta temp7
+	dec temp3 ; correction because sprites are drawn with a 1 px down offset
+	jmp gm_draw_common
+
+@frames1: .byte $E4, $E8, $EC, $EE, $EC, $EE, $EC, $E8, $E6, $E4
+@frames2: .byte $F2, $EA, $E4, $F0, $E4, $F0, $E4, $EA, $F2, $F2
+.endproc
+
+.proc xt_update_spring_anim
 	ldy temp1
 	ldx temp1
 	lda sprspace+sp_spring_frame, y
@@ -265,6 +307,23 @@
 	sta sprspace+sp_spring_timer, y
 
 @idleTime:
+	rts
+
+; note: frame 2 is constantly oscillating
+@frametimes:	.byte 5, 3, 6, 8, 7, 8, 9, 5, 4, 4
+.endproc
+
+.proc xt_spring_bounce_animate
+	lda #1
+	sta sprspace+sp_spring_frame, y
+	lda #5
+	sta sprspace+sp_spring_timer, y
+	jmp gm_spring_sfx
+.endproc
+
+.proc xt_update_spring
+	jsr xt_update_spring_anim
+	
 	; is the player colliding?
 	lda #14
 	sta temp8
@@ -276,12 +335,7 @@
 	jsr gm_check_collision_ent
 	beq @return
 	
-	lda #1
-	sta sprspace+sp_spring_frame, y
-	lda #5
-	sta sprspace+sp_spring_timer, y
-	
-	jsr gm_spring_sfx
+	jsr xt_spring_bounce_animate
 	
 	; propel the player!
 	lda temp10
@@ -289,8 +343,56 @@
 	
 @return:
 	rts
+.endproc
 
-@frametimes:	.byte 5, 3, 6, 8, 7, 8, 9, 5, 4, 4
+.proc xt_update_spring_left
+	jsr xt_update_spring_anim
+	
+	; is the player colliding?
+	lda #0
+	sta temp7
+	sta temp8
+	lda #3
+	sta temp9
+	lda #16
+	sta temp10
+	jsr gm_check_collision_ent
+	beq @return
+	
+	jsr xt_spring_bounce_animate
+	
+	; propel the player!
+	lda temp8
+	ldx #0
+	jmp gm_sidebounce
+	
+@return:
+	rts
+.endproc
+
+.proc xt_update_spring_right
+	jsr xt_update_spring_anim
+	
+	; is the player colliding?
+	lda #13
+	sta temp7
+	lda #0
+	sta temp8
+	lda #16
+	sta temp9
+	sta temp10
+	jsr gm_check_collision_ent
+	beq @return
+	
+	jsr xt_spring_bounce_animate
+	
+	; propel the player!
+	lda temp8
+	ldx #1
+	jmp gm_sidebounce
+	
+@return:
+	rts
 ; note: frame 2 is constantly oscillating
 .endproc
 
@@ -2571,7 +2673,9 @@ level2_memorial_kludge:
 	xt_draw_switch_gate,    \
 	xt_draw_cassette_tape,  \
 	xt_cass_block_manager,  \
-	xt_draw_heart_gem
+	xt_draw_heart_gem,      \
+	xt_draw_spring_left,    \
+	xt_draw_spring_right
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table

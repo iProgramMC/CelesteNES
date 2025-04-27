@@ -201,6 +201,73 @@ xt_collentfloor_kludge:
 	sta temp10
 	jmp xt_kludge_zeroflag
 
+; ** SUBROUTINE: gm_sidebounce
+; desc: Bounces the player in a direction to the side.
+; parameters:
+;      A - the Y coordinate to bounce from
+;      X - the direction to bounce into (0 - right, 1 - left)
+.proc gm_sidebounce
+	pha
+	
+	; compare with the velocity
+	lda player_vl_x
+	bpl @dontAbs
+	lda #$FF
+	sec
+	sbc player_vl_x
+@dontAbs:
+	cmp #$4  ; compare abs(playerVLX) >= $0400
+	bcs @early_return
+	
+	pla
+	; to hell with those checks, we don't need them right now
+	sta player_y
+	
+	lda #0
+	sta dashcount
+	sta jumpcoyote
+	sta wjumpcoyote
+	sta dashtime
+	sta dshatktime
+	
+	lda #14
+	sta jcountdown
+	
+	lda gamectrl2
+	ora #g2_autojump
+	sta gamectrl2
+	
+	lda playerctrl
+	and #<~(pl_climbing | pl_wallleft | pl_nearwall | pl_pushing)
+	sta playerctrl
+	
+	jsr gm_reset_stamina
+	
+	lda @velXH, x
+	sta player_vl_x
+	lda @velXL, x
+	sta player_vs_x
+	
+	lda #$FD
+	sta player_vl_y
+	lda #$AB
+	sta player_vs_y
+	
+	lda #$12 ; 18 or ~0.03 seconds
+	sta forcemovext
+	inx
+	stx forcemovex
+	rts
+
+@early_return:
+	pla
+	rts
+
+; 0 - right, 1 - left
+@velXH:	.byte $04, $FC
+@velXL:	.byte $00, $00
+.endproc
+
 ; ** SUBROUTINE: gm_superbounce
 ; desc: Bounces the player from a specific height. Equivalent to Player.SuperBounce(float) in Celeste.
 ; parameters:
