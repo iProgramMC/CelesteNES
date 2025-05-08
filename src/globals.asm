@@ -474,6 +474,8 @@ retain_vs_x : .res 1
 retain_timer: .res 1 ; wall speed retention timer
 wallhboxybot: .res 1 ; wall hit box Y bottom
 dshatktime  : .res 1 ; dash attack time
+dshold_vl_x : .res 1 ; dash old speed X high
+dshold_vs_x : .res 1 ; dash old speed X low
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

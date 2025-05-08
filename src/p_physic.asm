@@ -462,6 +462,10 @@ gm_dontjump:
 	stx dashtime
 	ldx #defdshatktm
 	stx dshatktime
+	lda player_vl_x
+	sta dshold_vl_x
+	lda player_vs_x
+	sta dshold_vs_x
 	jsr gm_clear_vel
 	lda playerctrl
 	and #<~(pl_climbing|pl_nearwall|pl_pushing|pl_wallleft)
@@ -2364,10 +2368,6 @@ gm_dash_over:
 	
 :	jmp gm_dash_update_done
 
-gm_dash_lock:
-	jsr gm_clear_vel
-	jmp gm_dash_update_done
-
 gm_defaultdir:
 	;ldy #0                  ; player will not be dashing up or down
 	lda #pl_left
@@ -2439,25 +2439,35 @@ gm_dash_nodir:
 	stx dashdir
 	; assign all the velocities
 	lda dash_table, x
-	sta player_vl_x
-	pha
+	sta temp1
+	sta temp3
 	inx
 	lda dash_table, x
-	sta player_vs_x
+	sta temp2
+	sta temp4
 	inx
+	
+	jsr gm_dash_determine_x_speed
+	
+	; Y velocity
 	lda dash_table, x
 	sta player_vl_y
 	inx
 	lda dash_table, x
 	sta player_vs_y
-	; we pushed the value of player_vl_x such that it can be quickly loaded and checked
-	pla
+	
+	lda player_vl_x
 	bpl :+
 	; dashing left
 	lda playerctrl
 	ora #pl_left
 	sta playerctrl
 :	jmp gm_dash_update_done
+
+gm_dash_lock:
+	jsr gm_clear_vel
+	jmp gm_dash_update_done
+
 gm_dash_after:
 	; this label is reached when the dash is "completed", i.e. it gives no more
 	; boost to the player and physics are enabled.
@@ -3913,6 +3923,60 @@ advancedTraceDisabled:
 	sta player_vs_x
 	sta player_vl_y
 	sta player_vs_y
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_dash_determine_x_speed
+; desc: Determines the X speed when dashing.
+; parameters:
+;     temp1, temp3 - Dash X speed high byte
+;     temp2, temp4 - Dash X speed low byte
+.proc gm_dash_determine_x_speed
+	; does the player speed's sign match the dash speed's?
+	lda temp3
+	eor dshold_vl_x
+	bmi @setDashSpeed
+	
+	; yes, get the absolute 
+	lda temp3
+	bpl @comparePositive
+	
+	; compare negative
+	; player_speed < dash_speed
+	lda dshold_vl_x
+	cmp temp3
+	bcc @dontChangeSpeed
+	bne @setDashSpeed
+	
+	lda dshold_vs_x
+	cmp temp4
+	bcc @dontChangeSpeed
+	bcs @setDashSpeed
+	
+@comparePositive:
+	; player_speed > dash_speed
+	lda dshold_vl_x
+	cmp temp3
+	bcc @setDashSpeed
+	bne @dontChangeSpeed
+	
+	lda dshold_vs_x
+	cmp temp4
+	bcs @dontChangeSpeed
+	
+@setDashSpeed:
+	; store the player velocity and see if she should be facing left
+	lda temp2
+	sta player_vs_x
+	lda temp1
+	sta player_vl_x
+	rts
+	
+@dontChangeSpeed:
+	lda dshold_vl_x
+	sta player_vl_x
+	lda dshold_vs_x
+	sta player_vs_x
 	rts
 .endproc
 
