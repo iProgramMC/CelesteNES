@@ -3934,6 +3934,7 @@ advancedTraceDisabled:
 .proc gm_dash_determine_x_speed
 	; does the player speed's sign match the dash speed's?
 	lda temp3
+	beq @setDashSpeed
 	eor dshold_vl_x
 	bmi @setDashSpeed
 	
