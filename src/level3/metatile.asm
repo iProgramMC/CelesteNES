@@ -51,6 +51,14 @@
 	.byte $C4,$C5,$C6,$C7,$D4,$D5,$D6,$D7                 ; Dust Bunnies
 	.byte $E0,$E1,$E2,$E3,$E4,$E5,$F0,$F1,$F2,$F3,$F4,$F5 ; Dust Bunnies
 	.byte $2C,$3C,$0C,$1C ; Dust Bunnies
+	.byte $80,$83,$90,$93 ; Wood Corners
+	.byte $81,$82,$84     ; Wood Top + Bar End
+	.byte $91,$92,$94     ; Wood Bottom + Bar End
+	.byte $87,$97,$88,$98 ; Wood Left and Right
+	.byte $89,$8A,$8B,$8C ; Wood Inside
+	.byte $99,$9A,$9B,$9C ; Wood Bars
+	.byte $85,$86,$95,$96 ; Wood In-corners
+	.byte $8D,$8E         ; Wood Bar Ends
 
 ;metatile_info:
 .align $100
@@ -75,5 +83,6 @@
 	.byte ct_deadlyLT            ; Spikes
 	.res  11, ct_none            ; Backgrounds
 	.res  36, ct_deadlyXX        ; Dust Bunnies
+	.res  28, ct_full            ; Wood
 
 .align $100

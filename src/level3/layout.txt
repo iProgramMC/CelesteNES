@@ -27,5 +27,12 @@ level3_s3,1216,-112
 Props,level3_s3,0,0
 Spawn,level3_s3,0,168
 PaletteOverride,level3_s3,7,11,2,8,11,2,9,11,2,10,11,2,11,11,2,12,11,2,13,11,2,16,10,2,17,10,2
+level3_0x_a,1536,-112
+Props,level3_0x_a,0,0
+Spawn,level3_0x_a,304,152
+Spawn,level3_0x_a,0,152
+level3_00_a,1856,-112
+Props,level3_00_a,0,0
+Spawn,level3_00_a,0,152
 Filler,1200,-240,16,240
 Filler,1216,128,16,112

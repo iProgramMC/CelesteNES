@@ -13,3 +13,4 @@ metatile_palette:
 	.res   4, $1 ; Spikes Alt
 	.res  11, $0 ; Backgrounds
 	.res  36, $1 ; Dust Bunnies
+	.res  28, $1 ; Wood
