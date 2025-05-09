@@ -1009,7 +1009,9 @@ h_gener_mts_r:
 	beq :+
 	rts
 	
-:	ldx arwrhead
+:	
+	inc colsloaded
+	ldx arwrhead
 	jsr h_comp_addr       ; compute the address in (lvladdr)
 	
 	lda #rf_new
@@ -1087,47 +1089,30 @@ h_genertiles_inc_arwrhead:
 	lda roomwidth
 	bne roomWidthNotZero
 	
-:	lda camera_x
-	; is a "clc" needed? sometimes it adds 41, but does that even matter
-	adc #40                ; the scroll seam is always 4 tiles (32px) ahead, but add 64 just in case
-	lda camera_x_pg        ; the only reason we add though is to figure out the high byte
-	adc #0                 ; of the camera limit. the low byte is derived from arwrhead
-	lsr
+:	lda #0
 	sta camlimithi
 	
-	; TODO: Refactor this.  It's buggy
+	lda colsloaded
+	and #%11111100
 	
-	lda arwrhead
-	eor #%00100000
-	asl
-	asl
+	; multiply by 8 for the pixel amount
 	asl
 	rol camlimithi
+	asl
+	rol camlimithi
+	asl
+	rol camlimithi
+	
+	clc
+	adc roombeglo
 	sta camlimit
 	
-	; FAILSAFE: This isn't supposed to fail, 99% of cases seem to be covered by the value of 40 up there.
-	; Put in an unofficial opcode here to alert me (while having the debugger open of course) that the
-	; failsafe triggered, and open the debugger, but otherwise remain functional. It's almost like
-	; *nothing ever happened*.
 	lda camlimithi
+	adc roombeghi
 	sec
-	sbc camera_x_pg
-	cmp #2
-	bcc noFailSafe
-	
-	; unofficial opcode to trip mesen's debugger
-	.byte $A7, camera_x_pg  ; LAX z:camera_x_pg (camera_x_pg must be in zp)
-	
-	lda camera_x_pg
+	sbc #1
 	sta camlimithi
-	
-noFailSafe:
-	lda #(gs_scrstopR | gs_lvlend)
-	ora gamectrl
-	sta gamectrl
-	lda arwrhead
-	sta trarwrhead
-	rts
+	jmp done
 
 roomWidthNotZero:
 	sta camlimit
@@ -1149,7 +1134,14 @@ roomWidthNotZero:
 	adc roombeghi
 	sta camlimithi
 	dec camlimithi
-	jmp noFailSafe
+
+done:
+	lda #(gs_scrstopR | gs_lvlend)
+	ora gamectrl
+	sta gamectrl
+	lda arwrhead
+	sta trarwrhead
+	rts
 .endproc
 
 h_generents_scrnext:
@@ -1601,6 +1593,10 @@ gm_fetch_room:
 	lda (roomptrlo),y
 	sta entrdheadhi
 	iny
+	
+	; reset the columns loaded value
+	lda #0
+	sta colsloaded
 	
 	; check if we are allowed to respawn here
 	lda roomflags
