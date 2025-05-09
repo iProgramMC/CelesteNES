@@ -178,14 +178,14 @@ xt_generate_palette_data_V:
 	asl
 	asl
 	tax
-	ldy #0
-	
-:	lda temppal, y
-	sta loadedpals, x
-	inx
-	iny
-	cpy #8
-	bne :-
+;	ldy #0
+;	
+;:	lda temppal, y
+;	sta loadedpals, x
+;	inx
+;	iny
+;	cpy #8
+;	bne :-
 	
 	ldy temp6
 	iny

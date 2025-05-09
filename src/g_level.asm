@@ -562,135 +562,92 @@ h_fls_wrloop:
 	sty wrcountHP1
 	sty wrcountHP2
 	
+	lda roomsize
+	pha
+	lda roomloffs
+	pha
+	lda ntwrhead
+	pha
+	
 	lda #wf_nicevert
 	bit warpflags
 	beq :+
-	jmp h_gener_row_u_nice
 	
-:	; determine which nametable is the first written to
-	; the PPU address we want to start writing to is
-	; 0x2000 + (ntwrhead / 32) * 0x400 + (ntwrhead % 32) + ntrowhead * 0x20
-	lda #$00
-	sta ppuaddrHR1
-	lda #$20
-	sta ppuaddrHR1+1
+	lda #$40
+	sta roomsize
+	lsr
+	sta roomloffs
 	
-	; (add ntwrhead / 32) * 0x400
-	lda ntwrhead
-	and #$20
-	beq :+
-	lda #$24
-	sta ppuaddrHR1+1
-:	; add ntwrhead % 32
-	lda ntwrhead
-	and #$1F
-	sta ppuaddrHR1
-	; add (ntrowhead % 8) * 0x20 + (ntrowhead / 8) * 0x100
+:	sty temp1
+	
+	; multiply by 32.  this is in range 0-29, so we
+	; don't care about the upper 3 bits
 	lda ntrowhead
-	lsr
-	lsr
-	lsr
-	sta temp6
+	asl
+	asl
+	asl
+	asl
+	rol temp1
+	asl
+	rol temp1
 	
-	lda ntrowhead
-	ror
-	ror
-	ror
-	ror
-	and #%11100000
-	clc
-	adc ppuaddrHR1
 	sta ppuaddrHR1
-	lda ppuaddrHR1+1
-	adc temp6
-	sta ppuaddrHR1+1
-	
-	; done! ppuaddrHR2 is going to be the other nametable, with X=0
-	lda ppuaddrHR1+1
-	eor #$04
-	sta ppuaddrHR2+1
-	lda ppuaddrHR1
-	and #%11100000
 	sta ppuaddrHR2
-	
-	; determine which half we should be writing to
-	lda ntwrhead
-	and #$1F
-	sta temp2
-	lda #32
-	sec
-	sbc temp2
-	sta temp2
-	
-	lda roomloffs
-	bne @loop       ; don't use a filler if there are tiles to the left
-	
-	; sike! don't use an offset for HR1 either.
-	lda ppuaddrHR1
-	and #%00011111
-	tay
-	eor ppuaddrHR1
-	sta ppuaddrHR1
-	
-	; write a bunch of fillers.
-	lda #0
-	cpy #0
-	beq @loop       ; don't actually write anything
-	
-:	ldx wrcountHR1
-	sta temprow1, x
-	inx
-	stx wrcountHR1
-	dey
-	bne :-
-	
-@loop:
-	sty temp1
-	lda ntwrhead
+	lda #$20
 	clc
 	adc temp1
-	and #$3F
-	tax                      ; the X coordinate
+	sta ppuaddrHR1+1
+	clc
+	adc #4
+	sta ppuaddrHR2+1
+	
+	; we're going to treat temprow1 and temprow2 as a continuous array.
+	; clear
+	tya ; load zero
+	
+:	sta temprow1, y
+	iny
+	cpy #$40
+	bne :-
+	
+	; cleared, now let's actually fill in the tiles we care about
+	lda #$20
+	sta wrcountHR1
+	sta wrcountHR2
+	
+	lda ntwrhead
+	sta temp1
+	lda #32
+	clc
+	adc roomloffs
+	sta temp2 ; load count
+	
+	ldy #0
+@mainLoadLoop:
+	sty temp3
+	ldx temp1
 	jsr h_comp_addr
 	
-	ldy ntrowhead2           ; the Y coordinate
+	ldy ntrowhead2
 	lda (lvladdr), y
 	bmi @detour
 	tax
 @nodetour:
 	lda metatiles, x
 @detoured:
-	
-	ldy temp1
-	cpy temp2
-	bcc :+
-	ldx wrcountHR2           ; second half
-	sta temprow2, x
-	inx
-	stx wrcountHR2
-	bne @writedone
-:	ldx wrcountHR1           ; first half
+	ldx temp1
 	sta temprow1, x
-	inx
-	stx wrcountHR1
-@writedone:
 	
-	; pad out hr2 with filler.
-	lda #0
-	ldy wrcountHR2
-	cpy #$20
-	bne @dont
-:	sta temprow2, y
+	lda temp1
+	clc
+	adc #1
+	and #$3F
+	sta temp1
+
+	ldy temp3
 	iny
-	cpy #$20
-	bne :-
-	sty wrcountHR2
-	
-@dont:
-	ldy temp1
-	iny
-	cpy #$20
-	bne @loop
+	cpy temp2
+	bne @mainLoadLoop
 	beq @avoidDetour
 	
 @detour:
@@ -719,250 +676,52 @@ h_fls_wrloop:
 	and #$03
 	bne @dontgeneratepal
 	
-	; prepare addresses for palH1 and palH2.
-	lda ntwrhead
-	and #$20
-	lsr
-	lsr
-	lsr
+	; get the Y index
+	lda ntrowhead
+	and #%00011100
+	asl
+	pha
+	; $23C0 + y * 8 + x
 	clc
-	adc #$23
-	sta ppuaddrHP1+1
-	
-	; add the Y coordinate
-	lda ntrowhead  ; 000yyyyy [0 - 29]
-	asl            ; 00yyyyy0
-	and #%00111000 ; 00yyy000
-	ora #%11000000 ; $C0
+	adc #$C0
 	sta ppuaddrHP1
-	
-	; add the X coordinate
-	lda ntwrhead   ; 00sxxxxx
-	lsr            ; 000sxxxx
-	lsr            ; 0000sxxx
-	and #%00000111 ; 00000xxx
-	clc
-	adc ppuaddrHP1
-	sta ppuaddrHP1
-	
-	; palH2 will be on the same nametable but the X coordinate will be zero
-	lda ppuaddrHP1+1
-	eor #$04
-	sta ppuaddrHP2+1
-	
-	lda ppuaddrHP1
-	and #%11111000
 	sta ppuaddrHP2
-	
-	; calculate the Y threshold at which we need to switch to the other name table.
-	lda ntwrhead
-	and #$1F
-	lsr
-	lsr
-	sta temp2
-	lda #8
-	sec
-	sbc temp2
-	sta temp2
+	lda #$23
+	sta ppuaddrHP1+1
+	lda #$27
+	sta ppuaddrHP2+1
 	
 	; start reading palette data.
 	; palette data is loaded in "loadedpals". Indexing: loadedpals[x * 8 + y].
-	; therefore we'll need to add 8 every load
+	pla
+	tax
+	
+	; got the Y coordinate
 	ldy #0
-	lda ntrowhead
-	lsr                  ; divide by 4. ntrowhead is a tile coordinate. convert to a
-	lsr                  ; palette grid coordinate.
-@ploop:
-	pha                  ; push A to restore it later
-	tax                  ; use it as an index into loadedpals.
-	lda loadedpals, x
-	
-	cpy temp2
-	bcc :+
-	ldx wrcountHP2
-	sta temppalH2, x
+@palette_loop:
+	lda ntattrdata, x
+	sta temppalH1, y
+	lda ntattrdata+64, x
+	sta temppalH2, y
 	inx
-	stx wrcountHP2
-	bne @writedone1
-:	ldx wrcountHP1
-	sta temppalH1, x
-	inx
-	stx wrcountHP1
-	
-@writedone1:
-	pla                  ; restore A
-	clc
-	adc #8               ; and add 8 to it.
 	iny
 	cpy #8
-	bne @ploop
+	bne @palette_loop
+	
+	sty wrcountHP1
+	sty wrcountHP2
 	
 	lda #nc_flushpal
 	ora nmictrl
 	sta nmictrl
 	
 @dontgeneratepal:
-	rts
-.endproc
-
-; ** SUBROUTINE: h_gener_row_u_nice
-; desc: Generates 
-.proc h_gener_row_u_nice
-	lda ntrowhead
-	sta ppuaddrHR1
-	lda #$00
-	
-	; multiply by 32
-	asl ppuaddrHR1
-	rol
-	asl ppuaddrHR1
-	rol
-	asl ppuaddrHR1
-	rol
-	asl ppuaddrHR1
-	rol
-	asl ppuaddrHR1
-	rol
-	sta ppuaddrHR1+1
-	
-	lda ppuaddrHR1
-	sta ppuaddrHR2
-	lda #$24
-	clc
-	adc ppuaddrHR1+1
-	sta ppuaddrHR2+1
-	
-	lda #$20
-	sta wrcountHR1
-	sta wrcountHR2
-	clc
-	adc ppuaddrHR1+1
-	sta ppuaddrHR1+1
-	
-	ldy #0
-loop:
-	sty temp1
-	tya
-	tax
-	jsr h_comp_addr
-	
-	ldy ntrowhead2
-	lda (lvladdr), y
-	bmi @detour
-	tax
-@nodetour:
-	lda metatiles, x
-@detoured:
-	ldy temp1
-	sta temprow1, y
-	
-	iny
-	cpy #64
-	bne loop
-	
-	beq @avoidDetour
-	
-@detour:
-	tax
-	cmp #$F2
-	bcs @nodetour
-	cmp #$EF
-	bcc @nodetour
-	lda lvlbasebank
-	cmp #chrb_lvl2
-	beq @level2
-	bne @nodetour
-
-@level2:
-	jsr level2_struct_detour3
-	jmp @detoured
-
-@avoidDetour:
-	; now that the row has been computed, it's time to set the nmictrl flag
-	lda #nc_flushrow
-	ora nmictrl
-	sta nmictrl
-	
-	; check if (ntrowhead % 4) == 0
-	lda ntrowhead
-	and #$03
-	bne dontgeneratepal
-	
-	lda ntrowhead  ; 000yyyyy [0 - 29]
-	asl            ; 00yyyyy0
-	and #%00111000 ; 00yyy000
-	ora #%11000000 ; $C0
-	sta ppuaddrHP1
-	sta ppuaddrHP2
-	
-	lda #$23
-	sta ppuaddrHP1+1
-	lda #$27
-	sta ppuaddrHP2+1
-	
-	lda #8
-	sta wrcountHP1
-	sta wrcountHP2
-	
-	lda roombeglo2
-	lsr
-	lsr
-	sta temp2
-	
-	lda ntrowhead
-	lsr
-	lsr
-	sta temp3
-	
-	; start reading palette data.
-	; palette data is loaded in "loadedpals". Indexing: loadedpals[x * 8 + y].
-	; therefore we'll need to add 8 every load
-	ldy #0
-loopPalH1:
-	sty temp1
-	tya
-	asl
-	asl
-	asl
-	clc
-	adc temp3
-	tax
-	lda loadedpals, x
-	
-	pha
-	tya
-	clc
-	adc temp2
-	and #$0F
-	tay
 	pla
-	sta temppalH1, y
-	
-	ldy temp1
-	iny
-	cpy #16
-	bne loopPalH1
-	
-;	ldy #0
-;loopPalH2:
-;	tya
-;	asl
-;	asl
-;	asl
-;	clc
-;	adc temp1
-;	tax
-;	lda ntattrdata+64, x
-;	sta temppalH2, y
-;	iny
-;	cpy #8
-;	bne loopPalH2
-	
-dontgeneratepal:
-	
-	lda #nc_flushpal
-	ora nmictrl
-	sta nmictrl
+	sta ntwrhead
+	pla
+	sta roomloffs
+	pla
+	sta roomsize
 	rts
 .endproc
 

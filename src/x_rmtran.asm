@@ -515,8 +515,6 @@ actuallyWarp:
 	
 	lda #36
 	sta loadCount
-	lda #8
-	sta palLoadCnt
 	
 	inc roomnumber
 	
@@ -555,9 +553,6 @@ actuallyWarp:
 	
 	lda roomsize
 	sta loadCount
-	lsr
-	lsr
-	sta palLoadCnt
 	
 	lda #0
 	sta roomloffs
@@ -566,6 +561,16 @@ actuallyWarp:
 	jmp @dontCalculateXOffset
 
 @normalTransition:
+	lda loadCount
+	clc
+	adc roomloffs
+	sta loadCount
+	lsr
+	lsr
+	tax
+	dex
+	stx palLoadCnt
+
 	; add the X offset of this room to the name table and area table write heads
 	lda temp3
 	clc
@@ -655,34 +660,6 @@ actuallyWarp:
 	lda nmictrl
 	and #((nc_flushcol|nc_flshpalv)^$FF)
 	sta nmictrl
-	
-	; generate left offset, if needed.
-	lda roomloffs
-	pha
-	beq @dontOffsetLeft
-	
-	jsr xt_gener_mts_ents_r
-
-@offsetLeftLoop:
-	; HACK: If there is one more column to generate, don't
-	; generate one more column.
-	lda roomloffs
-	cmp #1
-	bne :+
-	
-	lda gamectrl
-	ora #gs_dontgen
-	sta gamectrl
-	
-:	jsr xt_gener_col_r
-	jsr xt_leave_doframe
-	
-	dec roomloffs
-	bne @offsetLeftLoop
-	
-@dontOffsetLeft:
-	pla
-	sta roomloffs
 	
 	; pre-generate all metatiles
 	ldy #0
@@ -782,6 +759,8 @@ dontdeccamy:
 	lda ntwrhead
 	clc
 	adc #$20
+	clc
+	adc roomloffs
 	and #$3F
 	sta ntwrhead
 	
@@ -1105,8 +1084,6 @@ actuallyWarp:
 	
 	lda #36
 	sta loadCount
-	lda #8
-	sta palLoadCnt
 	
 	inc roomnumber
 	
@@ -1151,6 +1128,16 @@ actuallyWarp:
 	jmp @dontCalculateXOffset
 
 @normalTransition:
+	lda loadCount
+	clc
+	adc roomloffs
+	sta loadCount
+	lsr
+	lsr
+	tax
+	dex
+	stx palLoadCnt
+	
 	; add the X offset of this room to the name table and area table write heads
 	lda temp3
 	clc
@@ -1232,38 +1219,6 @@ actuallyWarp:
 	and #((nc_flushcol|nc_flshpalv)^$FF)
 	sta nmictrl
 	
-	; generate left offset, if needed.
-	lda roomloffs
-	pha
-	beq @dontOffsetLeft
-	
-	jsr xt_gener_mts_ents_r
-
-@offsetLeftLoop:
-	; HACK: If there is one more column to generate, don't
-	; generate one more column.
-	lda roomloffs
-	cmp #1
-	bne :+
-	
-	lda gamectrl
-	ora #gs_dontgen
-	sta gamectrl
-	
-:	jsr xt_gener_col_r
-	jsr xt_leave_doframe
-	
-	dec roomloffs
-	bne @offsetLeftLoop
-	
-	lda gamectrl
-	and #<~gs_dontgen
-	sta gamectrl
-	
-@dontOffsetLeft:
-	pla
-	sta roomloffs
-	
 	lda #3
 	sta dreinvtmr
 	
@@ -1325,8 +1280,7 @@ writeloop:
 	sbc #cspeed
 	cmp #$F0
 	bcc :+
-	;sec
-	sbc #$10
+	sbc #$10 ; sec
 :	sta player_y
 	
 	lda #cspeed
@@ -1366,6 +1320,8 @@ dontdeccamy:
 	lda ntwrhead
 	clc
 	adc #$20
+	clc
+	adc roomloffs
 	and #$3F
 	sta ntwrhead
 	

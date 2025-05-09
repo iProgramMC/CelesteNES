@@ -328,12 +328,12 @@ plr_trace_y : .res $40
 temprowtot  : .res $40
 tempcol     = temprowtot+$00  ; 32 bytes - temporary column to be flushed to the screen
 temppal     = temprowtot+$20  ; 8 bytes  - temp palette column to be flushed to the screen
-temppalH1   = temprowtot+$28  ; 8 bytes  - temporary row in nametable 0
-temppalH2   = temprowtot+$30  ; 8 bytes  - temporary row in nametable 1 (NOTE MUST BE NEXT TO temppalH1)
+temppalH1   = temprowtot+$28  ; 8 bytes  - temporary row in nametable 0 (DO NOT REARRANGE THESE)
+temppalH2   = temprowtot+$30  ; 8 bytes  - temporary row in nametable 1
 ; 8 bytes here
-temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0
-temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1 (NOTE MUST BE NEXT TO TEMPROW1)
-temprow3    : .res $20  ; 32 bytes - temporary row in nametable 1
+temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0 (DO NOT REARRANGE THESE)
+temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
+temprow3    : .res $20  ; 32 bytes - temporary row in nametable 0 again
 loadedpals  : .res $40  ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 ntattrdata  : .res $80  ; 128 bytes- loaded attribute data
