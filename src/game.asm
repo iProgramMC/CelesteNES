@@ -59,7 +59,10 @@ gm_load_room_fully:
 	asl
 	asl
 	asl
-	clc
+	; the bit that you just shifted out... increment camera_x_pg with it
+	bcc :+
+	inc camera_x_pg	
+:	clc
 	adc camera_x
 	sta camera_x
 	bcc @dontMarkBeginning

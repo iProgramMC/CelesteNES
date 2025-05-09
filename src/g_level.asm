@@ -1762,10 +1762,10 @@ gm_fetch_room:
 	ldy #0
 	lda (temp1), y
 	sta roomloffs
-	and #%11100000 ; max offset of 32
+	and #%11000000 ; max offset of 64
 	sta warpflags
 	lda roomloffs
-	and #%00011111
+	and #%00111111
 	sta roomloffs
 	iny
 	lda (temp1), y

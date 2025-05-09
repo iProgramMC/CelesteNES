@@ -608,7 +608,10 @@ actuallyWarp:
 	asl
 	asl
 	asl
-	clc
+	; the bit that you just shifted out... increment camera_x_pg with it
+	bcc :+
+	inc camera_x_pg	
+:	clc
 	adc camdst_x
 	sta camdst_x
 	bcc :+
@@ -1190,12 +1193,14 @@ actuallyWarp:
 	asl
 	asl
 	asl
-	clc
+	; the bit that you just shifted out... increment camera_x_pg with it
+	bcc :+
+	inc camdst_x_pg	
+:	clc
 	adc camdst_x
 	sta camdst_x
 	bcc :+
 	inc camdst_x_pg
-	
 :	; subtract it from the player X to determine the destination player X
 	lda player_x
 	clc

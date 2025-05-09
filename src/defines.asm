@@ -217,7 +217,6 @@ r2_outside    = $20
 ; warp flags (roomloffs)
 wf_nicevert   = $80
 wf_64         = $40
-wf_32         = $20
 
 ; Entity Types
 ; NOTE(iProgram): Keep this up to date with LEVELEDITOR\Entity.cs (public enum eEntityType)

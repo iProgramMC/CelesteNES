@@ -76,5 +76,13 @@ level3_w_02_a_to_03_a:
 	.word level3_03_a
 level3_w_03_a_to_02_a:
 	.byte 8			; room left offset
-	.byte 240, 136	; player spawn X/Y
+	.byte 240, 128	; player spawn X/Y
 	.word level3_02_a
+level3_w_03_a_to_04_b:
+	.byte 4			; room left offset
+	.byte 120, 184	; player spawn X/Y
+	.word level3_04_b
+level3_w_04_b_to_03_a:
+	.byte 32			; room left offset
+	.byte 216, 24	; player spawn X/Y
+	.word level3_03_a
