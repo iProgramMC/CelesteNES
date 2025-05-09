@@ -14,3 +14,6 @@ metatile_palette:
 	.res  11, $0 ; Backgrounds
 	.res  36, $1 ; Dust Bunnies
 	.res  28, $1 ; Wood
+	.res  16, $3 ; Books
+	.res  16, $0 ; Clothes
+	.res  20, $1 ; Boxes

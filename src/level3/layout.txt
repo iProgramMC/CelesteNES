@@ -34,5 +34,15 @@ Spawn,level3_0x_a,0,152
 level3_00_a,1856,-112
 Props,level3_00_a,0,0
 Spawn,level3_00_a,0,152
+level3_02_a,2496,-112
+Props,level3_02_a,0,0
+Spawn,level3_02_a,304,136
+Spawn,level3_02_a,0,160
+Spawn,level3_02_a,152,24
+level3_03_a,2816,-112
+Props,level3_03_a,0,0
+Spawn,level3_03_a,0,128
+Spawn,level3_03_a,496,168
+Spawn,level3_03_a,472,16
 Filler,1200,-240,16,240
 Filler,1216,128,16,112

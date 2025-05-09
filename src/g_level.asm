@@ -1371,11 +1371,13 @@ noFailSafe:
 	rts
 
 roomWidthNotZero:
-	asl
-	asl
-	asl
 	sta camlimit
 	lda #0
+	asl camlimit
+	rol
+	asl camlimit
+	rol
+	asl camlimit
 	rol
 	sta camlimithi
 	

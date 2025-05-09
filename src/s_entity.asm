@@ -2476,6 +2476,8 @@ commitSaveFile:
 	sta temp5
 	sta temp8
 	
+	ldx temp1
+	
 	ldy #0
 	lda sprspace+sp_hart_bncex, x
 	bpl :+

@@ -58,7 +58,19 @@
 	.byte $89,$8A,$8B,$8C ; Wood Inside
 	.byte $99,$9A,$9B,$9C ; Wood Bars
 	.byte $85,$86,$95,$96 ; Wood In-corners
-	.byte $8D,$8E         ; Wood Bar Ends
+	.byte $8D,$9D         ; Wood Bar Ends
+	.byte $8E,$8F,$9E,$9F ; Books
+	.byte $AE,$AF,$BE,$BF ; Books
+	.byte $AC,$AD,$BC,$BD ; Books
+	.byte $AA,$AB,$BA,$BB ; Books
+	.byte $A8,$A9,$B8,$B9 ; Clothes
+	.byte $E6,$E7,$F6,$F7 ; Clothes
+	.byte $E8,$E9,$F8,$F9 ; Clothes
+	.byte $EA,$EB,$FA,$FB ; Clothes
+	.byte $09,$0A,$19,$1A ; Box
+	.byte $0B,$1B         ; Box Alt Half
+	.byte $0D,$0E,$0F,$1D,$1E,$1F,$2D,$2E,$2F ; Big Box
+	.byte $DA,$DB,$DC,$DD,$DE ; Boxes
 
 ;metatile_info:
 .align $100
@@ -84,5 +96,8 @@
 	.res  11, ct_none            ; Backgrounds
 	.res  36, ct_deadlyXX        ; Dust Bunnies
 	.res  28, ct_full            ; Wood
+	.res  16, ct_full            ; Clutter A
+	.res  16, ct_full            ; Clutter B
+	.res  20, ct_full            ; Clutter C
 
 .align $100
