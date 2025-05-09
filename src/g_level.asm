@@ -692,7 +692,7 @@ h_fls_wrloop:
 	sta ppuaddrHP2+1
 	
 	; start reading palette data.
-	; palette data is loaded in "loadedpals". Indexing: loadedpals[x * 8 + y].
+	; palette data is loaded in "ntattrdata". Indexing: ntattrdata[xhigh * 64 + y * 8 + x].
 	pla
 	tax
 	

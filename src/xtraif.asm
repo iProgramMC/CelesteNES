@@ -172,21 +172,6 @@ xt_generate_palette_data_V:
 	pla
 	sta ntwrhead
 	
-	; an inner loop to copy from temppal to loadedpals
-	lda temp6
-	asl
-	asl
-	asl
-	tax
-;	ldy #0
-;	
-;:	lda temppal, y
-;	sta loadedpals, x
-;	inx
-;	iny
-;	cpy #8
-;	bne :-
-	
 	ldy temp6
 	iny
 	cpy @loadCount

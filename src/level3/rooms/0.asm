@@ -276,11 +276,11 @@ level3_s2_t:
 	.byte $38,$36,$28,$D0,$FF
 level3_s2:
 	.byte 60, 0
-	.byte 255, 255, 7, 255
+	.byte 8, 255, 7, 255
 	.byte 0, 0, 0, 0
 	.byte 32
-	.byte 254, 0, 0, 128
-	.byte 8, 0, 0, 9
+	.byte 0, 0, 0, 128
+	.byte 0, 0, 0, 9
 	.byte 0, 0, 0, 242
 	.word level3_s2_t
 	.word level3_s2_p
@@ -345,10 +345,12 @@ level3_s2u_t:
 	.byte $FF
 level3_s2u:
 	.byte 60, 0
-	.byte 255, 11, 10, 255
-	.byte 0, 0, 0, 0
+	.byte 255, 11, 10, 12
+	.byte 0, 0, 0, 16
 	.byte 32
-	.byte 255
+	.byte 0, 0, 0, 128
+	.byte 0, 0, 0, 255
+	.byte 0, 0, 0, 0
 	.word level3_s2u_t
 	.word level3_s2u_p
 	.word level3_s2u_e
@@ -420,12 +422,12 @@ level3_s3_t:
 	.byte $87,$8F,$38,$29,$85,$50,$87,$FF
 level3_s3:
 	.byte 40, 0
-	.byte 255, 255, 12, 13
+	.byte 255, 255, 13, 15
 	.byte 0, 0, 14, 0
 	.byte 4
 	.byte 0, 0, 112, 0
-	.byte 0, 0, 255, 0
-	.byte 0, 0, 0, 0
+	.byte 0, 0, 14, 0
+	.byte 0, 0, 240, 0
 	.word level3_s3_t
 	.word level3_s3_p
 	.word level3_s3_e
@@ -479,7 +481,7 @@ level3_0x_a_t:
 	.byte $8F,$E1,$B0,$85,$E1,$AC,$88,$FF
 level3_0x_a:
 	.byte 40, 0
-	.byte 255, 255, 14, 15
+	.byte 255, 255, 16, 17
 	.byte 0, 0, 0, 0
 	.byte 4
 	.byte 255
@@ -610,7 +612,7 @@ level3_00_a_t:
 	.byte $AC,$87,$FF
 level3_00_a:
 	.byte 0, 0
-	.byte 255, 255, 16, 17
+	.byte 255, 255, 18, 19
 	.byte 0, 0, 0, 0
 	.byte 4
 	.byte 255
@@ -672,7 +674,7 @@ level3_02_a_t:
 	.byte $8D,$E1,$AF,$90,$FF
 level3_02_a:
 	.byte 40, 0
-	.byte 255, 255, 255, 18
+	.byte 255, 255, 255, 20
 	.byte 0, 0, 0, 0
 	.byte 4
 	.byte 255
@@ -787,7 +789,7 @@ level3_03_a_t:
 	.byte $AC,$86,$FF
 level3_03_a:
 	.byte 64, 0
-	.byte 20, 255, 19, 255
+	.byte 22, 255, 21, 255
 	.byte 40, 0, 0, 0
 	.byte 4
 	.byte 255
@@ -867,7 +869,7 @@ level3_04_b_t:
 	.byte $B2,$E1,$C1,$85,$87,$D7,$FF
 level3_04_b:
 	.byte 40, 0
-	.byte 255, 21, 255, 255
+	.byte 255, 23, 255, 255
 	.byte 0, 216, 0, 0
 	.byte 4
 	.byte 255

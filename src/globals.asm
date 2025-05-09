@@ -334,7 +334,6 @@ temppalH2   = temprowtot+$30  ; 8 bytes  - temporary row in nametable 1
 temprow1    : .res $20  ; 32 bytes - temporary row in nametable 0 (DO NOT REARRANGE THESE)
 temprow2    : .res $20  ; 32 bytes - temporary row in nametable 1
 temprow3    : .res $20  ; 32 bytes - temporary row in nametable 0 again
-loadedpals  : .res $40  ; 64 bytes - temporary storage for loaded palettes during vertical transitions
 lastcolumn  : .res $20  ; 30 bytes - temporary storage for last column, used during decompression
 ntattrdata  : .res $80  ; 128 bytes- loaded attribute data
 spritepals  : .res 9    ; 9 bytes  - loaded sprite palettes

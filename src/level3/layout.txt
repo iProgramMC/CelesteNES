@@ -19,7 +19,7 @@ Spawn,level3_s2,464,56
 PaletteOverride,level3_s2,9,5,1
 NiceWarp,level3_s2,level3_s2u
 level3_s2u,736,-240
-Props,level3_s2u,1,8
+Props,level3_s2u,0,0
 Spawn,level3_s2u,0,184
 PaletteOverride,level3_s2u,6,6,2,6,7,2,6,8,2,6,9,2,3,9,2,4,9,2,5,9,2
 NiceWarp,level3_s2u,level3_s2
@@ -47,5 +47,5 @@ Spawn,level3_03_a,472,24
 level3_04_b,3136,-352
 Props,level3_04_b,0,0
 Spawn,level3_04_b,152,184
-Filler,1200,-240,16,240
 Filler,1216,128,16,112
+Filler,1216,-240,32,128

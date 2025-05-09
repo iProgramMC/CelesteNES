@@ -553,6 +553,9 @@ actuallyWarp:
 	
 	lda roomsize
 	sta loadCount
+	lsr
+	lsr
+	sta palLoadCnt
 	
 	lda #0
 	sta roomloffs
