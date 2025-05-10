@@ -241,6 +241,8 @@
 @skipThis:
 	ldy @entidx
 	jsr gm_ent_move_y
+	ldx @entidx
+	rts
 	
 @alreadyThere:
 	lda sprspace+sp_l3sp_homey, x
