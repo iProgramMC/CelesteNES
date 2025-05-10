@@ -2677,7 +2677,8 @@ level2_memorial_kludge:
 	xt_cass_block_manager,  \
 	xt_draw_heart_gem,      \
 	xt_draw_spring_left,    \
-	xt_draw_spring_right
+	xt_draw_spring_right,   \
+	level3_sinking_platform
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table

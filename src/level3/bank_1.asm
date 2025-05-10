@@ -5,6 +5,7 @@
 .include "roomlist.asm"
 .include "warplist.asm"
 .include "palette.asm"
+.include "entity.asm"
 .include "rooms/1.asm"
 
 level3_music:

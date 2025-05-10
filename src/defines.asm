@@ -139,6 +139,8 @@ sp_l1zmf_spikyUP = $01 ; entity is spiky above
 sp_l1cf_state = sp_entspec1
 sp_l1cf_timer = sp_entspec2
 
+sp_l1me_index = sp_entspec1
+
 sp_l2ph_state = sp_entspec1
 sp_l2ph_timer = sp_entspec2
 sp_l2ph_sbtmr = sp_entspec3 ; sub timer
@@ -158,6 +160,11 @@ sp_l2dc_index = sp_entspec2
 sp_l2dc_timer = sp_entspec3
 sp_l2dc_ssize = sp_entspec4
 sp_l2dc_velxh = sp_entspec5
+
+sp_l3sp_homex = sp_entspec1
+sp_l3sp_homey = sp_entspec2
+sp_l3sp_rstmr = sp_entspec3 ; riseTimer
+sp_l3sp_fltmr = sp_entspec4 ; shakeTimer
 
 sp_fall_state = sp_entspec1
 sp_fall_dindx = sp_entspec2 ; data index
@@ -188,13 +195,12 @@ sp_hart_timer = sp_entspec2
 sp_hart_bncex = sp_wid
 sp_hart_bncey = sp_hei
 
-sp_l1me_index = sp_entspec1
-
 ; entity flags
 ef_collidable = $01
 ef_oddroom    = $02
 ef_limbo      = $04 ; entity was scrolled away vertically, and will show up whenever the screen is scrolled
 ef_collided   = $08 ; entity was collided last frame
+ef_platform   = $10 ; entity is only collidable from above
 ef_clearspc23 = $40 ; used by the "trigger" dialog cmd.  This lets the trigger cmd know to clear sp_entspec2
                     ; and sp_entspec3 to zero when hitting the command.
 ef_faceleft   = $80 ; used by the "face_entity" dialog cmd. An entity need not respect the value of this
@@ -251,6 +257,9 @@ e_swgate    = $1A ; Switch Gate
 e_casstape  = $1B ; Cassette Tape
 e_cassmgr   = $1C ; Cassette Block Manager
 e_heartgem  = $1D ; Heart Gem
+e_sprgleft  = $1E ; Spring Left
+e_sprgright = $1F ; Spring Right
+e_l3sinkpla = $20 ; LEVEL 3: sinking platform
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance
@@ -370,6 +379,8 @@ chrb_papho9 = $1B   ; splv2k
 chrb_splv2l = $18   ; sprites for level 2
 chrb_splv2m = $19   ; sprites for level 2
 chrb_splv2n = $1A   ; sprites for level 2
+chrb_splv3a = $46   ; sprites for level 3
+chrb_splv3b = $47   ; sprites for level 3
 
 ; BACKGROUND BANKS
 chrb_bgttl  = $1C   ; graphics bank for title screen

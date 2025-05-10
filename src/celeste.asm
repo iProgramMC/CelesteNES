@@ -106,6 +106,8 @@
 .incbin  "chr/sp_level2lm.chr"
 .segment "CHR_SLV2N"
 .incbin  "chr/sp_level2n.chr"
+.segment "CHR_SL3AB"
+.incbin  "chr/sp_level3.chr"
 
 ; ** Level Tilesets
 .segment "CHR_BGTTL"

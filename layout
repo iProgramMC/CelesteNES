@@ -146,10 +146,10 @@ MEMORY
 	CHR_CASS1: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; # Cassette Blocks (1)
 	CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40; # Level 3 (4 banks)
 	
-	# Unallocated Banks
-	CHR_CH3BG: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$44; # Unused (2 banks)
-	CHR_UNA2H: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$46; # Unused (2 banks)
+	CHR_CH3BG: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$44; # Level 3 (unused background)
+	CHR_SL3AB: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$46; # Level 3 Sprites (two banks)
 	
+	# Unallocated Banks
 	CHR_UNA03: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$48; # Unused (4 banks)
 	CHR_UNA04: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$4C; # Unused (4 banks)
 	CHR_UNA05: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$50; # Unused (4 banks)
@@ -311,6 +311,7 @@ SEGMENTS
 	CHR_SLV2L: load = CHR_SLV2L, type = ro;
 	CHR_SLV2N: load = CHR_SLV2N, type = ro;
 	CHR_PAPH4: load = CHR_PAPH4, type = ro;
+	CHR_SL3AB: load = CHR_SL3AB, type = ro;
 	CHR_BGTTL: load = CHR_BGTTL, type = ro;
 	CHR_BGOWD: load = CHR_BGOWD, type = ro;
 	CHR_BG000: load = CHR_BG000, type = ro;
@@ -344,7 +345,6 @@ SEGMENTS
 	CHR_DGRAN: load = CHR_DGRAN, type = ro;
 	
 	# Unallocated
-	CHR_UNA2H: load = CHR_UNA2H, type = ro;
 	CHR_UNA03: load = CHR_UNA03, type = ro;
 	CHR_UNA04: load = CHR_UNA04, type = ro;
 	CHR_UNA05: load = CHR_UNA05, type = ro;

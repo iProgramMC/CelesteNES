@@ -1424,6 +1424,20 @@ gm_init_entity:
 	rts
 	
 @notPayPhone:
+	cmp #e_l3sinkpla
+	bne @notSinkPla
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_wid, y
+	lda sprspace+sp_x, y
+	sta sprspace+sp_l3sp_homex, y
+	lda sprspace+sp_y, y
+	sta sprspace+sp_l3sp_homey, y
+	jmp @tyxReturn
+	
+@notSinkPla:
 	; todo: more cases ...
 	rts
 
