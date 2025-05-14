@@ -44,7 +44,7 @@ level3_w_s2u_to_s1u:
 	.word level3_s1u
 level3_w_s2u_to_s2:
 	.byte 156			; room left offset
-	.byte 240, 56	; player spawn X/Y
+	.byte 240, 72	; player spawn X/Y
 	.word level3_s2
 level3_w_s2u_to_s3:
 	.byte 0			; room left offset
@@ -52,7 +52,7 @@ level3_w_s2u_to_s3:
 	.word level3_s3
 level3_w_s3_to_s2:
 	.byte 28			; room left offset
-	.byte 240, 56	; player spawn X/Y
+	.byte 240, 72	; player spawn X/Y
 	.word level3_s2
 level3_w_s3_to_s2u:
 	.byte 0			; room left offset
@@ -82,6 +82,10 @@ level3_w_02_a_to_03_a:
 	.byte 0			; room left offset
 	.byte 0, 128	; player spawn X/Y
 	.word level3_03_a
+level3_w_02_a_to_02_b:
+	.byte 4			; room left offset
+	.byte 120, 160	; player spawn X/Y
+	.word level3_02_b
 level3_w_03_a_to_02_a:
 	.byte 8			; room left offset
 	.byte 240, 128	; player spawn X/Y
@@ -90,7 +94,67 @@ level3_w_03_a_to_04_b:
 	.byte 4			; room left offset
 	.byte 120, 184	; player spawn X/Y
 	.word level3_04_b
+level3_w_03_a_to_05_a:
+	.byte 0			; room left offset
+	.byte 128, 168	; player spawn X/Y
+	.word level3_05_a
+level3_w_02_b_to_02_a:
+	.byte 4			; room left offset
+	.byte 120, 24	; player spawn X/Y
+	.word level3_02_a
+level3_w_02_b_to_01_b:
+	.byte 8			; room left offset
+	.byte 240, 176	; player spawn X/Y
+	.word level3_01_b
 level3_w_04_b_to_03_a:
 	.byte 32			; room left offset
 	.byte 216, 24	; player spawn X/Y
 	.word level3_03_a
+level3_w_05_a_to_03_a:
+	.byte 32			; room left offset
+	.byte 240, 168	; player spawn X/Y
+	.word level3_03_a
+level3_w_05_a_to_06_a:
+	.byte 0			; room left offset
+	.byte 0, 104	; player spawn X/Y
+	.word level3_06_a
+level3_w_01_b_to_02_b:
+	.byte 4			; room left offset
+	.byte 120, 160	; player spawn X/Y
+	.word level3_02_b
+level3_w_06_a_to_05_a:
+	.byte 24			; room left offset
+	.byte 240, 104	; player spawn X/Y
+	.word level3_05_a
+level3_w_06_a_to_07_a:
+	.byte 0			; room left offset
+	.byte 0, 104	; player spawn X/Y
+	.word level3_07_a
+level3_w_07_a_to_06_a:
+	.byte 8			; room left offset
+	.byte 240, 104	; player spawn X/Y
+	.word level3_06_a
+level3_w_07_a_to_08_a:
+	.byte 0			; room left offset
+	.byte 0, 128	; player spawn X/Y
+	.word level3_08_a
+level3_w_09_b_to_08_a:
+	.byte 8			; room left offset
+	.byte 240, 112	; player spawn X/Y
+	.word level3_08_a
+level3_w_09_b_to_09_bc:
+	.byte 128			; room left offset
+	.byte 0, 128	; player spawn X/Y
+	.word level3_09_bc
+level3_w_08_a_to_07_a:
+	.byte 8			; room left offset
+	.byte 240, 128	; player spawn X/Y
+	.word level3_07_a
+level3_w_08_a_to_09_b:
+	.byte 0			; room left offset
+	.byte 0, 112	; player spawn X/Y
+	.word level3_09_b
+level3_w_09_bc_to_09_b:
+	.byte 128			; room left offset
+	.byte 240, 128	; player spawn X/Y
+	.word level3_09_b
