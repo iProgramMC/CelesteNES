@@ -38,10 +38,10 @@ level3:
 	.word level3_w_06_a_to_07_a
 	.word level3_w_07_a_to_06_a
 	.word level3_w_07_a_to_08_a
-	.word level3_w_09_b_to_08_a
-	.word level3_w_09_b_to_09_bc
 	.word level3_w_08_a_to_07_a
 	.word level3_w_08_a_to_09_b
+	.word level3_w_09_b_to_08_a
+	.word level3_w_09_b_to_09_bc
 	.word level3_w_09_bc_to_09_b
 level3_banks:
 	.byte prgb_lvl3a	; level3_w_init
@@ -79,8 +79,8 @@ level3_banks:
 	.byte prgb_lvl3a	; level3_w_06_a_to_07_a
 	.byte prgb_lvl3b	; level3_w_07_a_to_06_a
 	.byte prgb_lvl3b	; level3_w_07_a_to_08_a
-	.byte prgb_lvl3b	; level3_w_09_b_to_08_a
-	.byte prgb_lvl3b	; level3_w_09_b_to_09_bc
 	.byte prgb_lvl3a	; level3_w_08_a_to_07_a
 	.byte prgb_lvl3b	; level3_w_08_a_to_09_b
+	.byte prgb_lvl3b	; level3_w_09_b_to_08_a
+	.byte prgb_lvl3b	; level3_w_09_b_to_09_bc
 	.byte prgb_lvl3b	; level3_w_09_bc_to_09_b

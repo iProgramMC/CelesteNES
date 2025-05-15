@@ -1208,7 +1208,6 @@ h_gener_ents_r:
 	rts
 h_generents_spotfound:
 	; a sprite slot was found. its slot number is located in the x register.
-	jsr gm_init_entity
 	
 	; load the X coordinate, and add the room beginning pixel and the current screen pos
 	clc
@@ -1220,7 +1219,11 @@ h_generents_spotfound:
 	adc roombeghi
 	sta sprspace+sp_x_pg, x
 	
-	rts
+	; TODO-- Is it fine to init the entity after calculating its X?
+	; If not, then make sure that Dust Bunnies' homxh value is calculated
+	; properly.
+	
+	;jmp gm_init_entity
 
 ; ** SUBROUTINE: gm_init_entity
 ; desc: Initializes an entity's fields when loaded.
@@ -1278,6 +1281,7 @@ gm_init_entity:
 	and #%01111111
 	sta sprspace+sp_kind, x
 	
+	; TODO: Seriously we should consider using a jump table here.
 	cmp #e_l0bridgea
 	bne @notL0BridgeA
 	
@@ -1438,6 +1442,27 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notSinkPla:
+	cmp #e_l3dustbun
+	bne @notDustCreature
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_l3db_tratp, y
+	jsr gm_read_ent
+	sta sprspace+sp_l3db_trara, y
+	jsr gm_read_ent
+	sta sprspace+sp_l3db_timer, y
+	
+	lda sprspace+sp_x, y
+	sta sprspace+sp_l3db_homex, y
+	lda sprspace+sp_y, y
+	sta sprspace+sp_l3db_homey, y
+	lda sprspace+sp_x_pg, y
+	sta sprspace+sp_l3db_homxh, y
+	jmp @tyxReturn
+	
+@notDustCreature:
 	; todo: more cases ...
 	rts
 

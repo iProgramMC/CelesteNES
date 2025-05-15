@@ -260,17 +260,139 @@
 :	rts
 .endproc
 
+; TODO: Allow entities to be updated even if they're off screen.
 .proc level3_dust_bunny
 @entidx  := temp1
 @entX    := temp2
 @entY    := temp3
 @entXhi  := temp4
-	; update goes here
+	ldx @entidx
 	
+	; update goes here
+	inc sprspace+sp_l3db_timer, x
+	; is it fast?
+	lda sprspace+sp_l3db_tratp, x
+	and #4
+	beq :+
+	; double speed!!
+	inc sprspace+sp_l3db_timer, x
+
+:	; ok, now calculate the object's position based on its trajectory type
+	
+	; save temp1 and temp2 because we'll need them, and they're clobbered by mul_8x8
+	lda temp1
+	sta temp7
+	pha
+	lda temp2
+	sta temp8
+	pha
+	
+	; load the timer and store it in temp6
+	lda sprspace+sp_l3db_timer, x
+	sta temp6
+	lda sprspace+sp_l3db_trara, x
+	sta temp11
+	
+	; check if should handle horizontal?
+	
+	; calculate the sine
+	lda temp6
+	jsr sine
+	
+	; store it in temp9 because we'll determine whether it's positive.
+	; mul_8x8 performs an *unsigned* multiplication.
+	sta temp9
+	bmi @negativeMultiplication
+	
+	; Is positive, so multiply and add.  We only care about the high byte.
+	ldy temp11
+	jsr mul_8x8
+	tya
+	
+	ldy temp7
+	clc
+	adc sprspace+sp_l3db_homex, y
+	sta sprspace+sp_x, y
+	
+	lda sprspace+sp_l3db_homxh, y
+	adc #0
+	sta sprspace+sp_x_pg, y
+	
+	jmp @doneXCoord
+
+@negativeMultiplication:
+	; Get the two's complement.
+	lda #0
+	sec
+	sbc temp9
+	ldy temp11
+	
+	; multiply and subtract.  We only care about the high byte.
+	jsr mul_8x8
+	sty temp12
+	
+	ldy temp7
+	lda sprspace+sp_l3db_homex, y
+	sec
+	sbc temp12
+	sta sprspace+sp_x, y
+	
+	lda sprspace+sp_l3db_homxh, y
+	sbc #0
+	sta sprspace+sp_x_pg, y
+	
+@doneXCoord:
+	; done for the X coordinate.  Do the same for the Y coordinate
+	lda temp6
+	jsr cosine
+	
+	; store it in temp9 because we'll determine whether it's positive.
+	sta temp9
+	bmi @negativeMultiplicationY
+	
+	; Is positive, so multiply and add.  We only care about the high byte.
+	ldy temp11
+	jsr mul_8x8
+	tya
+	
+	ldy temp7
+	clc
+	adc sprspace+sp_l3db_homey, y
+	sta sprspace+sp_y, y
+	
+	jmp @doneYCoord
+	
+@negativeMultiplicationY:
+	; Get the two's complement.
+	lda #0
+	sec
+	sbc temp9
+	ldy temp11
+	
+	; multiply and subtract.  We only care about the high byte.
+	jsr mul_8x8
+	sty temp12
+	
+	ldy temp7
+	lda sprspace+sp_l3db_homey, y
+	sec
+	sbc temp12
+	sta sprspace+sp_y, y
+	
+@doneYCoord:
+	; restore temp1 and temp2 because they were clobbered
+	pla
+	sta temp2
+	pla
+	sta temp1
 	
 	
 	; draw
 	lda framectr
+	lsr
+	lsr
+	lsr
+	pha
 	and #3
 	tay
 	lda @leftFrames, y
@@ -278,13 +400,17 @@
 	lda @rightFrames,y
 	sta temp7
 	
+	lda #chrb_splv3a
+	sta spr1_bknum
+	
 	lda #pal_dust
 	jsr gm_allocate_palette
 	sta temp5
 	sta temp8
 	
 	; determine if should flip
-	lda framectr
+	pla
+	pha
 	and #4
 	beq :+
 	
@@ -297,8 +423,16 @@
 	sta temp5
 	sta temp8
 	
+:	pla
+	and #8
+	beq :+
+	lda temp5
+	ora #obj_flipvt
+	sta temp5
+	sta temp8
+	
 :	jmp gm_draw_common
 	
-@leftFrames:	.byte $48, $4C, $50, $4C
-@rightFrames:	.byte $4A, $4E, $52, $4E
+@leftFrames:	.byte $48, $4C, $50, $54
+@rightFrames:	.byte $4A, $4E, $52, $56
 .endproc

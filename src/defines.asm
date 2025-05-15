@@ -45,7 +45,7 @@ mmc3bk_prg1 = 7   ; prg1 controls $A000-$BFFF
 ; This allows easy indexing via the X/Y registers as you can simply do:
 ;   lda sprspace + sp_kind, x
 
-sp_max      = $0C   ; maximum of 12 sprites.
+sp_max      = $08   ; maximum of 12 sprites.
 
 sp_kind     = (sp_max * 0)   ; kind of sprite (see Entity Types)
 sp_flags    = (sp_max * 1)   ; flags
@@ -166,6 +166,13 @@ sp_l3sp_homey = sp_entspec2
 sp_l3sp_rstmr = sp_entspec3 ; riseTimer
 sp_l3sp_fltmr = sp_entspec4 ; shakeTimer
 
+sp_l3db_tratp = sp_entspec1 ; Trajectory Type - 0-circle 1-updown 2-leftright OR4-fast
+sp_l3db_trara = sp_entspec2 ; Trajectory Radius
+sp_l3db_timer = sp_entspec3
+sp_l3db_homex = sp_wid
+sp_l3db_homey = sp_hei
+sp_l3db_homxh = sp_entspec4
+
 sp_fall_state = sp_entspec1
 sp_fall_dindx = sp_entspec2 ; data index
 sp_fall_datlo = sp_entspec2 ; overlapped with data index
@@ -260,6 +267,7 @@ e_heartgem  = $1D ; Heart Gem
 e_sprgleft  = $1E ; Spring Left
 e_sprgright = $1F ; Spring Right
 e_l3sinkpla = $20 ; LEVEL 3: sinking platform
+e_l3dustbun = $21 ; LEVEL 3: dust creature
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance

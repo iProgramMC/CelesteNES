@@ -11,6 +11,7 @@ level3_s0_p:
 	.byte $A0,$00,$00,$00,$00,$00,$00,$00
 	.byte $FF
 level3_s0_e:
+	.byte $C0,$60,$21,$00,$40,$00
 	.byte $FF
 level3_s0_t:
 	.byte $D4,$06,$17,$C8,$94,$05,$15,$88
@@ -631,8 +632,9 @@ level3_02_a_p:
 	.byte $00,$00,$10,$05,$50,$00,$00,$00
 	.byte $FF
 level3_02_a_e:
-	.byte $60,$78,$20,$18,$A0,$98
-	.byte $7F,$FF
+	.byte $60,$78,$20,$18
+	.byte $A0,$98,$7F
+	.byte $FF
 level3_02_a_t:
 	.byte $D2,$E5,$B0,$00,$00,$00,$AD,$C7
 	.byte $87,$E1,$BE,$A5,$B4,$E6,$B5,$B4
@@ -699,8 +701,9 @@ level3_03_a_p:
 	.byte $11,$11,$51,$55,$45,$50,$00,$00
 	.byte $FF
 level3_03_a_e:
-	.byte $E0,$50,$20,$18,$FE,$20
-	.byte $30,$20,$18
+	.byte $E0,$50,$20,$18
+	.byte $FE
+	.byte $20,$30,$20,$18
 	.byte $FF
 level3_03_a_t:
 	.byte $CD,$E1,$AF,$C4,$E1,$AD,$CB,$89
@@ -971,7 +974,8 @@ level3_05_a_p:
 level3_05_a_e:
 	.byte $F0,$80,$02
 	.byte $FE
-	.byte $08,$78,$20,$18,$FF
+	.byte $08,$78,$20,$18
+	.byte $FF
 level3_05_a_t:
 	.byte $D2,$E1,$AF,$C4,$E1,$AD,$C6,$92
 	.byte $E1,$B0,$84,$E1,$AC,$86,$92,$E1
