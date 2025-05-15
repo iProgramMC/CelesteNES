@@ -138,3 +138,4 @@ sprite_palettes:
 	.byte $30,$1C,$0C ; tower palette
 	.byte $30,$23,$03 ; stone palette
 	.byte $30,$30,$30 ; full white palette
+	.byte $15,$00,$0F ; dust bunny palette

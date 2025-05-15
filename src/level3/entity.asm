@@ -260,3 +260,45 @@
 :	rts
 .endproc
 
+.proc level3_dust_bunny
+@entidx  := temp1
+@entX    := temp2
+@entY    := temp3
+@entXhi  := temp4
+	; update goes here
+	
+	
+	
+	; draw
+	lda framectr
+	and #3
+	tay
+	lda @leftFrames, y
+	sta temp6
+	lda @rightFrames,y
+	sta temp7
+	
+	lda #pal_dust
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	; determine if should flip
+	lda framectr
+	and #4
+	beq :+
+	
+	lda temp6
+	ldx temp7
+	stx temp6
+	sta temp7
+	lda temp5
+	ora #obj_fliphz
+	sta temp5
+	sta temp8
+	
+:	jmp gm_draw_common
+	
+@leftFrames:	.byte $48, $4C, $50, $4C
+@rightFrames:	.byte $4A, $4E, $52, $4E
+.endproc

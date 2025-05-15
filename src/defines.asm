@@ -488,7 +488,8 @@ pal_fire    = $0B
 pal_tower   = $0C
 pal_stone   = $0D
 pal_fwhite  = $0E
-pal_max     = $0F
+pal_dust    = $0F
+pal_max     = $10
 
 ; Controller Buttons
 cont_a      = $80  ; SNES controller B
