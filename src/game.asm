@@ -319,6 +319,7 @@ gm_game_clear_wx:
 	stx gamectrl      ; clear game related fields to zero
 	stx retain_timer
 	stx dshatktime
+	stx dustrhythm
 	;stx bgcurroffs
 	
 	txa

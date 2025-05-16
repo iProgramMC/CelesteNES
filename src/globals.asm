@@ -476,6 +476,7 @@ wallhboxybot: .res 1 ; wall hit box Y bottom
 dshatktime  : .res 1 ; dash attack time
 dshold_vl_x : .res 1 ; dash old speed X high
 dshold_vs_x : .res 1 ; dash old speed X low
+dustrhythm  : .res 1 ; used to control the synchronization of dust bunnies
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

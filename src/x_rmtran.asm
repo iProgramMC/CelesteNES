@@ -464,6 +464,8 @@ adjustTransitionOffset:
 	sta transoff
 	
 @return:
+	lda #0
+	sta dustrhythm
 	rts
 .endproc
 
@@ -1036,6 +1038,7 @@ newModeTran:
 	sta ntrowhead
 	lda #0
 	sta lvlyoff
+	sta dustrhythm
 	rts
 .endproc
 
@@ -1454,6 +1457,7 @@ newModeTran:
 	sta ntrowhead
 	sta ntrowhead2
 	sta lvlyoff
+	sta dustrhythm
 	rts
 .endproc
 
@@ -1774,6 +1778,9 @@ generatePalettesLoop:
 	lda nmictrl
 	ora #nc_flshpalv
 	sta nmictrl
+	
+	lda #0
+	sta dustrhythm
 	rts
 .endproc
 
@@ -1811,12 +1818,8 @@ generatePalettesLoop:
 	
 	lda #3
 	sta dreinvtmr
-	rts
-.endproc
-
-.proc gm_leaveroomL_FAR_
-	jsr gm_leaveroomL_FAR
-	sta temp12
+	lda #0
+	sta dustrhythm
 	rts
 .endproc
 

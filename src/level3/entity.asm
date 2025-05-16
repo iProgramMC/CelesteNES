@@ -268,16 +268,23 @@
 @entXhi  := temp4
 	ldx @entidx
 	
-	; update goes here
-	inc sprspace+sp_l3db_timer, x
-	; is it fast?
+	ldy dustrhythm
+	
 	lda sprspace+sp_l3db_tratp, x
 	and #4
 	beq :+
-	; double speed!!
-	inc sprspace+sp_l3db_timer, x
-
-:	; ok, now calculate the object's position based on its trajectory type
+	
+	; double speed
+	tya
+	asl
+	tay
+	
+:	tya
+	clc
+	adc sprspace+sp_l3db_timer, x
+	sta temp6
+	
+	; ok, now calculate the object's position based on its trajectory type
 	
 	; save temp1 and temp2 because we'll need them, and they're clobbered by mul_8x8
 	lda temp1
@@ -288,8 +295,6 @@
 	pha
 	
 	; load the timer and store it in temp6
-	lda sprspace+sp_l3db_timer, x
-	sta temp6
 	lda sprspace+sp_l3db_trara, x
 	sta temp11
 	
@@ -386,7 +391,21 @@
 	pla
 	sta temp1
 	
+	ldx temp1
+	; check collision
+	lda #2
+	sta temp7
+	sta temp8
+	lda #14
+	sta temp9
+	sta temp10
+	ldy temp1
+	jsr gm_check_collision_ent
+	beq @noCollision
 	
+	jsr gm_killplayer
+	
+@noCollision:
 	; draw
 	lda framectr
 	lsr

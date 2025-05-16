@@ -2663,6 +2663,8 @@ gm_superjumpepilogue:
 ; ** SUBROUTINE: gm_timercheck
 ; desc: Checks and decreases relevant timers.
 gm_timercheck:
+	inc dustrhythm
+	
 	lda playerctrl
 	sta prevplrctrl
 	
