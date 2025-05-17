@@ -2323,6 +2323,15 @@ commitSaveFile:
 @banks:	.byte chrb_cass2, chrb_cass1
 .endproc
 
+; ** ENTITY: Invisible Barrier
+.proc xt_draw_invis_barrier
+	ldx temp1
+	lda sprspace+sp_flags, x
+	ora #ef_collidable
+	sta sprspace+sp_flags, x
+	rts
+.endproc
+
 ; ** ENTITY: Heart Gem
 .proc xt_draw_heart_gem
 	lda #chrb_sheart
@@ -2679,7 +2688,8 @@ level2_memorial_kludge:
 	xt_draw_spring_left,    \
 	xt_draw_spring_right,   \
 	level3_sinking_platform,\
-	level3_dust_bunny
+	level3_dust_bunny,      \
+	xt_draw_invis_barrier
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table

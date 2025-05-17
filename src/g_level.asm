@@ -1463,6 +1463,18 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notDustCreature:
+	cmp #e_invisbar
+	bne @notInvisBarr
+	
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_wid, y
+	jsr gm_read_ent
+	sta sprspace+sp_hei, y
+	jmp @tyxReturn
+	
+@notInvisBarr:
 	; todo: more cases ...
 	rts
 
