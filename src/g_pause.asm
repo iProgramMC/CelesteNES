@@ -3,10 +3,10 @@
 ; ** SUBROUTINE: gm_pause
 ; desc: Pauses the game.
 .proc gm_pause
-	lda dialogsplit
-	bne return
-	lda dlg_cutsptr+1
-	bne return
+	;lda dialogsplit
+	;bne return
+	;lda dlg_cutsptr+1
+	;bne return
 	lda playerctrl
 	and #pl_dead
 	beq dontreturn
@@ -15,6 +15,37 @@ return:
 
 dontreturn:
 	inc paused
+	
+	lda dlgmusicpaus
+	beq :+
+	jsr famistudio_music_pause
+	
+:	lda scrollsplit
+	sta scrollsplitb
+	lda dialogsplit
+	sta dialogsplitb
+	
+	beq @dontStall
+	
+	; stall to avoid a race condition with the dialog,
+	; since we are relatively early in the frame.
+	ldx #5
+@loop2:
+	ldy #255
+@loop1:
+	dey
+	bne @loop1
+	dex
+	bne @loop2
+	
+@dontStall:
+	lda #0
+	sta scrollsplit
+	sta dialogsplit
+	lda camera_y
+	clc
+	adc camera_y_sub
+	sta scroll_y
 	
 	lda spr0_bknum
 	sta spr0_paubk
@@ -80,8 +111,19 @@ dontreturn:
 	lda spr3_paubk
 	sta spr3_bknum
 	
+	lda scrollsplitb
+	sta scrollsplit
+	lda dialogsplitb
+	sta dialogsplit
+	
+	lda dlgmusicpaus
+	beq :+
+	
+	lda #0
+	jsr famistudio_music_pause
+	
 	; restore old palette
-	ldy #0
+:	ldy #0
 palettePrepLoop:
 	lda (paladdr), y
 	sta temprow1,  y
@@ -116,11 +158,11 @@ return:
 ; ** SUBROUTINE: gm_check_pause
 ; desc: Checks the start button to see if the game should be paused.
 .proc gm_check_pause
-	lda game_conto
+	lda p1_conto
 	and #cont_start
 	bne gm_unpause::return ; the button was already pressed
 	
-	lda game_cont
+	lda p1_cont
 	and #cont_start
 	beq gm_unpause::return ; you didn't actually press start
 	

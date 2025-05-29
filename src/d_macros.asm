@@ -35,6 +35,7 @@ DOP_music   = $19  ; Play music track
 DOP_finish  = $1A  ; Finish level
 DOP_hideplr = $1B  ; Hide player
 DOP_showplr = $1C  ; Show player
+DOP_pausmsc = $1D  ; Set Music Paused
 
 DOP_dialog  = $82  ; Show dialog box (with more dialog boxes following it)
 
@@ -243,4 +244,9 @@ name:
 ; Show player
 .macro show_player
 	.byte DOP_showplr
+.endmacro
+
+; Set music paused
+.macro pause_music val
+	.byte DOP_pausmsc, val
 .endmacro

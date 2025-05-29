@@ -100,6 +100,28 @@ loop:
 	dec temp1
 	bne loop
 	
+	; are we in a cutscene?
+	ldx dlg_cutsptr
+	bne :+
+	ldx dlg_cutsptr+1
+	beq notSkipCutscene
+	
+:	; change into the skip cutscene button
+	ldy #1 + 44
+@loop:
+	lda oam_buf, y
+	sec
+	sbc #$20
+	sta oam_buf, y
+	
+	iny
+	iny
+	iny
+	iny
+	cpy #1 + 76
+	bcc @loop
+
+notSkipCutscene:
 	; ok, now check what buttons the player is pressing
 	lda p1_cont
 	and #cont_a
@@ -180,6 +202,20 @@ pressedResume:
 pressedRetry:
 	jsr com_clear_oam ; actually undo everything we just did
 	jsr gm_unpause
+	
+	lda dlg_cutsptr
+	bne @doSkip
+	lda dlg_cutsptr+1
+	beq @notSkip
+
+@doSkip:
+	lda gamectrl5
+	ora #g5_skipping
+	sta gamectrl5
+	
+	rts
+	
+@notSkip:
 	jmp gm_killplayer
 
 .if EXTENDED_PAUSE
@@ -205,15 +241,15 @@ pause_option_offsets:
 	.byte 2+24  ; RESUME
 	.byte 2+44  ; RETRY
 .if EXTENDED_PAUSE
-	.byte 2+92  ; SAVE AND QUIT
-	.byte 2+124 ; OPTIONS
-	.byte 2+140 ; RESTART CHAPTER
+	.byte 2+108 ; SAVE AND QUIT
+	.byte 2+140 ; OPTIONS
+	.byte 2+156 ; RESTART CHAPTER
 .endif
-	.byte 2+60  ; RETURN TO MAP
+	.byte 2+76  ; RETURN TO MAP
 
 ; amount of sprites to modify
 pause_option_lengths:
-	.byte 5, 4, 8, 4, 8, 8
+	.byte 5, 8, 8, 4, 8, 8
 
 ; animation table (stored in reverse order)
 pause_anim_table:
@@ -237,13 +273,17 @@ pause_data:
 	.byte  80, $27, $02, $84
 	.byte  80, $29, $02, $8C
 	
-	; retry button - 44
-	.byte  96, $19, $02, $70
-	.byte  96, $1B, $02, $78
-	.byte  96, $1D, $02, $80
-	.byte  96, $1F, $02, $88
+	; retry/skip cutscene button - 44
+	.byte  96, $91, $02, $60
+	.byte  96, $93, $02, $68
+	.byte  96, $95, $02, $70
+	.byte  96, $97, $02, $78
+	.byte  96, $99, $02, $80
+	.byte  96, $9B, $02, $88
+	.byte  96, $9D, $02, $90
+	.byte  96, $9F, $02, $98
 	
-	; return to map - 60
+	; return to map - 76
 	.byte 176, $61, $02, $60
 	.byte 176, $63, $02, $68
 	.byte 176, $65, $02, $70
@@ -254,7 +294,7 @@ pause_data:
 	.byte 176, $6F, $02, $98
 	
 .if EXTENDED_PAUSE
-	; save and quit button - 92
+	; save and quit button - 108
 	.byte 112, $2B, $02, $60
 	.byte 112, $2D, $02, $68
 	.byte 112, $2F, $02, $70
@@ -264,13 +304,13 @@ pause_data:
 	.byte 112, $37, $02, $90
 	.byte 112, $39, $02, $98
 	
-	; options button - 124
+	; options button - 140
 	.byte 128, $51, $02, $70
 	.byte 128, $53, $02, $78
 	.byte 128, $55, $02, $80
 	.byte 128, $57, $02, $88
 	
-	; restart chapter - 140
+	; restart chapter - 156
 	.byte 160, $41, $02, $60
 	.byte 160, $43, $02, $68
 	.byte 160, $45, $02, $70

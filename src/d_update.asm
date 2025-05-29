@@ -631,7 +631,13 @@ dlg_run_cutscene:
 
 @exitCutscene:
 	; The cutscene is over. Resume normal gameplay.
+	
+	lda gamectrl5
+	and #<~g5_skipping
+	sta gamectrl5
+	
 	lda #0
+	sta dlgmusicpaus
 	sta dlg_cutsptr
 	sta dlg_cutsptr+1
 
@@ -697,6 +703,7 @@ dlg_cmd_table:
 	.word dlg_cmd_endlevel
 	.word dlg_cmd_hideplr
 	.word dlg_cmd_showplr
+	.word dlg_cmd_pausemusic
 
 dlg_cmd_begin:
 	jsr dlg_cmd_left
@@ -704,9 +711,15 @@ dlg_cmd_begin:
 	sta dlg_waittimer
 	sta dlg_walkdstx
 	sta dlg_walkdsty
+	sta dlgentoldst
+	sta dlgmusicpaus
 	rts
 
 dlg_cmd_wait:
+	lda gamectrl5
+	and #g5_skipping
+	bne @justExit
+	
 	; if there is no wait timer, set one up
 	lda dlg_waittimer
 	beq @loadWaitTimer
@@ -715,6 +728,7 @@ dlg_cmd_wait:
 	dec dlg_waittimer
 	bne @stillNotZero
 	
+@justExit:
 	; it's zero now, so move on. ip is on the number of frames to wait,
 	; so we must increment it again to move on to the next instruction
 	jsr dlg_read_script
@@ -752,9 +766,17 @@ dlg_cmd_dialog_:
 	jsr dlg_read_script
 	sta dlg_textptr+1
 	
+	lda gamectrl5
+	and #g5_skipping
+	bne dlg_cmd_dialog_skip
+	
 	jsr dlg_start_dialog
 	
 	lda #1
+	rts
+	
+dlg_cmd_dialog_skip:
+	lda #0
 	rts
 
 dlg_cmd_speaker:
@@ -806,7 +828,12 @@ dlg_cmd_dirent:
 	rts
 
 dlg_cmd_walkplr:
-	lda dlg_walkdsty
+	lda gamectrl5
+	and #g5_skipping
+	beq :+
+	jmp @skip
+	
+:	lda dlg_walkdsty
 	beq @readAndSetUp
 	
 	lda #0
@@ -882,13 +909,12 @@ dlg_cmd_walkplr:
 	inc trantmp1
 
 :	; check the Y now TODO
-	
-	
 	lda trantmp1
 	cmp #1
 	; if not done, then recheck
 	bne @recheck
 	
+@finish:
 	; finish the command
 	jsr dlg_read_script
 	jsr dlg_read_script
@@ -920,6 +946,17 @@ dlg_cmd_walkplr:
 @recheck:
 	jmp dlg_recheck_next_frame
 
+@skip:
+	jsr dlg_read_script
+	sta player_x
+	
+	; if the destination Y is smaller than the current Y then store
+	jsr dlg_read_script
+	cmp player_y
+	bcs @finish
+	sta player_y
+	bcc @finish
+
 dlg_cmd_walkent:
 	; TODO
 	jsr dlg_read_script
@@ -943,9 +980,35 @@ dlg_cmd_trigger:
 	
 	ldx dlg_entity
 	
+	; change the backup if we are skipping, and if it wasn't already set
+	pha
+	
+	lda gamectrl5
+	and #g5_skipping
+	beq :+
+	
+	lda dlgentoldst
+	bne :+
+	
+	lda sprspace+sp_entspec1, x
+	sta dlgentoldst
+	
+:	pla
+	
 	; this field was decided on by convention(TM).
 	sta sprspace+sp_entspec1, x
 	
+	lda gamectrl5
+	and #g5_skipping
+	beq @NotSkipping
+	
+	lda #255
+	sta sprspace+sp_entspec1, x
+	
+	lda #0
+	rts
+	
+@NotSkipping:
 	lda sprspace+sp_flags, x
 	and #ef_clearspc23
 	beq @return
@@ -996,6 +1059,10 @@ dlg_cmd_right:
 
 ; Wait Ground
 dlg_cmd_waitgrn:
+	lda gamectrl5
+	and #g5_skipping
+	bne @justExit
+	
 	; check if player is on ground
 	lda playerctrl
 	and #pl_ground
@@ -1014,12 +1081,17 @@ dlg_cmd_freeze:
 	jsr dlg_read_script
 	tay
 	
+	lda gamectrl5
+	and #g5_skipping
+	bne @justExit
+	
 :	sty transtimer
 	jsr dlg_leave_doframe
 	ldy transtimer
 	dey
 	bne :-
 	
+@justExit:
 	lda #0
 	rts
 
@@ -1156,6 +1228,11 @@ dlg_cmd_endlevel:
 	and #<~g2_exitlvl
 	sta gamectrl2
 	
+	lda #0
+	sta dlgmusicpaus
+	sta dlg_cutsptr
+	sta dlg_cutsptr+1
+	
 	lda #2
 	sta exitmaptimer
 	rts
@@ -1171,6 +1248,13 @@ dlg_cmd_hideplr:
 dlg_cmd_showplr:
 	lda #0
 	sta amodeforce
+	rts
+
+; Set Music Paused
+dlg_cmd_pausemusic:
+	jsr dlg_read_script
+	sta dlgmusicpaus
+	lda #0
 	rts
 
 ; ** SUBROUTINE: dlg_recheck_next_frame

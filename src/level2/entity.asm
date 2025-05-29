@@ -430,7 +430,9 @@ level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01, $08
 	
 	ldx temp1
 	lda sprspace+sp_l2mi_state, x
-	beq @state_Idle
+	bpl :+
+	jmp @state_Skipped
+:	beq @state_Idle
 	cmp #1
 	beq @state_Reflected
 	cmp #2
@@ -691,13 +693,14 @@ level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01, $08
 	lda #chrb_lvl2+2
 	sta bg1_bknum
 	
-	inc dbenable
+	lda #1
+	sta dbenable
 	
 @returnReveal:
 	rts
 
 @state_RevealDreamBlock_ScrollUp:
-	; for the course of 10 frames, scroll up
+	; for the course of 20 frames, scroll up
 	ldx temp1
 	ldy sprspace+sp_l2mi_timer, x
 	cpy #20
@@ -726,7 +729,7 @@ level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01, $08
 	rts
 
 @state_RevealDreamBlock_ScrollDown:
-	; for the course of 10 frames, scroll down
+	; for the course of 20 frames, scroll down
 	ldx temp1
 	ldy sprspace+sp_l2mi_timer, x
 	cpy #20
@@ -784,6 +787,50 @@ level2_payphone_anims_length:	.byte $01, $09, $01, $04, $01, $10, $14, $01, $08
 	sta irqaddr+1
 	lda #$C0
 	sta miscsplit
+	rts
+
+@state_Skipped:
+	lda #1
+	sta dbenable
+	
+	; The cutscene was skipped.
+	; Check which state we were in.
+	lda dlgentoldst
+	cmp #9
+	beq @wasScrollingUp
+	bcc @returnEarly      ; <9  means we didn't scroll up at all
+	
+	cmp #12
+	bcs @returnEarly
+	
+	; is 10 or 11, so setup a scroll
+	lda #0
+	sta sprspace+sp_l2mi_timer, x
+	beq @setStateToTwelve
+
+@wasScrollingUp:
+	lda #19
+	sec
+	sbc sprspace+sp_l2mi_timer, x
+	bpl :+
+	lda #0
+:	sta sprspace+sp_l2mi_timer, x
+	
+	; then also raise the camera by 4 because we have
+	; 1 extra frame of tolerance
+	lda camera_y_sub
+	sec
+	sbc #4
+	sta camera_y_sub
+
+@setStateToTwelve:
+	lda #12
+	sta sprspace+sp_l2mi_state, x
+	rts
+
+@returnEarly:
+	lda #0
+	sta sprspace+sp_l2mi_state, x
 	rts
 
 drawBadeline:

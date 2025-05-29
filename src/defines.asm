@@ -594,6 +594,7 @@ g4_altpal   = $40   ; used alternate palette
 g4_nophysic = $80   ; disable physics
 g5_collideX = $01   ; collided X this frame
 g5_collideY = $02   ; collided Y this frame
+g5_skipping = $04   ; skipping the cutscene
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 pl_pushing  = $04   ; player is pushing against a wall - either sliding or ground-pushing

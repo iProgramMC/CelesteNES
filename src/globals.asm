@@ -477,6 +477,10 @@ dshatktime  : .res 1 ; dash attack time
 dshold_vl_x : .res 1 ; dash old speed X high
 dshold_vs_x : .res 1 ; dash old speed X low
 dustrhythm  : .res 1 ; used to control the synchronization of dust bunnies
+scrollsplitb: .res 1 ; scroll split backup for pause
+dialogsplitb: .res 1 ; dialog split backup for pause
+dlgentoldst : .res 1 ; dialog entity old state
+dlgmusicpaus: .res 1 ; should pause the music when game is paused?
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

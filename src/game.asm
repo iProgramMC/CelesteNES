@@ -254,6 +254,19 @@ gm_game_update:
 ; ** SUBROUTINE: gm_update_dialog
 ; desc: Updates the active dialog if needed.
 gm_update_dialog:
+	lda gamectrl5
+	and #g5_skipping
+	beq @notSkipping
+	
+	; Not skipping! Let the battles begin...
+	lda dialogsplit
+	beq :+
+	jsr dlg_end_dialog_g
+:	jsr dlg_run_cutscene_g
+	
+	rts
+	
+@notSkipping:
 	lda gamectrl3
 	and #g3_updcuts
 	beq @dontUpdateCutscene
@@ -320,6 +333,10 @@ gm_game_clear_wx:
 	stx retain_timer
 	stx dshatktime
 	stx dustrhythm
+	stx gamectrl3
+	stx scrollsplitb
+	stx dialogsplitb
+	stx dlgentoldst
 	;stx bgcurroffs
 	
 	txa

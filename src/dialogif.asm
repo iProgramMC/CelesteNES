@@ -33,3 +33,11 @@ dlg_run_cutscene_g:
 	sta farcalladdr+1
 	ldy #prgb_dial
 	jmp far_call
+
+dlg_end_dialog_g:
+	lda #<dlg_end_dialog
+	sta farcalladdr
+	lda #>dlg_end_dialog
+	sta farcalladdr+1
+	ldy #prgb_dial
+	jmp far_call

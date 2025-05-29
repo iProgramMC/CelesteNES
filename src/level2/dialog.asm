@@ -5,6 +5,7 @@ ch2_mirror_shatter:
 	
 	; play the 1st part of the dreamblock sting here
 	play_music  1
+	pause_music 1
 	
 	lock_input
 	
@@ -50,7 +51,9 @@ ch2_mirror_shatter:
 	wait        210
 	
 	; done!
+	trigger     12
 	play_music  2
+	pause_music 0
 	unlock_input
 	end
 

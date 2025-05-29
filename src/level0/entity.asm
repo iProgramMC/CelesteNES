@@ -39,8 +39,10 @@ level0_granny:
 	sta temp8
 	
 	lda sprspace+sp_l0gr_state
+	bmi @idle1
 	bne @notIdle
 	
+@idle1:
 	; idle
 	dec sprspace+sp_l0gr_ttimr, x
 	bne :+
