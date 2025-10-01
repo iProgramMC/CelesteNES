@@ -17,3 +17,4 @@ metatile_palette:
 	.res  16, $3 ; Books
 	.res  16, $0 ; Clothes
 	.res  20, $1 ; Boxes
+	.res   1, $1 ; Ceiling Blocker

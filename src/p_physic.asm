@@ -1009,6 +1009,7 @@ xt_colljumptable:
 	.word xt_collidecass1
 	.word xt_collidecass2
 	.word xt_collidespinnerstatic
+	.word xt_collidefthru
 
 xt_collidecass1:
 	lda cassrhythm
@@ -1022,6 +1023,14 @@ xt_collidecass2:
 
 xt_collidefull:
 	lda #1
+	rts
+
+xt_collidefthru:
+	cmp #gc_ceil
+	bne :+
+	lda #1
+	rts
+:	lda #0
 	rts
 
 xt_collidejthru:

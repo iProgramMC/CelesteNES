@@ -46,6 +46,7 @@
 .include "level2/bank_5.asm"
 .include "level3/bank_0.asm"
 .include "level3/bank_1.asm"
+.include "level3/bank_2.asm"
 
 .include "prg_phys.asm"
 .include "prg_xtra.asm"

@@ -52,9 +52,9 @@ MEMORY
 	PRG_LVL2F: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0A;
 	PRG_LVL3A: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0B;
 	PRG_LVL3B: start=$C000, size=$2000, fill=yes, fillval=$00, bank=$0C;
+	PRG_LVL3C: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0D;
 	
 	# Unallocated Banks
-	PRG_UNA04: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0D;
 	PRG_UNA05: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0E;
 	PRG_UNA06: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$0F;
 	PRG_UNA07: start=$A000, size=$2000, fill=yes, fillval=$00, bank=$10;
@@ -239,6 +239,7 @@ SEGMENTS
 	PRG_LVL2F: load = PRG_LVL2F, type = ro, align=$100;
 	PRG_LVL3A: load = PRG_LVL3A, type = ro, align=$100;
 	PRG_LVL3B: load = PRG_LVL3B, type = ro, align=$100;
+	PRG_LVL3C: load = PRG_LVL3C, type = ro, align=$100;
 	PRG_PHYS:  load = PRG_PHYS,  type = ro, align=$100;
 	PRG_ENTS:  load = PRG_ENTS,  type = ro, align=$100;
 	PRG_PAUS:  load = PRG_PAUS,  type = ro, align=$100;
@@ -250,7 +251,6 @@ SEGMENTS
 	PRG_VECS:  load = PRG_VECS,  type = ro;
 	
 	# Unallocated
-	PRG_UNA04: load = PRG_UNA04, type = ro, align=$100;
 	PRG_UNA05: load = PRG_UNA05, type = ro, align=$100;
 	PRG_UNA06: load = PRG_UNA06, type = ro, align=$100;
 	PRG_UNA07: load = PRG_UNA07, type = ro, align=$100;
