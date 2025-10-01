@@ -1540,12 +1540,11 @@ generateRowGoingDown:
 
 correctEntityYPos:
 	lda roomheight
+	sec
 	sbc #30
 	asl
 	asl
 	asl
-	clc
-	adc #8
 	tax
 	beq @returnEarly
 	ldy #0
@@ -1555,8 +1554,6 @@ correctEntityYPos:
 	clc
 	adc sprspace+sp_y, y
 	bcs @overflow
-	cmp #240
-	bcs @overflow
 	sta sprspace+sp_y, y
 @overflowBack:
 	iny
@@ -1565,7 +1562,6 @@ correctEntityYPos:
 @returnEarly:
 	rts
 @overflow:
-	adc #15 ; carry set, so this actually adds 16
 	sta sprspace+sp_y, y
 	lda sprspace+sp_flags, y
 	eor #ef_limbo
