@@ -11,8 +11,6 @@ level1_r1_p:
 	.byte $00,$20,$22,$20,$12,$45,$44,$04
 	.byte $FF
 level1_r1_e:
-	.byte $08,$80,$1E
-	.byte $80,$80,$1F
 	.byte $FF
 level1_r1_t:
 	.byte $C6,$16,$17,$18,$1A,$19,$18,$64
