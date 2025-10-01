@@ -29,6 +29,7 @@
 
 .include "defines.asm"
 .include "globals.asm"
+.include "macros.asm"
 
 .include "d_macros.asm"
 

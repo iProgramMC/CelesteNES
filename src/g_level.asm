@@ -1009,8 +1009,7 @@ h_gener_mts_r:
 	beq :+
 	rts
 	
-:	
-	inc colsloaded
+:	inc colsloaded
 	ldx arwrhead
 	jsr h_comp_addr       ; compute the address in (lvladdr)
 	

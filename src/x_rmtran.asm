@@ -1278,7 +1278,7 @@ skipNewMode:
 	ldy #0
 writeloop:
 	sty transtimer
-	jsr xt_gener_row_u
+	jsr generateRowGoingDown
 	
 	; also bring the player up
 	lda player_y
@@ -1378,13 +1378,32 @@ dontdomore:
 	and #(gs_dontgen ^ $FF)
 	sta gamectrl
 	
+	
 	lda lvlyoff
 	asl
 	asl
 	asl
-	sta camera_y
 	sta camera_y_bs
+	sta camera_y
 	
+	lda roomflags
+	and #(rf_new | rf_inverted)
+	cmp #(rf_new | rf_inverted)
+	bne @skipNewAndInverted
+	
+	lda #0
+	sta camera_y_hi
+	lda #60
+	sec
+	sbc roomheight
+	asl
+	asl
+	asl
+	sta camera_y
+	
+	jsr correctEntityYPos
+	
+@skipNewAndInverted:
 	lda #(g3_transitD ^ $FF)
 	and gamectrl3
 	sta gamectrl3
@@ -1400,6 +1419,7 @@ newModeTran:
 	; prepare row to generate
 	lda #1
 	ldy #0
+	sty nitrantmp
 @newModeLoop2:
 	sta temprow1, y
 	sta temprow2, y
@@ -1411,8 +1431,23 @@ newModeTran:
 	sta wrcountHR1
 	sta wrcountHR2
 	
+	; check if the inverted flag is set - means the room starts at the bottom
+	lda roomflags
+	and #rf_inverted
+	beq @newModeLoop
+	
+	; yes, so we need to calculate the destination camera Y from the room height
+	lda #60
+	sec
+	sbc roomheight
+	asl
+	asl
+	asl
+	sta nitrantmp
+	
 @newModeLoop:
 	lda camera_y
+	cmp nitrantmp
 	beq @endNewModeLoop
 	clc
 	adc #8
@@ -1459,6 +1494,83 @@ newModeTran:
 	sta lvlyoff
 	sta dustrhythm
 	rts
+
+generateRowGoingDown:
+	lda roomflags
+	and #rf_inverted
+	beq @normally
+	
+	lda ntrowhead
+	pha
+	lda ntrowhead2
+	pha
+	
+	; calculate (60 - roomheight), then add it to ntrowhead and
+	; subtract from ntrowhead2, making sure they don't go over 30
+	lda #60
+	sec
+	sbc roomheight
+	sta nitrantmp
+	
+	clc
+	adc ntrowhead
+	cmp #30
+	bcc :+
+	sbc #30
+:	sta ntrowhead
+
+	lda nitrantmp
+	clc
+	adc ntrowhead2
+	cmp #30
+	bcc :+
+	sbc #30
+:	sta ntrowhead2
+	
+	jsr xt_gener_row_u
+	
+	pla
+	sta ntrowhead2
+	pla
+	sta ntrowhead
+	rts
+
+@normally:
+	jmp xt_gener_row_u
+
+correctEntityYPos:
+	lda roomheight
+	sbc #30
+	asl
+	asl
+	asl
+	clc
+	adc #8
+	tax
+	beq @returnEarly
+	ldy #0
+@loop:
+	txa
+	; add it. if the result is >240, then flip the limbo bit
+	clc
+	adc sprspace+sp_y, y
+	bcs @overflow
+	cmp #240
+	bcs @overflow
+	sta sprspace+sp_y, y
+@overflowBack:
+	iny
+	cpy #sp_max
+	bne @loop
+@returnEarly:
+	rts
+@overflow:
+	adc #15 ; carry set, so this actually adds 16
+	sta sprspace+sp_y, y
+	lda sprspace+sp_flags, y
+	eor #ef_limbo
+	sta sprspace+sp_flags, y
+	jmp @overflowBack
 .endproc
 
 ; ** SUBROUTINE: gm_leaveroomL_FAR

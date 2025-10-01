@@ -19,6 +19,7 @@
 .include "g_util.asm"
 .include "g_palette.asm"
 .include "g_math.asm"
+.include "g_decomp2.asm"
 .include "xtraif.asm"
 
 ; ** SUBROUTINE: gm_update_ptstimer

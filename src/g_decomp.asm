@@ -1,64 +1,5 @@
 ; Copyright (C) 2024 iProgramInCpp
 
-; increments 16-bit "thing" by 1
-.macro increment_16 thing
-.scope
-	inc thing
-	bne noCarry
-	inc thing+1
-noCarry:
-.endscope
-.endmacro
-
-; adds an 8-bit value (constant or from memory) to 16-bit "thing"
-.macro add_16 thing, value
-.scope
-	lda thing
-	clc
-	adc value
-	sta thing
-	bcc noCarry
-	inc thing+1
-noCarry:
-.endscope
-.endmacro
-
-; subtracts an 8-bit value (constant or from memory) to 16-bit "thing"
-.macro sub_16 thing, value
-.scope
-	lda thing
-	sec
-	sbc value
-	sta thing
-	bcs noCarry
-	dec thing+1
-noCarry:
-.endscope
-.endmacro
-
-; adds a 16-bit value (constant) to 16-bit "thing"
-.macro add_16_16 thing, constant
-	lda #<(constant)
-	clc
-	adc thing
-	sta thing
-	lda #>(constant)
-	adc thing+1
-	sta thing+1
-.endmacro
-
-; adds the content of A to 16-bit "thing"
-.macro add_16_a thing
-.scope
-	clc
-	adc thing
-	sta thing
-	bcc noCarry
-	inc thing+1
-noCarry:
-.endscope
-.endmacro
-
 ; ** FORMAT DESCRIPTION
 ;
 ; The NEW level format is formatted like this
@@ -475,17 +416,13 @@ notInverted:
 ; ** SUBROUTINE: h_gener_mts_NEW_r
 ; desc: Generates a column of metatiles from areaextra.  Called by h_gener_mts_r.
 .proc h_gener_mts_NEW_r
+	lda #$FF
+	sta nitrantmp
 	lda roomcurrcol
 	cmp roomwidth
 	bcs dataEnd
 	
 	; Generate metatiles from areaextra.
-	; Currently, this is ONLY the first row of nametables.
-	
-	; called by h_gener_mts_r who called us
-	;ldx arwrhead
-	;jsr h_comp_addr       ; compute the address in (lvladdr)
-	
 	lda #rf_inverted
 	bit roomflags
 	bne isInverted
@@ -506,7 +443,19 @@ doneInverted:
 	
 	ldy #0
 loop:
+	; if y < nitrantmp, then dataset from temp1, else dataset from temp3.
+	; note that this functionality is used only in the special case where
+	; we are transitioning downwards into a new + inverted room (one whose
+	; primary room is down). in all other cases nitrantmp is #255 so bcs
+	; won't ever be triggered
+	cpy nitrantmp
+	bcc loadFromTemp1
+	lda (temp3), y
+	bcs loadedAlready
+	
+loadFromTemp1:
 	lda (temp1), y
+loadedAlready:
 	sta (lvladdr), y
 	iny
 	cpy #30
@@ -527,7 +476,30 @@ dataEnd:
 	jsr h_genertiles_calc_camlimit
 	jmp finally
 
+otherHalfDetour:
+
 isInverted:
+	; is inverted, but check if we're transitioning from downward
+	lda gamectrl3
+	and #g3_transitD
+	beq notTransitioningDown
+
+	; transitioning down, so prepare the other data set pointer
+	; and threshold to switch to it
+	lda #<areaextra
+	clc
+	adc roomreadidx
+	sta temp3
+	lda #>areaextra
+	adc roomreadidx+1
+	sta temp3+1
+	
+	lda #60
+	sec
+	sbc roomheight
+	sta nitrantmp
+
+notTransitioningDown:
 	lda #<(areaextra+960*2)
 	sta temp1
 	lda #>(areaextra+960*2)
@@ -625,53 +597,4 @@ loop:
 	bne loop
 	
 	jmp gm_gener_tiles_horiz_row_read
-.endproc
-
-; ** SUBROUTINE: gm_gen_pal_col_NEW
-; desc: Generates a column of palettes, stores it in temppal, then
-;       returns back to a label inside of h_palette_data_column.
-;
-; note: this is NOT called using jsr!
-.proc gm_gen_pal_col_NEW
-	lda ntwrhead
-	and #%11111100
-	sec
-	sbc roombeglo2
-	pha               ; OK SO we need to actually push here
-	and #%00011111    ; we'll want to reuse this amount to determine
-	lsr               ; which nametable this is actually a part of (important)
-	lsr
-	clc
-	adc #<areapal4X4
-	sta temp1
-	lda #>areapal4X4
-	adc #0
-	sta temp1+1
-	
-	lda #rf_inverted
-	bit roomflags
-	beq dontAdd128
-	
-	add_16 temp1, #128
-	
-dontAdd128:
-	pla
-	and #%00100000
-	beq dontAdd64
-	
-	; add 64
-	add_16 temp1, #64
-	
-dontAdd64:
-	ldx #0
-	ldy #0
-loop:
-	lda (temp1),  y
-	sta temppal,  x
-	add_16 temp1, #8
-	inx
-	cpx #8
-	bne loop
-	
-	jmp h_palette_finish
 .endproc

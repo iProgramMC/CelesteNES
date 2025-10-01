@@ -481,6 +481,7 @@ scrollsplitb: .res 1 ; scroll split backup for pause
 dialogsplitb: .res 1 ; dialog split backup for pause
 dlgentoldst : .res 1 ; dialog entity old state
 dlgmusicpaus: .res 1 ; should pause the music when game is paused?
+nitrantmp   : .res 1 ; new-inverted transition temporary - camera Y destination
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800
