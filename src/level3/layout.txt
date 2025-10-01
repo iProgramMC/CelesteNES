@@ -82,6 +82,13 @@ Spawn,level3_09_b,448,-176
 Spawn,level3_09_b,280,-176
 Spawn,level3_09_b,32,-176
 NiceWarp,level3_09_b,level3_09_bc
+level3_09_d,4736,-400
+Props,level3_09_d,4,0
+Spawn,level3_09_d,32,200
+level3_10_c,4992,-400
+Props,level3_10_c,0,0
+Spawn,level3_10_c,24,224
+Spawn,level3_10_c,248,200
 Filler,3408,-176,416,0
 Filler,3392,208,80,0
 Filler,1216,-128,32,144
