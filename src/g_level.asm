@@ -1284,10 +1284,6 @@ gm_init_entity:
 	cmp #e_breakblck
 	beq @sizableEntity
 	cmp #e_invisbar
-	beq @sizableEntity
-	cmp #e_cameratgt
-	beq @sizableEntity
-	cmp #e_respchg
 	bne @notSizableEntity
 	
 @sizableEntity:
@@ -1300,6 +1296,25 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notSizableEntity:
+	cmp #e_respchg
+	beq @respChgOrCameraTgt
+	cmp #e_cameratgt
+	bne @notRespawnChange
+	
+@respChgOrCameraTgt:
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_wid, y
+	jsr gm_read_ent
+	sta sprspace+sp_hei, y
+	jsr gm_read_ent
+	sta sprspace+sp_rech_homex, y
+	jsr gm_read_ent
+	sta sprspace+sp_rech_homey, y
+	jmp @tyxReturn
+	
+@notRespawnChange:
 	cmp #e_l0bridgea
 	bne @notL0BridgeA
 	
@@ -2005,8 +2020,22 @@ gm_respawn:
 	
 	jsr com_clear_oam
 	
+	lda startpx
+	pha
+	lda startpy
+	pha
+	lda roomloffs
+	pha
+	
 	ldy respawnroom
 	jsr gm_set_room
+	
+	pla
+	sta roomloffs
+	pla
+	sta startpy
+	pla
+	sta startpx
 	
 	lda #0
 	sta musicdiff   ; no difference in music

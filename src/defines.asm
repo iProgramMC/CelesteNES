@@ -102,6 +102,9 @@ sp_part_chrti = sp_wid
 sp_part_chrat = sp_hei
 sp_part_gravi = sp_entspec3
 
+sp_rech_homex = sp_entspec1
+sp_rech_homey = sp_entspec2
+
 sp_l0ic_state = sp_entspec1  ; 0 - hanging, 1 - falling, 2 - fallen
 sp_l0ic_timer = sp_entspec2
 sp_l0ic_vel_y = sp_vel_y

@@ -2332,6 +2332,137 @@ commitSaveFile:
 	rts
 .endproc
 
+; ** ENTITY: Camera Target
+.proc xt_draw_camera_target
+	rts
+.endproc
+
+; ** ENTITY: Respawn Change
+.proc xt_draw_respawn_change
+	ldx temp1
+	lda #0
+	sta temp7
+	sta temp8
+	lda sprspace+sp_wid, x
+	sta temp9
+	lda sprspace+sp_hei, x
+	sta temp10
+	txa
+	tay
+	jsr gm_check_collision_ent
+	beq @return
+	
+	; set the respawn point now
+	ldx temp1
+	
+	; Y position is simple
+	lda sprspace+sp_rech_homey, x
+	clc
+	adc sprspace+sp_y, x
+	sta startpy
+	
+	; also make this the current room
+	lda currroom
+	sta respawnroom
+	
+	; X position is a little bit more complicated
+	; basically we need to calculate (EntityX - RoomBaseX) to calculate
+	; the offset in the room, then subtract $78 from that to figure out
+	; where roomloffs and startpx are.
+	
+	jsr calculateRespawnXGlobally
+	
+	lda temp8
+	sec
+	sbc roombeglo
+	sta temp8
+	lda temp9
+	sbc roombeghi
+	sta temp9
+	
+	; [temp9, temp8] now has the position
+	lda temp8
+	sec
+	sbc #$78
+	sta temp6
+	lda temp9
+	sbc #0
+	sta temp7
+	
+	; [temp7, temp6] has that position minus $78.  If this is negative,
+	; then roomloffs=0, and startpx is equal to temp8, since the offset is
+	; <256 guaranteed
+	bpl @complicated
+	
+	lda temp8
+	sta startpx
+	lda #0
+	sta roomloffs
+	beq @return
+	
+@complicated:
+	; calculate roomloffs first.
+	lda temp6
+	lsr temp7
+	ror
+	lsr temp7
+	ror
+	lsr temp7
+	ror
+	sta temp6
+	sta roomloffs
+	
+	; okay but is it bigger than the right edge.
+	; NOTE: Respawn change objects don't work in long rooms!
+	lda roomsize
+	sec
+	sbc #32
+	cmp roomloffs
+	bcs @positionCorrect
+	
+	; well. it looks like our room offset needs to be corrected
+	; first, turn the room left offset into [temp7, temp6] again
+	sta roomloffs
+	sta temp6
+	lda #0
+	sta temp7
+	
+	; then calculate temp9 and temp8 in terms of (EntityX - [temp7,temp6])
+@positionCorrect:
+	lda temp7
+	asl temp6
+	rol
+	asl temp6
+	rol
+	asl temp6
+	rol
+	sta temp7
+	
+	lda temp8
+	sec
+	sbc temp6
+	sta temp8
+	
+	; temp9 and temp8 now have the position from the left side of the screen
+	; but ideally temp9 is zero.
+	lda temp8
+	sta startpx
+	
+@return:
+	rts
+
+; calculates respawn X from the origin coordinate, NOT from the base
+calculateRespawnXGlobally:
+	lda sprspace+sp_x, x
+	clc
+	adc sprspace+sp_rech_homex, x
+	sta temp8
+	lda sprspace+sp_x_pg, x
+	adc #0
+	sta temp9
+	rts
+.endproc
+
 ; ** ENTITY: Heart Gem
 .proc xt_draw_heart_gem
 	lda #chrb_sheart
@@ -2689,7 +2820,9 @@ level2_memorial_kludge:
 	xt_draw_spring_right,   \
 	level3_sinking_platform,\
 	level3_dust_bunny,      \
-	xt_draw_invis_barrier
+	xt_draw_invis_barrier,  \
+	xt_draw_camera_target,  \
+	xt_draw_respawn_change
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table
