@@ -78,3 +78,4 @@ level3:
 	BANK_prgb_lvl3a: 0
 	BANK_prgb_lvl3b: 1
 	BANK_prgb_lvl3c: 2
+	BANK_prgb_lvl3d: 3

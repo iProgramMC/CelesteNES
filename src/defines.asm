@@ -455,6 +455,7 @@ prgb_lvl2f  = $0A
 prgb_lvl3a  = $0B
 prgb_lvl3b  = $0C
 prgb_lvl3c  = $0D
+prgb_lvl3d  = $0E
 prgb_phys   = $38   ; player physics
 prgb_ents   = $39   ; extra game code, mostly entity and room transition related
 prgb_paus   = $3A   ; pause section
