@@ -440,7 +440,7 @@ level2_r12c_t:
 	.byte $FE,$FE,$FE,$FE,$FF
 level2_r12c:
 	.byte 40, 15
-	.byte 255, 87, 255, 255
+	.byte 255, 86, 255, 255
 	.byte 0, 252, 0, 0
 	.byte 32
 	.byte 255
@@ -485,7 +485,7 @@ level2_end_chase_t:
 	.byte $86,$FF
 level2_end_chase:
 	.byte 40, 0
-	.byte 255, 255, 88, 255
+	.byte 255, 255, 87, 255
 	.byte 0, 0, 0, 0
 	.byte 8
 	.byte 255

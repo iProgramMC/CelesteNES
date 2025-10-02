@@ -33,8 +33,8 @@ level2_d3b_t:
 	.byte $9E,$9E,$FF
 level2_d3b:
 	.byte 32, 0
-	.byte 255, 255, 61, 62
-	.byte 0, 0, 242, 234
+	.byte 255, 255, 61, 255
+	.byte 0, 0, 242, 0
 	.byte 1
 	.byte 255
 	.word level2_d3b_t
@@ -89,7 +89,7 @@ level2_r2__t:
 	.byte $4A,$83,$FF
 level2_r2_:
 	.byte 32, 0
-	.byte 255, 73, 255, 255
+	.byte 255, 72, 255, 255
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
@@ -150,7 +150,7 @@ level2_r12bp_t:
 	.byte $2F,$85,$FF
 level2_r12bp:
 	.byte 32, 0
-	.byte 255, 255, 77, 78
+	.byte 255, 255, 76, 77
 	.byte 0, 0, 0, 0
 	.byte 32
 	.byte 255
