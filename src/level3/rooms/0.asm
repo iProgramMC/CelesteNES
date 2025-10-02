@@ -433,7 +433,7 @@ level3_s3:
 	.byte 40, 0
 	.byte 255, 255, 13, 15
 	.byte 0, 0, 12, 0
-	.byte 0
+	.byte 32
 	.byte 0, 0, 96, 0
 	.byte 0, 0, 14, 0
 	.byte 0, 0, 238, 0
@@ -492,7 +492,7 @@ level3_0x_a:
 	.byte 40, 0
 	.byte 255, 255, 16, 17
 	.byte 0, 0, 0, 0
-	.byte 0
+	.byte 32
 	.byte 255
 	.word level3_0x_a_t
 	.word level3_0x_a_p

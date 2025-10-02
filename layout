@@ -146,7 +146,7 @@ MEMORY
 	CHR_CASS1: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$3E; # Cassette Blocks (1)
 	CHR_BG007: start=$1000, size=$1000, fill=yes, fillval=$FF, bank=$40; # Level 3 (4 banks)
 	
-	CHR_CH3BG: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$44; # Level 3 (unused background)
+	CHR_C3ALT: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$44; # Level 3 (inside tileset)
 	CHR_SL3AB: start=$1000, size=$0800, fill=yes, fillval=$FF, bank=$46; # Level 3 Sprites (two banks)
 	
 	# Unallocated Banks
@@ -322,7 +322,7 @@ SEGMENTS
 	CHR_BG005: load = CHR_BG005, type = ro;
 	CHR_BG006: load = CHR_BG006, type = ro;
 	CHR_BG007: load = CHR_BG007, type = ro;
-	CHR_CH3BG: load = CHR_CH3BG, type = ro;
+	CHR_C3ALT: load = CHR_C3ALT, type = ro;
 	CHR_LV1CA: load = CHR_LV1CA, type = ro;
 	CHR_LV1CB: load = CHR_LV1CB, type = ro;
 	CHR_LV2CA: load = CHR_LV2CA, type = ro;

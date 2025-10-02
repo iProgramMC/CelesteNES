@@ -145,8 +145,8 @@
 .segment "CHR_BG007"
 .incbin  "chr/b_lvl3.chr"
 
-.segment "CHR_CH3BG"
-.incbin  "chr/b_lvl3bg.chr"
+.segment "CHR_C3ALT"
+.incbin  "chr/b_lvl3b.chr"
 
 .segment "CHR_CASS1"
 .incbin  "chr/b_cass1.chr"

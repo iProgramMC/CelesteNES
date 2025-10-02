@@ -1701,7 +1701,19 @@ gm_fetch_room:
 	
 	; If this is level 2, and the current bank number is LVL2B, then
 	; load alternate palettes.
+	cmp #chrb_lvl3
+	bne @notLevel3
 	
+	; is level 3, so check the outside flag
+	lda roomflags2
+	and #r2_outside
+	bne @return
+	
+	lda #chrb_lvl3al
+	sta bg0_bknum
+	rts
+	
+@notLevel3:
 	cmp #chrb_lvl2b
 	beq @level2B
 	bne @normalPalette
