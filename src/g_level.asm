@@ -1281,6 +1281,25 @@ gm_init_entity:
 	sta sprspace+sp_kind, x
 	
 	; TODO: Seriously we should consider using a jump table here.
+	cmp #e_breakblck
+	beq @sizableEntity
+	cmp #e_invisbar
+	beq @sizableEntity
+	cmp #e_cameratgt
+	beq @sizableEntity
+	cmp #e_respchg
+	bne @notSizableEntity
+	
+@sizableEntity:
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_wid, y
+	jsr gm_read_ent
+	sta sprspace+sp_hei, y
+	jmp @tyxReturn
+	
+@notSizableEntity:
 	cmp #e_l0bridgea
 	bne @notL0BridgeA
 	
@@ -1371,18 +1390,6 @@ gm_init_entity:
 	rts
 	
 @notZipMover:
-	cmp #e_breakblck
-	bne @notBreakable
-	
-	txa
-	tay
-	jsr gm_read_ent
-	sta sprspace+sp_wid, y
-	jsr gm_read_ent
-	sta sprspace+sp_hei, y
-	jmp @tyxReturn
-	
-@notBreakable:
 	cmp #e_l2chaser
 	bne @notChaser
 	
@@ -1462,18 +1469,6 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notDustCreature:
-	cmp #e_invisbar
-	bne @notInvisBarr
-	
-	txa
-	tay
-	jsr gm_read_ent
-	sta sprspace+sp_wid, y
-	jsr gm_read_ent
-	sta sprspace+sp_hei, y
-	jmp @tyxReturn
-	
-@notInvisBarr:
 	; todo: more cases ...
 	rts
 

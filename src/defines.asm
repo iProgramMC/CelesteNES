@@ -269,6 +269,8 @@ e_sprgright = $1F ; Spring Right
 e_l3sinkpla = $20 ; LEVEL 3: sinking platform
 e_l3dustbun = $21 ; LEVEL 3: dust creature
 e_invisbar  = $22 ; Invisible Barrier
+e_cameratgt = $23 ; Camera Target
+e_respchg   = $24 ; Respawn Change
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance

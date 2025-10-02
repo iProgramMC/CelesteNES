@@ -1191,7 +1191,7 @@ level3_12_x_t:
 	.byte $84,$05,$82,$FF
 level3_12_x:
 	.byte 40, 0
-	.byte 72, 255, 73, 74
+	.byte 74, 255, 75, 76
 	.byte 216, 0, 0, 4
 	.byte 0
 	.byte 255
