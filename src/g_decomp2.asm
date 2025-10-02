@@ -100,7 +100,7 @@ skipAdding128:
 	; if it DID NOT overflow or go above 240, then we're above the trigger line
 	bcc @returnZero
 	cmp #240
-	bcc @returnZero
+	bcs @returnZero
 	
 	; return this Y but add 16 because we went past a screen boundary
 	adc #15 ; +1 because carry set

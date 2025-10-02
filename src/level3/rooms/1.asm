@@ -569,7 +569,7 @@ level3_09_b:
 	.byte 39, 255, 37, 41
 	.byte 32, 0, 0, 0
 	.byte 0
-	.byte 254, 0, 0, 0
+	.byte 254, 0, 0, 1
 	.byte 38, 0, 0, 40
 	.byte 0, 0, 0, 230
 	.word level3_09_b_t

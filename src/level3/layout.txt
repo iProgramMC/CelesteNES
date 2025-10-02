@@ -83,7 +83,7 @@ level3_09_d,4736,-400
 Props,level3_09_d,5,0
 Spawn,level3_09_d,32,200
 level3_10_c,4992,-400
-Props,level3_10_c,8,0
+Props,level3_10_c,10,4
 Spawn,level3_10_c,24,224
 Spawn,level3_10_c,240,208
 level3_11_b,5248,-192
@@ -95,6 +95,17 @@ Props,level3_11_a,2,4
 Spawn,level3_11_a,0,112
 Spawn,level3_11_a,496,48
 Spawn,level3_11_a,344,168
+level3_12_b,5600,-192
+Props,level3_12_b,2,4
+Spawn,level3_12_b,0,128
+Spawn,level3_12_b,304,128
+level3_11_c,5312,-432
+Props,level3_11_c,2,4
+Spawn,level3_11_c,0,72
+Spawn,level3_11_c,304,72
+level3_12_c,5632,-432
+Props,level3_12_c,4,10
+Spawn,level3_12_c,0,72
 Filler,3408,-176,416,0
 Filler,3392,208,80,0
 Filler,1216,-128,32,144

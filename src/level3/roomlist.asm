@@ -2,7 +2,7 @@ level3:
 	.word level3_music	; music table
 	.word level3_banks	; list of banks for each room
 	.byte $03	; environment type
-	.byte $2E	; warp count
+	.byte $36	; warp count
 	.word level3_w_init
 	.word level3_w_s0_to_s1
 	.word level3_w_s1_to_s0
@@ -47,8 +47,16 @@ level3:
 	.word level3_w_09_b_to_11_a
 	.word level3_w_10_c_to_09_b
 	.word level3_w_10_c_to_11_b
+	.word level3_w_10_c_to_11_c
 	.word level3_w_11_b_to_11_a
+	.word level3_w_11_b_to_12_b
 	.word level3_w_11_a_to_09_b
+	.word level3_w_11_a_to_12_b
+	.word level3_w_12_b_to_11_b
+	.word level3_w_12_b_to_11_a
+	.word level3_w_11_c_to_10_c
+	.word level3_w_11_c_to_12_c
+	.word level3_w_12_c_to_11_c
 level3_banks:
 	.byte prgb_lvl3a	; level3_w_init
 	.byte prgb_lvl3a	; level3_w_s0_to_s1
@@ -94,5 +102,13 @@ level3_banks:
 	.byte prgb_lvl3c	; level3_w_09_b_to_11_a
 	.byte prgb_lvl3b	; level3_w_10_c_to_09_b
 	.byte prgb_lvl3c	; level3_w_10_c_to_11_b
+	.byte prgb_lvl3c	; level3_w_10_c_to_11_c
 	.byte prgb_lvl3c	; level3_w_11_b_to_11_a
+	.byte prgb_lvl3c	; level3_w_11_b_to_12_b
 	.byte prgb_lvl3b	; level3_w_11_a_to_09_b
+	.byte prgb_lvl3c	; level3_w_11_a_to_12_b
+	.byte prgb_lvl3c	; level3_w_12_b_to_11_b
+	.byte prgb_lvl3c	; level3_w_12_b_to_11_a
+	.byte prgb_lvl3c	; level3_w_11_c_to_10_c
+	.byte prgb_lvl3c	; level3_w_11_c_to_12_c
+	.byte prgb_lvl3c	; level3_w_12_c_to_11_c
