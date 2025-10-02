@@ -364,11 +364,11 @@ level3_09_b_t:
 	.byte $C1,$AB,$C1,$F7,$C1,$F3,$C1,$F7
 	.byte $C1,$AC,$E7,$C1,$F7,$C1,$F4,$C1
 	.byte $F5,$C1,$F4,$C1,$C8,$C1,$CA,$AA
-	.byte $C1,$F5,$C1,$F4,$C1,$F5,$EB,$C1
-	.byte $D5,$C1,$D7,$C1,$F7,$C1,$F7,$C1
-	.byte $C9,$C1,$CB,$E9,$C1,$D8,$C1,$DA
-	.byte $E0,$C1,$F7,$C1,$F4,$C1,$EA,$C1
-	.byte $F0,$E8,$C1,$DA,$E0,$C1,$EA,$C1
+	.byte $C1,$F5,$C1,$F4,$C1,$F5,$E1,$A2
+	.byte $E8,$C1,$D5,$C1,$D7,$C1,$F7,$C1
+	.byte $F7,$C1,$C9,$C1,$CB,$E9,$C1,$D8
+	.byte $C1,$DA,$E0,$C1,$F7,$C1,$F4,$C1
+	.byte $EA,$E9,$C1,$DA,$E0,$C1,$EA,$C1
 	.byte $F0,$A9,$C1,$D4,$C1,$D6,$C1,$D9
 	.byte $C1,$DB,$C1,$E1,$C1,$F3,$C1,$F7
 	.byte $C1,$EB,$C1,$F1,$C1,$AD,$E7,$C1
@@ -566,12 +566,12 @@ level3_09_b_t:
 	.byte $C1,$B2,$EB,$C1,$AF,$E6,$AC,$FF
 level3_09_b:
 	.byte 64, 15
-	.byte 39, 255, 37, 255
+	.byte 39, 255, 37, 41
 	.byte 32, 0, 0, 0
 	.byte 0
 	.byte 254, 0, 0, 0
-	.byte 38, 0, 0, 0
-	.byte 0, 0, 0, 0
+	.byte 38, 0, 0, 40
+	.byte 0, 0, 0, 230
 	.word level3_09_b_t
 	.word level3_09_b_p
 	.word level3_09_b_e

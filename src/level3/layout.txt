@@ -86,7 +86,17 @@ level3_10_c,4992,-400
 Props,level3_10_c,8,0
 Spawn,level3_10_c,24,224
 Spawn,level3_10_c,240,208
+level3_11_b,5248,-192
+Props,level3_11_b,14,6
+Spawn,level3_11_b,0,128
+Spawn,level3_11_b,336,128
+level3_11_a,5248,16
+Props,level3_11_a,2,4
+Spawn,level3_11_a,0,112
+Spawn,level3_11_a,496,48
+Spawn,level3_11_a,344,168
 Filler,3408,-176,416,0
 Filler,3392,208,80,0
 Filler,1216,-128,32,144
 Filler,1216,256,32,96
+Filler,5744,96,32,160

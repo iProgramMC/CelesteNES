@@ -71,3 +71,50 @@ skipAdding128:
 	
 	jmp h_palette_finish
 .endproc
+
+; ** SUBROUTINE: get_player_y_for_warp
+; desc: Gets the player's Y position used for warp checking.
+.proc get_player_y_for_warp
+	lda roomflags
+	and #rf_new
+	beq @justReturnTheY
+	
+	lda roomflags
+	and #rf_inverted
+	beq @notInverted
+	
+	; we are inverted, so if the camera Y high is 1, then treat player_y as is
+	lda camera_y_hi
+	bne @justReturnTheY
+	beq @calculateFromCameraY
+	
+@notInverted:
+	; we aren't inverted, so if the camera Y high is zero, then treat player_y as is
+	lda camera_y_hi
+	beq @justReturnTheY
+	
+@calculateFromCameraY:
+	lda camera_y
+	clc
+	adc player_y
+	; if it DID NOT overflow or go above 240, then we're above the trigger line
+	bcc @returnZero
+	cmp #240
+	bcc @returnZero
+	
+	; return this Y but add 16 because we went past a screen boundary
+	adc #15 ; +1 because carry set
+	rts
+
+@justReturnTheY:
+	lda player_y
+	rts
+
+@returnZero:
+	lda #0
+	rts
+
+@return255:
+	lda #255
+	rts
+.endproc

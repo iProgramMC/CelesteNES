@@ -114,14 +114,15 @@ returnNone:
 ; desc: Gets the Right warp number and Y offset, depending on the player's Y position,
 ;       and stores them in the A register, and transoff, respectively.
 .proc xt_get_warp_r
-	lda player_y
+	jsr get_player_y_for_warp
+	sta nitrantmp
 	cmp #$F0
 	bcs xt_get_warp_l::returnNone
 	
 	lda warp_ralt_y
 	beq justReturnNormal
 	
-	cmp player_y
+	cmp nitrantmp
 	bcc justReturnNormal
 	
 	lda warp_ralt_yo
