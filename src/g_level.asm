@@ -1707,11 +1707,10 @@ gm_fetch_room:
 	; is level 3, so check the outside flag
 	lda roomflags2
 	and #r2_outside
-	bne @return
-	
+	beq :+
 	lda #chrb_lvl3al
 	sta bg0_bknum
-	rts
+:	rts
 	
 @notLevel3:
 	cmp #chrb_lvl2b

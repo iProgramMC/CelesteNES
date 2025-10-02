@@ -352,11 +352,11 @@ nope:
 .proc gm_check_level_banks_level3
 	lda roomflags2
 	and #r2_outside
-	beq insideTileSet
+	bne outsideTileSet
 	lda #chrb_lvl3
 	sta bg0_bknum
 	rts
-insideTileSet:
+outsideTileSet:
 	lda #chrb_lvl3al
 	sta bg0_bknum
 	rts
