@@ -94,6 +94,9 @@ sp_crumbl_width = sp_entspec1
 sp_crumbl_timer = sp_entspec2
 sp_crumbl_state = sp_entspec3
 
+sp_prop_chara = sp_entspec1
+sp_prop_palet = sp_entspec2
+
 sp_part_entty = sp_entspec1
 sp_part_vel_x = sp_vel_x
 sp_part_vel_y = sp_vel_y
@@ -280,6 +283,7 @@ e_cameratgt = $23 ; Camera Target
 e_respchg   = $24 ; Respawn Change
 e_l3switch  = $25 ; Clutter Switch
 e_l3clutter = $26 ; Clutter Block (2x2)
+e_sprite    = $27 ; Arbitrary Sprite
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance

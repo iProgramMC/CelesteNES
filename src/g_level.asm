@@ -1383,17 +1383,6 @@ gm_init_entity:
 	rts
 
 @isNotStrawberry:
-	cmp #e_crumble
-	bne @isNotCrumbleBlock
-	
-	; is crumble block
-	txa
-	tay
-	jsr gm_read_ent
-	sta sprspace+sp_crumbl_width, y
-	jmp @tyxReturn
-	
-@isNotCrumbleBlock:
 	cmp #e_l1zipmovr
 	beq @isZipMover
 	cmp #e_l1zipmovt
@@ -1429,12 +1418,19 @@ gm_init_entity:
 	
 @notZipMover:
 	cmp #e_l2chaser
+	beq @chaserOrSomething
+	cmp #e_l3clutter
+	beq @chaserOrSomething
+	cmp #e_crumble
+	beq @chaserOrSomething
+	cmp #e_l3switch
 	bne @notChaser
 	
+@chaserOrSomething:
 	txa
 	tay
 	jsr gm_read_ent
-	sta sprspace+sp_l2dc_state, y
+	sta sprspace+sp_l2dc_state, y ; sp_l3cs_ctype and sp_crumbl_width use the same field
 	jmp @tyxReturn
 	
 @notChaser:
@@ -1468,7 +1464,7 @@ gm_init_entity:
 	bne @notPayPhone
 	
 	lda #$80
-	sta sprspace+sp_l2ph_state, x
+	sta sprspace+sp_l2ph_state, x 
 	rts
 	
 @notPayPhone:
@@ -1507,19 +1503,18 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notDustCreature:
-	cmp #e_l3switch
-	beq @l3Clutter
-	cmp #e_l3clutter
-	bne @notL3Clutter
+	cmp #e_sprite
+	bne @notArbSpr
 	
-@l3Clutter:
 	txa
 	tay
 	jsr gm_read_ent
-	sta sprspace+sp_l3cs_ctype, y
+	sta sprspace+sp_prop_chara, y
+	jsr gm_read_ent
+	sta sprspace+sp_prop_palet, y
 	jmp @tyxReturn
 	
-@notL3Clutter:
+@notArbSpr:
 	; todo: more cases ...
 	rts
 

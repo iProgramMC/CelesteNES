@@ -2692,6 +2692,27 @@ getSign:
 leftFrame:	.byte $40, $40, $40, $44, $48, $4C, $50, $54, $58, $5C, $60, $64, $68, $40
 .endproc
 
+; ** ENTITY: Arbitrary Sprite
+.proc xt_draw_arb_sprite
+	ldx temp1
+	
+	lda sprspace+sp_prop_palet, x
+	jsr gm_allocate_palette
+	sta temp5
+	
+	lda temp2
+	sta x_crd_temp
+	ldy temp3
+	dey
+	sty y_crd_temp
+	
+	lda temp5
+	ldx temp1
+	ldy sprspace+sp_prop_chara, x
+	jmp oam_putsprite
+.endproc
+
+
 ; *********************************************************
 
 ; ** SUBROUTINE: xt_draw_ent_call
@@ -2829,7 +2850,8 @@ level2_memorial_kludge:
 	xt_draw_camera_target,  \
 	xt_draw_respawn_change, \
 	level3_clutter_switch,  \
-	level3_clutter_block
+	level3_clutter_block,   \
+	xt_draw_arb_sprite
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table
