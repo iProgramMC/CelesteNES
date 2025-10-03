@@ -176,6 +176,10 @@ sp_l3db_homex = sp_wid
 sp_l3db_homey = sp_hei
 sp_l3db_homxh = sp_entspec4
 
+sp_l3cs_ctype = sp_entspec1
+sp_l3cs_timer = sp_entspec2
+sp_l3cs_disab = sp_entspec3
+
 sp_fall_state = sp_entspec1
 sp_fall_dindx = sp_entspec2 ; data index
 sp_fall_datlo = sp_entspec2 ; overlapped with data index
@@ -274,6 +278,8 @@ e_l3dustbun = $21 ; LEVEL 3: dust creature
 e_invisbar  = $22 ; Invisible Barrier
 e_cameratgt = $23 ; Camera Target
 e_respchg   = $24 ; Respawn Change
+e_l3switch  = $25 ; Clutter Switch
+e_l3clutter = $26 ; Clutter Block (2x2)
 
 ; Entity types that turn into other entities on load
 e_l0bridgea = $7D ; LEVEL 2: bridge that collapses in advance

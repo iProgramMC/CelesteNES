@@ -11,7 +11,7 @@
 ;	A - The palette index returned.
 ;
 ; clobbers:
-;	temp1
+;	temp1, X, Y
 gm_allocate_palette:
 	tax
 	lda palidxs, x

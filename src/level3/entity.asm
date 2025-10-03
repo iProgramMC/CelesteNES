@@ -455,3 +455,269 @@
 @leftFrames:	.byte $48, $4C, $50, $54
 @rightFrames:	.byte $4A, $4E, $52, $56
 .endproc
+
+.proc level3_clutter_block
+@entidx  := temp1
+@entX    := temp2
+@entY    := temp3
+@entXhi  := temp4
+	ldx @entidx
+	dec @entY
+	
+	lda #16
+	sta sprspace+sp_wid, x
+	sta sprspace+sp_hei, x
+	
+	lda sprspace+sp_flags, x
+	ora #ef_collidable
+	sta sprspace+sp_flags, x
+	
+	; are you disappearing
+	ldy sprspace+sp_l3cs_ctype, x
+	lda sprspace+sp_l3cs_timer, x
+	bne @disappearing
+	
+	; check if need to disappear
+	lda launenable
+	and expFlags, y
+	beq @dontDisappear
+	
+	inc sprspace+sp_l3cs_timer, x
+	
+@dontDisappear:
+	lda #chrb_splv3b
+	sta spr1_bknum
+	
+	ldy sprspace+sp_l3cs_ctype, x
+	lda spriteIdx, y
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	
+	lda spritePal, y
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	jmp gm_draw_common
+	
+@disappearing:
+	lda sprspace+sp_l3cs_timer, x
+	inc sprspace+sp_l3cs_timer, x
+	
+	cmp #16
+	bcs @disappear
+	
+	lsr
+	lsr
+	and #3
+	tay
+	lda disappear, y
+	sta temp6
+	sta temp7
+	lda #pal_tower
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	jmp gm_draw_common
+
+@disappear:
+	lda #0
+	sta sprspace+sp_kind, x
+	rts
+	
+spriteIdx:	.byte $64, $68, $60
+spritePal:	.byte pal_green, pal_red, pal_stone
+disappear:	.byte $6C, $6E, $70, $72
+expFlags:	.byte launbooks, launboxes, launclothes
+.endproc
+
+.proc level3_clutter_switch
+@entidx  := temp1
+@entX    := temp2
+@entY    := temp3
+@entXhi  := temp4
+	ldx @entidx
+	
+	dec @entY
+	
+	lda oam_wrhead
+	sta temp10
+	clc
+	adc #4
+	sta oam_wrhead
+	
+	lda #32
+	sta sprspace+sp_wid, x
+	lsr
+	sta sprspace+sp_hei, x
+	
+	lda sprspace+sp_flags, x
+	
+	ldy sprspace+sp_l3cs_disab, x
+	beq @collidable
+	
+	and #<~ef_collidable
+	sta sprspace+sp_flags, x
+	jmp @collidableDone
+	
+@collidable:
+	ora #ef_collidable
+	sta sprspace+sp_flags, x
+	
+@collidableDone:
+	lda #pal_tower
+	jsr gm_allocate_palette
+	sta temp5
+	sta temp8
+	
+	lda #chrb_splv3b
+	sta spr1_bknum
+	
+	ldx @entidx
+	lda sprspace+sp_l3cs_disab, x
+	bne @disabled
+	
+	inc sprspace+sp_l3cs_timer, x
+	lda sprspace+sp_l3cs_timer, x
+	lsr
+	lsr ; 4 in-game frames per anim frame
+	and #%111 ; 8 frames max
+	tay
+	lda frameData, y
+	
+@disabled:
+	sta temp6
+	clc
+	adc #2
+	sta temp7
+	
+	jsr gm_draw_common
+	
+	lda temp5
+	ora #obj_fliphz
+	sta temp5
+	sta temp8
+	lda temp6
+	ldy temp7
+	sty temp6
+	sta temp7
+	
+	lda temp2
+	clc
+	adc #16
+	sta temp2
+	bcc :+
+	inc temp4
+:	lda temp4
+	bne @skipDraw
+	
+	jsr gm_draw_common
+	
+@skipDraw:
+	
+	; if the frame counter is odd, reverse the order
+	lda framectr
+	and #1
+	beq @dontReverse
+
+	lda temp10
+	clc
+	adc #4
+	tax
+	
+	lda oam_wrhead
+	tay
+	jsr invert_oam_order
+
+@dontReverse:
+
+	ldx @entidx
+	lda sprspace+sp_l3cs_disab, x
+	bne @skipDrawIcon
+
+	; subtract 4 pixels and draw one icon
+	lda temp2
+	sec
+	sbc #4
+	sta temp2
+	bcs :+
+	dec temp4
+:	lda temp4
+	bne @skipDrawIcon
+	
+	lda oam_wrhead
+	pha
+	lda temp10
+	sta oam_wrhead
+	
+	ldx @entidx
+	ldy sprspace+sp_l3cs_ctype, x
+	
+	lda temp2
+	sta x_crd_temp
+	
+	lda sprspace+sp_l3cs_timer, x
+	lsr
+	lsr
+	and #%111
+	tax
+	lda clutIconY, x
+	sec
+	adc temp3
+	sta y_crd_temp
+	lda clutIcons, y
+	sta temp9
+	
+	lda clutPals, y
+	jsr gm_allocate_palette
+	ldy temp9
+	jsr oam_putsprite
+	
+	pla
+	sta oam_wrhead
+	
+@skipDrawIcon:
+	
+	; are we being dashed into
+	ldx @entidx
+	lda dashtime
+	beq @noPress
+	
+	lda dashdir
+	and #(cont_down<<2)
+	beq @noPress
+	
+	cpx entground
+	bne @noPress
+	
+	; nice. press
+	lda #$74
+	sta sprspace+sp_l3cs_disab, x
+	
+	ldy sprspace+sp_l3cs_ctype, x
+	lda clutFlags, y
+	ora launenable
+	sta launenable
+	
+	lda player_y
+	clc
+	adc #4
+	sta player_y
+	
+	lda #%00001111
+	sta quakeflags
+	lda #20
+	sta quaketimer
+	
+@noPress:
+	rts
+	
+frameData:	.byte $40, $44, $48, $4C, $50, $4C, $48, $44
+clutIcons:	.byte $58, $5C, $54
+clutIconY:	.byte 4, 4, 4, 5, 5, 5, 4, 4
+clutFlags:	.byte launbooks, launboxes, launclothes
+clutPals:	.byte pal_green, pal_red, pal_stone
+.endproc

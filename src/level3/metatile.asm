@@ -72,6 +72,7 @@
 	.byte $0D,$0E,$0F,$1D,$1E,$1F,$2D,$2E,$2F ; Big Box
 	.byte $DA,$DB,$DC,$DD,$DE ; Boxes
 	.byte $00             ; Ceiling Blocker
+	.byte $EC,$ED,$FC,$FD ; Cabinet
 
 ;metatile_info:
 .align $100
@@ -101,5 +102,6 @@
 	.res  16, ct_full            ; Clutter B
 	.res  20, ct_full            ; Clutter C
 	.byte ct_fallthru            ; Ceiling Blocker
+	.res   4, ct_none            ; Cabinet
 
 .align $100

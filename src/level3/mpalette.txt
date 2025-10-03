@@ -18,3 +18,4 @@ metatile_palette:
 	.res  16, $0 ; Clothes
 	.res  20, $1 ; Boxes
 	.res   1, $1 ; Ceiling Blocker
+	.res   4, $1 ; Cabinet

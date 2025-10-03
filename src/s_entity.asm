@@ -2822,7 +2822,9 @@ level2_memorial_kludge:
 	level3_dust_bunny,      \
 	xt_draw_invis_barrier,  \
 	xt_draw_camera_target,  \
-	xt_draw_respawn_change
+	xt_draw_respawn_change, \
+	level3_clutter_switch,  \
+	level3_clutter_block
 
 xt_entjtable_lo: .lobytes entity_jump_table
 xt_entjtable_hi: .hibytes entity_jump_table

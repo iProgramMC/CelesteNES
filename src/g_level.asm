@@ -1507,6 +1507,19 @@ gm_init_entity:
 	jmp @tyxReturn
 	
 @notDustCreature:
+	cmp #e_l3switch
+	beq @l3Clutter
+	cmp #e_l3clutter
+	bne @notL3Clutter
+	
+@l3Clutter:
+	txa
+	tay
+	jsr gm_read_ent
+	sta sprspace+sp_l3cs_ctype, y
+	jmp @tyxReturn
+	
+@notL3Clutter:
 	; todo: more cases ...
 	rts
 
