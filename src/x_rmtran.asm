@@ -337,6 +337,10 @@ transLoopMain:
 	lda #cspeed
 	jsr xt_shifttrace
 	
+	lda camera_y_sub
+	beq :+
+	dec camera_y_sub
+:
 	jsr shiftPlayerY
 	
 	lda #cspeed
@@ -746,6 +750,10 @@ writeloop:
 	; camoff_H is the low byte, camoff_M is the high byte.
 	jsr addtocameraX
 	
+	lda camera_y_sub
+	beq :+
+	dec camera_y_sub
+:
 	; every some frames, add slightly more to the camera and player X to perform a course correction
 	lda transtimer
 	and #1
@@ -1308,7 +1316,11 @@ writeloop:
 	; camoff_H is the low byte, camoff_M is the high byte.
 	jsr gm_leaveroomU_FAR::addtocameraX
 	
-	; every some frames, add slightly more to the camera and player X to perform a course correction
+	lda camera_y_sub
+	beq :+
+	dec camera_y_sub
+	
+:	; every some frames, add slightly more to the camera and player X to perform a course correction
 	lda transtimer
 	and #1
 	bne :+
@@ -1739,6 +1751,10 @@ transLoopMain:
 	lda #cspeed
 	jsr xt_shiftrighttrace
 	
+	lda camera_y_sub
+	beq :+
+	dec camera_y_sub
+:
 	jsr gm_leaveroomR_FAR::shiftPlayerY
 	
 	ldx trantmp4
