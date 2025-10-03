@@ -1226,7 +1226,21 @@ h_gener_ents_r:
 	inx
 	cpx #sp_max
 	bne :-
-	; no more space found for this entity! :(
+	
+	; no more space found for this entity right now!
+	; try overriding entities from the previous room
+	ldx #0
+:	lda sprspace+sp_flags, x
+	lsr
+	eor roomnumber
+	and #1
+	bne h_generents_spotfound ; they're different, meaning spot found
+	inx
+	cpx #sp_max
+	bne :-
+	
+	; truly, no space found. rip
+	; assert(0)
 	rts
 h_generents_spotfound:
 	; a sprite slot was found. its slot number is located in the x register.

@@ -118,3 +118,15 @@ skipAdding128:
 	lda #255
 	rts
 .endproc
+
+.proc gm_calculate_vert_offs
+	; calculate vertical offset hack
+	lda camera_y
+	sec
+	sbc camera_y_bs
+	lsr
+	lsr
+	lsr
+	sta vertoffshack
+	rts
+.endproc

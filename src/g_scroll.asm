@@ -197,6 +197,7 @@ gm_convert_metatiles_load_entities:
 	sta temp3
 	
 	; Find a spot for this entity.
+	; TODO: Allow overriding entities from the previous room if no space exists
 	ldx #0
 @spotFindingLoop:
 	lda sprspace + sp_kind, x
@@ -653,18 +654,6 @@ gm_gener_tiles_horiz_row_read:
 	adc @idx
 	sta @idx
 	rts
-
-.proc gm_calculate_vert_offs
-	; calculate vertical offset hack
-	lda camera_y
-	sec
-	sbc camera_y_bs
-	lsr
-	lsr
-	lsr
-	sta vertoffshack
-	rts
-.endproc
 
 ; ** SUBROUTINE: gm_load_level_if_vert
 ; desc: Loads more of the horizontal level segment, if in vertical mode.
