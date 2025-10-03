@@ -34,6 +34,12 @@ loopY:
 	cmp #$FF                 ; End Early
 	beq endedLoopYEarly
 	
+	cmp #$81
+	bcc notVerbatimRepeat
+	cmp #$9F
+	bcc verbatimRepeat
+	
+notVerbatimRepeat:
 	cmp #$A1
 	bcc notAirRepeat
 	cmp #$BF
@@ -81,6 +87,19 @@ airRepeatLoop:
 	iny
 	dex
 	bne airRepeatLoop
+	beq doneWithThisByte
+
+verbatimRepeat:
+	sec
+	sbc #$80
+	sta temp10
+verbatimRepeatLoop:
+	jsr h_read_tile_tform
+	sta (lvladdr),  y
+	sta lastcolumn, y
+	iny
+	dec temp10
+	bne verbatimRepeatLoop
 	beq doneWithThisByte
 
 tileRepeat:
