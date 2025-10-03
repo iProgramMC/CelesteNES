@@ -1784,20 +1784,28 @@ collidedRight:
 	lda player_vl_x
 	bmi @dontModVel
 	
-	ldx #0                   ; set the velocity to a minuscule value to
-	stx player_vl_x          ; ensure the player doesn't look idle
-	inx
+	ldx #0
+	stx player_vl_x
 	stx player_vs_x
 	
 :	lda playerctrl
-	ora #pl_pushing
 	and #(pl_wallleft^$FF)   ; the wall wasn't found on the left.
 	sta playerctrl
 	
 	lda gamectrl5
 	ora #g5_collideX
 	sta gamectrl5
-	jsr gm_check_attach_wall
+	
+	; if holding left, mark as pushing
+	lda game_cont
+	and #cont_right
+	beq :+
+	
+	lda playerctrl
+	ora #pl_pushing
+	sta playerctrl
+	
+:	jsr gm_check_attach_wall
 	
 @dontModVel:
 	lda #defwjmpcoyo
@@ -1860,18 +1868,27 @@ collidedLeft:
 	lda player_vl_x
 	bpl @dontModVel
 	
-	ldx #$FF                 ; set the velocity to a minuscule value to
-	stx player_vl_x          ; ensure the player doesn't look idle
+	ldx #0
+	stx player_vl_x
 	stx player_vs_x
 	
 :	lda playerctrl
-	ora #(pl_pushing | pl_wallleft) ; the wall was found on the left.
+	ora #pl_wallleft         ; the wall was found on the left.
 	sta playerctrl
 	lda gamectrl5
 	ora #g5_collideX
 	sta gamectrl5
 	
-	jsr gm_check_attach_wall
+	; if holding left, mark as pushing
+	lda game_cont
+	and #cont_left
+	beq :+
+	
+	lda playerctrl
+	ora #pl_pushing
+	sta playerctrl
+	
+:	jsr gm_check_attach_wall
 	
 @dontModVel:
 	lda #defwjmpcoyo
