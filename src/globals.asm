@@ -451,6 +451,9 @@ advtracesw  : .res 1 ; if advanced trace is enabled (YOU MUST NOT show a dialog 
 advtracehd  : .res 1 ; advanced trace head
 chasercdown : .res 1 ; countdown until the next chaser can pop into existence
 
+; chapter 3 control
+launenable  = dbenable ; laundry enabled
+
 starsbgctl  : .res 1 ; star background control
 
 game_cont_force : .res 2

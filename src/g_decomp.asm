@@ -52,6 +52,7 @@ notTileRepeat:
 	bcc columnRepeat         ; E0-FE
 	
 normalTile:
+	jsr h_tile_tform
 	sta (lvladdr),  y
 	sta lastcolumn, y
 	iny
@@ -86,7 +87,7 @@ tileRepeat:
 	sec
 	sbc #$C0
 	sta temp10   ; store the count in temp10
-	jsr readByte ; read byte (clobbers X)
+	jsr h_read_tile_tform ; read byte (clobbers X)
 	ldx temp10   ; unclobber X
 	jmp airRepeatLoop ; it just places the tile index in A, so fine
 

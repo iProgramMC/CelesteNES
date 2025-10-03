@@ -8,6 +8,7 @@
 .include "testmusic.asm"
 .include "rooms/1.asm"
 .include "entity.asm"
+.include "tilestuff.asm"
 
 level3_music:
 	.word music_data_ch3

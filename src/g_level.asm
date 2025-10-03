@@ -906,6 +906,28 @@ phaveFD:
 
 h_palette_finish := h_palette_data_column::doneloadingpalettes
 
+; ** SUBROUTINE: h_read_tile_tform
+; desc: Reads a tile ID from the level data stream and transforms it
+;       if necessary, for example, to remove laundry tiles in Ch3
+; note: do NOT clobber Y!
+; NOTE: level3_transform_laundry_tile processes X, so BE SURE to keep the tile's value in X!
+h_read_tile_tform:
+	ldx #0
+	lda (arrdheadlo,x)
+	inc arrdheadlo
+	bne h_tile_tform
+	inc arrdheadhi
+h_tile_tform:
+	tax
+	lda levelnumber
+	cmp #3
+	beq h_tile_tform_level3
+h_tile_tform_ret:
+	txa
+	rts
+h_tile_tform_level3:
+	jmp level3_transform_laundry_tile
+
 ; significance of palette combinations:
 ; $FE - Re-use the same palette data as the previous column
 ; $FF - End of palette data
@@ -922,7 +944,7 @@ h_genertiles_dup:
 	clc
 	adc temp1
 	sta temp1             ; store it in temp1
-	jsr gm_read_tile      ; read another byte - will be used as our 'brush'
+	jsr h_read_tile_tform ; read another byte - will be used as our 'brush'
 	ldx arwrhead
 :   sta (lvladdr), y
 	sta lastcolumn, y
@@ -960,7 +982,7 @@ h_genertiles_high:
 	adc temp1
 	sta temp1
 
-:	jsr gm_read_tile
+:	jsr h_read_tile_tform
 	sta (lvladdr), y
 	sta lastcolumn, y
 	iny
@@ -1052,6 +1074,7 @@ h_genertiles_loop:
 
 :
 @positive:
+	jsr h_tile_tform
 	sta (lvladdr), y
 	sta lastcolumn, y
 	iny

@@ -749,3 +749,8 @@ plr_x_wjd_right= (plr_x_right + wjdgrace)
 plr_x_mid      = 8
 
 FAMISTUDIO_CFG_C_BINDINGS = 0
+
+; Chapter 3 launenable flags (laundry blocks)
+launbooks   = 1
+launboxes   = 2
+launclothes = 4
