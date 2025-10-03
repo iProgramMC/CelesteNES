@@ -491,7 +491,11 @@
 	ldy sprspace+sp_l3cs_ctype, x
 	lda spriteIdx, y
 	sta temp6
+	cmp #$7A
+	bne :+
 	clc
+	adc #2
+:	clc
 	adc #2
 	sta temp7
 	
@@ -528,10 +532,10 @@
 	sta sprspace+sp_kind, x
 	rts
 	
-spriteIdx:	.byte $64, $68, $60
-spritePal:	.byte pal_green, pal_red, pal_stone
+spriteIdx:	.byte $64, $7A, $60, $5A, $78, $68, $7C
+spritePal:	.byte pal_green, pal_red, pal_stone, pal_red, pal_red, pal_red, pal_red
 disappear:	.byte $6C, $6E, $70, $72
-expFlags:	.byte launbooks, launboxes, launclothes
+expFlags:	.byte launbooks, launboxes, launclothes, launboxes, launboxes, launboxes, launboxes
 .endproc
 
 .proc level3_clutter_switch
@@ -723,7 +727,7 @@ expFlags:	.byte launbooks, launboxes, launclothes
 	rts
 	
 frameData:	.byte $40, $44, $48, $4C, $50, $4C, $48, $44
-clutIcons:	.byte $58, $5C, $54
+clutIcons:	.byte $56, $58, $54
 clutIconY:	.byte 4, 4, 4, 5, 5, 5, 4, 4
 clutFlags:	.byte launbooks, launboxes, launclothes
 clutPals:	.byte pal_green, pal_red, pal_stone
