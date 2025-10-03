@@ -2339,7 +2339,12 @@ commitSaveFile:
 
 ; ** ENTITY: Respawn Change
 .proc xt_draw_respawn_change
-	ldx temp1
+	lda gamectrl3
+	and #g3_transitA
+	beq :+
+	rts
+
+:	ldx temp1
 	lda #0
 	sta temp7
 	sta temp8

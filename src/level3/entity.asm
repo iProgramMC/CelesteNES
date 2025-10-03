@@ -707,6 +707,13 @@ expFlags:	.byte launbooks, launboxes, launclothes
 	adc #4
 	sta player_y
 	
+	lda #0
+	sta player_vl_x
+	sta player_vs_x
+	sta player_vs_y
+	lda #4
+	sta player_vl_y
+	
 	lda #%00001111
 	sta quakeflags
 	lda #20
