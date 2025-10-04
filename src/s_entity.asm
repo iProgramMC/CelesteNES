@@ -824,6 +824,9 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	rts
 
 @hasWings:
+	lda oam_wrhead
+	sta nitrantmp
+	
 	; draw the wings
 	lda temp2
 	sec
@@ -853,7 +856,7 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	bcc :+
 	inc temp4
 :	lda temp4
-	bne @dontDrawRightWing
+	bne @doneDrawingWings
 	
 	lda #pal_gray
 	jsr gm_allocate_palette
@@ -866,9 +869,7 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	adc #2
 	sta temp6
 	jsr gm_draw_common
-	
-@dontDrawRightWing:
-	rts
+	jmp @doneDrawingWings
 
 @shrinking:
 	; shrinking
@@ -889,6 +890,22 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	sta temp6
 	sta temp7
 	jmp gm_draw_common
+	
+@doneDrawingWings:
+	lda oam_wrhead
+	cmp nitrantmp
+	beq @dontInvertOrder
+	
+	lda framectr
+	and #1
+	bne @dontInvertOrder
+	
+	ldx nitrantmp
+	ldy oam_wrhead
+	jsr invert_oam_order
+	
+@dontInvertOrder:
+	rts
 .endproc
 
 .proc xt_update_berry
