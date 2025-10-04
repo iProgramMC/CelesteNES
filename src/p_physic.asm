@@ -3223,7 +3223,23 @@ noForcedRelease:
 	
 	lda game_cont
 	and #(cont_up | cont_down)
-	pha
+	
+	; TWEAK: If we are on an entity platform and using the NES control scheme,
+	; then the player cannot climb the wall via the up button, and they must
+	; instead jump up the block.
+	;
+	; This is annoying, but the NES controller only has eight buttons, and
+	; you can't really expect someone to hold SELECT to climb... so this is
+	; an acceptable compromise in my opinion.
+	ldx ctrlscheme
+	cpx #cns_console
+	bne :+
+	ldx entground
+	cpx #$FF
+	beq :+
+	and #<~cont_up
+	
+:	pha
 	
 	cmp #cont_up
 	bne notGoingUp
