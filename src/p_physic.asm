@@ -788,15 +788,7 @@ gm_getleftx:
 	adc #plr_x_left   ; determine leftmost hitbox position
 	clc
 	adc camera_x
-	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda camera_x_pg
-	adc #0
-	ror               ; rotate it into carry
-	lda x_crd_temp
-	ror               ; rotate it into the low position
-	lsr
-	lsr               ; finish dividing by the tile size
-	rts
+	jmp gm_finishcalcxpos
 
 ; ** SUBROUTINE: gm_getrightx
 ; desc:     Gets the tile X position where the right edge of the player's hitbox resides
@@ -809,11 +801,11 @@ gm_getrightx:
 	adc #plr_x_right ; determine right hitbox position
 	clc
 	adc camera_x
+gm_finishcalcxpos:
 	sta x_crd_temp    ; x_crd_temp = low bit of check position
 	lda camera_x_pg
 	adc #0
 	ror               ; rotate it into carry
-	jmp gm_commondividexcrdtemp
 	lda x_crd_temp
 	ror               ; rotate it into the low position
 	lsr
@@ -829,16 +821,7 @@ gm_getleftxceil:
 	adc #plr_x_leftC  ; determine leftmost hitbox position
 	clc
 	adc camera_x
-	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda camera_x_pg
-	adc #0
-	ror               ; rotate it into carry
-gm_commondividexcrdtemp:
-	lda x_crd_temp
-	ror               ; rotate it into the low position
-	lsr
-	lsr               ; finish dividing by the tile size
-	rts
+	jmp gm_finishcalcxpos
 
 ; ** SUBROUTINE: gm_getrightxceil
 ; desc:     Gets the tile X position where the right edge of the player's hitbox resides
@@ -851,11 +834,7 @@ gm_getrightxceil:
 	adc #plr_x_rightC; determine right hitbox position
 	clc
 	adc camera_x
-	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda camera_x_pg
-	adc #0
-	ror               ; rotate it into carry
-	jmp gm_commondividexcrdtemp
+	jmp gm_finishcalcxpos
 
 ; ** SUBROUTINE: gm_getleftwjx
 ; desc: Gets the tile X position where the left of the wall jump check hitbox resides.
@@ -869,11 +848,7 @@ gm_getleftwjx:
 @restOfCode:
 	clc
 	adc camera_x
-	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda camera_x_pg
-	adc #0
-	ror               ; rotate it into carry
-	jmp gm_commondividexcrdtemp
+	jmp gm_finishcalcxpos
 @dashing:
 	clc
 	lda player_x
@@ -892,11 +867,7 @@ gm_getrightwjx:
 @restOfCode:
 	clc
 	adc camera_x
-	sta x_crd_temp    ; x_crd_temp = low bit of check position
-	lda camera_x_pg
-	adc #0
-	ror               ; rotate it into carry
-	jmp gm_commondividexcrdtemp
+	jmp gm_finishcalcxpos
 @dashing:
 	clc
 	lda player_x
@@ -1407,6 +1378,128 @@ checkDreamBlockInMiddle:
 	.byte $0C, $0D, $0E, $0E
 .endproc
 
+; ** SUBROUTINE: gm_check_ceil
+; desc: Checks for ceiling collision.
+gm_check_ceil:
+	jsr gm_getleftxceil
+	sta temp1
+	jsr gm_getrightxceil
+	sta temp2
+	
+	jsr xt_collentceil
+	bne @snapToCeilArbitrary
+	
+	jsr gm_gettopy
+	tay
+	sty y_crd_temp
+	
+	ldx temp1         ; check block 1
+	lda #gc_ceil
+	jsr xt_collide
+	bne @snapToCeil
+	
+	ldy y_crd_temp    ; check block 2
+	ldx temp2
+	lda #gc_ceil
+	jsr xt_collide
+	;bne @snapToCeil
+	beq @return
+
+@snapToCeil:
+	lda y_crd_temp    ; load the y position of the tile that was collided with
+	asl
+	asl
+	asl               ; turn it into a screen coordinate
+
+@snapToCeilArbitrary: ; snap to a ceiling whose position is arbitrary
+	clc
+	adc #(8-(16-plrheight)) ; add the height of the tile, minus the top Y offset of the player hitbox
+	sta player_y
+	lda #0            ; set the subpixel to zero
+	sta player_sp_y
+	sta player_vl_y   ; also clear the velocity
+	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
+	sta jcountdown    ; also clear the jump timer
+	lda gamectrl5
+	ora #g5_collideY
+	sta gamectrl5
+	
+@return:
+	rts
+
+; ** SUBROUTINE: gm_check_floor
+; desc: Checks for floor collision.
+gm_check_floor:
+	jsr gm_getleftx
+	sta temp1
+	jsr gm_getrightx
+	sta temp2
+	jsr xt_collentfloor
+	bne @snapToFloorArbitrary
+	
+	jsr gm_getbottomy_f
+	tay               ; keep the Y position into the Y register
+	sty y_crd_temp
+	
+	ldx temp1         ; check block 1
+	lda #gc_floor
+	jsr xt_collide
+	bne @snapToFloor
+	
+	ldy y_crd_temp    ; check block 2
+	ldx temp2
+	lda #gc_floor
+	jsr xt_collide
+	;bne @snapToFloor
+	beq @done
+	
+@snapToFloor:
+	lda #%11111000    ; round player's position to lower multiple of 8
+	and player_y
+	pha
+	lda #0            ; set the subpixel to zero
+	sta player_sp_y
+	pla
+	
+@snapToFloorArbitrary:; snap to floor where the 
+	sta player_y
+	lda dashtime
+	cmp #(defdashtime-dashgrndtm)
+	bcs @done         ; until the player has started their dash, exempt from ground check
+	
+	; is the player climbing? if so, don't actually set the ground flag
+	lda playerctrl
+	and #pl_climbing
+	bne :+
+	
+	lda playerctrl
+	ora #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
+	sta playerctrl
+	
+:	lda gamectrl4
+	and #<~g4_nosjump
+	sta gamectrl4
+	
+	lda #defjmpcoyot
+	sta jumpcoyote    ; assign coyote time because we're on the ground
+	ldx #0
+	lda player_vl_y
+	bmi :+
+	stx player_vl_y
+	stx player_vs_y
+:	stx wjumpcoyote   ; can't perform a wall jump while on the ground
+	stx hopcdown
+	jsr gm_reset_dash_and_stamina
+	lda gamectrl2
+	and #<~g2_autojump
+	sta gamectrl2
+	lda gamectrl5
+	ora #g5_collideY
+	sta gamectrl5
+	
+@done:
+	rts
+
 ; ** SUBROUTINE: gm_applyy
 ; desc:     Apply the velocity in the Y direction.
 gm_velminus:
@@ -1464,127 +1557,10 @@ gm_velapplied:        ; this is the return label from gm_velminus4
 	lda player_y
 	cmp #$F0
 	bcs gm_leaveroomU_
-	lda player_vl_y
-	bpl gm_checkfloor
 
-;gm_checkceil:
-	jsr gm_getleftxceil
-	sta temp1
-	jsr gm_getrightxceil
-	sta temp2
-	
-	jsr xt_collentceil
-	bne @snapToCeilArbitrary
-	
-	jsr gm_gettopy
-	tay
-	sty y_crd_temp
-	
-	ldx temp1         ; check block 1
-	lda #gc_ceil
-	jsr xt_collide
-	bne @snapToCeil
-	
-	ldy y_crd_temp    ; check block 2
-	ldx temp2
-	lda #gc_ceil
-	jsr xt_collide
-	;bne @snapToCeil
-	beq @gm_applyy_checkdone_
+	jsr gm_check_ceil
+	jsr gm_check_floor
 
-@snapToCeil:
-	lda y_crd_temp    ; load the y position of the tile that was collided with
-	asl
-	asl
-	asl               ; turn it into a screen coordinate
-
-@snapToCeilArbitrary: ; snap to a ceiling whose position is arbitrary
-	clc
-	adc #(8-(16-plrheight)) ; add the height of the tile, minus the top Y offset of the player hitbox
-	sta player_y
-	lda #0            ; set the subpixel to zero
-	sta player_sp_y
-	sta player_vl_y   ; also clear the velocity
-	sta player_vs_y   ; since we ended up here it's clear that velocity was negative.
-	sta jcountdown    ; also clear the jump timer
-	lda gamectrl5
-	ora #g5_collideY
-	sta gamectrl5
-	beq gm_applyy_checkdone
-
-@gm_applyy_checkdone_:
-	beq gm_applyy_checkdone
-
-gm_checkfloor:
-	jsr gm_getleftx
-	sta temp1
-	jsr gm_getrightx
-	sta temp2
-	jsr xt_collentfloor
-	bne @snapToFloorArbitrary
-	
-	jsr gm_getbottomy_f
-	tay               ; keep the Y position into the Y register
-	sty y_crd_temp
-	
-	ldx temp1         ; check block 1
-	lda #gc_floor
-	jsr xt_collide
-	bne @snapToFloor
-	
-	ldy y_crd_temp    ; check block 2
-	ldx temp2
-	lda #gc_floor
-	jsr xt_collide
-	;bne @snapToFloor
-	beq gm_applyy_checkdone
-	
-@snapToFloor:
-	lda #%11111000    ; round player's position to lower multiple of 8
-	and player_y
-	pha
-	lda #0            ; set the subpixel to zero
-	sta player_sp_y
-	pla
-	
-@snapToFloorArbitrary:; snap to floor where the 
-	sta player_y
-	lda dashtime
-	cmp #(defdashtime-dashgrndtm)
-	bcs @done         ; until the player has started their dash, exempt from ground check
-	
-	; is the player climbing? if so, don't actually set the ground flag
-	lda playerctrl
-	and #pl_climbing
-	bne :+
-	
-	lda playerctrl
-	ora #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
-	sta playerctrl
-	
-:	lda gamectrl4
-	and #<~g4_nosjump
-	sta gamectrl4
-	
-	lda #defjmpcoyot
-	sta jumpcoyote    ; assign coyote time because we're on the ground
-	ldx #0
-	lda player_vl_y
-	bmi :+
-	stx player_vl_y
-	stx player_vs_y
-:	stx wjumpcoyote   ; can't perform a wall jump while on the ground
-	stx hopcdown
-	jsr gm_reset_dash_and_stamina
-	lda gamectrl2
-	and #<~g2_autojump
-	sta gamectrl2
-	lda gamectrl5
-	ora #g5_collideY
-	sta gamectrl5
-	
-@done:
-gm_applyy_checkdone:
 	lda player_yo
 	cmp player_y
 	beq :+
