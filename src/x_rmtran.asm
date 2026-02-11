@@ -269,6 +269,7 @@ actuallyTransition:
 	sta camlefthi
 	
 	lda #0
+	sta tswitches
 	sta tr_scrnpos
 	sta quaketimer
 	
@@ -495,6 +496,7 @@ returnEarly:
 
 actuallyWarp:
 	lda #0
+	sta tswitches
 	sta player_y
 	
 	lda transoff
@@ -1072,6 +1074,7 @@ returnEarly:
 
 actuallyWarp:
 	lda #0
+	sta tswitches
 	sta player_y
 	
 	lda transoff
@@ -1638,6 +1641,7 @@ actuallyTransition:
 	
 	; the room itself starts at [cameraXpg, cameraX] - [roomsize*8]
 	lda #0
+	sta tswitches
 	sta temp2
 	lda roomsize
 	asl
