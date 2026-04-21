@@ -1392,8 +1392,8 @@ gm_check_ceil:
 	
 	jsr xt_collentceil
 	;bne @snapToCeilArbitrary
-	sta temp11
 	beq :+
+	sta temp11
 	inc temp12  ; increment collision counter
 :
 	jsr gm_gettopy
@@ -1500,13 +1500,18 @@ gm_check_floor:
 	; is the player climbing? if so, don't actually set the ground flag
 	lda playerctrl
 	and #pl_climbing
-	bne :+
+	bne @dontSetToGround
+	
+	lda player_vl_y
+	bmi @dontSetToGround
 	
 	lda playerctrl
 	ora #pl_ground    ; set the grounded bit, only thing that can remove it is jumping
 	sta playerctrl
 	
-:	lda gamectrl4
+@dontSetToGround:
+	
+	lda gamectrl4
 	and #<~g4_nosjump
 	sta gamectrl4
 	
