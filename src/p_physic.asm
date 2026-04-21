@@ -818,7 +818,7 @@ gm_finishcalcxpos:
 gm_getleftxceil:
 	clc
 	lda player_x
-	adc #plr_x_leftC  ; determine leftmost hitbox position
+	adc #plr_x_left   ; determine leftmost hitbox position
 	clc
 	adc camera_x
 	jmp gm_finishcalcxpos
@@ -831,7 +831,7 @@ gm_getleftxceil:
 gm_getrightxceil:
 	clc
 	lda player_x
-	adc #plr_x_rightC; determine right hitbox position
+	adc #plr_x_right ; determine right hitbox position
 	clc
 	adc camera_x
 	jmp gm_finishcalcxpos
@@ -1381,14 +1381,21 @@ checkDreamBlockInMiddle:
 ; ** SUBROUTINE: gm_check_ceil
 ; desc: Checks for ceiling collision.
 gm_check_ceil:
+	ldx #0
+	stx temp11  ; the position to snap the player to, if needed.  0 == snap to a tile ceiling
+	stx temp12  ; use temp12 to count the number of ceiling collisions
+	
 	jsr gm_getleftxceil
 	sta temp1
 	jsr gm_getrightxceil
 	sta temp2
 	
 	jsr xt_collentceil
-	bne @snapToCeilArbitrary
-	
+	;bne @snapToCeilArbitrary
+	sta temp11
+	beq :+
+	inc temp12  ; increment collision counter
+:
 	jsr gm_gettopy
 	tay
 	sty y_crd_temp
@@ -1396,14 +1403,35 @@ gm_check_ceil:
 	ldx temp1         ; check block 1
 	lda #gc_ceil
 	jsr xt_collide
-	bne @snapToCeil
+	;bne @snapToCeil
+	beq :+
+	inc temp12  ; increment collision counter
+:
 	
 	ldy y_crd_temp    ; check block 2
 	ldx temp2
 	lda #gc_ceil
 	jsr xt_collide
 	;bne @snapToCeil
-	beq @return
+	;beq @return
+	beq :+
+	inc temp12
+:
+
+	lda temp11    ; back up collided position
+	pha
+
+	lda temp12
+	beq @return   ; no collision
+	cmp #1
+	bne @justSnap ; too many collisions
+	
+	jsr gm_attempt_ceil_correct
+	bne @return
+	
+@justSnap:
+	pla           ; restore collided position
+	bne @snapToCeilArbitrary
 
 @snapToCeil:
 	lda y_crd_temp    ; load the y position of the tile that was collided with
@@ -1423,8 +1451,10 @@ gm_check_ceil:
 	lda gamectrl5
 	ora #g5_collideY
 	sta gamectrl5
-	
+	rts
+
 @return:
+	pla          ; restore collided position, but we won't use it
 	rts
 
 ; ** SUBROUTINE: gm_check_floor
@@ -3950,6 +3980,94 @@ advancedTraceDisabled:
 	sta player_vs_x
 	sta player_vl_y
 	sta player_vs_y
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_attempt_ceil_correct
+; desc: Attempts to correct the player's position on a ceiling.
+.proc gm_attempt_ceil_correct
+	lda player_vl_x
+	bmi speed_is_negative
+	lda player_vl_x
+	bne speed_is_positive
+	; speed is zero - try both
+	jsr speed_is_positive
+	bne return
+speed_is_negative:
+	ldx #1
+	jmp gm_attempt_ceil_correct_2
+speed_is_positive:
+	ldx #0
+	jmp gm_attempt_ceil_correct_2
+return:
+	rts
+.endproc
+
+; ** SUBROUTINE: gm_attempt_ceil_correct_2
+; desc: Attempts to correct the player's position on a ceiling
+; parameters: X - decrement or increment (0 - increment, 1 - decrement)
+; clobbers: temp11, temp12, and possibly more
+; returns: ZF - if the ceiling wasn't corrected (bne triggers if it was)
+.proc gm_attempt_ceil_correct_2
+	stx temp11
+	lda player_x
+	pha
+
+	lda #ceilcorrlmt
+	sta temp12
+loop:
+	;should we decrement or increment?
+	ldx temp11
+	bne decrement
+	;increment
+	inc player_x
+	cmp #$F0
+	bcs no_correction
+	bcc done_adjusting
+decrement:
+	dec player_x
+	cmp #$FF
+	beq no_correction
+done_adjusting:
+
+	;give it a try
+	jsr gm_getleftxceil
+	sta temp1
+	jsr gm_getrightxceil
+	sta temp2
+	
+	jsr xt_collentceil
+	bne try_again
+	
+	jsr gm_gettopy
+	tay
+	sty y_crd_temp
+	
+	ldx temp1
+	lda #gc_ceil
+	jsr xt_collide
+	bne try_again
+	
+	ldy y_crd_temp
+	ldx temp2
+	lda #gc_ceil
+	jsr xt_collide
+	beq corrected
+	
+try_again:
+	dec temp12
+	bne loop
+
+no_correction:
+	pla
+	sta player_x
+	lda #0
+	rts
+
+corrected:
+	pla
+	; don't restore player_x
+	lda #1
 	rts
 .endproc
 

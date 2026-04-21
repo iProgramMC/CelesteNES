@@ -710,6 +710,7 @@ stamchgjump = 165   ; amount charged per straight jump
 stamlowthre = 120   ; start flashing at this stamina value
 plrceiltoly = 2     ; player ceiling tolerance (Y)
 plrceiltolx = 3     ; player ceiling tolerance (X)
+ceilcorrlmt = 4     ; ceiling correction limit
 
 ; TODO: these only kind of calculated
 climbhopX   = 456   ; 100/60*256
