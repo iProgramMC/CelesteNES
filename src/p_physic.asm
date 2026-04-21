@@ -2560,7 +2560,7 @@ gm_dashjumpcheck:
 	; the player must only dash up to do that
 	lda dashdir
 	and #(cont_left|cont_right)<<2
-	bne @noJumpAtAll
+	bne @noSuperJump
 	
 	jmp gm_superwalljump
 	
@@ -2583,12 +2583,17 @@ gm_dashjumpcheck:
 	
 @doClimbJump:
 	lda climbbutton
-	beq @noJumpAtAll
+	beq @wallJumpOnly
 	; well they're definitely dashing
 	jmp gm_climbjump
 
 @normalJumpOnly:
 	jmp gm_normaljump
+
+@wallJumpOnly:
+	lda #0
+	sta dashtime
+	jmp gm_walljump
 
 @noJumpAtAll:
 	rts
