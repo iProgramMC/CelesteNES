@@ -121,7 +121,7 @@ gm_updatexvel:
 	beq @notClimbing
 	
 	lda game_cont
-	and #cont_down
+	and #(cont_down | cont_a)
 	; while holding down, don't move towards the wall
 	bne @zeroAndReturn
 	
