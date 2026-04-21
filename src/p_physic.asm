@@ -2529,6 +2529,10 @@ gm_dash_update_:
 ; ** SUBROUTINE: xt_physics
 ; desc: Runs one frame of player physics.
 .proc xt_physics
+	lda player_vl_x
+	sta last_vl_x
+	lda player_vs_x
+	sta last_vs_x
 	lda gamectrl5
 	and #<~(g5_collideX | g5_collideY)
 	sta gamectrl5

@@ -313,10 +313,10 @@ xt_collentfloor_kludge:
 ; ** SUBROUTINE: gm_rebound
 ; desc: Rebounds the player after they hit something with a dash
 .proc gm_rebound
-	lda player_vl_x
+	lda last_vl_x
 	bmi @assignPlus120
 	bne @assignMinus120
-	lda player_vs_x
+	lda last_vs_x
 	bne @assignMinus120
 	; don't modify the vel if it's zero
 @doneModdingX:
