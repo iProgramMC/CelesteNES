@@ -338,6 +338,7 @@ gm_game_clear_wx:
 	stx scrollsplitb
 	stx dialogsplitb
 	stx dlgentoldst
+	stx plh_forcepal
 	;stx bgcurroffs
 	
 	txa
