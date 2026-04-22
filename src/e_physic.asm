@@ -245,9 +245,42 @@ gm_ent_move_y:
 	jsr gm_collentceil
 	beq @noCollisionDown
 	
+	; okay, try to slide the player left/right a bit
+	lda player_x
+	sta temp12
+	sec
+	sbc #5
+	sta player_x
+	jsr gm_collentceil
+	beq @successfulCorrectionLeft
+	
+	lda temp12
+	clc
+	adc #5
+	sta player_x
+	jsr gm_collentceil
+	beq @successfulCorrectionRight
+	
 	; looks like the player was squished in between this platform and the ground. RIP :(
 	jmp gm_killplayer
 @noCollisionDown:
+	rts
+
+; NOTE: this relies on nobody clobbering plattemp1 and plattemp2.
+@successfulCorrectionLeft:
+	; warp the player exactly to the left edge of the platform.
+	lda plattemp1
+	sec
+	sbc #(plrwidth+plr_x_left)
+	sta player_x
+	rts
+
+@successfulCorrectionRight:
+	; warp the player exactly to the right edge of the platform.
+	lda plattemp2
+	sec
+	sbc #plr_x_left
+	sta player_x
 	rts
 
 @checkSquishUP:
@@ -265,7 +298,7 @@ gm_ent_move_y:
 	tay
 	lda #gc_ceil
 	jsr gm_collide
-	beq :+
+	beq @noMoreCollision
 	
 	; collided with a ceiling, snap the player there
 	lda player_y
@@ -278,11 +311,31 @@ gm_ent_move_y:
 	
 	; check if they're now in the entity's floor
 	jsr gm_collentfloor
-	beq :+
+	beq @noMoreCollision
+	
+	; okay, try to slide the player left/right a bit
+	lda player_x
+	sta temp12
+	sec
+	sbc #5
+	sta player_x
+	jsr gm_collentfloor
+	beq @successfulCorrectionLeft
+	
+	lda temp12
+	clc
+	adc #5
+	sta player_x
+	jsr gm_collentfloor
+	beq @successfulCorrectionRight
+	
+	lda temp12
+	sta player_x
 	
 	; ok, we know for SURE the player was squished in between this platform and the ceiling. Die :(
-	jsr gm_killplayer
-:	rts
+	jmp gm_killplayer
+@noMoreCollision:
+	rts
 
 ; ** SUBROUTINE: gm_check_collision_ent
 ; desc: Checks for collision between the player and an entity.
