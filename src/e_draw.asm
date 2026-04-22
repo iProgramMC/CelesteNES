@@ -8,10 +8,19 @@
 ;    temp6 - tile # for left side
 ;    temp7 - tile # for right side
 gm_draw_common:
+	txa
+	pha
+	tya
+	pha
 	ldx #<xt_draw_common
 	ldy #>xt_draw_common
 	lda #prgb_ents
-	jmp far_call2
+	jsr far_call2
+	pla
+	tay
+	pla
+	tax
+	rts
 
 ; ** SUBROUTINE: gm_draw_common2
 ; desc: draws a common 2X sprite.  Ensures that there is no wraparound.
