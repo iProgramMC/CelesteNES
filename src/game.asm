@@ -170,6 +170,7 @@ gm_game_update:
 	lda camera_y_hi
 	sta camera_y_ho
 	
+	jsr gm_calc_shake
 	jsr gm_clear_palette_allocator
 	jsr gm_update_lift_boost
 	jsr gm_check_climb_input

@@ -487,6 +487,8 @@ dlgmusicpaus: .res 1 ; should pause the music when game is paused?
 nitrantmp   : .res 1 ; new-inverted transition temporary - camera Y destination
 last_vl_x   : .res 1
 last_vs_x   : .res 1
+shakeamtX   : .res 1
+shakeamtY   : .res 1
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800

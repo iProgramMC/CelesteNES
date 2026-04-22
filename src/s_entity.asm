@@ -2803,6 +2803,11 @@ xt_draw_ent_call:
 	lda xt_entjtable_hi, x
 	sta lvladdrhi
 	
+	lda temp3
+	sec
+	sbc shakeamtY
+	sta temp3
+	
 	ldx temp1
 	
 	jmp (lvladdr)
@@ -2880,6 +2885,7 @@ xt_entjtable_hi: .hibytes entity_jump_table
 ; clobbers: A, X, temp3, temp4, temp10. not Y
 xt_check_ent_onscreen:
 	lda #0
+	sta temp12
 	sta temp10
 	
 	lda sprspace+sp_flags, x
@@ -2892,6 +2898,19 @@ xt_check_ent_onscreen:
 	
 	lda sprspace+sp_x_pg, x
 	sbc camera_x_pg
+	sta temp4
+	
+	lda shakeamtX
+	bpl :+
+	lda #$FF
+	sta temp12
+
+:	lda temp2
+	sec
+	sbc shakeamtX
+	sta temp2
+	lda temp4
+	sbc temp12
 	sta temp4
 	
 	; result < 0: sprite went off the left side.

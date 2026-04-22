@@ -1,5 +1,57 @@
 ; Copyright (C) 2025 iProgramInCpp
 
+; ** SUBROUTINE: gm_calc_shake
+; desc: Calculates whether or not the camera should shake on this frame.
+.proc gm_calc_shake
+	lda #0
+	sta shakeamtX
+	sta shakeamtY
+	
+	lda quaketimer
+	beq noQuake
+	
+	dec quaketimer
+	
+	lda #cont_up
+	bit quakeflags
+	beq notUp
+	
+	jsr rand_m2_to_p1
+	sta shakeamtY
+	
+notUp:
+	lda #cont_down
+	bit quakeflags
+	beq notDown
+	
+	jsr rand_m1_to_p2
+	clc
+	adc shakeamtY
+	sta shakeamtY
+	
+notDown:
+	lda #cont_left
+	bit quakeflags
+	beq notLeft
+	
+	jsr rand_m2_to_p1
+	sta shakeamtX
+	
+notLeft:
+	lda #cont_right
+	bit quakeflags
+	beq notRight
+	
+	jsr rand_m1_to_p2
+	clc
+	adc shakeamtX
+	sta shakeamtX
+	
+notRight:
+noQuake:
+	rts
+.endproc
+
 ; ** SUBROUTINE: gm_calc_camera_nosplit
 ; desc: Calculate the quake scroll offsets, and adds them to cameraX/cameraY.
 ;       Then calculates the cameraX/cameraY and prepares it for upload to the PPU.
@@ -81,37 +133,16 @@ gm_calc_camera_split:
 	sta temp2
 	
 	lda #0
+	sta temp5
 	sta temp11
 	
-	lda quaketimer
-	beq noQuake
+	lda shakeamtX
+	beq noQuakeOnX
+	bpl :+
+	ldx #$FF
+	stx temp5
 	
-	dec quaketimer
-	
-	lda #cont_up
-	bit quakeflags
-	beq notUp
-	
-	jsr rand_m2_to_p1
-	sta temp11
-	
-notUp:
-	lda #cont_down
-	bit quakeflags
-	beq notDown
-	
-	jsr rand_m1_to_p2
-	clc
-	adc temp11
-	sta temp11
-	
-notDown:
-	lda #cont_left
-	bit quakeflags
-	beq notLeft
-	
-	jsr rand_m2_to_p1
-	clc
+:	clc
 	adc scroll_x
 	sta scroll_x
 	lda temp1
@@ -119,22 +150,9 @@ notDown:
 	and #1
 	sta temp1
 	
-notLeft:
-	lda #cont_right
-	bit quakeflags
-	beq notRight
-	
-	jsr rand_m1_to_p2
-	clc
-	adc scroll_x
-	sta scroll_x
-	lda temp1
-	adc temp5
-	and #1
-	sta temp1
-	
-notRight:
-	lda temp11
+noQuakeOnX:
+	lda shakeamtY
+	beq noQuakeOnY
 	bmi shakeNegative
 	
 	; shake positive
@@ -144,7 +162,7 @@ notRight:
 	bcc :+
 	adc #15
 :	sta scroll_y
-	jmp noQuake
+	jmp noQuakeOnY
 
 shakeNegative:
 	clc
@@ -154,7 +172,7 @@ shakeNegative:
 	sbc #16
 :	sta scroll_y
 	
-noQuake:
+noQuakeOnY:
 	lda #0
 	ldx temp1
 	beq :+

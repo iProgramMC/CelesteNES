@@ -50,14 +50,19 @@ gm_donecomputing:
 	lda player_y
 	sec
 	sbc camera_y_sub
+	sec
+	sbc shakeamtY
+	sta temp12
 	tay
 	ldx #temp1           ; draw player
 	lda player_x
-	jsr gm_draw_2xsprite
-	ldx #temp4           ; draw hair
-	lda player_y
 	sec
-	sbc camera_y_sub
+	sbc shakeamtX
+	sta temp11
+	jsr gm_draw_2xsprite
+	
+	ldx #temp4           ; draw hair
+	lda temp12
 	clc
 	adc spryoff
 	tay
@@ -65,12 +70,12 @@ gm_donecomputing:
 	bit playerctrl
 	bne gm_sprxoffleft
 	clc
-	lda player_x
+	lda temp11
 	adc sprxoff
 	jmp gm_sprxoffdone
 gm_sprxoffleft:
 	sec
-	lda player_x
+	lda temp11
 	sbc sprxoff
 gm_sprxoffdone:
 	jsr gm_draw_2xsprite
