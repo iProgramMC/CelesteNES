@@ -144,8 +144,9 @@ gm_updatexvel:
 
 @zeroAndReturn:
 	lda #0
-	sta player_vl_x
 	sta player_vs_x
+	lda liftboostX
+	sta player_vl_x
 
 @return2:
 	rts
@@ -3813,6 +3814,12 @@ advancedTraceDisabled:
 ; ** SUBROUTINE: gm_checkretent
 ; desc: Checks the wall speed retention timer.
 .proc gm_checkretent
+@leftXCoord  = temp8
+@rightXCoord = temp9
+@topYCoord   = temp10
+@midYCoord   = temp11
+@btmYCoord   = temp12
+
 	; check if the retention timer is zero
 	lda retain_timer
 	beq @return
@@ -3854,7 +3861,7 @@ advancedTraceDisabled:
 	lsr               ; finish dividing by the tile size
 	
 	; store the left X coordinate
-	sta temp1
+	sta @leftXCoord
 	
 	lda player_x
 	clc
@@ -3871,7 +3878,7 @@ advancedTraceDisabled:
 	lsr
 	lsr
 	; store the right X coordinate
-	sta temp2
+	sta @rightXCoord
 	
 	lda player_y
 	clc
@@ -3880,7 +3887,7 @@ advancedTraceDisabled:
 	lsr
 	lsr
 	; top Y coordinate
-	sta temp3
+	sta @topYCoord
 	
 	lda player_y
 	clc
@@ -3889,7 +3896,7 @@ advancedTraceDisabled:
 	lsr
 	lsr
 	; bottom Y coordinate
-	sta temp4
+	sta @btmYCoord
 	
 	lda player_y
 	clc
@@ -3898,7 +3905,7 @@ advancedTraceDisabled:
 	lsr
 	lsr
 	; middle Y coordinate
-	sta temp5
+	sta @midYCoord
 	
 	lda gamectrl4
 	pha
@@ -3908,33 +3915,33 @@ advancedTraceDisabled:
 	; TODO: maybe you can remove some of these depending on the direction
 	; TODO: this seems kinda slow...
 	
-	ldx temp1
-	ldy temp3
+	ldx @leftXCoord
+	ldy @topYCoord
 	jsr xt_collide
 	bne @hadcoll
 	
-	ldx temp1
-	ldy temp4
+	ldx @leftXCoord
+	ldy @btmYCoord
 	jsr xt_collide
 	bne @hadcoll
 	
-	ldx temp1
-	ldy temp5
+	ldx @leftXCoord
+	ldy @midYCoord
 	jsr xt_collide
 	bne @hadcoll
 	
-	ldx temp2
-	ldy temp3
+	ldx @rightXCoord
+	ldy @topYCoord
 	jsr xt_collide
 	bne @hadcoll
 	
-	ldx temp2
-	ldy temp4
+	ldx @rightXCoord
+	ldy @btmYCoord
 	jsr xt_collide
 	bne @hadcoll
 	
-	ldx temp2
-	ldy temp5
+	ldx @rightXCoord
+	ldy @midYCoord
 	jsr xt_collide
 	bne @hadcoll
 	
