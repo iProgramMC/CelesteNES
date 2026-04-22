@@ -1752,41 +1752,82 @@ applyXSub:
 
 ; routine: check right
 checkRight:
-	lda #(maxvelxhi+2)
-	sta temp10
+	lda #0
+	sta temp11 ; collided flags (1 - top, 2 - bottom)
 
-checkRightLoop:
-	dec temp10
-	beq checkRDoneReturn     ; nope, out of here with your stupid games
-	
 	lda #pl_noentchk
 	bit playerctrl
-	bne :+
+	bne @dontHandleEntityCollisionR
 	
 	jsr gm_collentright
-	bne collidedRight
+	beq @dontHandleEntityCollisionR
 	
-:	jsr gm_getrightx
+	jsr checkRightEntityCollision
+	jmp collidedRightStopNoRepos
+	
+@dontHandleEntityCollisionR:
+	jsr gm_getrightx
 	tax
-	stx y_crd_temp           ; note: x_crd_temp is clobbered by xt_collide!
-	ldy temp1
-	lda #gc_right
-	jsr xt_collide
-	bne collidedRight        ; if collided, move a pixel back and try again
+	stx y_crd_temp           ; note: x_crd_temp is clobbered by xt_collide.
 	
-	ldy temp2                ;  snapping to the nearest tile is a BIT more complicated so
-	ldx y_crd_temp           ;  I will not bother
-	lda #gc_right
-	jsr xt_collide
-	bne collidedRight
-	
+	; test the middle first, because we CAN'T correct this one
 	ldy temp12
+	lda #gc_right
+	jsr xt_collide
+	bne collidedRightStop
+	
+	ldy temp1
 	ldx y_crd_temp
 	lda #gc_right
 	jsr xt_collide
+	beq :+
+	
+	lda #1
+	ora temp11
+	sta temp11
+	
+:	ldy temp2
+	ldx y_crd_temp
+	lda #gc_right
+	jsr xt_collide
+	beq :+
+	
+	lda #2
+	ora temp11
+	sta temp11
+	
+:	lda temp11
 	beq checkRDoneReturn
+	
+	tax
+	lda dashtime
+	;bne @checkCorrect
+	beq collidedRightStop
 
-collidedRight:
+@checkCorrect:
+	txa
+	cmp #3
+	bcs collidedRightStop    ; collided with both top and bottom - can't correct here
+	
+	cmp #2
+	beq Com_correctBottom
+	bne Com_correctTop
+	
+collidedRightStop:
+	lda y_crd_temp ; actually X coord but whatever
+	asl
+	asl
+	asl
+	sec
+	sbc #(plrwidth + plr_x_left)
+	sec
+	sbc camera_x
+	sta player_x
+	
+	lda #$FF
+	sta player_sp_x
+	
+collidedRightStopNoRepos:
 	jsr gm_startretent
 	
 	lda hopcdown
@@ -1808,7 +1849,7 @@ collidedRight:
 	ora #g5_collideX
 	sta gamectrl5
 	
-	; if holding left, mark as pushing
+	; if holding right, mark as pushing
 	lda game_cont
 	and #cont_right
 	beq :+
@@ -1822,56 +1863,107 @@ collidedRight:
 @dontModVel:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
-	ldx player_x
-	beq checkRDoneReturn     ; if the player X is zero... we're stuck inside a wall
-	
-	dex
-	stx player_x
-	ldx #$FF                 ; set the subpixel to $FF.  This allows our minuscule velocity to
-	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp checkRightLoop       ; !! note: in case of a potential clip, this might cause lag frames!
-	                         ; loops will be used to avoid this unfortunate case as much as possible.
-;
+	rts
+
+Com_correctTop:
+	lda temp1
+	asl
+	asl
+	asl
+	clc
+	adc #(8-plr_y_top)
+	sta player_y
 checkRDoneReturn:
+	rts
+	
+Com_correctBottom:
+	lda temp2
+	asl
+	asl
+	asl
+	sec
+	sbc #16
+	sta player_y
 	rts
 
 ; routine: check left
 checkLeft:
-	lda #(maxvelxhi+2)
-	sta temp10
-
-checkLeftLoop:
-	dec temp10
-	beq checkRDoneReturn     ; nope, out of here with your stupid games
+	lda #0
+	sta temp11 ; collided flags - same as right
 	
 	lda #pl_noentchk
 	bit playerctrl
-	bne :+
+	bne @dontHandleEntityCollisionL
 	
 	jsr gm_collentleft
-	bne collidedLeft
+	beq @dontHandleEntityCollisionL
 	
-:	jsr gm_getleftx
+	jsr checkLeftEntityCollision
+	jmp collidedLeftStopNoRepos
+	
+@dontHandleEntityCollisionL:
+	jsr gm_getleftx
 	tax
 	stx y_crd_temp
-	ldy temp1
-	lda #gc_left
-	jsr xt_collide
-	bne collidedLeft         ; if collided, move a pixel to the right & try again
 	
-	ldy temp2
-	ldx y_crd_temp
-	lda #gc_left
-	jsr xt_collide
-	bne collidedLeft
-	
+	; test the middle first, because we CAN'T correct this one
 	ldy temp12
+	lda #gc_left
+	jsr xt_collide
+	bne collidedLeftStop
+	
+	ldy temp1
 	ldx y_crd_temp
 	lda #gc_left
 	jsr xt_collide
+	beq :+
+	
+	lda #1
+	ora temp11
+	sta temp11
+	
+:	ldy temp2
+	ldx y_crd_temp
+	lda #gc_left
+	jsr xt_collide
+	beq :+
+	
+	lda #2
+	ora temp11
+	sta temp11
+	
+:	lda temp11
 	beq checkRDoneReturn
+	
+	tax
+	lda dashtime
+	;bne @checkCorrect
+	beq collidedLeftStop
 
-collidedLeft:
+@checkCorrect:
+	txa
+	cmp #3
+	bcs collidedLeftStop     ; collided with both top and bottom - can't correct here
+	
+	cmp #2
+	beq Com_correctBottom
+	bne Com_correctTop
+
+collidedLeftStop:
+	lda y_crd_temp ; actually X coord but whatever
+	asl
+	asl
+	asl
+	clc
+	adc #(8 - plr_x_left)
+	sec
+	sbc camera_x
+	sta player_x
+	
+	lda #0
+	sta player_sp_x
+
+collidedLeftStopNoRepos:
 	jsr gm_startretent
 	
 	lda hopcdown
@@ -1905,14 +1997,34 @@ collidedLeft:
 @dontModVel:
 	lda #defwjmpcoyo
 	sta wjumpcoyote
-	ldx player_x
-	cpx #$F0                 ; compare to [screenWidth-16]
-	bcs checkRDoneReturn     ; if bigger or equal, just bail, we might be stuck in a wall
-	inx
-	stx player_x
-	ldx #0                   ; set the subpixel to 0.  This allows our minuscule velocity to
-	stx player_sp_x          ; keep colliding with this wall every frame and allow the push action to continue
-	jmp checkLeftLoop
+	rts
+
+; temp9 is the coordinate of the entity we collided with.
+checkLeftEntityCollision:
+	ldy temp9
+	
+	; take the right edge of the platform
+	lda sprspace+sp_x, y
+	clc
+	adc sprspace+sp_wid, y
+	; take the camera X as well as plr_x_left
+	sec
+	sbc camera_x
+	sec
+	sbc #plr_x_left
+	sta player_x
+	rts
+
+checkRightEntityCollision:
+	ldy temp9
+	lda sprspace+sp_x, y
+	sec
+	sbc camera_x
+	sec
+	sbc #(16-plr_x_left)
+	sta player_x
+	rts
+
 .endproc
 
 gm_appx_checkleft  := gm_applyx::checkLeft
@@ -2273,7 +2385,7 @@ gm_wjckentright:
 	;jmp gm_collentside
 
 ; ** SUBROUTINE: gm_collentside
-; desc: Checks rightward collision with entities.
+; desc: Checks sideways collision with entities.
 ; note: can't use: temp1, temp2, temp7
 ; note: Currently this only detects the first sprite the player has collided with,
 ;       not the closest.
