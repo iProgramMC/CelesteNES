@@ -234,7 +234,7 @@ gm_ent_move_y:
 	tay
 	lda #gc_floor
 	jsr gm_collide
-	beq :+
+	beq @noCollisionDown
 	
 	; collided with a floor. snap her up there
 	lda #%11111000
@@ -243,12 +243,13 @@ gm_ent_move_y:
 	
 	; check if we're colliding with anything else?
 	jsr gm_collentceil
-	beq :+
+	beq @noCollisionDown
 	
 	; looks like the player was squished in between this platform and the ground. RIP :(
-	jsr gm_killplayer
-:	rts
-	
+	jmp gm_killplayer
+@noCollisionDown:
+	rts
+
 @checkSquishUP:
 	; the platform is going up, so ensure the player's being pushed by it.
 	jsr gm_collentfloor

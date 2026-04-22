@@ -8,54 +8,14 @@
 ;    temp6 - tile # for left side
 ;    temp7 - tile # for right side
 gm_draw_common:
-	lda temp3
-	sta y_crd_temp
-	
-	; draw the left sprite
-	lda temp2
-	cmp #$F8
-	bcc :+
-	; sprite X is bigger than $F8, because either the sprite is to the
-	; left of the screen (so fraudulently got there via overflow), or
-	; legitimately to the right
-	lda temp4
-	bmi @skipLeftSprite      ; X high coord < $00, don't draw that part
-	lda temp2
-	
-:	sta x_crd_temp
-	
-	lda temp5
-	ldy temp6
-	jsr oam_putsprite
-	
-@skipLeftSprite:
-	; draw the right sprite
-	lda temp4
-	bmi @temp4neg
-	lda temp2
-	clc
-	adc #8
-	bcs :+                   ; if it overflew while computing the coord,
-@temp4negd:
-	sta x_crd_temp           ; then it need not render
-	
-	lda temp8
-	ldy temp7
-	jsr oam_putsprite
-	
-:	rts
-
-@temp4neg:
-	lda temp2
-	clc
-	adc #8
-	bcs @temp4negd
-	bcc @temp4negd
+	ldx #<xt_draw_common
+	ldy #>xt_draw_common
+	lda #prgb_ents
+	jmp far_call2
 
 ; ** SUBROUTINE: gm_draw_common2
 ; desc: draws a common 2X sprite.  Ensures that there is no wraparound.
 .proc gm_draw_common2
-	
 	lda temp4
 	bmi @temp4Negative
 	bne @temp4PositiveNonZero
@@ -63,7 +23,7 @@ gm_draw_common:
 	; temp4 is zero, so can draw
 @doDraw:
 	jmp gm_draw_common
-	
+
 @temp4PositiveNonZero:
 @temp4NegativeTemp2Negative:
 	; if temp4 > 0, then clearly off screen

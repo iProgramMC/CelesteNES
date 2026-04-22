@@ -128,7 +128,7 @@
 	lda #$9A
 	sta temp6
 	sta temp7
-	jsr gm_draw_common
+	jsr xt_draw_common
 	;jmp xt_update_refillhold
 
 .endproc
@@ -159,7 +159,7 @@
 	sta temp6
 	lda #$FE
 	sta temp7
-	jsr gm_draw_common
+	jsr xt_draw_common
 	;jmp xt_update_refill
 .endproc
 
@@ -240,7 +240,7 @@
 	sta temp6
 	sta temp7
 	dec temp3 ; correction because sprites are drawn with a 1 px down offset
-	jmp gm_draw_common
+	jmp xt_draw_common
 
 @frames: .byte $C0, $C2, $C4, $CA, $C4, $CA, $C4, $C2, $C6, $C8
 .endproc
@@ -260,7 +260,7 @@
 	lda @frames2, x
 	sta temp7
 	dec temp3 ; correction because sprites are drawn with a 1 px down offset
-	jmp gm_draw_common
+	jmp xt_draw_common
 
 @frames1: .byte $E4, $E8, $EC, $EE, $EC, $EE, $EC, $E8, $E6, $E4
 @frames2: .byte $F2, $EA, $E4, $F0, $E4, $F0, $E4, $EA, $F2, $F2
@@ -281,7 +281,7 @@
 	lda @frames1, x
 	sta temp7
 	dec temp3 ; correction because sprites are drawn with a 1 px down offset
-	jmp gm_draw_common
+	jmp xt_draw_common
 
 @frames1: .byte $E4, $E8, $EC, $EE, $EC, $EE, $EC, $E8, $E6, $E4
 @frames2: .byte $F2, $EA, $E4, $F0, $E4, $F0, $E4, $EA, $F2, $F2
@@ -406,7 +406,7 @@
 	sta temp6
 	lda #$DE
 	sta temp7
-	jmp gm_draw_common
+	jmp xt_draw_common
 .endproc
 
 ; ** ENTITY: Points
@@ -459,7 +459,7 @@
 	adc #$80
 	sta temp6
 	
-	jmp gm_draw_common
+	jmp xt_draw_common
 .endproc
 
 ; ** ENTITY: Crumble Block
@@ -815,7 +815,7 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	sta temp6
 	lda #$FA
 	sta temp7
-	jsr gm_draw_common
+	jsr xt_draw_common
 	
 	lda sprspace+sp_strawb_flags, x
 	and #(esb_winged|esb_picked|esb_shrink)
@@ -846,7 +846,7 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	clc
 	adc #2
 	sta temp7
-	jsr gm_draw_common
+	jsr xt_draw_common
 	
 @dontDrawLeftWing:
 	lda temp2
@@ -868,7 +868,7 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	clc
 	adc #2
 	sta temp6
-	jsr gm_draw_common
+	jsr xt_draw_common
 	jmp @doneDrawingWings
 
 @shrinking:
@@ -889,7 +889,7 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	adc #$CC
 	sta temp6
 	sta temp7
-	jmp gm_draw_common
+	jmp xt_draw_common
 	
 @doneDrawingWings:
 	lda oam_wrhead
@@ -1771,7 +1771,7 @@ drawSprite:
 	lda #$94
 	sta temp6
 	sta temp7
-	jmp gm_draw_common
+	jmp xt_draw_common
 	
 state_Init:
 	; increment the state to 1, and increment the amount of
@@ -2207,7 +2207,7 @@ spriteNumbersBelow:	.byte $BC,$96,$BE
 	sta temp6
 	lda tapeShortFrames2, y
 	sta temp7
-	jmp gm_draw_common
+	jmp xt_draw_common
 	
 @wide:
 	lda temp2
@@ -2250,7 +2250,7 @@ spriteNumbersBelow:	.byte $BC,$96,$BE
 	sta temp6
 	lda tapeLongFrames3, y
 	sta temp7
-	jmp gm_draw_common
+	jmp xt_draw_common
 
 @noRightSide:
 	rts
@@ -2513,7 +2513,7 @@ calculateRespawnXGlobally:
 	sta temp5
 	sta temp8
 	
-	jmp gm_draw_common
+	jmp xt_draw_common
 
 @despawn:
 	lda #0
@@ -2679,7 +2679,7 @@ calculateRespawnXGlobally:
 	sta sprspace+sp_hart_bncey, x
 	
 @dontLowerBounce:
-	jmp gm_draw_common2
+	jmp xt_draw_common2
 
 calculateOneQuarter:
 	lda temp7
@@ -3053,4 +3053,84 @@ xt_check_ent_onscreen:
 
 @earlyReturn:
 	rts
+.endproc
+
+; ** SUBROUTINE: xt_draw_common
+; desc: draws a common 2X sprite.
+; parameters:
+;    temp5 - attributes for left side
+;    temp8 - attributes for right side
+;    temp6 - tile # for left side
+;    temp7 - tile # for right side
+.proc xt_draw_common
+	lda temp3
+	sta y_crd_temp
+	
+	; draw the left sprite
+	lda temp2
+	cmp #$F8
+	bcc :+
+	; sprite X is bigger than $F8, because either the sprite is to the
+	; left of the screen (so fraudulently got there via overflow), or
+	; legitimately to the right
+	lda temp4
+	bmi @skipLeftSprite      ; X high coord < $00, don't draw that part
+	lda temp2
+	
+:	sta x_crd_temp
+	
+	lda temp5
+	ldy temp6
+	jsr oam_putsprite
+	
+@skipLeftSprite:
+	; draw the right sprite
+	lda temp4
+	bmi @temp4neg
+	lda temp2
+	clc
+	adc #8
+	bcs :+                   ; if it overflew while computing the coord,
+@temp4negd:
+	sta x_crd_temp           ; then it need not render
+	
+	lda temp8
+	ldy temp7
+	jsr oam_putsprite
+	
+:	rts
+
+@temp4neg:
+	lda temp2
+	clc
+	adc #8
+	bcs @temp4negd
+	bcc @temp4negd
+.endproc
+
+; ** SUBROUTINE: xt_draw_common2
+; desc: draws a common 2X sprite.  Ensures that there is no wraparound.
+; note: Duplicate of e_draw.asm : gm_draw_common2.
+.proc xt_draw_common2
+	lda temp4
+	bmi @temp4Negative
+	bne @temp4PositiveNonZero
+	
+	; temp4 is zero, so can draw
+@doDraw:
+	jmp gm_draw_common
+
+@temp4PositiveNonZero:
+@temp4NegativeTemp2Negative:
+	; if temp4 > 0, then clearly off screen
+	rts
+
+@temp4Negative:
+	; it could still be on screen if temp2 >= $F8 (so, the RHS would end up back
+	; in screen bounds)
+	lda temp2
+	cmp #$F8
+	bcc @temp4NegativeTemp2Negative
+	bcs @doDraw
+
 .endproc
