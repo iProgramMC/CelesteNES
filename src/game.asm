@@ -228,6 +228,10 @@ gm_game_update:
 	and #g2_exitlvl
 	bne @justReturnToOverworld
 	
+	lda gamectrl5
+	and #g5_reslvl
+	bne @justRestart
+	
 	jsr gm_level_end
 	
 	lda levelnumber
@@ -255,6 +259,17 @@ gm_game_update:
 	beq :+
 	dec exitmaptimer
 :	rts
+
+@justRestart:
+	ldx levelnumber
+	lda #gm_game
+	sta gamemode
+	lda #0
+	sta gamectrl
+	sta musictable
+	sta musictable+1
+	jsr gm_set_level
+	rts
 
 ; ** SUBROUTINE: gm_update_dialog
 ; desc: Updates the active dialog if needed.
