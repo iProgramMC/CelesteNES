@@ -297,8 +297,7 @@ tableT:	.byte $10,$06,$00,$00,$06,$08,$12
 	cmp #2
 	beq level2
 	cmp #3
-	beq gm_check_level_banks_level3
-	
+	beq level3
 return:
 	rts
 
@@ -344,21 +343,11 @@ level1:
 	
 	lda #64
 	sta miscsplit
-	
-nope:
-	rts
-.endproc
 
-.proc gm_check_level_banks_level3
-	lda roomflags2
-	and #r2_outside
-	bne outsideTileSet
-	lda #chrb_lvl3
-	sta bg0_bknum
-	rts
-outsideTileSet:
-	lda #chrb_lvl3al
-	sta bg0_bknum
+level3:
+	jmp level3_check_banks
+
+nope:
 	rts
 .endproc
 

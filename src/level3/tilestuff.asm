@@ -38,3 +38,55 @@
 @noTransform:
 	jmp h_tile_tform_ret
 .endproc
+
+.proc level3_check_banks
+	lda roomflags2
+	and #r2_outside
+	bne outsideTileSet
+	
+	lda #chrb_lvl3
+	sta bg0_bknum
+	
+	lda #g4_altpal
+	bit gamectrl4
+	beq needChangeToInside
+	rts
+
+outsideTileSet:
+	lda #chrb_lvl3al
+	sta bg0_bknum
+	
+	lda #g4_altpal
+	bit gamectrl4
+	bne needChangeToOutside
+	rts
+needChangeToOutside:
+	eor gamectrl4
+	sta gamectrl4
+
+	lda #<level3_palette
+	sta vmcsrc
+	lda #>level3_palette
+	sta vmcsrc+1
+	bne prepareUpload
+
+needChangeToInside:
+	ora gamectrl4
+	sta gamectrl4
+	lda #<level3_inside_palette
+	sta vmcsrc
+	lda #>level3_inside_palette
+	sta vmcsrc+1
+
+prepareUpload:
+	lda #$3F
+	sta vmcaddr+1
+	lda #$00
+	sta vmcaddr
+	lda #$10
+	sta vmccount
+	lda nmictrl2
+	ora #nc2_vmemcpy
+	sta nmictrl2
+	rts
+.endproc
