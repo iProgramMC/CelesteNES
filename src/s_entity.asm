@@ -2827,12 +2827,6 @@ xt_draw_ent_call:
 	lda lvlyoff
 	rts
 
-level2_memorial_kludge:
-	ldx #<level1_memorial
-	ldy #>(level1_memorial - ($C000-$A000))
-	lda #prgb_lvl1b
-	jmp far_call2
-
 .define entity_jump_table   \
 	$0000,                  \
 	xt_draw_berry,          \
