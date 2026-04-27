@@ -70,34 +70,7 @@ gm_allocate_palette:
 
 @indexTable:	.byte 0,3,6
 
-; ** SUBROUTINE: gm_clear_palette_allocator
-; desc: Clears the palette allocator and copies the current
-;       sprite palette into the old sprite palette. Run every frame.
-gm_clear_palette_allocator:
-	ldy #0
-	sty sprpalcount
-	
-:	lda spritepals, y
-	sta spritepalso,y
-	
-	;;;; DEBUG ;;;;
-	; TODO: Remove on release
-	lda #0
-	sta spritepals, y
-	;;;; DEBUG DONE ;;;;
-	
-	iny
-	cpy #9
-	bne :-
-	
-	ldy #0
-	lda #0
-:	sta palidxs, y
-	iny
-	cpy #pal_max
-	bne :-
-	
-	rts
+; gm_clear_palette_allocator moved to prg_main.asm temporarily
 
 ; ** SUBROUTINE: gm_check_updated_palettes
 ; desc: Checks for updated palettes and enqueues an upload for each.

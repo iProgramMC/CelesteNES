@@ -212,6 +212,36 @@ main_loop:
 .include "nmi.asm"
 .include "m_fade.asm"
 
+; moved away from g_palloc.asm (TODO: restore)
+; ** SUBROUTINE: gm_clear_palette_allocator
+; desc: Clears the palette allocator and copies the current
+;       sprite palette into the old sprite palette. Run every frame.
+gm_clear_palette_allocator:
+	ldy #0
+	sty sprpalcount
+	
+:	lda spritepals, y
+	sta spritepalso,y
+	
+	;;;; DEBUG ;;;;
+	; TODO: Remove on release
+	lda #0
+	sta spritepals, y
+	;;;; DEBUG DONE ;;;;
+	
+	iny
+	cpy #9
+	bne :-
+	
+	ldy #0
+	lda #0
+:	sta palidxs, y
+	iny
+	cpy #pal_max
+	bne :-
+	
+	rts
+
 .segment "PRG_VECS"
 	.word nmi_
 	.word reset

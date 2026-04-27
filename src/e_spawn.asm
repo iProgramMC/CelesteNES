@@ -12,55 +12,23 @@
 ;     temp8 - gravity
 ;     temp9 - time alive
 .proc gm_spawn_particle
-	ldy #0
-:	lda sprspace+sp_kind, y
-	beq slotFound
-	iny
-	cpy #sp_max
-	bne :-
-	rts          ; no more space :(
+;	ldy #0
+;:	lda sprspace+sp_kind, y
+;	beq slotFound
+;	iny
+;	cpy #sp_max
+;	bne :-
+;	rts          ; no more space :(
 
-slotFound:
-	; from here until startConvergence, gm_spawn_particle does its own thing
-	lda temp1
-	sta sprspace+sp_x, y
-	lda temp2
-	sta sprspace+sp_y, y
-	lda temp3
-	sta sprspace+sp_x_pg, y
-	
-startConvergence:
-	lda #e_particle
-	sta sprspace+sp_kind, y
-	
-	lda roomnumber
-	and #1
-	asl
-	sta sprspace+sp_flags, y
-	
-	lda #0
-	sta sprspace+sp_wid, y
-	sta sprspace+sp_hei, y
-	sta sprspace+sp_vel_x_lo, y
-	sta sprspace+sp_vel_y_lo, y
-	sta sprspace+sp_x_lo, y
-	sta sprspace+sp_y_lo, y
-	
-	ldx temp6
-	lda partdirx, x
-	sta sprspace+sp_part_vel_x, y
-	lda partdiry, x
-	sta sprspace+sp_part_vel_y, y
-	
-	lda temp9
-	sta sprspace+sp_part_timer, y
-	lda temp8
-	sta sprspace+sp_part_gravi, y
-	lda temp4
-	sta sprspace+sp_part_chrti, y
-	lda temp5
-	sta sprspace+sp_part_chrat, y
-	rts
+;slotFound:
+;	; from here until startConvergence, gm_spawn_particle does its own thing
+;	lda temp1
+;	sta sprspace+sp_x, y
+;	lda temp2
+;	sta sprspace+sp_y, y
+;	lda temp3
+;	sta sprspace+sp_x_pg, y
+;	jmp gm_spawn_particle_converge
 .endproc
 
 ; ** SUBROUTINE: gm_spawn_particle_at_ent
@@ -105,8 +73,41 @@ startConvergence:
 	clc
 	adc #4
 	sta sprspace+sp_y, y
+	; fall through to below
+.endproc
+
+.proc gm_spawn_particle_converge
+	lda #e_particle
+	sta sprspace+sp_kind, y
 	
-	jmp gm_spawn_particle::startConvergence
+	lda roomnumber
+	and #1
+	asl
+	sta sprspace+sp_flags, y
+	
+	lda #0
+	sta sprspace+sp_wid, y
+	sta sprspace+sp_hei, y
+	sta sprspace+sp_vel_x_lo, y
+	sta sprspace+sp_vel_y_lo, y
+	sta sprspace+sp_x_lo, y
+	sta sprspace+sp_y_lo, y
+	
+	ldx temp6
+	lda partdirx, x
+	sta sprspace+sp_part_vel_x, y
+	lda partdiry, x
+	sta sprspace+sp_part_vel_y, y
+	
+	lda temp9
+	sta sprspace+sp_part_timer, y
+	lda temp8
+	sta sprspace+sp_part_gravi, y
+	lda temp4
+	sta sprspace+sp_part_chrti, y
+	lda temp5
+	sta sprspace+sp_part_chrat, y
+	rts
 .endproc
 
 partdirx: .byte $FF,$01,$FF,$01,$00

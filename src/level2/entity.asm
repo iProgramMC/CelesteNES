@@ -1349,25 +1349,6 @@ palettes:	.byte pal_green, pal_green, pal_green, pal_fire
 .endproc
 
 level2_memorial_kludge:
-	; check for collision *HERE* so that we don't have to inside the level1 bank
-	; (the entity bank is not loaded with the memorial)
-	lda #0
-	sta temp7
-	sta temp8
-	lda #32
-	sta temp9
-	lda #64
-	sta temp10
-	ldy temp1
-	jsr gm_check_collision_ent
-	beq @noCollision
-	lda #1
-	sta temp12
-	bne @done
-@noCollision:
-	lda #0
-	sta temp12
-@done:
 	ldx #<level1_memorial
 	ldy #>(level1_memorial - ($C000-$A000))
 	lda #prgb_lvl1b

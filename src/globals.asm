@@ -212,7 +212,7 @@ choplastX   : .res 1
 choplastY   : .res 1
 
 scrchklo    : .res 1 ; temporaries used for scroll checking
-scrchkhi    : .res 1
+scrchkhi    : .res 1 ; UNUSED??
 trantmp1    : .res 1 ; temporaries used for transitioning
 trantmp2    : .res 1
 trantmp3    : .res 1

@@ -687,8 +687,6 @@ tableTimer:	.byte 0, 10
 ;
 ; This routine will be available at EITHER $A000 or $C000
 ; (from level 1, at $C000, from level 2, at $A000 through a remote call)
-;
-; NOTE: If called from level2, the collision status should already be placed in temp12!
 .proc level1_memorial
 @dialogWidth = 26
 
@@ -727,15 +725,6 @@ tableTimer:	.byte 0, 10
 	; now *that* is the position we need to start writing to
 	sta temp11
 	
-	lda levelnumber
-	cmp #2
-	bne @notLevel2
-	
-	lda temp12
-	beq @removeText2
-	bne @dontRemoveText
-	
-@notLevel2:
 	lda #0
 	sta temp7
 	sta temp8
@@ -745,10 +734,8 @@ tableTimer:	.byte 0, 10
 	sta temp10
 	ldy temp1
 	jsr gm_check_collision_ent
-@removeText2:
 	beq @removeText
 	
-@dontRemoveText:
 	lda nmictrl2
 	ora #nc2_memorsw
 	sta nmictrl2

@@ -896,22 +896,22 @@ gm_getbottomy_cc:
 
 ; ** SUBROUTINE: gm_getbottomy_short
 ; desc:     Gets the tile Y position at the bottom but slightly higher than the normal hitbox. Unused?
-gm_getbottomy_short:
-	lda player_y
-	clc
-	adc #plr_y_bot_wjc
-	bcs xt_gety_wraparound
-	cmp #240
-	bcs xt_gety_wraparound
-	lsr
-	lsr
-	lsr
-	cmp #$1D
-	bcc :+
-	lda abovescreen
-	beq :+
-	lda #$1D
-:	rts
+;gm_getbottomy_short:
+;	lda player_y
+;	clc
+;	adc #plr_y_bot_wjc
+;	bcs xt_gety_wraparound
+;	cmp #240
+;	bcs xt_gety_wraparound
+;	lsr
+;	lsr
+;	lsr
+;	cmp #$1D
+;	bcc :+
+;	lda abovescreen
+;	beq :+
+;	lda #$1D
+;:	rts
 
 ; ** SUBROUTINE: gm_getfacex_wj
 ; desc:    Gets the tile X position of either the left or right of the player's hitbox, depending on
