@@ -2013,6 +2013,8 @@ checkLeftEntityCollision:
 	sec
 	sbc #plr_x_left
 	sta player_x
+	lda #0
+	sta player_sp_x
 	rts
 
 checkRightEntityCollision:
@@ -2023,6 +2025,8 @@ checkRightEntityCollision:
 	sec
 	sbc #(16-plr_x_left)
 	sta player_x
+	lda #$FF
+	sta player_sp_x
 	rts
 
 .endproc
@@ -2153,59 +2157,6 @@ gm_checkwjump:
 	jsr xt_collide
 	bne @setL
 	beq @dontSet
-
-; ** SUBROUTINE: gm_calchorzplat
-; desc: Calculates the edges of a platform entity in plattemp1, plattemp2, screen coordinates.
-;       These can be used to check whether the player is standing on a platform.
-; arguments: Y register - the index of the Entity
-; returns:   plattemp1 - Left edge, plattemp2 - Right edge, ZF - Are they valid
-gm_calchorzplat:
-	; TODO: Needs more testing, like, a lot more testing.
-	
-	; LEFT edge.
-	lda sprspace+sp_x, y
-	sbc camera_x
-	sta plattemp1
-	
-	lda sprspace+sp_x_pg, y
-	sbc camera_x_pg
-	sta temp4
-	bmi @isMinus              ; the difference is <0, therefore partly offscreen. set left pos to 0.
-	bne @noHitBox             ; the difference is >0, therefore off screen.
-	beq @isNotMinus           ; the difference is =0. Skip the code below. I dislike that I have to do this.
-	
-@isMinus:
-	lda #0
-	sta plattemp1
-@isNotMinus:
-	
-	; RIGHT edge.
-	lda sprspace+sp_x, y
-	clc
-	adc sprspace+sp_wid, y
-	sta plattemp2
-	
-	lda sprspace+sp_x_pg, y
-	adc #0
-	sta temp4
-	
-	lda plattemp2
-	sec
-	sbc camera_x
-	sta plattemp2
-	
-	lda temp4
-	sbc camera_x_pg
-	bmi @noHitBox            ; the entire hitbox went over the left edge, therefore entirely off screen.
-	beq :+                   ; if it's >0, means the edge wrapped over to outside the screen, therefore load the max
-	lda #$FF
-	sta plattemp2
-:	lda #1
-	rts
-	
-@noHitBox:
-	lda #0
-	rts
 
 ; ** SUBROUTINE: xt_collentfloor
 ; desc: Checks ground collision with entities.
@@ -4252,6 +4203,26 @@ corrected:
 	lda dshold_vs_x
 	sta player_vs_x
 	rts
+.endproc
+
+; ** SUBROUTINE: ph_ent_call_check_plr
+; desc: Called by gm_ent_call_check_plr (e_physic.asm)
+.proc ph_ent_call_check_plr
+	jsr gm_gettopy
+	sta temp1                ; temp1 - top Y
+	jsr gm_getbottomy_w
+	sta temp2                ; temp2 - bottom Y
+	jsr gm_getmidy
+	sta temp12               ; temp12 - middle Y
+	jsr gm_appx_checkleft
+	
+	jsr gm_gettopy
+	sta temp1                ; temp1 - top Y
+	jsr gm_getbottomy_w
+	sta temp2                ; temp2 - bottom Y
+	jsr gm_getmidy
+	sta temp12               ; temp12 - middle Y
+	jmp gm_appx_checkright
 .endproc
 
 ; Note: The LR row must match the L row because gm_defaultdir requires it.

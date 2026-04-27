@@ -152,18 +152,31 @@ gm_game_init:
 	jsr gm_copyplayerpostodeath
 	jmp gm_game_update
 
+; ** SUBROUTINE: gm_update_paused
+; desc: Updates the game in the paused state.
+gm_game_paused:
+	; game is paused.
+	lda #<pause_update
+	sta farcalladdr
+	lda #>pause_update
+	sta farcalladdr+1
+	lda #mmc3bk_prg1
+	ldy #prgb_paus
+	jmp far_call
+
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
 	lda gamectrl
 	and #gs_1stfr
-	beq gm_game_init
+	bne gm_game_update
+	jmp gm_game_init
 gm_game_update:
 	inc framectr
 	jsr gm_update_game_cont
 	jsr gm_check_pause
 	
 	lda paused
-	bne @gamePaused
+	bne gm_game_paused
 	
 	jsr gm_draw_respawn
 	
@@ -242,16 +255,6 @@ gm_game_update:
 	beq :+
 	dec exitmaptimer
 :	rts
-
-@gamePaused:
-	; game is paused.
-	lda #<pause_update
-	sta farcalladdr
-	lda #>pause_update
-	sta farcalladdr+1
-	lda #mmc3bk_prg1
-	ldy #prgb_paus
-	jmp far_call
 
 ; ** SUBROUTINE: gm_update_dialog
 ; desc: Updates the active dialog if needed.

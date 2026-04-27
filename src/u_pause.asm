@@ -15,11 +15,12 @@ OPT_EXIT     = 5
 
 .else
 
-MAX_PAUSE_OPTION = 3
+MAX_PAUSE_OPTION = 4
 
 OPT_RESUME    = 0
 OPT_RETRY     = 1
-OPT_EXIT      = 2
+OPT_RESTART   = 2
+OPT_EXIT      = 3
 
 .endif
 
@@ -184,10 +185,10 @@ maybePressedA:
 	beq pressedSaveAndQuit
 	cpx #OPT_OPTIONS
 	beq pressedOptions
-	cpx #OPT_RESTART
-	beq pressedRestartChapter
 .endif
 
+	cpx #OPT_RESTART
+	beq pressedRestartChapter
 	cpx #OPT_EXIT
 	beq pressedReturnToMap
 	rts
@@ -220,10 +221,16 @@ pressedSaveAndQuit:
 	jmp gm_whoosh_sfx
 pressedOptions:
 	jmp gm_spring_sfx
-pressedRestartChapter:
-	jmp gm_bird_caw_sfx
 .endif
-	
+
+pressedRestartChapter:
+	lda #2
+	sta exitmaptimer
+	lda gamectrl5
+	ora #g5_reslvl
+	sta gamectrl5
+	jmp pressedResume
+
 pressedReturnToMap:
 	lda #2
 	sta exitmaptimer
@@ -231,6 +238,7 @@ pressedReturnToMap:
 	ora #g2_exitlvl
 	sta gamectrl2
 	jmp pressedResume
+
 .endproc
 
 ; offsets for the ATTRIBUTES and X COORDINATE bytes
@@ -238,15 +246,15 @@ pause_option_offsets:
 	.byte 2+24  ; RESUME
 	.byte 2+44  ; RETRY
 .if EXTENDED_PAUSE
-	.byte 2+108 ; SAVE AND QUIT
-	.byte 2+140 ; OPTIONS
-	.byte 2+156 ; RESTART CHAPTER
+	.byte 2+140 ; SAVE AND QUIT
+	.byte 2+172 ; OPTIONS
 .endif
+	.byte 2+108 ; RESTART CHAPTER
 	.byte 2+76  ; RETURN TO MAP
 
 ; amount of sprites to modify
 pause_option_lengths:
-	.byte 5, 8, 8, 4, 8, 8
+	.byte 5, 8, 8, 8, 8, 4
 
 ; animation table (stored in reverse order)
 pause_anim_table:
@@ -290,8 +298,18 @@ pause_data:
 	.byte 176, $6D, $02, $90
 	.byte 176, $6F, $02, $98
 	
+	; restart chapter - 108
+	.byte 160, $41, $02, $60
+	.byte 160, $43, $02, $68
+	.byte 160, $45, $02, $70
+	.byte 160, $47, $02, $78
+	.byte 160, $49, $02, $80
+	.byte 160, $4B, $02, $88
+	.byte 160, $4D, $02, $90
+	.byte 160, $4F, $02, $98
+	
 .if EXTENDED_PAUSE
-	; save and quit button - 108
+	; save and quit button - 140
 	.byte 112, $2B, $02, $60
 	.byte 112, $2D, $02, $68
 	.byte 112, $2F, $02, $70
@@ -301,21 +319,11 @@ pause_data:
 	.byte 112, $37, $02, $90
 	.byte 112, $39, $02, $98
 	
-	; options button - 140
+	; options button - 172
 	.byte 128, $51, $02, $70
 	.byte 128, $53, $02, $78
 	.byte 128, $55, $02, $80
 	.byte 128, $57, $02, $88
-	
-	; restart chapter - 156
-	.byte 160, $41, $02, $60
-	.byte 160, $43, $02, $68
-	.byte 160, $45, $02, $70
-	.byte 160, $47, $02, $78
-	.byte 160, $49, $02, $80
-	.byte 160, $4B, $02, $88
-	.byte 160, $4D, $02, $90
-	.byte 160, $4F, $02, $98
 .endif
 pause_data_end:
 

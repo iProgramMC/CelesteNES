@@ -11,9 +11,11 @@ gm_ent_move_x:
 	lda sprspace+sp_vel_x, y
 	bne @notZero
 	lda sprspace+sp_vel_x_lo, y
-	beq @return
-@notZero:
+	bne @notZero
 	
+	rts
+
+@notZero:
 	lda sprspace+sp_vel_x_lo, y
 	clc
 	adc sprspace+sp_x_lo, y
@@ -47,10 +49,69 @@ gm_ent_move_x:
 	; Check if the player is standing on this tile.
 	cpy entground
 	bne @notStanding
+
+	; rounds the velocity up, and stores it into currlboostX
+;	ldx sprspace+sp_vel_x, y
+;	stx $100 ; DEBUG
+;	lda sprspace+sp_vel_x_lo, y
+;	sta $101 ; DEBUG
+;	beq @noChange
+;	cpx #0
+;	bmi @decrement
+;	;increment
+;	inx
+;	bne @noChange
+;@decrement:
+;	dex
+;@noChange:
+;	stx currlboostX
+
+	; we actually need to round it down, sorry
+	ldx sprspace+sp_vel_x, y
+	bpl @noChange
+	lda sprspace+sp_vel_x_lo, y
+	beq @noChange
+	inx
+@noChange:
+	stx currlboostX
+
+	lda playerctrl
+	and #pl_climbing
+	beq @notClimbing
 	
-	lda sprspace+sp_vel_x, y
-	sta currlboostX
+	; OKAY, now check if the player is standing on the near or far side of the platform.
+	jsr gm_calchorzplat
+	beq @notClimbing    ; somehow this didn't work...
 	
+	; check left side
+	lda player_x
+	cmp plattemp1
+	bcs @notHoldingOntoLeft
+	
+	lda plattemp1
+	sec
+	sbc #(7+plr_x_left)
+	bcs :+
+	lda #0  ; here the player might be getting crushed against the screen
+:	sta player_x
+	jmp @doneAdding
+
+@notHoldingOntoLeft:
+	; check right side
+	lda plattemp2
+	cmp player_x
+	bcc @notClimbing
+	
+	; standing on right
+	lda plattemp2
+	sec
+	sbc #(plr_x_left+plr_x_left+4)
+	bcs :+
+	lda #0
+:	sta player_x
+	jmp @doneAdding
+	
+@notClimbing:
 	; Yes, so offset their position by our velocity as well to keep them on the ground.
 	;
 	; NOTE: this can cause clipping glitches, be careful if platforms may go into walls!
@@ -98,9 +159,9 @@ gm_ent_move_x:
 	lda temp4
 	pha
 	
-	lda #<kludge
+	lda #<ph_ent_call_check_plr
 	sta farcalladdr
-	lda #>kludge
+	lda #>ph_ent_call_check_plr
 	sta farcalladdr+1
 	ldy #prgb_phys
 	jsr far_call
@@ -114,23 +175,6 @@ gm_ent_move_x:
 	pla
 	sta temp1
 	rts
-
-kludge:
-	jsr gm_gettopy
-	sta temp1                ; temp1 - top Y
-	jsr gm_getbottomy_w
-	sta temp2                ; temp2 - bottom Y
-	jsr gm_getmidy
-	sta temp12               ; temp12 - middle Y
-	jsr gm_appx_checkleft
-	
-	jsr gm_gettopy
-	sta temp1                ; temp1 - top Y
-	jsr gm_getbottomy_w
-	sta temp2                ; temp2 - bottom Y
-	jsr gm_getmidy
-	sta temp12               ; temp12 - middle Y
-	jmp gm_appx_checkright
 .endproc
 
 ; ** SUBROUTINE: gm_ent_move_y
@@ -337,139 +381,56 @@ gm_ent_move_y:
 @noMoreCollision:
 	rts
 
-; ** SUBROUTINE: gm_check_collision_ent
-; desc: Checks for collision between the player and an entity.
-;
-; parameters:
-;     temp7 - X offset (left)
-;     temp8 - Y offset (top)
-;     temp9 - X offset (right)
-;     temp10- Y offset (bottom)
-;
-;     Y - the entity's index.
-;
-; returns:
-;     ZF set - No collision
-.proc gm_check_collision_ent
-	jsr gm_calc_ent_hitbox
+; ** SUBROUTINE: gm_calchorzplat
+; desc: Calculates the edges of a platform entity in plattemp1, plattemp2, screen coordinates.
+;       These can be used to check whether the player is standing on a platform.
+; arguments: Y register - the index of the Entity
+; returns:   plattemp1 - Left edge, plattemp2 - Right edge, !ZF - Are they valid
+.proc gm_calchorzplat
+	; TODO: Needs more testing, like, a lot more testing.
 	
-	; r1 is player
-	; r2 is entity
-	; conditions mean instant failure
-	
-	; r1->left >= r2->right
-	lda player_x
-	clc
-	adc #plr_x_left
-	cmp temp9
-	bcs failure
-	
-	; r1->right <= r2->left
-	; r1->right - 1 < r2->left
-	lda player_x
-	clc
-	adc #plr_x_right
-	cmp temp7
-	bcc failure
-	
-	; r1->top >= r2->bottom
-	lda player_y
-	clc
-	adc #plr_y_top
-	cmp temp10
-	bcs failure
-	
-	; r1->bottom <= r2->top
-	; r1->bottom - 1 < r2->top
-	lda player_y
-	clc
-	adc #(plr_y_bot - 1)
-	cmp temp8
-	bcc failure
-	
-	lda #1
-	rts
-
-failure:
-	lda #0
-	rts
-.endproc
-
-; ** SUBROUTINE: gm_calc_ent_hitbox
-; desc: Calculates an entity's hit box.  This is used when calculating
-;       collisions with the player, so these positions will be relative
-;       to the camera position.
-;       This also handles over/underflow on the X-axis.
-;
-; parameters:
-;     temp7 - X offset (left)
-;     temp8 - Y offset (top)
-;     temp9 - X offset (right)
-;     temp10- Y offset (bottom)
-;
-;     Y - the entity's index.
-;
-; returns:
-;     temp7, 8, 9, 10 - the hitbox itself.
-;
-; clobbers: temp11
-;
-; note: The entity must be at least partly on screen.
-.proc gm_calc_ent_hitbox
+	; LEFT edge.
 	lda sprspace+sp_x, y
-	clc
-	adc temp7
-	sec
 	sbc camera_x
-	sta temp7
+	sta plattemp1
 	
 	lda sprspace+sp_x_pg, y
 	sbc camera_x_pg
-	; this should be zero. If it is not, then the left edge is off screen.
-	beq xHighZero
-	bpl xHighPositive
-	lda #0
-	sta temp7
-	bne xHighZero
-xHighPositive:
-	lda #$FF
-	sta temp7
-xHighZero:
+	sta temp4
+	bmi @isMinus              ; the difference is <0, therefore partly offscreen. set left pos to 0.
+	bne @noHitBox             ; the difference is >0, therefore off screen.
+	beq @isNotMinus           ; the difference is =0. Skip the code below. I dislike that I have to do this.
 	
+@isMinus:
+	lda #0
+	sta plattemp1
+@isNotMinus:
+	
+	; RIGHT edge.
 	lda sprspace+sp_x, y
 	clc
-	adc temp9
-	sta temp9
+	adc sprspace+sp_wid, y
+	sta plattemp2
+	
 	lda sprspace+sp_x_pg, y
 	adc #0
-	sta plattemp3
-	lda temp9
+	sta temp4
+	
+	lda plattemp2
 	sec
 	sbc camera_x
-	sta temp9
+	sta plattemp2
 	
-	lda plattemp3
+	lda temp4
 	sbc camera_x_pg
-	; this should be zero. If it is not, then the right edge is off screen.
-	beq x2HighZero
-	bpl x2HighPositive
-	lda #0
-	sta temp9
-	bne x2HighZero
-x2HighPositive:
+	bmi @noHitBox            ; the entire hitbox went over the left edge, therefore entirely off screen.
+	beq :+                   ; if it's >0, means the edge wrapped over to outside the screen, therefore load the max
 	lda #$FF
-	sta temp9
-x2HighZero:
+	sta plattemp2
+:	lda #1
+	rts
 	
-	lda sprspace+sp_y, y
-	clc
-	adc temp8
-	sta temp8
-	
-	lda sprspace+sp_y, y
-	clc
-	adc temp10
-	sta temp10
-	
+@noHitBox:
+	lda #0
 	rts
 .endproc
