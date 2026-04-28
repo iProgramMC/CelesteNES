@@ -2711,6 +2711,8 @@ leftFrame:	.byte $40, $40, $40, $44, $48, $4C, $50, $54, $58, $5C, $60, $64, $68
 
 ; ** ENTITY: Arbitrary Sprite
 .proc xt_draw_arb_sprite
+	lda temp4
+	bne @return
 	ldx temp1
 	
 	lda sprspace+sp_prop_palet, x
@@ -2727,6 +2729,8 @@ leftFrame:	.byte $40, $40, $40, $44, $48, $4C, $50, $54, $58, $5C, $60, $64, $68
 	ldx temp1
 	ldy sprspace+sp_prop_chara, x
 	jmp oam_putsprite
+@return:
+	rts
 .endproc
 
 

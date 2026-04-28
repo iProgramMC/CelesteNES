@@ -8,6 +8,8 @@
 ;
 ; I probably won't use this in favor of d_font.chr / d_fontw.asm, which are my
 ; homegrown versions.
+;
+; 2026 -- Believe it or not, I did use the v2 version! And it was so much better!
 
 dlg_font_widths:
 
