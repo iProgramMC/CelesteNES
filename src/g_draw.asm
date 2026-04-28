@@ -343,6 +343,7 @@ level1:
 	
 	lda #64
 	sta miscsplit
+	rts
 
 level3:
 	jmp level3_check_banks
