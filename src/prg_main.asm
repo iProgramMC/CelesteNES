@@ -225,8 +225,8 @@ gm_clear_palette_allocator:
 	
 	;;;; DEBUG ;;;;
 	; TODO: Remove on release
-	lda #0
-	sta spritepals, y
+	;lda #0
+	;sta spritepals, y
 	;;;; DEBUG DONE ;;;;
 	
 	iny
@@ -234,7 +234,7 @@ gm_clear_palette_allocator:
 	bne :-
 	
 	ldy #0
-	lda #0
+	tya
 :	sta palidxs, y
 	iny
 	cpy #pal_max
