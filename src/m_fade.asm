@@ -18,7 +18,7 @@
 	sta temp12
 	ldx #<fade_in_kludge
 	ldy #>fade_in_kludge
-	lda #prgb_paus
+	lda #prgb_xtra
 	jmp far_call2
 
 fade_in_kludge:
@@ -29,6 +29,6 @@ fade_in_kludge:
 .proc fade_out
 	ldx #<u_fade_out
 	ldy #>u_fade_out
-	lda #prgb_paus
+	lda #prgb_xtra
 	jmp far_call2
 .endproc

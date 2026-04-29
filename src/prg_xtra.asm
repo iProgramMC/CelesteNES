@@ -8,3 +8,4 @@
 .include "extra/chcomp.asm"
 .include "x_rmtran.asm"
 .include "x_rle.asm"
+.include "x_fade.asm"

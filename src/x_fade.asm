@@ -84,6 +84,7 @@
 	
 	jsr u_fade_call_update_func
 	jsr u_fade_wait_one_frame
+	jsr u_fade_reset_pal_upds
 	
 	ldx transtimer
 	dex
@@ -94,8 +95,36 @@
 	jsr u_fade_copy_palette
 	jsr u_fade_set_vmc_flag
 	jsr u_fade_call_update_func
+	jsr u_fade_clear_sprite_pals
+	jsr gm_check_updated_palettes
 	dec fade_active
 	jmp u_fade_wait_one_frame
+.endproc
+
+.proc u_fade_reset_pal_upds
+	lda nmictrl2
+	and #<~nc2_updpal1|nc2_updpal2|nc2_updpal3
+	sta nmictrl2
+	rts
+.endproc
+
+.proc u_fade_clear_sprite_pals
+	ldy #0
+	tya
+:	sta spritepals, y
+	sta spritepalso, y
+	sta palidxs, y ; 0-8
+	iny
+	cpy #9
+	bne :-
+:	sta palidxs, y
+	iny
+	cpy #pal_max
+	bne :-
+	;lda nmictrl2
+	;ora #nc2_updpal1|nc2_updpal2|nc2_updpal3
+	;sta nmictrl2
+	rts
 .endproc
 
 ; ** SUBROUTINE: u_fade_fade_temp_row

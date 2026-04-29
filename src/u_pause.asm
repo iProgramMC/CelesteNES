@@ -200,9 +200,6 @@ pressedResume:
 pressedRetry:
 	jsr com_clear_oam ; actually undo everything we just did
 	jsr gm_unpause
-	
-	jsr fade_out
-	
 	lda dlg_cutsptr
 	bne @doSkip
 	lda dlg_cutsptr+1
@@ -210,8 +207,13 @@ pressedRetry:
 
 @doSkip:
 	lda gamectrl5
-	ora #g5_skipping
+	ora #g5_skipping|g5_fadein
 	sta gamectrl5
+	lda #3
+	sta fadeintimer
+	
+	jsr fade_out
+	
 	rts
 	
 @notSkip:

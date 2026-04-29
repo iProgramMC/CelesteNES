@@ -222,8 +222,13 @@ gm_game_update:
 	
 	lda #0
 	sta fadeupdrt+1
+	
+	lda gamectrl5
+	and #g5_fadein
+	bne @alreadyFadedOut
 	jsr fade_out
 	
+@alreadyFadedOut:
 	lda gamectrl2
 	and #g2_exitlvl
 	bne @justReturnToOverworld
@@ -285,7 +290,8 @@ gm_update_dialog:
 
 	eor gamectrl5
 	sta gamectrl5
-	jsr fade_in
+	lda #20
+	jsr fade_in_smaller_palette
 
 @notFadingIn:
 	lda gamectrl5
