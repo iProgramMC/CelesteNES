@@ -519,7 +519,10 @@ okay:
 	bne @done
 	
 @idleState:
-	lda entground
+	lda temp3
+	beq :+
+	dec temp3
+:	lda entground
 	cmp temp1
 	bne @done
 	
@@ -790,7 +793,7 @@ xt_berry_bitset:	.byte 1,2,4,8,16,32,64,128
 	txa
 	pha
 	
-	; NOTE: pal_red==1, pal_blue==0, this is what's being assumed here!]
+	; NOTE: pal_red==1, pal_blue==0, this is what's being assumed here!
 	lda sprspace+sp_strawb_flags, x
 	and #esb_ppicked
 	lsr
@@ -1470,6 +1473,11 @@ drawSpriteVersion:
 @currY   := temp7
 @spridx  := temp6
 @oldoam  := temp8
+	lda temp3
+	beq :+
+	dec temp3
+	
+:
 	
 	; TODO: this probably isn't the right place
 	cpx entground
@@ -2222,7 +2230,10 @@ spriteNumbersBelow:	.byte $BC,$96,$BE
 	lda temp2
 	sta x_crd_temp
 	lda temp3
-	sta y_crd_temp
+	beq :+
+	sec
+	sbc #1
+:	sta y_crd_temp
 	
 	ldy temp11
 	lda tapeLongFrames1, y
