@@ -13,8 +13,11 @@ lunge   = 2
 crash   = 3
 retreat = 4
 cooldn  = 5
+	lda temp3
+	beq :+
+	dec temp3
 
-	lda temp1
+:	lda temp1
 	pha
 	tax
 	
@@ -158,7 +161,6 @@ drawProcess:
 	sta x_crd_temp
 	lda temp3
 	sta y_crd_temp
-	
 	
 	ldx temp1
 	ldy sprspace+sp_kind, x

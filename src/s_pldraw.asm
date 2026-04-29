@@ -52,8 +52,10 @@ gm_donecomputing:
 	sbc camera_y_sub
 	sec
 	sbc shakeamtY
-	sta temp12
 	tay
+	beq :+
+	dey
+:	sty temp12
 	ldx #temp1           ; draw player
 	lda player_x
 	sec

@@ -239,7 +239,7 @@
 	lda @frames, x
 	sta temp6
 	sta temp7
-	dec temp3 ; correction because sprites are drawn with a 1 px down offset
+	;dec temp3 ; correction because sprites are drawn with a 1 px down offset
 	jmp xt_draw_common
 
 @frames: .byte $C0, $C2, $C4, $CA, $C4, $CA, $C4, $C2, $C6, $C8
@@ -259,7 +259,7 @@
 	sta temp6
 	lda @frames2, x
 	sta temp7
-	dec temp3 ; correction because sprites are drawn with a 1 px down offset
+	;dec temp3 ; correction because sprites are drawn with a 1 px down offset
 	jmp xt_draw_common
 
 @frames1: .byte $E4, $E8, $EC, $EE, $EC, $EE, $EC, $E8, $E6, $E4
@@ -280,7 +280,7 @@
 	sta temp6
 	lda @frames1, x
 	sta temp7
-	dec temp3 ; correction because sprites are drawn with a 1 px down offset
+	;dec temp3 ; correction because sprites are drawn with a 1 px down offset
 	jmp xt_draw_common
 
 @frames1: .byte $E4, $E8, $EC, $EE, $EC, $EE, $EC, $E8, $E6, $E4
@@ -3081,7 +3081,10 @@ xt_check_ent_onscreen:
 ;    temp7 - tile # for right side
 .proc xt_draw_common
 	lda temp3
-	sta y_crd_temp
+	beq :+
+	sec
+	sbc #1
+:	sta y_crd_temp
 	
 	; draw the left sprite
 	lda temp2
