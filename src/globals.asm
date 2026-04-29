@@ -350,6 +350,7 @@ abovescreen : .res 1 ; if the player is above the screen
 groundtimer : .res 1 ; how long the player is on the ground, max of 9 frames
 deaths      : .res 2
 colsloaded  : .res 1 ; column count loaded
+colsloadedhi: .res 1 ; high column count loaded
 
 pauseoption : .res 1 ; selected pause option
 pauseanim   : .res 1 ; selected option animation

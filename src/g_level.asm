@@ -1032,7 +1032,9 @@ h_gener_mts_r:
 	rts
 	
 :	inc colsloaded
-	ldx arwrhead
+	bne :+
+	inc colsloadedhi
+:	ldx arwrhead
 	jsr h_comp_addr       ; compute the address in (lvladdr)
 	
 	lda #rf_new
@@ -1111,7 +1113,7 @@ h_genertiles_inc_arwrhead:
 	lda roomwidth
 	bne roomWidthNotZero
 	
-:	lda #0
+:	lda colsloadedhi
 	sta camlimithi
 	
 	lda colsloaded
@@ -1702,6 +1704,7 @@ gm_fetch_room:
 	; reset the columns loaded value
 	lda #0
 	sta colsloaded
+	sta colsloadedhi
 	
 	; check if we are allowed to respawn here
 	lda roomflags

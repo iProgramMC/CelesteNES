@@ -323,6 +323,7 @@ gm_game_clear_all_wx:
 ; desc: Clears game variables with the X register.
 gm_game_clear_wx:
 	stx colsloaded
+	stx colsloadedhi
 	stx scrollsplit
 	stx dialogsplit
 	stx miscsplit
