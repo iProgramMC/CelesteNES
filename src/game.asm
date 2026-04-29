@@ -275,6 +275,20 @@ gm_game_update:
 ; desc: Updates the active dialog if needed.
 gm_update_dialog:
 	lda gamectrl5
+	and #g5_fadein
+	beq @notFadingIn
+	
+	ldx fadeintimer
+	dex
+	stx fadeintimer
+	bne @notFadingIn
+
+	eor gamectrl5
+	sta gamectrl5
+	jsr fade_in
+
+@notFadingIn:
+	lda gamectrl5
 	and #g5_skipping
 	beq @notSkipping
 	

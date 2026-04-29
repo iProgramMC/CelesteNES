@@ -613,6 +613,7 @@ g5_collideX = $01   ; collided X this frame
 g5_collideY = $02   ; collided Y this frame
 g5_skipping = $04   ; skipping the cutscene
 g5_reslvl   = $08   ; restart the current level
+g5_fadein   = $10   ; call fade_in next frame
 pl_left     = $01   ; player is facing left
 pl_ground   = $02   ; player is grounded
 pl_pushing  = $04   ; player is pushing against a wall - either sliding or ground-pushing

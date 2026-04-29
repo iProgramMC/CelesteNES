@@ -159,9 +159,9 @@ reset:
 	bit ppu_status   ; clear status
 	jsr vblank_wait
 	
-	ldy #<init_palette
+	ldy #<title_palette
 	sty paladdr
-	ldy #>init_palette
+	ldy #>title_palette
 	sty paladdr+1
 	
 	ldy #(pctl_sprsz | pctl_sppat | pctl_nmi_on) ; set sprite size (8x16), bg pattern addr and NMI enable

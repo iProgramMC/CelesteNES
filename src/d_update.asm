@@ -632,10 +632,17 @@ dlg_run_cutscene:
 @exitCutscene:
 	; The cutscene is over. Resume normal gameplay.
 	
-	lda gamectrl5
-	and #<~g5_skipping
+	lda #g5_skipping
+	bit gamectrl5
+	beq @notSkipping
+
+	eor gamectrl5
+	ora #g5_fadein
 	sta gamectrl5
-	
+	lda #3
+	sta fadeintimer
+
+@notSkipping:
 	lda #0
 	sta dlgmusicpaus
 	sta dlg_cutsptr

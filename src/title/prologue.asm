@@ -66,9 +66,9 @@ gamemode_prologue_init_FAR:
 	lda #3
 	sta p_textnum
 	
-:	ldy #<init_palette
+:	ldy #<prol_palette
 	sty paladdr
-	ldy #>init_palette
+	ldy #>prol_palette
 	sty paladdr+1
 	jsr load_palette
 	
@@ -212,3 +212,13 @@ gamemode_prologue_update_FAR:
 
 @exitToOverworld:
 	jmp tl_owldswitch
+
+prol_palette:
+	.byte $0f,$20,$10,$00 ; grey tiles
+	.byte $0f,$37,$16,$06 ; brown tiles
+	.byte $0f,$20,$21,$11 ; blue tiles
+	.byte $0f,$39,$29,$19 ; green tiles
+	.byte $0f,$37,$14,$21 ; player sprite colors
+	.byte $0f,$00,$00,$00 ; red/strawberry sprite
+	.byte $0f,$00,$00,$00 ; blue sprite
+	.byte $0f,$00,$00,$00 ; green/refill sprite
