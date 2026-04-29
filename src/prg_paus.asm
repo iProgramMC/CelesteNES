@@ -4,3 +4,4 @@
 .segment "PRG_PAUS"
 
 	.include "u_pause.asm"
+	.include "u_fade.asm"
