@@ -1759,10 +1759,12 @@ drawSprite:
 	clc
 	adc #4
 	sta x_crd_temp
-	lda temp3
-	sta y_crd_temp
+	ldy temp3
+	beq :+
+	dey
+	sty y_crd_temp
 	
-	ldy #$E0
+:	ldy #$E0
 	; use a different graphic if this touch switch was touched
 	ldx temp1
 	lda sprspace+sp_tswi_state, x
