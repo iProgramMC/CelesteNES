@@ -270,8 +270,7 @@ gm_game_update:
 	sta gamectrl
 	sta musictable
 	sta musictable+1
-	jsr gm_set_level
-	rts
+	jmp gm_set_level
 
 ; ** SUBROUTINE: gm_update_dialog
 ; desc: Updates the active dialog if needed.
@@ -294,7 +293,8 @@ gm_update_dialog:
 	and #<~g5_fadein
 	sta gamectrl5
 	lda #20
-	jsr fade_in_smaller_palette
+	ldx #4
+	jsr fade_in_smaller_palette_and_speed
 
 @notFadingIn:
 	lda gamectrl5

@@ -1,6 +1,5 @@
 ; Copyright (C) 2025-2026 iProgramInCpp
 
-
 ; ** SUBROUTINE: u_fade_prepare_vmcpy
 ; desc: Set the video memory copy operation's address to the temprow1 array's,
 ;       set the count to 32, set the dest to $3F00, and return zero.
@@ -29,11 +28,12 @@
 	rts
 .endproc
 
-; ** SUBROUTINE: u_fade_in_smaller_palette
+; ** SUBROUTINE: u_fade_in_smaller_palette_and_speed
 ; desc: Fades in to a palette.
 ; parameters: paladdr - The palette to fade into
+;             fadeinspeed - The speed of the fadein.
 ;             A reg - The size of the palette
-.proc u_fade_in_smaller_palette
+.proc u_fade_in_smaller_palette_and_speed
 	sta vmccount
 	inc fade_active
 	jsr u_fade_copy_palette
@@ -44,10 +44,10 @@
 	
 	jsr vblank_wait
 	
-	ldx #24
+	lda #24
 @loop:
-	stx transtimer
-	txa
+	sta transtimer
+	tax
 	and #%00000111
 	bne @dontfade
 	
@@ -86,12 +86,15 @@
 	jsr u_fade_wait_one_frame
 	jsr fade_reset_pal_upds
 	
-	ldx transtimer
-	dex
+	lda transtimer
+	sec
+	sbc fadeinspeed
+	;cpx #0
+	;bne @loop
+	beq @done
+	bpl @loop
 	
-	cpx #0
-	bne @loop
-	
+@done:
 	jsr u_fade_copy_palette
 	jsr u_fade_set_vmc_flag
 	jsr u_fade_call_update_func
@@ -162,7 +165,8 @@
 
 ; ** SUBROUTINE: u_fade_out
 ; desc: Fades to black.  This is a synchronous routine.
-.proc u_fade_out
+; parameters: fadeinspeed - The fadeout speed. Should be set to 1 for default behavior.
+.proc u_fade_out_speed
 	lda #32
 	sta vmccount
 	inc fade_active
@@ -170,7 +174,11 @@
 	jsr u_fade_copy_palette
 	
 	; it will take us 31 frames to do the fade out.
-	ldy #31
+	ldy #32
+	lda fadeinspeed
+	cmp #1
+	bne @loopFadeOut
+	dey
 @loopFadeOut:
 	sty transtimer
 	
@@ -185,19 +193,27 @@
 	jsr u_fade_call_update_func
 	jsr u_fade_wait_one_frame
 	
-	ldy transtimer
-	dey
+	;ldy transtimer
+	;dey
+	lda transtimer
+	sec
+	sbc fadeinspeed
+	tay
 	
 	; every 4 frames, determine whether the emphasis bits are set
 	ldx #def_ppu_msk
-	tya
+	;tya
 	and #%00000100
 	bne :+
 	ldx #(def_ppu_msk | %11100000)
 :	stx ppu_mask
 	
-	cpy #0
-	bne @loopFadeOut
+	cpy #1
+	beq @done
+	bpl @loopFadeOut
+	
+@done:
+	ldy #0
 	
 	; everything is black, also disable rendering
 	

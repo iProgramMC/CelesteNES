@@ -212,7 +212,8 @@ pressedRetry:
 	lda #4
 	sta fadeintimer
 	
-	jsr fade_out
+	ldx #2
+	jsr fade_out_speed
 	
 	rts
 	

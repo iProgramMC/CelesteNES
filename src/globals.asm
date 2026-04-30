@@ -491,6 +491,7 @@ last_vs_x   : .res 1
 shakeamtX   : .res 1
 shakeamtY   : .res 1
 fadeintimer : .res 1 ; g5_fadein - time until fade in
+fadeinspeed : .res 1 ; normally 1, but can be increased
 
 .segment "AREASPC"      ; $6000 - Cartridge WRAM
 areaspace   : .res $800
