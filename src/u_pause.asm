@@ -209,7 +209,7 @@ pressedRetry:
 	lda gamectrl5
 	ora #g5_skipping|g5_fadein
 	sta gamectrl5
-	lda #4
+	lda #2
 	sta fadeintimer
 	
 	ldx #2
