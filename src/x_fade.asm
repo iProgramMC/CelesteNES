@@ -84,7 +84,7 @@
 	
 	jsr u_fade_call_update_func
 	jsr u_fade_wait_one_frame
-	jsr u_fade_reset_pal_upds
+	jsr fade_reset_pal_upds
 	
 	ldx transtimer
 	dex
@@ -97,15 +97,9 @@
 	jsr u_fade_call_update_func
 	jsr u_fade_clear_sprite_pals
 	jsr gm_check_updated_palettes
+	jsr fade_reset_pal_upds
 	dec fade_active
 	jmp u_fade_wait_one_frame
-.endproc
-
-.proc u_fade_reset_pal_upds
-	lda nmictrl2
-	and #<~nc2_updpal1|nc2_updpal2|nc2_updpal3
-	sta nmictrl2
-	rts
 .endproc
 
 .proc u_fade_clear_sprite_pals

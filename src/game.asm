@@ -156,13 +156,10 @@ gm_game_init:
 ; desc: Updates the game in the paused state.
 gm_game_paused:
 	; game is paused.
-	lda #<pause_update
-	sta farcalladdr
-	lda #>pause_update
-	sta farcalladdr+1
-	lda #mmc3bk_prg1
-	ldy #prgb_paus
-	jmp far_call
+	ldx #<pause_update
+	ldy #>pause_update
+	lda #prgb_paus
+	jmp far_call2
 
 ; ** GAMEMODE: gamemode_game
 gamemode_game:
@@ -279,16 +276,22 @@ gm_game_update:
 ; ** SUBROUTINE: gm_update_dialog
 ; desc: Updates the active dialog if needed.
 gm_update_dialog:
+	lda exitmaptimer
+	bne @notFadingIn
+	
 	lda gamectrl5
 	and #g5_fadein
 	beq @notFadingIn
+	
+	jsr fade_reset_pal_upds
 	
 	ldx fadeintimer
 	dex
 	stx fadeintimer
 	bne @notFadingIn
 
-	eor gamectrl5
+	lda gamectrl5
+	and #<~g5_fadein
 	sta gamectrl5
 	lda #20
 	jsr fade_in_smaller_palette

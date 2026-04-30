@@ -32,3 +32,10 @@ fade_in_kludge:
 	lda #prgb_xtra
 	jmp far_call2
 .endproc
+
+.proc fade_reset_pal_upds
+	lda nmictrl2
+	and #<~nc2_updpal1|nc2_updpal2|nc2_updpal3
+	sta nmictrl2
+	rts
+.endproc
